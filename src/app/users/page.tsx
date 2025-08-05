@@ -6,6 +6,10 @@ import { useEffect, useState } from 'react'
 import { useLanguage } from '@/contexts/LanguageContext'
 import LanguageSwitcher from '@/components/LanguageSwitcher'
 import UserForm from '@/components/UserForm'
+import ToastContainer from '@/components/ToastContainer'
+import ConfirmDialog from '@/components/ConfirmDialog'
+import { useToast } from '@/hooks/useToast'
+import { useConfirm } from '@/hooks/useConfirm'
 
 interface User {
   id: string
@@ -36,6 +40,8 @@ export default function UsersPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const { t } = useLanguage()
+  const { toasts, success, error, removeToast } = useToast()
+  const { confirmState, confirm, closeConfirm } = useConfirm()
   const [users, setUsers] = useState<User[]>([])
   const [loading, setLoading] = useState(true)
   const [uploading, setUploading] = useState(false)
@@ -122,20 +128,26 @@ export default function UsersPage() {
         await fetchUsers() // Refresh the list
         setShowUserForm(false)
         setEditingUser(undefined)
-        alert(editingUser ? 'User updated successfully' : 'User created successfully')
+        success(editingUser ? 'User updated successfully' : 'User created successfully')
       } else {
-        const error = await response.json()
-        alert(`Error: ${error.error}`)
+        const errorData = await response.json()
+        error(`Error: ${errorData.error}`)
       }
-    } catch (error) {
-      alert('Failed to save user')
+    } catch (err) {
+      error('Failed to save user')
     }
   }
 
   const handleDeleteUser = async (userId: string, userName: string) => {
-    if (!confirm(`Are you sure you want to delete ${userName}? This action cannot be undone.`)) {
-      return
-    }
+    const confirmed = await confirm({
+      title: 'Delete User',
+      message: `Are you sure you want to delete ${userName}? This action cannot be undone.`,
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+      type: 'danger'
+    })
+
+    if (!confirmed) return
 
     try {
       const response = await fetch(`/api/admin/users/${userId}`, {
@@ -144,13 +156,13 @@ export default function UsersPage() {
 
       if (response.ok) {
         await fetchUsers() // Refresh the list
-        alert('User deleted successfully')
+        success('User deleted successfully')
       } else {
-        const error = await response.json()
-        alert(`Error: ${error.error}`)
+        const errorData = await response.json()
+        error(`Error: ${errorData.error}`)
       }
-    } catch (error) {
-      alert('Failed to delete user')
+    } catch (err) {
+      error('Failed to delete user')
     }
   }
 
@@ -180,14 +192,14 @@ export default function UsersPage() {
 
       if (response.ok) {
         const result = await response.json()
-        alert(`${t.users.successfullyImported} ${result.imported} users`)
+        success(`${t.users.successfullyImported} ${result.imported} users`)
         fetchUsers() // Refresh the list
       } else {
-        const error = await response.json()
-        alert(`${t.users.importFailed}: ${error.error}`)
+        const errorData = await response.json()
+        error(`${t.users.importFailed}: ${errorData.error}`)
       }
-    } catch (error) {
-      alert(t.users.uploadFailed)
+    } catch (err) {
+      error(t.users.uploadFailed)
     } finally {
       setUploading(false)
       // Reset file input
@@ -217,9 +229,10 @@ export default function UsersPage() {
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="bg-white shadow-sm border-b border-gray-200">
-        <div className="px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
+        <div className="px-4 py-3">
+          {/* Title Section */}
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-3 min-w-0 flex-1">
               <button
                 onClick={() => router.back()}
                 className="p-2 -ml-2 text-gray-600 hover:text-gray-900"
@@ -228,26 +241,31 @@ export default function UsersPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                 </svg>
               </button>
-              <div>
-                <h1 className="text-xl font-semibold text-gray-900">{t.users.userManagement}</h1>
-                <p className="text-sm text-gray-600 mt-1">{users.length} {t.users.totalUsers}</p>
+              <div className="min-w-0 flex-1">
+                <h1 className="text-lg font-semibold text-gray-900 truncate">{t.users.userManagement}</h1>
+                <p className="text-xs text-gray-500">{users.length} {t.users.totalUsers}</p>
               </div>
             </div>
-            <div className="flex items-center gap-3">
-              <button
-                onClick={handleAddUser}
-                className="px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 transition-colors"
-              >
-                Add User
-              </button>
-              <LanguageSwitcher />
-              <button
-                onClick={() => signOut({ callbackUrl: '/login' })}
-                className="text-sm text-gray-600 hover:text-gray-900"
-              >
-                {t.auth.signOut}
-              </button>
-            </div>
+            <button
+              onClick={() => signOut({ callbackUrl: '/login' })}
+              className="flex items-center justify-center w-9 h-9 bg-red-600 text-white rounded-lg hover:bg-red-700 active:scale-95 transition-all duration-150 touch-manipulation ml-3"
+              title={t.auth.signOut}
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+              </svg>
+            </button>
+          </div>
+          
+          {/* Actions Section */}
+          <div className="flex items-center justify-between">
+            <button
+              onClick={handleAddUser}
+              className="px-3 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 active:scale-95 transition-all duration-150 touch-manipulation"
+            >
+              Add User
+            </button>
+            <LanguageSwitcher />
           </div>
         </div>
       </div>
@@ -263,7 +281,7 @@ export default function UsersPage() {
                 placeholder={t.users.searchUsers}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-gray-900"
               />
             </div>
             <div>
@@ -407,6 +425,21 @@ export default function UsersPage() {
           managers={managers}
         />
       )}
+
+      {/* Toast Container */}
+      <ToastContainer toasts={toasts} onRemoveToast={removeToast} />
+
+      {/* Confirm Dialog */}
+      <ConfirmDialog
+        isOpen={confirmState.isOpen}
+        title={confirmState.options.title}
+        message={confirmState.options.message}
+        confirmText={confirmState.options.confirmText}
+        cancelText={confirmState.options.cancelText}
+        type={confirmState.options.type}
+        onConfirm={confirmState.onConfirm}
+        onCancel={confirmState.onCancel}
+      />
     </div>
   )
 }

@@ -3,6 +3,8 @@
 import { useSession, signOut } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
+import { useLanguage } from '@/contexts/LanguageContext'
+import LanguageSwitcher from '@/components/LanguageSwitcher'
 
 interface Evaluation {
   id: string
@@ -16,33 +18,9 @@ interface Evaluation {
 export default function MyEvaluationsPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
+  const { t } = useLanguage()
   const [loading, setLoading] = useState(true)
-  const [evaluations, setEvaluations] = useState<Evaluation[]>([
-    {
-      id: '1',
-      period: 'Q1 2024',
-      status: 'approved',
-      overallRating: 4,
-      submittedAt: '2024-03-15',
-      managerName: 'John Manager'
-    },
-    {
-      id: '2',
-      period: 'Q4 2023',
-      status: 'approved',
-      overallRating: 3,
-      submittedAt: '2023-12-20',
-      managerName: 'John Manager'
-    },
-    {
-      id: '3',
-      period: 'Q3 2023',
-      status: 'approved',
-      overallRating: 4,
-      submittedAt: '2023-09-25',
-      managerName: 'John Manager'
-    }
-  ])
+  const [evaluations, setEvaluations] = useState<Evaluation[]>([])
 
   useEffect(() => {
     if (status === 'loading') return
@@ -52,13 +30,27 @@ export default function MyEvaluationsPage() {
       return
     }
 
-    setLoading(false)
+    fetchMyEvaluations()
   }, [session, status, router])
+
+  const fetchMyEvaluations = async () => {
+    try {
+      const response = await fetch(`/api/evaluations?employeeId=${session?.user?.id}`)
+      if (response.ok) {
+        const data = await response.json()
+        setEvaluations(data.evaluations || [])
+      }
+    } catch (error) {
+      console.error('Error fetching my evaluations:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   if (status === 'loading' || loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-lg">Loading...</div>
+        <div className="text-lg">{t.common.loading}</div>
       </div>
     )
   }
@@ -94,23 +86,50 @@ export default function MyEvaluationsPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b border-gray-200">
-        <div className="px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-xl font-semibold text-gray-900">My Evaluations</h1>
-              <p className="text-sm text-gray-600 mt-1">
-                Welcome back, {session?.user?.name}
-              </p>
+      <div className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-20">
+        <div className="px-4 py-3">
+          {/* Title Section */}
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-3 min-w-0 flex-1">
+              <button
+                onClick={() => router.back()}
+                className="p-2 -ml-2 text-gray-600 hover:text-gray-900"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+              <div className="min-w-0 flex-1">
+                <h1 className="text-lg font-semibold text-gray-900 truncate">{t.nav.myEvaluations}</h1>
+                <p className="text-xs text-gray-500 truncate">
+                  Welcome back, {session?.user?.name}
+                </p>
+              </div>
             </div>
             <button
               onClick={() => signOut({ callbackUrl: '/login' })}
-              className="text-sm text-gray-600 hover:text-gray-900"
+              className="flex items-center justify-center w-9 h-9 bg-red-600 text-white rounded-lg hover:bg-red-700 active:scale-95 transition-all duration-150 touch-manipulation ml-3"
+              title={t.auth.signOut}
             >
-              Sign Out
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+              </svg>
             </button>
           </div>
+          
+          {/* Actions Section */}
+          <div className="flex items-center justify-between">
+            <div className="opacity-50 pointer-events-none">
+              <span className="text-xs text-gray-500">Performance History</span>
+            </div>
+            <LanguageSwitcher />
+          </div>
         </div>
+      </div>
+
+      {/* Gray background section for visual contrast */}
+      <div className="bg-gray-50 px-4 pt-3 pb-2">
+        <div className="h-1"></div>
       </div>
 
       <div className="px-4 py-6">
@@ -123,34 +142,51 @@ export default function MyEvaluationsPage() {
             </span>
           </div>
           
-          <div className="text-center py-8">
-            <div className="text-6xl mb-4">🎯</div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
-              Evaluation Complete!
-            </h3>
-            <p className="text-gray-600 mb-4">
-              Your Q1 2024 performance evaluation has been submitted and approved.
-            </p>
-            <div className="flex items-center justify-center mb-2">
-              {getRatingStars(4)}
-              <span className="ml-2 text-sm font-medium text-gray-700">
-                Exceeds Expectations
-              </span>
+          {evaluations.length > 0 ? (
+            <div className="text-center py-8">
+              <div className="text-6xl mb-4">🎯</div>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                Evaluation Complete!
+              </h3>
+              <p className="text-gray-600 mb-4">
+                Your latest performance evaluation has been submitted and approved.
+              </p>
+              <div className="flex items-center justify-center mb-2">
+                {getRatingStars(evaluations[0]?.overallRating)}
+                <span className="ml-2 text-sm font-medium text-gray-700">
+                  {evaluations[0]?.overallRating === 1 && 'Needs Improvement'}
+                  {evaluations[0]?.overallRating === 2 && 'Below Expectations'}
+                  {evaluations[0]?.overallRating === 3 && 'Meets Expectations'}
+                  {evaluations[0]?.overallRating === 4 && 'Exceeds Expectations'}
+                  {evaluations[0]?.overallRating === 5 && 'Outstanding'}
+                </span>
+              </div>
+              <p className="text-sm text-gray-500">
+                Reviewed by {evaluations[0]?.managerName}
+              </p>
             </div>
-            <p className="text-sm text-gray-500">
-              Reviewed by {evaluations[0]?.managerName}
-            </p>
-          </div>
+          ) : (
+            <div className="text-center py-8">
+              <div className="text-6xl mb-4">📋</div>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                No Evaluations Yet
+              </h3>
+              <p className="text-gray-600">
+                You don't have any performance evaluations yet. Check back later.
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Evaluation History */}
-        <div className="bg-white rounded-lg border border-gray-200 shadow-sm">
-          <div className="px-6 py-4 border-b border-gray-200">
-            <h2 className="text-lg font-semibold text-gray-900">Evaluation History</h2>
-          </div>
-          
-          <div className="divide-y divide-gray-200">
-            {evaluations.map((evaluation) => (
+        {evaluations.length > 0 && (
+          <div className="bg-white rounded-lg border border-gray-200 shadow-sm">
+            <div className="px-6 py-4 border-b border-gray-200">
+              <h2 className="text-lg font-semibold text-gray-900">Evaluation History</h2>
+            </div>
+            
+            <div className="divide-y divide-gray-200">
+              {evaluations.map((evaluation) => (
               <div key={evaluation.id} className="px-6 py-4 hover:bg-gray-50 transition-colors">
                 <div className="flex items-center justify-between">
                   <div className="flex-1 min-w-0">
@@ -191,21 +227,28 @@ export default function MyEvaluationsPage() {
                   </div>
                 </div>
               </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Performance Summary */}
+        {evaluations.length > 0 && (
         <div className="mt-6 bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Performance Summary</h2>
           
           <div className="grid grid-cols-2 gap-4">
             <div className="text-center">
-              <div className="text-2xl font-bold text-blue-600">4.0</div>
+              <div className="text-2xl font-bold text-blue-600">
+                {evaluations.length > 0 
+                  ? (evaluations.reduce((sum, evaluation) => sum + (evaluation.overallRating || 0), 0) / evaluations.length).toFixed(1)
+                  : '—'
+                }
+              </div>
               <div className="text-sm text-gray-600">Average Rating</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-green-600">3</div>
+              <div className="text-2xl font-bold text-green-600">{evaluations.length}</div>
               <div className="text-sm text-gray-600">Completed Reviews</div>
             </div>
           </div>
@@ -216,6 +259,7 @@ export default function MyEvaluationsPage() {
             </p>
           </div>
         </div>
+        )}
       </div>
     </div>
   )

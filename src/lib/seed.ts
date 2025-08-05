@@ -109,6 +109,64 @@ export async function seedDatabase() {
     })
   }
 
+  // Create three HR managers with their own teams
+  const hrManagers = []
+  
+  for (let i = 1; i <= 3; i++) {
+    const hrManager = await prisma.user.upsert({
+      where: {
+        companyId_email: {
+          companyId: company.id,
+          email: `hr${i}@demo.com`
+        }
+      },
+      update: {},
+      create: {
+        companyId: company.id,
+        email: `hr${i}@demo.com`,
+        name: `HR Manager ${i}`,
+        role: 'hr',
+        passwordHash: await bcrypt.hash('password123', 12),
+        userType: 'office',
+        loginMethod: 'email',
+        department: i === 1 ? 'Human Resources' : i === 2 ? 'Talent Acquisition' : 'Learning & Development',
+        active: true
+      }
+    })
+    hrManagers.push(hrManager)
+  }
+
+  // Create teams for each HR manager
+  for (let hrIndex = 0; hrIndex < hrManagers.length; hrIndex++) {
+    const hrManager = hrManagers[hrIndex]
+    const departments = ['Human Resources', 'Talent Acquisition', 'Learning & Development']
+    
+    // Create 3-4 employees for each HR manager
+    for (let empIndex = 1; empIndex <= 4; empIndex++) {
+      await prisma.user.upsert({
+        where: {
+          companyId_email: {
+            companyId: company.id,
+            email: `hr${hrIndex + 1}emp${empIndex}@demo.com`
+          }
+        },
+        update: {},
+        create: {
+          companyId: company.id,
+          email: `hr${hrIndex + 1}emp${empIndex}@demo.com`,
+          name: `${departments[hrIndex]} Employee ${empIndex}`,
+          role: 'employee',
+          managerId: hrManager.id,
+          passwordHash: await bcrypt.hash('password123', 12),
+          userType: 'office',
+          loginMethod: 'email',
+          department: departments[hrIndex],
+          active: true
+        }
+      })
+    }
+  }
+
   // Create three-tier evaluation items structure  
   const evaluationItems: Array<{
     type: string
@@ -220,9 +278,15 @@ export async function seedDatabase() {
   }
 
   console.log('✅ Database seeded successfully!')
-  console.log('📧 HR Login: hr@demo.com / password123')
+  console.log('📧 HR Admin Login: hr@demo.com / password123')
   console.log('👨‍💼 Manager Login: manager@demo.com / password123')
   console.log('👨‍💻 Employee Login: employee1@demo.com / password123')  
   console.log('🔧 Worker Login: worker1 / 1234')
-  console.log('🎯 5 Default evaluation items created (2 OKRs + 3 Competencies)')
+  console.log('')
+  console.log('🧑‍💼 HR Managers with Teams:')
+  console.log('   HR1 (Human Resources): hr1@demo.com / password123 (4 employees)')
+  console.log('   HR2 (Talent Acquisition): hr2@demo.com / password123 (4 employees)')  
+  console.log('   HR3 (Learning & Development): hr3@demo.com / password123 (4 employees)')
+  console.log('')
+  console.log('🎯 8 Default evaluation items created (3 OKRs + 2 Competencies)')
 }

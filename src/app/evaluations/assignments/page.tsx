@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { useLanguage } from '@/contexts/LanguageContext'
 import LanguageSwitcher from '@/components/LanguageSwitcher'
+import { useSwipe } from '@/hooks/useSwipe'
 
 interface EvaluationItem {
   id: string
@@ -47,6 +48,39 @@ export default function AssignmentsPage() {
   const [editingItem, setEditingItem] = useState<EditingItem | null>(null)
   const [creatingNew, setCreatingNew] = useState(false)
   const [newItemType, setNewItemType] = useState<'okr' | 'competency'>('okr')
+
+  // Tab navigation with swipe support
+  const tabs: ActiveTab[] = ['company', 'department', 'individual']
+  
+  const handleSwipeLeft = () => {
+    const currentIndex = tabs.indexOf(activeTab)
+    if (currentIndex < tabs.length - 1) {
+      setActiveTab(tabs[currentIndex + 1])
+      // Haptic feedback for mobile
+      if ('vibrate' in navigator) {
+        navigator.vibrate(50)
+      }
+    }
+  }
+
+  const handleSwipeRight = () => {
+    const currentIndex = tabs.indexOf(activeTab)
+    if (currentIndex > 0) {
+      setActiveTab(tabs[currentIndex - 1])
+      // Haptic feedback for mobile
+      if ('vibrate' in navigator) {
+        navigator.vibrate(50)
+      }
+    }
+  }
+
+  const { elementRef } = useSwipe({
+    onSwipeLeft: handleSwipeLeft,
+    onSwipeRight: handleSwipeRight
+  }, {
+    threshold: 50,
+    preventDefaultTouchmoveEvent: true
+  })
 
   useEffect(() => {
     if (status === 'loading') return
@@ -211,11 +245,23 @@ export default function AssignmentsPage() {
   const getBadgeIcon = (level: string) => {
     switch (level) {
       case 'company':
-        return '🏢'
+        return (
+          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+            <path fillRule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm3 1h2v2H7V5zm2 4H7v2h2V9zm2-4h2v2h-2V5zm2 4h-2v2h2V9zm-6 4h2v2H7v-2zm4 0h2v2h-2v-2z" clipRule="evenodd" />
+          </svg>
+        )
       case 'department':
-        return '🏬'
+        return (
+          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z" />
+          </svg>
+        )
       default:
-        return '👤'
+        return (
+          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+            <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+          </svg>
+        )
     }
   }
 
@@ -268,20 +314,34 @@ export default function AssignmentsPage() {
       {/* Tab Navigation */}
       <div className="bg-white border-b border-gray-200">
         <div className="px-4">
-          <div className="flex space-x-1">
-            {(['company', 'department', 'individual'] as ActiveTab[]).map((tab) => (
+          <div className="flex space-x-1 relative">
+            {/* Swipe indicator */}
+            <div className="absolute -bottom-3 left-1/2 transform -translate-x-1/2 text-xs text-gray-400 opacity-50 animate-pulse">
+              ← Swipe to navigate →
+            </div>
+            
+            {/* Tab position indicator */}
+            <div 
+              className="absolute bottom-0 h-0.5 bg-blue-600 transition-all duration-300 ease-out"
+              style={{
+                width: '33.333%',
+                left: `${tabs.indexOf(activeTab) * 33.333}%`
+              }}
+            />
+            
+            {tabs.map((tab, index) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`flex-1 py-3 px-4 text-sm font-medium rounded-t-lg transition-all duration-200 ${
+                className={`flex-1 py-2 px-2 min-h-[44px] text-xs font-medium rounded-t-lg transition-all duration-300 active:scale-95 touch-manipulation ${
                   activeTab === tab
-                    ? 'bg-blue-50 text-blue-700 border-b-2 border-blue-700'
-                    : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50'
+                    ? 'bg-blue-50 text-blue-700 shadow-sm transform scale-105'
+                    : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50 active:bg-gray-100'
                 }`}
               >
-                <div className="flex items-center justify-center space-x-2">
-                  <span className="text-lg">{getBadgeIcon(tab)}</span>
-                  <span className="capitalize">{getBadgeLabel(tab)}</span>
+                <div className="flex flex-col items-center justify-center space-y-0.5">
+                  {getBadgeIcon(tab)}
+                  <span className="capitalize text-center leading-tight">{getBadgeLabel(tab)}</span>
                 </div>
               </button>
             ))}
@@ -290,10 +350,10 @@ export default function AssignmentsPage() {
       </div>
 
       {/* Content */}
-      <div className="px-4 py-6">
+      <div ref={elementRef} className="px-4 py-6 min-h-[400px] touch-pan-y">
         {/* Company Tab - Read Only */}
         {activeTab === 'company' && (
-          <div className="space-y-4">
+          <div className="space-y-4 animate-in fade-in duration-300">
             <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
               <div className="flex items-center space-x-2 mb-2">
                 <span className="text-xl">ℹ️</span>
@@ -316,8 +376,9 @@ export default function AssignmentsPage() {
                         <span className="text-sm font-bold text-blue-700 uppercase tracking-wide">
                           {item.type === 'okr' ? t.evaluations.okr : t.evaluations.competency}
                         </span>
-                        <span className={`text-xs px-2 py-1 rounded-full font-medium ${getBadgeStyles(item.level)}`}>
-                          {getBadgeIcon(item.level)} {getBadgeLabel(item.level)}
+                        <span className={`flex items-center space-x-1 text-xs px-2 py-1 rounded-full font-medium ${getBadgeStyles(item.level)}`}>
+                          {getBadgeIcon(item.level)}
+                          <span>{getBadgeLabel(item.level)}</span>
                         </span>
                       </div>
                       <h3 className="font-semibold text-gray-900">{item.title}</h3>
@@ -336,21 +397,21 @@ export default function AssignmentsPage() {
 
         {/* Department Tab - Batch Assignment */}
         {activeTab === 'department' && (
-          <div className="space-y-6">
+          <div className="space-y-6 animate-in fade-in duration-300">
             {/* Create New Section */}
             <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
               <h3 className="font-semibold text-gray-900 mb-3">{t.assignments.createNewDepartmentItems}</h3>
               <div className="flex space-x-3">
                 <button
                   onClick={() => handleCreateNew('okr')}
-                  className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
+                  className="flex items-center space-x-2 px-6 py-3 min-h-[44px] bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 active:scale-95 active:bg-blue-800 transition-all duration-150 touch-manipulation"
                 >
                   <span>🎯</span>
                   <span>{t.assignments.newOKR}</span>
                 </button>
                 <button
                   onClick={() => handleCreateNew('competency')}
-                  className="flex items-center space-x-2 px-4 py-2 bg-purple-600 text-white text-sm font-medium rounded-lg hover:bg-purple-700 transition-colors"
+                  className="flex items-center space-x-2 px-6 py-3 min-h-[44px] bg-purple-600 text-white text-sm font-medium rounded-lg hover:bg-purple-700 active:scale-95 active:bg-purple-800 transition-all duration-150 touch-manipulation"
                 >
                   <span>⭐</span>
                   <span>{t.assignments.newCompetency}</span>
@@ -387,7 +448,7 @@ export default function AssignmentsPage() {
                         ...editingItem,
                         title: e.target.value
                       })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-gray-900"
                       placeholder="Enter title..."
                     />
                   </div>
@@ -402,7 +463,7 @@ export default function AssignmentsPage() {
                         ...editingItem,
                         description: e.target.value
                       })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-gray-900"
                       rows={3}
                       placeholder="Enter description..."
                     />
@@ -434,13 +495,20 @@ export default function AssignmentsPage() {
               <h3 className="font-semibold text-gray-900 mb-3">{t.assignments.selectEmployeesForBatch}</h3>
               <div className="space-y-2">
                 {employees.map((employee) => (
-                  <label key={employee.id} className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={selectedEmployees.includes(employee.id)}
-                      onChange={() => handleEmployeeSelection(employee.id)}
-                      className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                    />
+                  <label key={employee.id} className="flex items-center space-x-4 p-4 min-h-[60px] rounded-lg hover:bg-gray-50 active:bg-gray-100 cursor-pointer transition-all duration-150 touch-manipulation">
+                    <div className="relative">
+                      <input
+                        type="checkbox"
+                        checked={selectedEmployees.includes(employee.id)}
+                        onChange={() => handleEmployeeSelection(employee.id)}
+                        className="w-5 h-5 text-blue-600 border-2 border-gray-300 rounded focus:ring-blue-500 focus:ring-2 transition-all duration-150"
+                      />
+                      {selectedEmployees.includes(employee.id) && (
+                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                          <span className="text-white text-xs font-bold">✓</span>
+                        </div>
+                      )}
+                    </div>
                     <div className="flex-1">
                       <div className="font-medium text-gray-900">{employee.name}</div>
                       <div className="text-sm text-gray-500">
@@ -478,7 +546,10 @@ export default function AssignmentsPage() {
                             {item.type === 'okr' ? t.evaluations.okr : t.evaluations.competency}
                           </span>
                           <span className={`text-xs px-2 py-1 rounded-full font-medium ${getBadgeStyles(item.level)}`}>
-                            {getBadgeIcon(item.level)} {getBadgeLabel(item.level)}
+                            <span className="flex items-center space-x-1">
+                              {getBadgeIcon(item.level)}
+                              <span>{getBadgeLabel(item.level)}</span>
+                            </span>
                           </span>
                         </div>
                       </div>
@@ -494,7 +565,7 @@ export default function AssignmentsPage() {
                             ...editingItem,
                             title: e.target.value
                           })}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-gray-900"
                           placeholder="Title"
                         />
                       </div>
@@ -509,7 +580,7 @@ export default function AssignmentsPage() {
                             ...editingItem,
                             description: e.target.value
                           })}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-gray-900"
                           rows={3}
                           placeholder="Description"
                         />
@@ -547,7 +618,10 @@ export default function AssignmentsPage() {
                                 {item.type === 'okr' ? t.evaluations.okr : t.evaluations.competency}
                               </span>
                               <span className={`text-xs px-2 py-1 rounded-full font-medium ${getBadgeStyles(item.level)}`}>
-                                {getBadgeIcon(item.level)} {getBadgeLabel(item.level)}
+                                <span className="flex items-center space-x-1">
+                              {getBadgeIcon(item.level)}
+                              <span>{getBadgeLabel(item.level)}</span>
+                            </span>
                               </span>
                             </div>
                             <h3 className="font-semibold text-gray-900 text-lg leading-tight">{item.title}</h3>
@@ -555,7 +629,7 @@ export default function AssignmentsPage() {
                         </div>
                         <button
                           onClick={() => handleEditItem(item)}
-                          className="flex items-center space-x-1 px-3 py-1.5 bg-gray-100 text-gray-700 text-xs font-medium rounded-lg hover:bg-gray-200 transition-colors flex-shrink-0"
+                          className="flex items-center space-x-1 px-4 py-3 min-h-[44px] bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 active:scale-95 active:bg-gray-300 transition-all duration-150 flex-shrink-0 touch-manipulation"
                         >
                           <span>✏️</span>
                           <span>{t.common.editButton}</span>
@@ -568,7 +642,7 @@ export default function AssignmentsPage() {
                         <button
                           onClick={() => handleBulkAssignment(item.id)}
                           disabled={selectedEmployees.length === 0}
-                          className="flex items-center space-x-2 px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+                          className="flex items-center space-x-2 px-6 py-3 min-h-[44px] bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 active:scale-95 active:bg-green-800 disabled:bg-gray-300 disabled:cursor-not-allowed disabled:active:scale-100 transition-all duration-150 touch-manipulation"
                         >
                           <span>➕</span>
                           <span>{t.assignments.assignToSelected}</span>
@@ -584,7 +658,7 @@ export default function AssignmentsPage() {
 
         {/* Individual Tab - Employee-Specific Assignment */}
         {activeTab === 'individual' && (
-          <div className="space-y-4">
+          <div className="space-y-4 animate-in fade-in duration-300">
             <div className="bg-yellow-50 rounded-lg p-4 border border-yellow-200">
               <div className="flex items-center space-x-2 mb-2">
                 <span className="text-xl">👤</span>

@@ -350,7 +350,7 @@ export const translations: Record<Language, Translations> = {
       standardized: 'Estandarizado',
       company: 'Empresa',
       department: 'Departamento',
-      manager: 'Gerente'
+      manager: 'Supervisor'
     },
     auth: {
       signIn: 'Iniciar sesión',
@@ -363,7 +363,7 @@ export const translations: Record<Language, Translations> = {
       signInToAccount: 'Inicia sesión en tu cuenta',
       demoCredentials: 'Credenciales de Demo',
       hr: 'RRHH',
-      manager: 'Gerente',
+      manager: 'Supervisor',
       employee: 'Empleado',
       worker: 'Trabajador'
     },
@@ -475,7 +475,7 @@ export const translations: Record<Language, Translations> = {
       active: 'Activo',
       inactive: 'Inactivo',
       department: 'Departamento',
-      manager: 'Gerente',
+      manager: 'Supervisor',
       manages: 'Gestiona',
       evaluationsReceived: 'evaluaciones recibidas',
       noUsersFound: 'No se encontraron usuarios que coincidan con los criterios',

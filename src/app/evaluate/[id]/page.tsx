@@ -2,10 +2,13 @@
 
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef, useCallback } from 'react'
 import { useParams } from 'next/navigation'
 import { useLanguage } from '@/contexts/LanguageContext'
 import LanguageSwitcher from '@/components/LanguageSwitcher'
+import ToastContainer from '@/components/ToastContainer'
+import { useToast } from '@/hooks/useToast'
+import { hapticFeedback } from '@/utils/haptics'
 
 interface EvaluationItem {
   id: string
@@ -26,6 +29,7 @@ export default function EvaluatePage() {
   const router = useRouter()
   const params = useParams()
   const { t } = useLanguage()
+  const { toasts, error, removeToast } = useToast()
   const [currentStep, setCurrentStep] = useState(0)
   const [evaluationItems, setEvaluationItems] = useState<EvaluationItem[]>([])
   const [overallRating, setOverallRating] = useState<number | null>(null)
@@ -61,19 +65,7 @@ export default function EvaluatePage() {
     return false
   }
 
-  useEffect(() => {
-    if (status === 'loading') return
-    
-    if (!session) {
-      router.push('/login')
-      return
-    }
-
-    // Fetch evaluation items and employee data
-    fetchEvaluationData()
-  }, [session, status, router, t])
-
-  const fetchEvaluationData = async () => {
+  const fetchEvaluationData = useCallback(async () => {
     try {
       // Fetch evaluation items for this specific employee
       const itemsResponse = await fetch(`/api/evaluation-items?employeeId=${params.id}`)
@@ -86,7 +78,7 @@ export default function EvaluatePage() {
       const employeeResponse = await fetch('/api/manager/team')
       if (employeeResponse.ok) {
         const employeeData = await employeeResponse.json()
-        const employee = employeeData.employees?.find((emp: any) => emp.id === params.id)
+        const employee = employeeData.employees?.find((emp: { id: string }) => emp.id === params.id)
         if (employee) {
           setEmployeeName(employee.name)
           
@@ -102,7 +94,19 @@ export default function EvaluatePage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [params.id])
+
+  useEffect(() => {
+    if (status === 'loading') return
+    
+    if (!session) {
+      router.push('/login')
+      return
+    }
+
+    // Fetch evaluation items and employee data
+    fetchEvaluationData()
+  }, [session, status, router, fetchEvaluationData])
 
   const loadExistingEvaluation = async (evaluationId: string) => {
     try {
@@ -167,13 +171,16 @@ export default function EvaluatePage() {
       setEditingItemId(null)
       setEditingItemData(null)
       
-    } catch (error) {
-      console.error('Error updating item:', error)
-      alert('Failed to update item')
+    } catch (err) {
+      console.error('Error updating item:', err)
+      error('Failed to update item')
     }
   }
 
   const handleRating = (rating: number) => {
+    // Add haptic feedback for rating selection
+    hapticFeedback.light()
+    
     if (currentItem) {
       const updatedItems = evaluationItems.map(item => 
         item.id === currentItem.id ? { ...item, rating } : item
@@ -226,18 +233,20 @@ export default function EvaluatePage() {
         })
 
         if (response.ok) {
+          // Success haptic feedback
+          hapticFeedback.success()
           setShowSuccess(true)
           // Redirect after showing success message
           setTimeout(() => {
             router.push('/evaluations')
           }, 2000)
         } else {
-          const error = await response.json()
-          alert(`Error: ${error.error}`)
+          const errorData = await response.json()
+          error(`Error: ${errorData.error}`)
           setSubmitting(false)
         }
-      } catch (error) {
-        alert('Failed to submit evaluation')
+      } catch {
+        error('Failed to submit evaluation')
         setSubmitting(false)
       }
     }
@@ -261,22 +270,22 @@ export default function EvaluatePage() {
   if (showSuccess) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
-        <div className="bg-white rounded-lg border border-gray-200 p-8 shadow-sm text-center max-w-md w-full">
+        <div className="bg-white rounded-xl border border-gray-200 p-8 shadow-lg text-center max-w-md w-full animate-in fade-in-0 zoom-in-95 duration-500">
           <div className="mb-6">
-            <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 mb-4">
-              <svg className="h-8 w-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="mx-auto flex items-center justify-center h-20 w-20 rounded-full bg-green-100 mb-4 animate-in zoom-in-0 duration-700 delay-200">
+              <svg className="h-10 w-10 text-green-600 animate-in scale-in-0 duration-500 delay-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
             </div>
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">
+            <h2 className="text-xl font-semibold text-gray-900 mb-2 animate-in slide-in-from-bottom-4 duration-500 delay-300">
               {t.evaluations.evaluationSubmitted}
             </h2>
-            <p className="text-gray-600">
+            <p className="text-gray-600 animate-in slide-in-from-bottom-4 duration-500 delay-400">
               {t.evaluations.evaluationSubmittedDesc.replace('{name}', employeeName)}
             </p>
           </div>
           
-          <div className="flex items-center justify-center">
+          <div className="flex items-center justify-center animate-in slide-in-from-bottom-4 duration-500 delay-500">
             <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
             <span className="ml-2 text-sm text-gray-500">{t.evaluations.redirecting}</span>
           </div>
@@ -415,7 +424,7 @@ export default function EvaluatePage() {
                         ...editingItemData,
                         description: e.target.value
                       })}
-                      className="w-full text-gray-600 bg-blue-50 border border-blue-200 rounded-md px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full text-gray-900 bg-blue-50 border border-blue-200 rounded-md px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
                       rows={2}
                       placeholder="Description"
                     />
@@ -467,13 +476,13 @@ export default function EvaluatePage() {
                       <button
                         key={star}
                         onClick={() => handleRating(star)}
-                        className={`p-2 rounded-full transition-all duration-200 transform hover:scale-105 ${
+                        className={`flex items-center justify-center p-3 min-h-[44px] min-w-[44px] rounded-lg transition-colors duration-150 touch-manipulation ${
                           currentItem.rating && currentItem.rating >= star
-                            ? 'text-yellow-500 bg-yellow-100 shadow-md scale-105'
-                            : 'text-gray-300 hover:text-yellow-400 hover:bg-yellow-50'
+                            ? 'text-yellow-500 bg-yellow-100'
+                            : 'text-gray-300 hover:text-yellow-400 hover:bg-yellow-50 active:bg-yellow-100'
                         }`}
                       >
-                        <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
+                        <svg className="w-10 h-10" fill="currentColor" viewBox="0 0 20 20">
                           <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                         </svg>
                       </button>
@@ -557,13 +566,13 @@ export default function EvaluatePage() {
                   <button
                     key={star}
                     onClick={() => handleRating(star)}
-                    className={`p-2 rounded-full transition-colors ${
+                    className={`flex items-center justify-center p-3 min-h-[44px] min-w-[44px] rounded-lg transition-colors duration-150 touch-manipulation ${
                       overallRating && overallRating >= star
-                        ? 'text-yellow-400'
-                        : 'text-gray-300 hover:text-yellow-300'
+                        ? 'text-yellow-500 bg-yellow-100'
+                        : 'text-gray-300 hover:text-yellow-400 hover:bg-yellow-50 active:bg-yellow-100'
                     }`}
                   >
-                    <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
+                    <svg className="w-10 h-10" fill="currentColor" viewBox="0 0 20 20">
                       <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                     </svg>
                   </button>
@@ -606,7 +615,7 @@ export default function EvaluatePage() {
           {currentStep > 0 && (
             <button
               onClick={handlePrevious}
-              className="flex-1 py-3 px-4 border border-gray-300 rounded-md text-gray-700 font-medium hover:bg-gray-50 transition-colors"
+              className="flex-1 py-4 px-6 min-h-[50px] border-2 border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 active:scale-95 active:bg-gray-100 transition-all duration-150 touch-manipulation"
             >
               {t.common.previous}
             </button>
@@ -614,13 +623,15 @@ export default function EvaluatePage() {
           <button
             onClick={handleNext}
             disabled={!isCurrentItemValid() || submitting}
-            className="flex-1 py-3 px-4 bg-blue-600 text-white rounded-md font-medium hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+            className="flex-1 py-4 px-6 min-h-[50px] bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 active:scale-95 active:bg-blue-800 disabled:bg-gray-300 disabled:cursor-not-allowed disabled:active:scale-100 transition-all duration-150 touch-manipulation"
           >
             {submitting ? 'Submitting...' : (currentStep === totalSteps - 1 ? t.evaluations.submitEvaluation : t.common.next)}
           </button>
         </div>
       </div>
 
+      {/* Toast Container */}
+      <ToastContainer toasts={toasts} onRemoveToast={removeToast} />
     </div>
   )
 }
