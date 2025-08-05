@@ -6,6 +6,8 @@ import { useEffect, useState, useRef } from 'react'
 import { useParams } from 'next/navigation'
 import { useLanguage } from '@/contexts/LanguageContext'
 import LanguageSwitcher from '@/components/LanguageSwitcher'
+import ToastContainer from '@/components/ToastContainer'
+import { useToast } from '@/hooks/useToast'
 import { hapticFeedback } from '@/utils/haptics'
 
 interface EvaluationItem {
@@ -27,6 +29,7 @@ export default function EvaluatePage() {
   const router = useRouter()
   const params = useParams()
   const { t } = useLanguage()
+  const { toasts, success, error, removeToast } = useToast()
   const [currentStep, setCurrentStep] = useState(0)
   const [evaluationItems, setEvaluationItems] = useState<EvaluationItem[]>([])
   const [overallRating, setOverallRating] = useState<number | null>(null)
@@ -170,7 +173,7 @@ export default function EvaluatePage() {
       
     } catch (error) {
       console.error('Error updating item:', error)
-      alert('Failed to update item')
+      error('Failed to update item')
     }
   }
 
@@ -238,12 +241,12 @@ export default function EvaluatePage() {
             router.push('/evaluations')
           }, 2000)
         } else {
-          const error = await response.json()
-          alert(`Error: ${error.error}`)
+          const errorData = await response.json()
+          error(`Error: ${errorData.error}`)
           setSubmitting(false)
         }
-      } catch (error) {
-        alert('Failed to submit evaluation')
+      } catch (err) {
+        error('Failed to submit evaluation')
         setSubmitting(false)
       }
     }
@@ -627,6 +630,8 @@ export default function EvaluatePage() {
         </div>
       </div>
 
+      {/* Toast Container */}
+      <ToastContainer toasts={toasts} onRemoveToast={removeToast} />
     </div>
   )
 }

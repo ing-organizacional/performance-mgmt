@@ -6,6 +6,10 @@ import { useEffect, useState } from 'react'
 import { useLanguage } from '@/contexts/LanguageContext'
 import LanguageSwitcher from '@/components/LanguageSwitcher'
 import UserForm from '@/components/UserForm'
+import ToastContainer from '@/components/ToastContainer'
+import ConfirmDialog from '@/components/ConfirmDialog'
+import { useToast } from '@/hooks/useToast'
+import { useConfirm } from '@/hooks/useConfirm'
 
 interface User {
   id: string
@@ -36,6 +40,8 @@ export default function UsersPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const { t } = useLanguage()
+  const { toasts, success, error, removeToast } = useToast()
+  const { confirmState, confirm, closeConfirm } = useConfirm()
   const [users, setUsers] = useState<User[]>([])
   const [loading, setLoading] = useState(true)
   const [uploading, setUploading] = useState(false)
@@ -122,20 +128,26 @@ export default function UsersPage() {
         await fetchUsers() // Refresh the list
         setShowUserForm(false)
         setEditingUser(undefined)
-        alert(editingUser ? 'User updated successfully' : 'User created successfully')
+        success(editingUser ? 'User updated successfully' : 'User created successfully')
       } else {
-        const error = await response.json()
-        alert(`Error: ${error.error}`)
+        const errorData = await response.json()
+        error(`Error: ${errorData.error}`)
       }
-    } catch (error) {
-      alert('Failed to save user')
+    } catch (err) {
+      error('Failed to save user')
     }
   }
 
   const handleDeleteUser = async (userId: string, userName: string) => {
-    if (!confirm(`Are you sure you want to delete ${userName}? This action cannot be undone.`)) {
-      return
-    }
+    const confirmed = await confirm({
+      title: 'Delete User',
+      message: `Are you sure you want to delete ${userName}? This action cannot be undone.`,
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+      type: 'danger'
+    })
+
+    if (!confirmed) return
 
     try {
       const response = await fetch(`/api/admin/users/${userId}`, {
@@ -144,13 +156,13 @@ export default function UsersPage() {
 
       if (response.ok) {
         await fetchUsers() // Refresh the list
-        alert('User deleted successfully')
+        success('User deleted successfully')
       } else {
-        const error = await response.json()
-        alert(`Error: ${error.error}`)
+        const errorData = await response.json()
+        error(`Error: ${errorData.error}`)
       }
-    } catch (error) {
-      alert('Failed to delete user')
+    } catch (err) {
+      error('Failed to delete user')
     }
   }
 
@@ -180,14 +192,14 @@ export default function UsersPage() {
 
       if (response.ok) {
         const result = await response.json()
-        alert(`${t.users.successfullyImported} ${result.imported} users`)
+        success(`${t.users.successfullyImported} ${result.imported} users`)
         fetchUsers() // Refresh the list
       } else {
-        const error = await response.json()
-        alert(`${t.users.importFailed}: ${error.error}`)
+        const errorData = await response.json()
+        error(`${t.users.importFailed}: ${errorData.error}`)
       }
-    } catch (error) {
-      alert(t.users.uploadFailed)
+    } catch (err) {
+      error(t.users.uploadFailed)
     } finally {
       setUploading(false)
       // Reset file input
@@ -243,7 +255,7 @@ export default function UsersPage() {
               <LanguageSwitcher />
               <button
                 onClick={() => signOut({ callbackUrl: '/login' })}
-                className="flex items-center justify-center w-10 h-10 bg-green-600 text-white rounded-lg hover:bg-green-700 active:scale-95 transition-all duration-150 touch-manipulation"
+                className="flex items-center justify-center w-10 h-10 bg-green-600 text-white rounded-lg hover:bg-green-700 active:scale-95 transition-all duration-150 touch-manipulation -mr-2"
                 title={t.auth.signOut}
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -410,6 +422,21 @@ export default function UsersPage() {
           managers={managers}
         />
       )}
+
+      {/* Toast Container */}
+      <ToastContainer toasts={toasts} onRemoveToast={removeToast} />
+
+      {/* Confirm Dialog */}
+      <ConfirmDialog
+        isOpen={confirmState.isOpen}
+        title={confirmState.options.title}
+        message={confirmState.options.message}
+        confirmText={confirmState.options.confirmText}
+        cancelText={confirmState.options.cancelText}
+        type={confirmState.options.type}
+        onConfirm={confirmState.onConfirm}
+        onCancel={confirmState.onCancel}
+      />
     </div>
   )
 }

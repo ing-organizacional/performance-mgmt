@@ -96,7 +96,7 @@ export default function EvaluationsPage() {
               <LanguageSwitcher />
               <button
                 onClick={() => signOut({ callbackUrl: '/login' })}
-                className="flex items-center justify-center w-10 h-10 bg-green-600 text-white rounded-lg hover:bg-green-700 active:scale-95 transition-all duration-150 touch-manipulation"
+                className="flex items-center justify-center w-10 h-10 bg-green-600 text-white rounded-lg hover:bg-green-700 active:scale-95 transition-all duration-150 touch-manipulation -mr-2"
                 title={t.auth.signOut}
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
