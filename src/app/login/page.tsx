@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import { signIn } from 'next-auth/react'
-import { useRouter } from 'next/navigation'
 import { useLanguage } from '@/contexts/LanguageContext'
 import LanguageSwitcher from '@/components/LanguageSwitcher'
 
@@ -12,7 +11,6 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [showPassword, setShowPassword] = useState(false)
-  const router = useRouter()
   const { t } = useLanguage()
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -40,7 +38,7 @@ export default function LoginPage() {
         // Direct redirect to avoid double navigation
         window.location.href = '/'
       }
-    } catch (err) {
+    } catch {
       setError(t.auth.loginFailed)
       setLoading(false)
     }
@@ -138,23 +136,25 @@ export default function LoginPage() {
             </div>
           </form>
 
-          <div className="mt-6">
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300" />
+{process.env.NODE_ENV === 'development' && (
+            <div className="mt-6">
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-gray-300" />
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="bg-white px-2 text-gray-500">{t.auth.demoCredentials}</span>
+                </div>
               </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="bg-white px-2 text-gray-500">{t.auth.demoCredentials}</span>
+              
+              <div className="mt-4 text-xs text-gray-500 space-y-1">
+                <p><strong>{t.auth.hr}:</strong> hr@demo.com / password123</p>
+                <p><strong>{t.auth.manager}:</strong> manager@demo.com / password123</p>
+                <p><strong>{t.auth.employee}:</strong> employee1@demo.com / password123</p>
+                <p><strong>{t.auth.worker}:</strong> worker1 / 1234</p>
               </div>
             </div>
-            
-            <div className="mt-4 text-xs text-gray-500 space-y-1">
-              <p><strong>{t.auth.hr}:</strong> hr@demo.com / password123</p>
-              <p><strong>{t.auth.manager}:</strong> manager@demo.com / password123</p>
-              <p><strong>{t.auth.employee}:</strong> employee1@demo.com / password123</p>
-              <p><strong>{t.auth.worker}:</strong> worker1 / 1234</p>
-            </div>
-          </div>
+          )}
         </div>
       </div>
     </div>

@@ -1,33 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma-client'
+import { requireHRRole } from '@/lib/auth-middleware'
+
+interface CycleCreateData {
+  name: string
+  startDate: string
+  endDate: string
+}
 
 // GET /api/admin/cycles - List all performance cycles for the company
 export async function GET(request: NextRequest) {
+  const authResult = await requireHRRole(request)
+  if (authResult instanceof NextResponse) {
+    return authResult
+  }
+  const { user } = authResult
+
   try {
-    const session = await auth()
-    
-    if (!session?.user?.id) {
-      return NextResponse.json({ 
-        success: false, 
-        error: 'Unauthorized' 
-      }, { status: 401 })
-    }
-
-    const userRole = (session.user as any).role
-    const companyId = (session.user as any).companyId
-
-    // Only HR can access cycle management
-    if (userRole !== 'hr') {
-      return NextResponse.json({ 
-        success: false, 
-        error: 'Access denied - HR role required' 
-      }, { status: 403 })
-    }
 
     const cycles = await prisma.performanceCycle.findMany({
       where: {
-        companyId: companyId
+        companyId: user.companyId
       },
       include: {
         closedByUser: {
@@ -64,29 +57,14 @@ export async function GET(request: NextRequest) {
 
 // POST /api/admin/cycles - Create a new performance cycle
 export async function POST(request: NextRequest) {
+  const authResult = await requireHRRole(request)
+  if (authResult instanceof NextResponse) {
+    return authResult
+  }
+  const { user } = authResult
+
   try {
-    const session = await auth()
-    
-    if (!session?.user?.id) {
-      return NextResponse.json({ 
-        success: false, 
-        error: 'Unauthorized' 
-      }, { status: 401 })
-    }
-
-    const userId = session.user.id
-    const userRole = (session.user as any).role
-    const companyId = (session.user as any).companyId
-
-    // Only HR can create cycles
-    if (userRole !== 'hr') {
-      return NextResponse.json({ 
-        success: false, 
-        error: 'Access denied - HR role required' 
-      }, { status: 403 })
-    }
-
-    const body = await request.json()
+    const body = await request.json() as CycleCreateData
     const { name, startDate, endDate } = body
 
     if (!name || !startDate || !endDate) {
@@ -100,7 +78,7 @@ export async function POST(request: NextRequest) {
     const existingCycle = await prisma.performanceCycle.findUnique({
       where: {
         companyId_name: {
-          companyId,
+          companyId: user.companyId,
           name
         }
       }
@@ -115,7 +93,7 @@ export async function POST(request: NextRequest) {
 
     const cycle = await prisma.performanceCycle.create({
       data: {
-        companyId,
+        companyId: user.companyId,
         name,
         startDate: new Date(startDate),
         endDate: new Date(endDate),

@@ -7,6 +7,7 @@ import ExportButton from '@/components/export-button'
 import { useLanguage } from '@/contexts/LanguageContext'
 import LanguageSwitcher from '@/components/LanguageSwitcher'
 import CycleSelector from '@/components/CycleSelector'
+import type { EvaluationCycle } from '@/types'
 
 interface CompletionStats {
   total: number
@@ -23,27 +24,21 @@ interface RatingDistribution {
   needs: number
 }
 
-interface PerformanceCycle {
-  id: string
-  name: string
-  status: string
-  startDate: string
-  endDate: string
-}
+// Using EvaluationCycle from types instead of local interface
 
 export default function DashboardPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const { t } = useLanguage()
   const [loading, setLoading] = useState(true)
-  const [selectedCycle, setSelectedCycle] = useState<PerformanceCycle | null>(null)
-  const [completionStats, setCompletionStats] = useState<CompletionStats>({
+  const [selectedCycle, setSelectedCycle] = useState<EvaluationCycle | null>(null)
+  const [completionStats] = useState<CompletionStats>({
     total: 150,
     completed: 87,
     overdue: 12,
     duesSoon: 8
   })
-  const [ratingDistribution, setRatingDistribution] = useState<RatingDistribution>({
+  const [ratingDistribution] = useState<RatingDistribution>({
     outstanding: 15,
     exceeds: 38,
     meets: 82,
@@ -59,7 +54,7 @@ export default function DashboardPage() {
       return
     }
 
-    const userRole = (session.user as any)?.role
+    const userRole = session.user?.role
     if (userRole !== 'hr' && userRole !== 'manager') {
       router.push('/my-evaluations')
       return
@@ -138,7 +133,7 @@ export default function DashboardPage() {
             <div className="flex items-center gap-3">
               <CycleSelector 
                 showCreateButton={true} 
-                onCycleSelect={setSelectedCycle}
+                onCycleSelect={(cycle) => setSelectedCycle(cycle as EvaluationCycle | null)}
               />
               <LanguageSwitcher />
             </div>
@@ -328,7 +323,7 @@ export default function DashboardPage() {
                 <span className="text-sm font-medium text-gray-700">{t.dashboard.exportAllEvaluations}</span>
               </div>
               <ExportButton
-                companyId={(session?.user as any)?.companyId}
+                companyId={session?.user?.companyId}
                 periodType="quarterly"
                 periodDate="2024-Q1"
                 format="excel"
@@ -347,7 +342,7 @@ export default function DashboardPage() {
               </div>
               <div className="flex gap-2">
                 <ExportButton
-                  companyId={(session?.user as any)?.companyId}
+                  companyId={session?.user?.companyId}
                   format="excel"
                   className="px-3 py-1 bg-green-600 text-white rounded text-xs font-medium hover:bg-green-700 transition-colors"
                 >

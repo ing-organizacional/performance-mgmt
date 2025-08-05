@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma-client'
 
 // GET /api/manager/team-assignments - Get team members with their assignment info
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const session = await auth()
     
@@ -15,8 +15,9 @@ export async function GET(request: NextRequest) {
     }
 
     const userId = session.user.id
-    const userRole = (session.user as any).role
-    const companyId = (session.user as any).companyId
+    
+    const userRole = session.user.role
+    const companyId = session.user.companyId
 
     // Only managers can access this endpoint
     if (userRole !== 'manager') {

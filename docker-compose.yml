@@ -9,7 +9,7 @@ services:
       - NODE_ENV=production
       - DATABASE_URL=file:./data/production.db
       - NEXTAUTH_URL=http://localhost:3000
-      - NEXTAUTH_SECRET=change-this-in-production-use-openssl-rand-base64-32
+      - NEXTAUTH_SECRET=HKwA1Z/q8pfSrSxZCuQk1VRu0jgT80PYHhVArKhJSJs=
     volumes:
       - ./data:/app/data
     restart: unless-stopped
@@ -28,7 +28,7 @@ services:
       - NODE_ENV=production
       - DATABASE_URL=file:./data/company1.db
       - NEXTAUTH_URL=http://localhost:3001
-      - NEXTAUTH_SECRET=change-this-in-production-company1
+      - NEXTAUTH_SECRET=AiAxaMw+oY+XBVwPy4cm89Pkhxq0z40ux+cdCGkjz5g=
       - COMPANY_ID=company-1
     volumes:
       - ./data/company1:/app/data
@@ -43,7 +43,7 @@ services:
       - NODE_ENV=production
       - DATABASE_URL=file:./data/company2.db
       - NEXTAUTH_URL=http://localhost:3002
-      - NEXTAUTH_SECRET=change-this-in-production-company2
+      - NEXTAUTH_SECRET=vE5MOgKKqLrldh8CE97ssWKnyWWE/nXWQcpv1ZzdjRw=
       - COMPANY_ID=company-2
     volumes:
       - ./data/company2:/app/data

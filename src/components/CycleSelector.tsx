@@ -1,7 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { useLanguage } from '@/contexts/LanguageContext'
+import { useEffect, useState, useCallback } from 'react'
 
 interface PerformanceCycle {
   id: string
@@ -24,7 +23,6 @@ interface CycleSelectorProps {
 }
 
 export default function CycleSelector({ onCycleSelect, showCreateButton = false }: CycleSelectorProps) {
-  const { t } = useLanguage()
   const [cycles, setCycles] = useState<PerformanceCycle[]>([])
   const [selectedCycle, setSelectedCycle] = useState<PerformanceCycle | null>(null)
   const [loading, setLoading] = useState(true)
@@ -32,11 +30,7 @@ export default function CycleSelector({ onCycleSelect, showCreateButton = false 
   const [showActions, setShowActions] = useState(false)
   const [actionLoading, setActionLoading] = useState(false)
 
-  useEffect(() => {
-    fetchCycles()
-  }, [])
-
-  const fetchCycles = async () => {
+  const fetchCycles = useCallback(async () => {
     try {
       const response = await fetch('/api/admin/cycles')
       if (response.ok) {
@@ -58,7 +52,11 @@ export default function CycleSelector({ onCycleSelect, showCreateButton = false 
     } finally {
       setLoading(false)
     }
-  }
+  }, [onCycleSelect])
+
+  useEffect(() => {
+    fetchCycles()
+  }, [fetchCycles])
 
   const handleCycleChange = (cycleId: string) => {
     const cycle = cycles.find(c => c.id === cycleId) || null
@@ -66,14 +64,6 @@ export default function CycleSelector({ onCycleSelect, showCreateButton = false 
     onCycleSelect?.(cycle)
   }
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'active': return 'text-green-600 bg-green-100'
-      case 'closed': return 'text-red-600 bg-red-100'
-      case 'archived': return 'text-gray-600 bg-gray-100'
-      default: return 'text-gray-600 bg-gray-100'
-    }
-  }
 
   const getStatusIcon = (status: string) => {
     switch (status) {

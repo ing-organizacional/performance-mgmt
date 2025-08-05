@@ -2,7 +2,7 @@
 
 import { useSession, signOut } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useLanguage } from '@/contexts/LanguageContext'
 import LanguageSwitcher from '@/components/LanguageSwitcher'
 
@@ -22,18 +22,7 @@ export default function MyEvaluationsPage() {
   const [loading, setLoading] = useState(true)
   const [evaluations, setEvaluations] = useState<Evaluation[]>([])
 
-  useEffect(() => {
-    if (status === 'loading') return
-    
-    if (!session) {
-      router.push('/login')
-      return
-    }
-
-    fetchMyEvaluations()
-  }, [session, status, router])
-
-  const fetchMyEvaluations = async () => {
+  const fetchMyEvaluations = useCallback(async () => {
     try {
       const response = await fetch(`/api/evaluations?employeeId=${session?.user?.id}`)
       if (response.ok) {
@@ -45,7 +34,18 @@ export default function MyEvaluationsPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [session?.user?.id])
+
+  useEffect(() => {
+    if (status === 'loading') return
+    
+    if (!session) {
+      router.push('/login')
+      return
+    }
+
+    fetchMyEvaluations()
+  }, [session, status, router, fetchMyEvaluations])
 
   if (status === 'loading' || loading) {
     return (
@@ -172,7 +172,7 @@ export default function MyEvaluationsPage() {
                 No Evaluations Yet
               </h3>
               <p className="text-gray-600">
-                You don't have any performance evaluations yet. Check back later.
+                You don&apos;t have any performance evaluations yet. Check back later.
               </p>
             </div>
           )}

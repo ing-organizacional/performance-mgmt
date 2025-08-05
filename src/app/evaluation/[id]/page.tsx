@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import ExportButton from '@/components/export-button'
+import type { OKRItem, CompetencyItem } from '@/types'
 
 interface EvaluationDetail {
   id: string
@@ -18,8 +19,8 @@ interface EvaluationDetail {
   }
   periodType: string
   periodDate: string
-  okrsData: any
-  competenciesData: any
+  okrsData: Record<string, OKRItem>
+  competenciesData: Record<string, CompetencyItem>
   overallRating: number | null
   managerComments: string | null
   status: string
@@ -56,24 +57,36 @@ export default function EvaluationDetailPage() {
       periodDate: '2024-Q1',
       okrsData: {
         okr_1: {
+          id: 'okr_1',
           title: 'Increase Sales by 20%',
+          description: 'Achieve 20% increase in quarterly sales',
+          type: 'okr' as const,
           rating: 4,
           comment: 'Exceeded target by 5%'
         },
         okr_2: {
+          id: 'okr_2',
           title: 'Launch New Product Line',
+          description: 'Successfully launch the new product line',
+          type: 'okr' as const,
           rating: 3,
           comment: 'Delayed but quality improved'
         }
       },
       competenciesData: {
         competency_1: {
+          id: 'competency_1',
           title: 'Communication',
+          description: 'Communication skills assessment',
+          type: 'competency' as const,
           rating: 5,
           comment: 'Excellent presentation skills'
         },
         competency_2: {
+          id: 'competency_2',
           title: 'Leadership',
+          description: 'Leadership skills assessment',
+          type: 'competency' as const,
           rating: 4,
           comment: 'Good team motivation'
         }
@@ -210,13 +223,13 @@ export default function EvaluationDetailPage() {
         <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm mb-6">
           <h2 className="text-xl font-semibold text-gray-900 mb-4">Objectives and Key Results</h2>
           <div className="space-y-6">
-            {Object.entries(evaluation.okrsData).map(([key, okr]: [string, any]) => (
+            {Object.entries(evaluation.okrsData).map(([key, okr]: [string, OKRItem]) => (
               <div key={key} className="border-b border-gray-200 pb-4 last:border-b-0">
                 <h3 className="text-lg font-medium text-gray-900 mb-2">{okr.title}</h3>
                 <div className="flex items-center gap-3 mb-2">
-                  {getRatingStars(okr.rating)}
+                  {getRatingStars(okr.rating ?? 0)}
                   <span className="text-sm text-gray-600">
-                    {okr.rating}/5 - {getRatingText(okr.rating)}
+                    {okr.rating ?? 0}/5 - {getRatingText(okr.rating ?? 0)}
                   </span>
                 </div>
                 {okr.comment && (
@@ -231,13 +244,13 @@ export default function EvaluationDetailPage() {
         <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm mb-6">
           <h2 className="text-xl font-semibold text-gray-900 mb-4">Competencies</h2>
           <div className="space-y-6">
-            {Object.entries(evaluation.competenciesData).map(([key, competency]: [string, any]) => (
+            {Object.entries(evaluation.competenciesData).map(([key, competency]: [string, CompetencyItem]) => (
               <div key={key} className="border-b border-gray-200 pb-4 last:border-b-0">
                 <h3 className="text-lg font-medium text-gray-900 mb-2">{competency.title}</h3>
                 <div className="flex items-center gap-3 mb-2">
-                  {getRatingStars(competency.rating)}
+                  {getRatingStars(competency.rating ?? 0)}
                   <span className="text-sm text-gray-600">
-                    {competency.rating}/5 - {getRatingText(competency.rating)}
+                    {competency.rating ?? 0}/5 - {getRatingText(competency.rating ?? 0)}
                   </span>
                 </div>
                 {competency.comment && (

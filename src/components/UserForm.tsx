@@ -1,55 +1,28 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useLanguage } from '@/contexts/LanguageContext'
-
-interface Company {
-  id: string
-  name: string
-  code: string
-}
-
-interface Manager {
-  id: string
-  name: string
-  email?: string
-}
-
-interface User {
-  id?: string
-  name: string
-  email?: string
-  username?: string
-  role: string
-  department?: string
-  userType: string
-  managerId?: string
-  companyId: string
-  active: boolean
-}
-
-interface UserFormProps {
-  user?: User
-  onSave: (user: Partial<User> & { password?: string }) => void
-  onCancel: () => void
-  companies?: Company[]
-  managers?: Manager[]
-}
+import type { UserFormProps, UserFormData } from '@/types'
 
 export default function UserForm({ user, onSave, onCancel, companies = [], managers = [] }: UserFormProps) {
-  const { t } = useLanguage()
-  const [formData, setFormData] = useState<User & { password?: string }>({
-    name: '',
-    email: '',
-    username: '',
-    role: 'employee',
-    department: '',
-    userType: 'office',
-    managerId: '',
-    companyId: companies[0]?.id || '',
-    active: true,
-    password: '',
-    ...user
+  const [formData, setFormData] = useState<UserFormData>({
+    id: user?.id,
+    name: user?.name || '',
+    email: user?.email || null,
+    username: user?.username || null,
+    role: user?.role || 'employee',
+    department: user?.department || null,
+    userType: user?.userType || 'office',
+    managerId: user?.managerId || null,
+    companyId: user?.companyId || companies[0]?.id || '',
+    active: user?.active ?? true,
+    passwordHash: user?.passwordHash || null,
+    pinCode: user?.pinCode || null,
+    loginMethod: user?.loginMethod || 'email',
+    requiresPinOnly: user?.requiresPinOnly || false,
+    employeeId: user?.employeeId || null,
+    shift: user?.shift || null,
+    lastLogin: user?.lastLogin || null,
+    password: ''
   })
 
   const [loading, setLoading] = useState(false)
@@ -94,12 +67,12 @@ export default function UserForm({ user, onSave, onCancel, companies = [], manag
       // Clean up data based on user type
       const userData = { ...formData }
       if (userData.userType === 'office') {
-        userData.username = undefined
+        userData.username = null
       } else {
-        userData.email = undefined
+        userData.email = null
       }
 
-      await onSave(userData)
+      onSave(userData)
     } catch (error) {
       console.error('Error saving user:', error)
     } finally {
@@ -107,7 +80,7 @@ export default function UserForm({ user, onSave, onCancel, companies = [], manag
     }
   }
 
-  const handleChange = (field: keyof typeof formData, value: any) => {
+  const handleChange = (field: string, value: string | boolean) => {
     setFormData(prev => ({ ...prev, [field]: value }))
     // Clear error when user starts typing
     if (errors[field]) {
@@ -284,7 +257,7 @@ export default function UserForm({ user, onSave, onCancel, companies = [], manag
               </label>
               <select
                 value={formData.managerId || ''}
-                onChange={(e) => handleChange('managerId', e.target.value || undefined)}
+                onChange={(e) => handleChange('managerId', e.target.value || '')}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-gray-900"
               >
                 <option value="">No Manager</option>

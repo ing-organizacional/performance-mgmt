@@ -19,7 +19,8 @@ export async function GET(
     }
 
     const userId = session.user.id
-    const userRole = (session.user as any).role
+    
+    const userRole = session.user.role
 
     // Only managers can access evaluations they created
     if (userRole !== 'manager') {

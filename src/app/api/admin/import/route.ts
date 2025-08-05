@@ -1,12 +1,38 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma-client'
 import bcrypt from 'bcryptjs'
+import { requireHRRole } from '@/lib/auth-middleware'
+
+interface ImportUserData {
+  name: string
+  email?: string
+  username?: string
+  role: string
+  department?: string
+  userType?: string
+  password?: string
+  managerEmail?: string
+  companyCode?: string
+}
+
+interface ImportResults {
+  success: number
+  failed: number
+  errors: string[]
+}
 
 // POST /api/admin/import - Import users from CSV data
 export async function POST(request: NextRequest) {
+  const authResult = await requireHRRole(request)
+  if (authResult instanceof NextResponse) {
+    return authResult
+  }
+  const { user } = authResult
+
   try {
     const body = await request.json()
     const { users, companyId } = body
+    const finalCompanyId = companyId || user.companyId
 
     if (!users || !Array.isArray(users)) {
       return NextResponse.json({ 
@@ -15,13 +41,13 @@ export async function POST(request: NextRequest) {
       }, { status: 400 })
     }
 
-    const results = {
+    const results: ImportResults = {
       success: 0,
       failed: 0,
-      errors: [] as string[]
+      errors: []
     }
 
-    for (const userData of users) {
+    for (const userData of users as ImportUserData[]) {
       try {
         const { 
           name, 
@@ -47,8 +73,8 @@ export async function POST(request: NextRequest) {
           continue
         }
 
-        // Use provided companyId or find company by code
-        let targetCompanyId = companyId
+        // Use provided companyId or authenticated user's company
+        let targetCompanyId = finalCompanyId
         if (!targetCompanyId && userData.companyCode) {
           const company = await prisma.company.findFirst({
             where: { code: userData.companyCode }
@@ -64,6 +90,13 @@ export async function POST(request: NextRequest) {
         if (!targetCompanyId) {
           results.failed++
           results.errors.push(`No company specified for user: ${name}`)
+          continue
+        }
+
+        // Ensure user can only import to their own company
+        if (targetCompanyId !== user.companyId) {
+          results.failed++
+          results.errors.push(`Access denied - cannot import to different company: ${name}`)
           continue
         }
 

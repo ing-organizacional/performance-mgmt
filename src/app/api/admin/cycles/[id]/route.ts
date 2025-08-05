@@ -1,37 +1,34 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma-client'
+import { requireHRRole } from '@/lib/auth-middleware'
+
+interface CycleUpdateData {
+  name?: string
+  startDate?: Date
+  endDate?: Date
+  status?: string
+  closedBy?: string | null
+  closedAt?: Date | null
+}
 
 // GET /api/admin/cycles/[id] - Get specific cycle details
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const authResult = await requireHRRole(request)
+  if (authResult instanceof NextResponse) {
+    return authResult
+  }
+  const { user } = authResult
+
   try {
-    const session = await auth()
-    
-    if (!session?.user?.id) {
-      return NextResponse.json({ 
-        success: false, 
-        error: 'Unauthorized' 
-      }, { status: 401 })
-    }
-
-    const userRole = (session.user as any).role
-    const companyId = (session.user as any).companyId
-
-    // Only HR can access cycle details
-    if (userRole !== 'hr') {
-      return NextResponse.json({ 
-        success: false, 
-        error: 'Access denied - HR role required' 
-      }, { status: 403 })
-    }
+    const { id } = await params
 
     const cycle = await prisma.performanceCycle.findFirst({
       where: {
-        id: params.id,
-        companyId: companyId
+        id,
+        companyId: user.companyId
       },
       include: {
         closedByUser: {
@@ -73,38 +70,24 @@ export async function GET(
 // PUT /api/admin/cycles/[id] - Update cycle or change status
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const authResult = await requireHRRole(request)
+  if (authResult instanceof NextResponse) {
+    return authResult
+  }
+  const { user } = authResult
+
   try {
-    const session = await auth()
-    
-    if (!session?.user?.id) {
-      return NextResponse.json({ 
-        success: false, 
-        error: 'Unauthorized' 
-      }, { status: 401 })
-    }
-
-    const userId = session.user.id
-    const userRole = (session.user as any).role
-    const companyId = (session.user as any).companyId
-
-    // Only HR can update cycles (except superadmin can reopen)
-    if (userRole !== 'hr') {
-      return NextResponse.json({ 
-        success: false, 
-        error: 'Access denied - HR role required' 
-      }, { status: 403 })
-    }
-
-    const body = await request.json()
+    const { id } = await params
+    const body = await request.json() as Partial<CycleUpdateData>
     const { name, startDate, endDate, status } = body
 
     // Find the cycle
     const existingCycle = await prisma.performanceCycle.findFirst({
       where: {
-        id: params.id,
-        companyId: companyId
+        id,
+        companyId: user.companyId
       }
     })
 
@@ -116,14 +99,14 @@ export async function PUT(
     }
 
     // Prepare update data
-    const updateData: any = {}
+    const updateData: CycleUpdateData = {}
     
     if (name && name !== existingCycle.name) {
       // Check for name conflicts
       const nameConflict = await prisma.performanceCycle.findUnique({
         where: {
           companyId_name: {
-            companyId,
+            companyId: user.companyId,
             name
           }
         }
@@ -147,7 +130,7 @@ export async function PUT(
       updateData.status = status
 
       if (status === 'closed') {
-        updateData.closedBy = userId
+        updateData.closedBy = user.id
         updateData.closedAt = new Date()
       } else if (status === 'active' && existingCycle.status === 'closed') {
         // Reopening a cycle
@@ -157,7 +140,7 @@ export async function PUT(
     }
 
     const updatedCycle = await prisma.performanceCycle.update({
-      where: { id: params.id },
+      where: { id },
       data: updateData,
       include: {
         closedByUser: {

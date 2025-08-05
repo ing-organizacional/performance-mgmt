@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma-client'
 
@@ -14,7 +14,8 @@ export async function GET() {
     }
 
     const userId = session.user.id
-    const userRole = (session.user as any).role
+    
+    const userRole = session.user.role
 
     // Only managers and HR can access this endpoint
     if (userRole !== 'manager' && userRole !== 'hr') {

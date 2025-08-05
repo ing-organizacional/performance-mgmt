@@ -27,7 +27,7 @@ export const config = {
             id: user.id,
             name: user.name,
             email: user.email || `${user.username}@${user.companyId}`,
-            role: user.role,
+            role: user.role as 'employee' | 'manager' | 'hr',
             companyId: user.companyId,
             userType: user.userType,
             department: user.department
@@ -41,20 +41,20 @@ export const config = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.role = (user as any).role
-        token.companyId = (user as any).companyId
-        token.userType = (user as any).userType
-        token.department = (user as any).department
+        token.role = user.role as 'employee' | 'manager' | 'hr'
+        token.companyId = user.companyId as string
+        token.userType = user.userType as 'office' | 'operational'
+        token.department = user.department as string | undefined
       }
       return token
     },
     async session({ session, token }) {
       if (token) {
         session.user.id = token.sub!
-        ;(session.user as any).role = token.role
-        ;(session.user as any).companyId = token.companyId
-        ;(session.user as any).userType = token.userType
-        ;(session.user as any).department = token.department
+        session.user.role = token.role as 'employee' | 'manager' | 'hr'
+        session.user.companyId = token.companyId as string
+        session.user.userType = token.userType as 'office' | 'operational'
+        session.user.department = token.department as string | undefined
       }
       return session
     }

@@ -1,11 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma-client'
 import bcrypt from 'bcryptjs'
+import { requireHRRole } from '@/lib/auth-middleware'
 
 // GET /api/admin/users - List all users
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const authResult = await requireHRRole(request)
+  if (authResult instanceof NextResponse) {
+    return authResult
+  }
+  const { user } = authResult
+
   try {
     const users = await prisma.user.findMany({
+      where: {
+        companyId: user.companyId
+      },
       include: {
         company: {
           select: { name: true, code: true }
@@ -42,6 +52,12 @@ export async function GET() {
 
 // POST /api/admin/users - Create new user
 export async function POST(request: NextRequest) {
+  const authResult = await requireHRRole(request)
+  if (authResult instanceof NextResponse) {
+    return authResult
+  }
+  const { user } = authResult
+
   try {
     const body = await request.json()
     const { 
@@ -59,12 +75,15 @@ export async function POST(request: NextRequest) {
     } = body
 
     // Validation
-    if (!name || !role || !companyId) {
+    if (!name || !role) {
       return NextResponse.json({ 
         success: false, 
-        error: 'Name, role, and companyId are required' 
+        error: 'Name and role are required' 
       }, { status: 400 })
     }
+
+    // Use authenticated user's company
+    const finalCompanyId: string = companyId || user.companyId
 
     if (!email && !username) {
       return NextResponse.json({ 
@@ -77,7 +96,7 @@ export async function POST(request: NextRequest) {
     const existingUser = await prisma.user.findFirst({
       where: {
         AND: [
-          { companyId },
+          { companyId: finalCompanyId },
           {
             OR: [
               email ? { email } : {},
@@ -98,13 +117,13 @@ export async function POST(request: NextRequest) {
     // Hash password
     const passwordHash = password ? await bcrypt.hash(password, 12) : null
 
-    const user = await prisma.user.create({
+    const newUser = await prisma.user.create({
       data: {
         name,
         email: email || null,
         username: username || null,
         role,
-        companyId,
+        companyId: finalCompanyId,
         managerId: managerId || null,
         userType: userType || 'office',
         passwordHash,
@@ -123,7 +142,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      data: user,
+      data: newUser,
       message: 'User created successfully'
     }, { status: 201 })
   } catch (error) {

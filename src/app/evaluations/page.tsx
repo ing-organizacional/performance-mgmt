@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react'
 import { useLanguage } from '@/contexts/LanguageContext'
 import LanguageSwitcher from '@/components/LanguageSwitcher'
 import CycleStatusBanner from '@/components/CycleStatusBanner'
+import type { EvaluationCycle } from '@/types'
 
 interface Employee {
   id: string
@@ -55,7 +56,7 @@ export default function EvaluationsPage() {
         const cyclesResponse = await fetch('/api/admin/cycles')
         if (cyclesResponse.ok) {
           const cyclesData = await cyclesResponse.json()
-          const activeCycle = cyclesData.cycles?.find((cycle: any) => cycle.status === 'active')
+          const activeCycle = cyclesData.cycles?.find((cycle: EvaluationCycle) => cycle.status === 'active')
           if (activeCycle) {
             setCurrentCycleId(activeCycle.id)
           }
@@ -143,7 +144,7 @@ export default function EvaluationsPage() {
       <div className="px-4 pt-3">
         <CycleStatusBanner 
           cycleId={currentCycleId} 
-          userRole={(session?.user as any)?.role}
+          userRole={session?.user?.role}
         />
       </div>
 

@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 
 interface CycleStatusBannerProps {
   cycleId?: string | null
@@ -20,13 +20,7 @@ export default function CycleStatusBanner({ cycleId, userRole, className = '' }:
   const [cycle, setCycle] = useState<CycleStatus | null>(null)
   const [loading, setLoading] = useState(false)
 
-  useEffect(() => {
-    if (cycleId) {
-      fetchCycleStatus()
-    }
-  }, [cycleId])
-
-  const fetchCycleStatus = async () => {
+  const fetchCycleStatus = useCallback(async () => {
     if (!cycleId) return
 
     setLoading(true)
@@ -41,7 +35,13 @@ export default function CycleStatusBanner({ cycleId, userRole, className = '' }:
     } finally {
       setLoading(false)
     }
-  }
+  }, [cycleId])
+
+  useEffect(() => {
+    if (cycleId) {
+      fetchCycleStatus()
+    }
+  }, [cycleId, fetchCycleStatus])
 
   // Don't show banner if cycle is active or loading
   if (loading || !cycle || cycle.status === 'active') {

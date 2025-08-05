@@ -15,8 +15,8 @@ export async function POST(request: NextRequest) {
     }
 
     const userId = session.user.id
-    const userRole = (session.user as any).role
-    const companyId = (session.user as any).companyId
+    const userRole = session.user.role
+    const companyId = session.user.companyId
 
     // Only managers can assign items
     if (userRole !== 'manager') {
@@ -117,8 +117,8 @@ export async function DELETE(request: NextRequest) {
     }
 
     const userId = session.user.id
-    const userRole = (session.user as any).role
-    const companyId = (session.user as any).companyId
+    const userRole = session.user.role
+    const companyId = session.user.companyId
 
     // Only managers can remove assignments
     if (userRole !== 'manager') {

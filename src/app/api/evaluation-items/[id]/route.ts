@@ -18,8 +18,8 @@ export async function PUT(
     }
 
     const { id } = await params
-    const userId = session.user.id
-    const userRole = (session.user as any).role
+    
+    const userRole = session.user.role
     
     // Only managers and HR can edit items
     if (userRole !== 'manager' && userRole !== 'hr') {

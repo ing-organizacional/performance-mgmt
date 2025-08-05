@@ -1,12 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getCompanyEvaluations, generateExcel, generatePDF } from '@/lib/export'
+import { getCompanyEvaluations, generateExcel } from '@/lib/export'
+import { requireManagerOrHR } from '@/lib/auth-middleware'
 
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ companyId: string }> }
 ) {
+  const authResult = await requireManagerOrHR(request)
+  if (authResult instanceof NextResponse) {
+    return authResult
+  }
+  const { user } = authResult
+
   try {
     const { companyId } = await params
+
+    // Ensure user can only export their own company's data
+    if (companyId !== user.companyId) {
+      return NextResponse.json({ 
+        success: false, 
+        error: 'Access denied - cannot export data from different company' 
+      }, { status: 403 })
+    }
     const { searchParams } = new URL(request.url)
     const format = searchParams.get('format') || 'excel'
     const periodType = searchParams.get('periodType') || undefined

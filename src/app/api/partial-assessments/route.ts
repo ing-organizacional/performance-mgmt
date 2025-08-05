@@ -20,11 +20,17 @@ export async function GET(request: NextRequest) {
     const employeeId = searchParams.get('employeeId')
     const evaluationItemId = searchParams.get('evaluationItemId')
 
-    const userRole = (session.user as any).role
-    const companyId = (session.user as any).companyId
+    const companyId = session.user.companyId
 
     // Build where clause
-    const whereClause: any = {
+    interface WhereClause {
+      companyId: string
+      cycleId?: string
+      employeeId?: string
+      evaluationItemId?: string
+    }
+    
+    const whereClause: WhereClause = {
       companyId: companyId
     }
 
@@ -101,8 +107,8 @@ export async function POST(request: NextRequest) {
     }
 
     const userId = session.user.id
-    const userRole = (session.user as any).role
-    const companyId = (session.user as any).companyId
+    const userRole = session.user.role
+    const companyId = session.user.companyId
 
     const body = await request.json()
     const { 

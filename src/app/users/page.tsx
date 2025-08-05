@@ -2,7 +2,7 @@
 
 import { useSession, signOut } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useLanguage } from '@/contexts/LanguageContext'
 import LanguageSwitcher from '@/components/LanguageSwitcher'
 import UserForm from '@/components/UserForm'
@@ -10,26 +10,11 @@ import ToastContainer from '@/components/ToastContainer'
 import ConfirmDialog from '@/components/ConfirmDialog'
 import { useToast } from '@/hooks/useToast'
 import { useConfirm } from '@/hooks/useConfirm'
+import type { User, Company } from '@/types'
 
-interface User {
-  id: string
-  name: string
-  email?: string
-  username?: string
-  role: string
-  department?: string
-  userType: string
-  managerId?: string
-  companyId: string
-  active: boolean
-  company: {
-    name: string
-    code: string
-  }
-  manager?: {
-    name: string
-    email?: string
-  }
+interface UserWithDetails extends User {
+  company: Company
+  manager?: Pick<User, 'name' | 'email'> | null
   _count: {
     employees: number
     evaluationsReceived: number
@@ -41,16 +26,16 @@ export default function UsersPage() {
   const router = useRouter()
   const { t } = useLanguage()
   const { toasts, success, error, removeToast } = useToast()
-  const { confirmState, confirm, closeConfirm } = useConfirm()
-  const [users, setUsers] = useState<User[]>([])
+  const { confirmState, confirm } = useConfirm()
+  const [users, setUsers] = useState<UserWithDetails[]>([])
   const [loading, setLoading] = useState(true)
   const [uploading, setUploading] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
   const [filterRole, setFilterRole] = useState('')
   const [showUserForm, setShowUserForm] = useState(false)
-  const [editingUser, setEditingUser] = useState<User | undefined>(undefined)
-  const [companies, setCompanies] = useState([])
-  const [managers, setManagers] = useState<any[]>([])
+  const [editingUser, setEditingUser] = useState<UserWithDetails | undefined>(undefined)
+  const [companies, setCompanies] = useState<Company[]>([])
+  const [managers, setManagers] = useState<Pick<User, 'id' | 'name' | 'email'>[]>([])
 
   useEffect(() => {
     if (status === 'loading') return
@@ -60,7 +45,7 @@ export default function UsersPage() {
       return
     }
 
-    const userRole = (session.user as any)?.role
+    const userRole = session.user?.role
     if (userRole !== 'hr') {
       router.push('/dashboard')
       return
@@ -69,12 +54,6 @@ export default function UsersPage() {
     fetchUsers()
     fetchCompanies()
   }, [session, status, router])
-
-  useEffect(() => {
-    if (users.length > 0) {
-      fetchManagers()
-    }
-  }, [users])
 
   const fetchUsers = async () => {
     try {
@@ -102,16 +81,22 @@ export default function UsersPage() {
     }
   }
 
-  const fetchManagers = async () => {
+  const fetchManagers = useCallback(async () => {
     try {
       const managerUsers = users.filter(user => user.role === 'manager' || user.role === 'hr')
       setManagers(managerUsers)
     } catch (error) {
       console.error('Error filtering managers:', error)
     }
-  }
+  }, [users])
 
-  const handleSaveUser = async (userData: any) => {
+  useEffect(() => {
+    if (users.length > 0) {
+      fetchManagers()
+    }
+  }, [users, fetchManagers])
+
+  const handleSaveUser = async (userData: Partial<User> & { password?: string }) => {
     try {
       const url = editingUser ? `/api/admin/users/${editingUser.id}` : '/api/admin/users'
       const method = editingUser ? 'PUT' : 'POST'
@@ -133,7 +118,7 @@ export default function UsersPage() {
         const errorData = await response.json()
         error(`Error: ${errorData.error}`)
       }
-    } catch (err) {
+    } catch {
       error('Failed to save user')
     }
   }
@@ -161,12 +146,12 @@ export default function UsersPage() {
         const errorData = await response.json()
         error(`Error: ${errorData.error}`)
       }
-    } catch (err) {
+    } catch {
       error('Failed to delete user')
     }
   }
 
-  const handleEditUser = (user: User) => {
+  const handleEditUser = (user: UserWithDetails) => {
     setEditingUser(user)
     setShowUserForm(true)
   }
@@ -198,7 +183,7 @@ export default function UsersPage() {
         const errorData = await response.json()
         error(`${t.users.importFailed}: ${errorData.error}`)
       }
-    } catch (err) {
+    } catch {
       error(t.users.uploadFailed)
     } finally {
       setUploading(false)

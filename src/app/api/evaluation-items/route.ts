@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
     }
 
     const userId = session.user.id
-    const companyId = (session.user as any).companyId
+    const companyId = session.user.companyId
     
     // Get employeeId from query parameters if evaluating someone else
     const { searchParams } = new URL(request.url)
@@ -167,8 +167,9 @@ export async function POST(request: NextRequest) {
     }
 
     const userId = session.user.id
-    const userRole = (session.user as any).role
-    const companyId = (session.user as any).companyId
+    const userRole = session.user.role
+    
+    const companyId = session.user.companyId
 
     // Only managers and HR can create items
     if (userRole !== 'manager' && userRole !== 'hr') {

@@ -1,12 +1,10 @@
 'use client'
 
 import { useSession } from 'next-auth/react'
-import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 
 export default function HomePage() {
   const { data: session, status } = useSession()
-  const router = useRouter()
 
   useEffect(() => {
     if (status === 'loading') return
@@ -17,7 +15,7 @@ export default function HomePage() {
     }
 
     // Direct redirect based on role - use window.location for faster navigation
-    const userRole = (session.user as any)?.role
+    const userRole = session.user?.role
     if (userRole === 'hr') {
       window.location.href = '/dashboard'
     } else if (userRole === 'manager') {

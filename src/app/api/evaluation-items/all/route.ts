@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma-client'
 
 // GET /api/evaluation-items/all - Get all evaluation items with assignment info
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const session = await auth()
     
@@ -14,9 +14,7 @@ export async function GET(request: NextRequest) {
       }, { status: 401 })
     }
 
-    const userId = session.user.id
-    const userRole = (session.user as any).role
-    const companyId = (session.user as any).companyId
+    const companyId = session.user.companyId
 
     // Get all evaluation items for the company
     const items = await prisma.evaluationItem.findMany({

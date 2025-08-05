@@ -91,7 +91,7 @@ export default function AssignmentsPage() {
     }
 
     // Only managers can access this page
-    if ((session.user as any).role !== 'manager') {
+    if (session.user?.role !== 'manager') {
       router.push('/dashboard')
       return
     }
@@ -329,7 +329,7 @@ export default function AssignmentsPage() {
               }}
             />
             
-            {tabs.map((tab, index) => (
+            {tabs.map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
@@ -350,7 +350,7 @@ export default function AssignmentsPage() {
       </div>
 
       {/* Content */}
-      <div ref={elementRef} className="px-4 py-6 min-h-[400px] touch-pan-y">
+      <div ref={elementRef as React.RefObject<HTMLDivElement>} className="px-4 py-6 min-h-[400px] touch-pan-y">
         {/* Company Tab - Read Only */}
         {activeTab === 'company' && (
           <div className="space-y-4 animate-in fade-in duration-300">

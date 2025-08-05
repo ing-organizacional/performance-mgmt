@@ -9,7 +9,7 @@ const nextConfig: NextConfig = {
   },
   output: 'standalone',
   // Ensure SQLite works in production
-  webpack: (config: any) => {
+  webpack: (config: { externals: Array<Record<string, string>> }) => {
     config.externals.push({
       'utf-8-validate': 'commonjs utf-8-validate',
       'bufferutil': 'commonjs bufferutil',

@@ -1,17 +1,41 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma-client'
 import bcrypt from 'bcryptjs'
+import { requireHRRole } from '@/lib/auth-middleware'
+
+interface UserUpdateData {
+  name?: string
+  email?: string | null
+  username?: string | null
+  role?: string
+  managerId?: string | null
+  userType?: string
+  department?: string | null
+  employeeId?: string | null
+  active?: boolean
+  passwordHash?: string
+  pinCode?: string | null
+}
 
 // GET /api/admin/users/[id] - Get single user
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const authResult = await requireHRRole(request)
+  if (authResult instanceof NextResponse) {
+    return authResult
+  }
+  const { user: authUser } = authResult
+
   try {
     const { id } = await params
     
     const user = await prisma.user.findUnique({
-      where: { id },
+      where: { 
+        id,
+        companyId: authUser.companyId
+      },
       include: {
         company: { select: { name: true, code: true } },
         manager: { select: { name: true, email: true } },
@@ -49,6 +73,12 @@ export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const authResult = await requireHRRole(request)
+  if (authResult instanceof NextResponse) {
+    return authResult
+  }
+  const { user: authUser } = authResult
+
   try {
     const { id } = await params
     const body = await request.json()
@@ -65,9 +95,12 @@ export async function PUT(
       active 
     } = body
 
-    // Check if user exists
+    // Check if user exists in same company
     const existingUser = await prisma.user.findUnique({
-      where: { id }
+      where: { 
+        id,
+        companyId: authUser.companyId
+      }
     })
 
     if (!existingUser) {
@@ -78,7 +111,7 @@ export async function PUT(
     }
 
     // Prepare update data
-    const updateData: any = {
+    const updateData: UserUpdateData = {
       name: name || existingUser.name,
       email: email !== undefined ? email : existingUser.email,
       username: username !== undefined ? username : existingUser.username,
@@ -126,12 +159,21 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const authResult = await requireHRRole(request)
+  if (authResult instanceof NextResponse) {
+    return authResult
+  }
+  const { user: authUser } = authResult
+
   try {
     const { id } = await params
 
     // Soft delete - just set active to false
     const user = await prisma.user.update({
-      where: { id },
+      where: { 
+        id,
+        companyId: authUser.companyId
+      },
       data: { active: false },
       select: { name: true, email: true, username: true }
     })

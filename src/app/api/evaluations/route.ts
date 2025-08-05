@@ -2,6 +2,24 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma-client'
 import { validateCycleWritePermission } from '@/lib/cycle-permissions'
+import { AuthUser } from '@/lib/auth-middleware'
+
+interface EvaluationRequestBody {
+  employeeId: string
+  evaluationItems: Array<{
+    id: string
+    title: string
+    description: string
+    type: 'okr' | 'competency'
+    rating: number | null
+    comment: string
+  }>
+  overallRating: number
+  overallComment?: string
+  periodType?: string
+  periodDate?: string
+  cycleId?: string
+}
 
 // GET /api/evaluations - Get evaluations for the logged-in user
 export async function GET(request: NextRequest) {
@@ -75,8 +93,9 @@ export async function POST(request: NextRequest) {
     }
 
     const userId = session.user.id
-    const userRole = (session.user as any).role
-    const companyId = (session.user as any).companyId
+    const sessionUser = session.user as AuthUser
+    const userRole = sessionUser.role
+    const companyId = sessionUser.companyId
 
     // Only managers can create evaluations
     if (userRole !== 'manager') {
@@ -86,7 +105,7 @@ export async function POST(request: NextRequest) {
       }, { status: 403 })
     }
 
-    const body = await request.json()
+    const body = await request.json() as EvaluationRequestBody
     const { 
       employeeId, 
       evaluationItems, 
@@ -116,7 +135,7 @@ export async function POST(request: NextRequest) {
           createdAt: 'desc'
         }
       })
-      targetCycleId = activeCycle?.id || null
+      targetCycleId = activeCycle?.id ?? undefined
     }
 
     // Validate cycle permissions
@@ -157,7 +176,7 @@ export async function POST(request: NextRequest) {
           overallRating,
           managerComments: overallComment,
           status: 'submitted',
-          cycleId: targetCycleId
+          cycleId: targetCycleId === null ? undefined : targetCycleId
         }
       })
     } else {
@@ -167,7 +186,7 @@ export async function POST(request: NextRequest) {
           employeeId,
           managerId: userId,
           companyId,
-          cycleId: targetCycleId,
+          cycleId: targetCycleId === null ? undefined : targetCycleId,
           periodType,
           periodDate,
           evaluationItemsData: JSON.stringify(evaluationItems),
