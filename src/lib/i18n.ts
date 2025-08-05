@@ -110,6 +110,38 @@ export interface Translations {
     create: string
     evaluationDeadline: string
   }
+
+  // Company Items
+  companyItems: {
+    title: string
+    subtitle: string
+    infoTitle: string
+    infoDescription: string
+    createNewTitle: string
+    newCompanyOKR: string
+    newCompanyCompetency: string
+    existingItemsTitle: string
+    itemsAppliedToAll: string
+    objective: string
+    competencyName: string
+    keyResults: string
+    description: string
+    activate: string
+    deactivate: string
+    active: string
+    inactive: string
+    createdBy: string
+    appliedToAllEmployees: string
+    noItemsTitle: string
+    noItemsDescription: string
+    companyOKR: string
+    companyCompetency: string
+    companyWide: string
+    confirmDeactivate: string
+    confirmActivate: string
+    deactivateWarning: string
+    activateWarning: string
+  }
   
   // OKRs (only commonly used keys)
   okrs: {
@@ -150,6 +182,7 @@ export interface Translations {
     endDate: string
     createCycle: string
     creating: string
+    companyWideItems: string
   }
   
   // User Management
@@ -290,6 +323,36 @@ export const translations: Record<Language, Translations> = {
       create: 'Create',
       evaluationDeadline: 'Evaluation Deadline (Optional)'
     },
+    companyItems: {
+      title: 'Company-Wide Items',
+      subtitle: 'items applied to all employees',
+      infoTitle: 'Company-Wide Items',
+      infoDescription: 'Items created here are automatically applied to all employees across all departments. Only HR can create and manage these items.',
+      createNewTitle: 'Create New Company-Wide Items',
+      newCompanyOKR: 'New Company OKR',
+      newCompanyCompetency: 'New Company Competency',
+      existingItemsTitle: 'Existing Company Items',
+      itemsAppliedToAll: 'items applied to all employees',
+      objective: 'Objective',
+      competencyName: 'Competency Name',
+      keyResults: 'Key Results',
+      description: 'Description',
+      activate: 'Activate',
+      deactivate: 'Deactivate',
+      active: 'Active',
+      inactive: 'Inactive',
+      createdBy: 'Created by',
+      appliedToAllEmployees: 'Applied to all employees',
+      noItemsTitle: 'No company-wide items yet',
+      noItemsDescription: 'Create your first company-wide OKR or competency to get started.',
+      companyOKR: 'Company OKR',
+      companyCompetency: 'Company Competency',
+      companyWide: 'Company-Wide',
+      confirmDeactivate: 'Deactivate Company-Wide',
+      confirmActivate: 'Activate Company-Wide', 
+      deactivateWarning: 'This will remove the item from ALL employee evaluations company-wide.',
+      activateWarning: 'This will make the item available for ALL employees company-wide.'
+    },
     okrs: {
       objective: 'Objective',
       keyResults: 'Key Results'
@@ -325,7 +388,8 @@ export const translations: Record<Language, Translations> = {
       startDate: 'Start Date',
       endDate: 'End Date',
       createCycle: 'Create Cycle',
-      creating: 'Creating...'
+      creating: 'Creating...',
+      companyWideItems: 'Company-Wide OKRs & Competencies'
     },
     users: {
       userManagement: 'User Management',
@@ -462,6 +526,36 @@ export const translations: Record<Language, Translations> = {
       create: 'Crear',
       evaluationDeadline: 'Fecha Límite de Evaluación (Opcional)'
     },
+    companyItems: {
+      title: 'Elementos de Toda la Empresa',
+      subtitle: 'elementos aplicados a todos los colaboradores',
+      infoTitle: 'Elementos de Toda la Empresa',
+      infoDescription: 'Los elementos creados aquí se aplican automáticamente a todos los colaboradores en todos los departamentos. Solo RRHH puede crear y gestionar estos elementos.',
+      createNewTitle: 'Crear Nuevos Elementos de Toda la Empresa',
+      newCompanyOKR: 'Nuevo OKR de Empresa',
+      newCompanyCompetency: 'Nueva Competencia de Empresa',
+      existingItemsTitle: 'Elementos Existentes de la Empresa',
+      itemsAppliedToAll: 'elementos aplicados a todos los colaboradores',
+      objective: 'Objetivo',
+      competencyName: 'Nombre de la Competencia',
+      keyResults: 'Resultados Clave',
+      description: 'Descripción',
+      activate: 'Activar',
+      deactivate: 'Desactivar',
+      active: 'Activo',
+      inactive: 'Inactivo',
+      createdBy: 'Creado por',
+      appliedToAllEmployees: 'Aplicado a todos los colaboradores',
+      noItemsTitle: 'Aún no hay elementos de toda la empresa',
+      noItemsDescription: 'Crea tu primer OKR o competencia de toda la empresa para comenzar.',
+      companyOKR: 'OKR de Empresa',
+      companyCompetency: 'Competencia de Empresa',
+      companyWide: 'Toda la Empresa',
+      confirmDeactivate: 'Desactivar de Toda la Empresa',
+      confirmActivate: 'Activar para Toda la Empresa',
+      deactivateWarning: 'Esto eliminará el elemento de TODAS las evaluaciones de colaboradores en toda la empresa.',
+      activateWarning: 'Esto hará que el elemento esté disponible para TODOS los colaboradores en toda la empresa.'
+    },
     okrs: {
       objective: 'Objetivo',
       keyResults: 'Resultados Clave'
@@ -497,7 +591,8 @@ export const translations: Record<Language, Translations> = {
       startDate: 'Fecha de Inicio',
       endDate: 'Fecha de Fin',
       createCycle: 'Crear Ciclo',
-      creating: 'Creando...'
+      creating: 'Creando...',
+      companyWideItems: 'OKRs y Competencias de Toda la Empresa'
     },
     users: {
       userManagement: 'Gestión de Usuarios',

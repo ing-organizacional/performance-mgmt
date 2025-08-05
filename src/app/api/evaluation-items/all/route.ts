@@ -3,7 +3,7 @@ import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma-client'
 
 // GET /api/evaluation-items/all - Get all evaluation items with assignment info
-export async function GET() {
+export async function GET(request: Request) {
   try {
     const session = await auth()
     
@@ -15,13 +15,17 @@ export async function GET() {
     }
 
     const companyId = session.user.companyId
+    const { searchParams } = new URL(request.url)
+    const includeInactive = searchParams.get('includeInactive') === 'true'
 
-    // Get all evaluation items for the company
+    // Get evaluation items for the company
+    const whereClause: { companyId: string; active?: boolean } = { companyId }
+    if (!includeInactive) {
+      whereClause.active = true
+    }
+
     const items = await prisma.evaluationItem.findMany({
-      where: {
-        companyId,
-        active: true
-      },
+      where: whereClause,
       include: {
         creator: {
           select: {
@@ -60,6 +64,7 @@ export async function GET() {
       description: item.description,
       type: item.type,
       level: item.level,
+      active: item.active, // ✅ Include active status
       createdBy: item.creator.name,
       creatorRole: item.creator.role,
       assignedEmployees: item.individualAssignments.map(assignment => assignment.employee.name),
@@ -67,7 +72,8 @@ export async function GET() {
       evaluationDeadline: item.evaluationDeadline?.toISOString() || null,
       deadlineSetBy: item.deadlineSetByUser?.name || null,
       deadlineSetByRole: item.deadlineSetByUser?.role || null,
-      assignedTo: item.assignedTo
+      assignedTo: item.assignedTo,
+      createdAt: item.createdAt.toISOString() // ✅ Also include creation date for sorting
     }))
 
     return NextResponse.json({ 

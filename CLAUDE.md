@@ -351,6 +351,7 @@ interface StructuredEvaluationItem {
 11. **Performance Cycle Management**: Complete cycle creation, status management, and read-only enforcement
 12. **Partial Assessment System**: HR can make individual item assessments with evaluation date tracking
 13. **Evaluation Deadlines**: Complete deadline management system with role-based permissions and urgency tracking
+14. **Company Items Management**: Fixed badge update issues and improved state management for activate/deactivate functionality
 
 **New Features Added:**
 - **HR Manager Support**: HR users can access `/evaluations` page to manage their direct reports
@@ -366,6 +367,8 @@ interface StructuredEvaluationItem {
 - **Deadline Management System**: Role-based deadline setting, urgency tracking, HR oversight interface
 - **Deadline Utilities**: Comprehensive deadline calculation and styling utilities
 - **Deadline Display Components**: Reusable deadline visualization with urgency indicators
+- **Company Items Badge Fix**: Active/Inactive badges now properly reflect database state after toggle operations
+- **Enhanced Translation Support**: Fixed hardcoded text in company items interface
 
 **UI/UX Improvements:**
 - Language switcher made more subtle (removed prominent orange border)
@@ -386,6 +389,13 @@ interface StructuredEvaluationItem {
 - **Database schema expanded**: Added PerformanceCycle and PartialAssessment tables
 - **API changes**: Evaluation endpoints now include cycle validation
 - **Permission system**: New role-based cycle access controls
+
+**Bug Fixes (Latest):**
+- **Company Items Badge Issue**: Fixed Active/Inactive badges not updating after toggle operations
+- **API Parameter Fix**: Added `includeInactive=true` parameter to properly fetch all company items for management
+- **Translation Fix**: Replaced hardcoded "Company-Wide" text with proper translation keys
+- **TypeScript Error**: Fixed incorrect field name in evaluation item assignment deletion
+- **Code Quality**: Resolved ESLint errors by replacing `any` types with proper interfaces
 
 **Performance Notes:**
 - SQLite handles the scale easily (4K employees across 27 companies)

@@ -362,7 +362,7 @@ export default function AssignmentsPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-10">
+      <div className="bg-white shadow-sm border-b border-gray-200 fixed top-0 left-0 right-0 z-20">
         <div className="px-4 py-4">
           <div className="flex items-center justify-between">
             <button
@@ -425,7 +425,7 @@ export default function AssignmentsPage() {
       </div>
 
       {/* Content */}
-      <div ref={elementRef as React.RefObject<HTMLDivElement>} className="px-4 py-6 min-h-[400px] touch-pan-y">
+      <div ref={elementRef as React.RefObject<HTMLDivElement>} className="px-4 py-6 pt-28 min-h-[400px] touch-pan-y">
         {/* Company Tab - Read Only */}
         {activeTab === 'company' && (
           <div className="space-y-4 animate-in fade-in duration-300">

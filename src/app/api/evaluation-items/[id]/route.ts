@@ -30,9 +30,12 @@ export async function PUT(
     }
 
     const body = await request.json()
-    const { title, description, evaluationDeadline } = body
+    const { title, description, evaluationDeadline, active } = body
 
-    if (!title || !description) {
+    // If only toggling active status, don't require title/description
+    const isActiveToggle = active !== undefined && !title && !description
+    
+    if (!isActiveToggle && (!title || !description)) {
       return NextResponse.json({ 
         success: false, 
         error: 'Title and description are required' 
@@ -121,19 +124,94 @@ export async function PUT(
 
     // Prepare update data
     const updateData: {
-      title: string
-      description: string
+      title?: string
+      description?: string
       evaluationDeadline?: Date | null
       deadlineSetBy?: string | null
-    } = {
-      title,
-      description
+      active?: boolean
+    } = {}
+
+    // Only update title/description if provided (not for active-only toggles)
+    if (!isActiveToggle) {
+      updateData.title = title
+      updateData.description = description
+    }
+
+    // Handle active status changes
+    if (active !== undefined) {
+      updateData.active = active
     }
 
     // Add deadline fields if they were provided in the request
     if (evaluationDeadline !== undefined) {
       updateData.evaluationDeadline = deadlineDate
       updateData.deadlineSetBy = deadlineDate ? session.user.id : null
+    }
+
+    // Handle deactivation - remove all existing assignments
+    if (active === false && existingItem.active === true) {
+      try {
+        // For company-level items, we need to remove them from all existing evaluations
+        if (existingItem.level === 'company') {
+          // Find all evaluations that contain this item in their evaluationItemsData JSON
+          const evaluations = await prisma.evaluation.findMany({
+            where: {
+              companyId: existingItem.companyId
+            }
+          })
+
+          // Remove this item from all evaluations' JSON data
+          for (const evaluation of evaluations) {
+            if (evaluation.evaluationItemsData) {
+              try {
+                const items = JSON.parse(evaluation.evaluationItemsData)
+                const filteredItems = items.filter((item: { id: string }) => item.id !== existingItem.id)
+                
+                if (filteredItems.length !== items.length) {
+                  // Item was found and removed, update the evaluation
+                  await prisma.evaluation.update({
+                    where: { id: evaluation.id },
+                    data: {
+                      evaluationItemsData: JSON.stringify(filteredItems)
+                    }
+                  })
+                }
+              } catch (jsonError) {
+                console.error('Error parsing evaluation JSON data:', jsonError)
+              }
+            }
+          }
+        }
+
+        // Also remove from individual assignments if they exist
+        await prisma.evaluationItemAssignment.deleteMany({
+          where: {
+            evaluationItemId: existingItem.id
+          }
+        })
+
+        // Log the deactivation for audit purposes
+        const auditLog = {
+          timestamp: new Date().toISOString(),
+          userId: session.user.id,
+          userName: session.user.name,
+          userRole: session.user.role,
+          action: 'item_deactivated',
+          itemId: id,
+          itemTitle: existingItem.title,
+          itemLevel: existingItem.level,
+          companyId: existingItem.companyId,
+          message: 'Item deactivated and removed from all employee evaluations'
+        }
+        console.log('AUDIT: Evaluation item deactivated:', JSON.stringify(auditLog, null, 2))
+
+      } catch (cleanupError) {
+        console.error('Error cleaning up assignments during deactivation:', cleanupError)
+        return NextResponse.json({ 
+          success: false, 
+          error: 'Failed to remove item assignments during deactivation' 
+        }, { status: 500 })
+      }
     }
 
     // Log deadline changes for audit purposes
@@ -183,13 +261,16 @@ export async function PUT(
         description: updatedItem.description,
         type: updatedItem.type,
         level: updatedItem.level,
+        active: updatedItem.active,
         createdBy: updatedItem.creator.name,
         creatorRole: updatedItem.creator.role,
         evaluationDeadline: updatedItem.evaluationDeadline?.toISOString() || null,
         deadlineSetBy: updatedItem.deadlineSetByUser?.name || null,
         deadlineSetByRole: updatedItem.deadlineSetByUser?.role || null
       },
-      message: 'Evaluation item updated successfully'
+      message: active === false && existingItem.active === true 
+        ? 'Item deactivated and removed from all employee evaluations'
+        : 'Evaluation item updated successfully'
     })
 
   } catch (error) {
