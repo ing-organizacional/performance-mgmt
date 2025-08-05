@@ -98,32 +98,32 @@ export default function MyEvaluationsPage() {
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-20">
-        <div className="px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-xl font-semibold text-gray-900">{t.nav.myEvaluations}</h1>
-              <p className="text-sm text-gray-600 mt-1">
-                Welcome back, {session?.user?.name} - Performance History
+        <div className="px-4 py-3">
+          {/* Title Section */}
+          <div className="flex items-center justify-between mb-3">
+            <div className="min-w-0 flex-1">
+              <h1 className="text-lg font-semibold text-gray-900 truncate">{t.nav.myEvaluations}</h1>
+              <p className="text-xs text-gray-500 truncate">
+                Welcome back, {session?.user?.name}
               </p>
             </div>
-            <div className="flex items-center gap-3">
-              <div className="flex items-center space-x-2 px-3 py-2 text-sm font-medium opacity-0 pointer-events-none">
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd" />
-                </svg>
-                <span>Asignaciones</span>
-              </div>
-              <LanguageSwitcher />
-              <button
-                onClick={() => signOut({ callbackUrl: '/login' })}
-                className="flex items-center justify-center w-10 h-10 bg-green-600 text-white rounded-lg hover:bg-green-700 active:scale-95 transition-all duration-150 touch-manipulation -mr-2"
-                title={t.auth.signOut}
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                </svg>
-              </button>
+            <button
+              onClick={() => signOut({ callbackUrl: '/login' })}
+              className="flex items-center justify-center w-9 h-9 bg-red-600 text-white rounded-lg hover:bg-red-700 active:scale-95 transition-all duration-150 touch-manipulation ml-3"
+              title={t.auth.signOut}
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+              </svg>
+            </button>
+          </div>
+          
+          {/* Actions Section */}
+          <div className="flex items-center justify-between">
+            <div className="opacity-50 pointer-events-none">
+              <span className="text-xs text-gray-500">Performance History</span>
             </div>
+            <LanguageSwitcher />
           </div>
         </div>
       </div>

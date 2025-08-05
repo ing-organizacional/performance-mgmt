@@ -2,7 +2,7 @@
 
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef, useCallback } from 'react'
 import { useParams } from 'next/navigation'
 import { useLanguage } from '@/contexts/LanguageContext'
 import LanguageSwitcher from '@/components/LanguageSwitcher'
@@ -29,7 +29,7 @@ export default function EvaluatePage() {
   const router = useRouter()
   const params = useParams()
   const { t } = useLanguage()
-  const { toasts, success, error, removeToast } = useToast()
+  const { toasts, error, removeToast } = useToast()
   const [currentStep, setCurrentStep] = useState(0)
   const [evaluationItems, setEvaluationItems] = useState<EvaluationItem[]>([])
   const [overallRating, setOverallRating] = useState<number | null>(null)
@@ -65,19 +65,7 @@ export default function EvaluatePage() {
     return false
   }
 
-  useEffect(() => {
-    if (status === 'loading') return
-    
-    if (!session) {
-      router.push('/login')
-      return
-    }
-
-    // Fetch evaluation items and employee data
-    fetchEvaluationData()
-  }, [session, status, router, t])
-
-  const fetchEvaluationData = async () => {
+  const fetchEvaluationData = useCallback(async () => {
     try {
       // Fetch evaluation items for this specific employee
       const itemsResponse = await fetch(`/api/evaluation-items?employeeId=${params.id}`)
@@ -90,7 +78,7 @@ export default function EvaluatePage() {
       const employeeResponse = await fetch('/api/manager/team')
       if (employeeResponse.ok) {
         const employeeData = await employeeResponse.json()
-        const employee = employeeData.employees?.find((emp: any) => emp.id === params.id)
+        const employee = employeeData.employees?.find((emp: { id: string }) => emp.id === params.id)
         if (employee) {
           setEmployeeName(employee.name)
           
@@ -106,7 +94,19 @@ export default function EvaluatePage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [params.id])
+
+  useEffect(() => {
+    if (status === 'loading') return
+    
+    if (!session) {
+      router.push('/login')
+      return
+    }
+
+    // Fetch evaluation items and employee data
+    fetchEvaluationData()
+  }, [session, status, router, fetchEvaluationData])
 
   const loadExistingEvaluation = async (evaluationId: string) => {
     try {
@@ -171,8 +171,8 @@ export default function EvaluatePage() {
       setEditingItemId(null)
       setEditingItemData(null)
       
-    } catch (error) {
-      console.error('Error updating item:', error)
+    } catch (err) {
+      console.error('Error updating item:', err)
       error('Failed to update item')
     }
   }
@@ -245,7 +245,7 @@ export default function EvaluatePage() {
           error(`Error: ${errorData.error}`)
           setSubmitting(false)
         }
-      } catch (err) {
+      } catch {
         error('Failed to submit evaluation')
         setSubmitting(false)
       }

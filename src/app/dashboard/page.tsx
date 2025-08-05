@@ -72,30 +72,33 @@ export default function DashboardPage() {
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="bg-white shadow-sm border-b border-gray-200">
-        <div className="px-4 py-4">
+        <div className="px-4 py-3">
+          {/* Title Section */}
+          <div className="flex items-center justify-between mb-3">
+            <div className="min-w-0 flex-1">
+              <h1 className="text-lg font-semibold text-gray-900 truncate">{t.dashboard.hrDashboard}</h1>
+              <p className="text-xs text-gray-500">{t.dashboard.q1Reviews}</p>
+            </div>
+            <button
+              onClick={() => signOut({ callbackUrl: '/login' })}
+              className="flex items-center justify-center w-9 h-9 bg-red-600 text-white rounded-lg hover:bg-red-700 active:scale-95 transition-all duration-150 touch-manipulation ml-3"
+              title={t.auth.signOut}
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+              </svg>
+            </button>
+          </div>
+          
+          {/* Actions Section */}
           <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-xl font-semibold text-gray-900">{t.dashboard.hrDashboard}</h1>
-              <p className="text-sm text-gray-600 mt-1">{t.dashboard.q1Reviews}</p>
-            </div>
-            <div className="flex items-center gap-3">
-              <LanguageSwitcher />
-              <button
-                onClick={() => router.push('/evaluations')}
-                className="px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 transition-colors"
-              >
-                {t.dashboard.newEvaluation}
-              </button>
-              <button
-                onClick={() => signOut({ callbackUrl: '/login' })}
-                className="flex items-center justify-center w-10 h-10 bg-green-600 text-white rounded-lg hover:bg-green-700 active:scale-95 transition-all duration-150 touch-manipulation -mr-2"
-                title={t.auth.signOut}
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                </svg>
-              </button>
-            </div>
+            <button
+              onClick={() => router.push('/evaluations')}
+              className="px-3 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 active:scale-95 transition-all duration-150 touch-manipulation"
+            >
+              {t.dashboard.newEvaluation}
+            </button>
+            <LanguageSwitcher />
           </div>
         </div>
       </div>
