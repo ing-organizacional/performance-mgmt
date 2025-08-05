@@ -86,7 +86,7 @@ export default function EvaluationsPage() {
             <div className="flex items-center gap-2">
               <button
                 onClick={() => router.push('/evaluations/assignments')}
-                className="flex items-center space-x-1 px-3 py-1.5 bg-blue-100 text-blue-700 text-sm font-medium rounded-lg hover:bg-blue-200 transition-colors"
+                className="flex items-center space-x-2 px-4 py-3 min-h-[44px] bg-blue-100 text-blue-700 text-sm font-medium rounded-lg hover:bg-blue-200 active:scale-95 active:bg-blue-300 transition-all duration-150 touch-manipulation"
               >
                 <span>⚙️</span>
                 <span>{t.nav.assignments}</span>
@@ -149,7 +149,7 @@ export default function EvaluationsPage() {
             <div
               key={employee.id}
               onClick={() => router.push(`/evaluate/${employee.id}`)}
-              className="bg-white rounded-lg border border-gray-200 p-4 shadow-sm active:bg-gray-50 transition-colors cursor-pointer"
+              className="bg-white rounded-lg border border-gray-200 p-5 min-h-[80px] shadow-sm hover:shadow-md active:scale-[0.98] active:bg-gray-50 transition-all duration-150 cursor-pointer touch-manipulation"
             >
               <div className="flex items-center justify-between">
                 <div className="flex-1 min-w-0">

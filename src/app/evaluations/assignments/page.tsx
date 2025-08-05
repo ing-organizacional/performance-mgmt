@@ -273,10 +273,10 @@ export default function AssignmentsPage() {
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`flex-1 py-3 px-4 text-sm font-medium rounded-t-lg transition-all duration-200 ${
+                className={`flex-1 py-4 px-4 min-h-[44px] text-sm font-medium rounded-t-lg transition-all duration-200 active:scale-95 touch-manipulation ${
                   activeTab === tab
-                    ? 'bg-blue-50 text-blue-700 border-b-2 border-blue-700'
-                    : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50'
+                    ? 'bg-blue-50 text-blue-700 border-b-2 border-blue-700 shadow-sm'
+                    : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50 active:bg-gray-100'
                 }`}
               >
                 <div className="flex items-center justify-center space-x-2">
@@ -343,14 +343,14 @@ export default function AssignmentsPage() {
               <div className="flex space-x-3">
                 <button
                   onClick={() => handleCreateNew('okr')}
-                  className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
+                  className="flex items-center space-x-2 px-6 py-3 min-h-[44px] bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 active:scale-95 active:bg-blue-800 transition-all duration-150 touch-manipulation"
                 >
                   <span>🎯</span>
                   <span>{t.assignments.newOKR}</span>
                 </button>
                 <button
                   onClick={() => handleCreateNew('competency')}
-                  className="flex items-center space-x-2 px-4 py-2 bg-purple-600 text-white text-sm font-medium rounded-lg hover:bg-purple-700 transition-colors"
+                  className="flex items-center space-x-2 px-6 py-3 min-h-[44px] bg-purple-600 text-white text-sm font-medium rounded-lg hover:bg-purple-700 active:scale-95 active:bg-purple-800 transition-all duration-150 touch-manipulation"
                 >
                   <span>⭐</span>
                   <span>{t.assignments.newCompetency}</span>
@@ -434,13 +434,20 @@ export default function AssignmentsPage() {
               <h3 className="font-semibold text-gray-900 mb-3">{t.assignments.selectEmployeesForBatch}</h3>
               <div className="space-y-2">
                 {employees.map((employee) => (
-                  <label key={employee.id} className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={selectedEmployees.includes(employee.id)}
-                      onChange={() => handleEmployeeSelection(employee.id)}
-                      className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                    />
+                  <label key={employee.id} className="flex items-center space-x-4 p-4 min-h-[60px] rounded-lg hover:bg-gray-50 active:bg-gray-100 cursor-pointer transition-all duration-150 touch-manipulation">
+                    <div className="relative">
+                      <input
+                        type="checkbox"
+                        checked={selectedEmployees.includes(employee.id)}
+                        onChange={() => handleEmployeeSelection(employee.id)}
+                        className="w-5 h-5 text-blue-600 border-2 border-gray-300 rounded focus:ring-blue-500 focus:ring-2 transition-all duration-150"
+                      />
+                      {selectedEmployees.includes(employee.id) && (
+                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                          <span className="text-white text-xs font-bold">✓</span>
+                        </div>
+                      )}
+                    </div>
                     <div className="flex-1">
                       <div className="font-medium text-gray-900">{employee.name}</div>
                       <div className="text-sm text-gray-500">
@@ -555,7 +562,7 @@ export default function AssignmentsPage() {
                         </div>
                         <button
                           onClick={() => handleEditItem(item)}
-                          className="flex items-center space-x-1 px-3 py-1.5 bg-gray-100 text-gray-700 text-xs font-medium rounded-lg hover:bg-gray-200 transition-colors flex-shrink-0"
+                          className="flex items-center space-x-1 px-4 py-3 min-h-[44px] bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 active:scale-95 active:bg-gray-300 transition-all duration-150 flex-shrink-0 touch-manipulation"
                         >
                           <span>✏️</span>
                           <span>{t.common.editButton}</span>
@@ -568,7 +575,7 @@ export default function AssignmentsPage() {
                         <button
                           onClick={() => handleBulkAssignment(item.id)}
                           disabled={selectedEmployees.length === 0}
-                          className="flex items-center space-x-2 px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+                          className="flex items-center space-x-2 px-6 py-3 min-h-[44px] bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 active:scale-95 active:bg-green-800 disabled:bg-gray-300 disabled:cursor-not-allowed disabled:active:scale-100 transition-all duration-150 touch-manipulation"
                         >
                           <span>➕</span>
                           <span>{t.assignments.assignToSelected}</span>
