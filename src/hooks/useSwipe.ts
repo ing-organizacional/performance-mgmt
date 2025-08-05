@@ -25,7 +25,7 @@ export function useSwipe(
     trackMouse = false
   } = options
 
-  const elementRef = useRef<HTMLElement>(null)
+  const elementRef = useRef<HTMLDivElement>(null)
   const [isSwiping, setIsSwiping] = useState(false)
   
   const startPos = useRef({ x: 0, y: 0 })

@@ -6,6 +6,12 @@ This file provides comprehensive guidance to Claude Code (claude.ai/code) when w
 
 Performance Management System - A mobile-first web application for managing employee OKRs and competency evaluations across 27 companies with 4000+ employees. Built for mixed workforce (office workers + operational workers) with full bilingual support.
 
+## Branch Status
+
+**Current Branch:** `advanced-features` (STANDBY - Ready for Future Integration)
+**Main Development:** Continue on `main` or `ui-enhancements` for core functionality
+**Status:** Advanced features complete and tested, non-breaking, ready to merge when needed
+
 ## Critical Architecture
 
 **Tech Stack:**
@@ -240,11 +246,103 @@ interface EvaluationItem {
 - Mobile-optimized bundle size critical for operational workers
 - TypeScript compilation is clean and fast
 
+## Advanced Features (advanced-features Branch - STANDBY)
+
+**⚠️ IMPORTANT: These features are implemented and ready but kept on standby branch for future integration**
+
+### 🎤 Spanish Speech-to-Text (Ready for Production)
+
+**Implementation Status:** ✅ Complete and tested
+**Browser Support:** Chrome, Safari, Edge, Opera (NOT Firefox)
+**Requirements:** HTTPS connection, microphone permissions
+
+**Components Added:**
+- `useSpeechRecognition.ts` - Hook for Web Speech API integration
+- `SpeechTextarea.tsx` - Enhanced textarea with voice input button
+- `SpeechToTextButton.tsx` - Microphone control component
+
+**Features:**
+- Automatic language detection (Spanish/English based on UI language)
+- Real-time transcription with interim results
+- Error handling with user-friendly messages
+- Mobile-optimized with haptic feedback
+- Progressive enhancement (graceful fallback)
+
+**Integration Points:**
+- Evaluation comment fields (individual items + overall feedback)
+- Character limits and validation preserved
+- Toast notifications for errors
+- Full bilingual support
+
+### 🔐 WebAuthn Biometric Authentication (Ready for Production)
+
+**Implementation Status:** ✅ Complete and tested
+**Browser Support:** Safari (Face ID/Touch ID), Chrome/Edge (Windows Hello/Android Fingerprint)
+**Requirements:** HTTPS connection, compatible biometric sensors
+
+**Components Added:**
+- `useWebAuthn.ts` - Hook for WebAuthn API integration
+- `BiometricAuth.tsx` - Biometric authentication interface
+- Enhanced login page with biometric option
+
+**Features:**
+- Platform authenticator support (Face ID, Touch ID, Fingerprint)
+- Device-specific icons and messaging
+- Comprehensive error handling
+- WebAuthn standard compliance (FIDO2)
+- Alternative to password authentication
+
+**Security Benefits:**
+- Multi-factor authentication inherent (device + biometric)
+- Private keys stored in secure hardware (Secure Enclave, TPM)
+- No biometric data sent to server
+- FIDO2 compliance for enterprise security
+
+### 🌐 Enhanced Translations
+
+**New Translation Keys Added:**
+- `speech.*` - Speech recognition messages and controls
+- `biometric.*` - Biometric authentication interface
+- Full Spanish/English support for all new features
+
+### 📱 Mobile Enhancements
+
+**Touch Optimizations:**
+- 44px minimum touch targets
+- Haptic feedback for voice input
+- Visual feedback for recording states
+- Thumb-friendly button placement
+
+**Progressive Enhancement:**
+- Features only render if browser/device supports them
+- Zero impact on unsupported browsers
+- Graceful error handling and fallbacks
+
+### 🚀 Production Readiness
+
+**Requirements for Deployment:**
+- HTTPS certificate (required for both features)
+- Modern browser support documented
+- User permission flows tested
+- Error scenarios handled
+
+**Non-Breaking Integration:**
+- Zero changes to existing functionality
+- Optional features that enhance UX
+- No database schema changes required
+- Fully backwards compatible
+
 ## GitHub Repository
 
 **Repository:** https://github.com/ing-organizacional/performance-mgmt
-**Branch:** main
-**Status:** Production-ready (with security fixes)
+**Current Branch:** `advanced-features` (standby)
+**Main Development Branch:** `main` or `ui-enhancements`
+**Status:** Advanced features ready for future integration
+
+**Branch Strategy:**
+- `main` - Core functionality development
+- `ui-enhancements` - UI improvements and mobile optimizations
+- `advanced-features` - **STANDBY** - Advanced features ready to merge
 
 **Commit Patterns:**
 - Use descriptive commit messages
@@ -256,4 +354,4 @@ interface EvaluationItem {
 Co-Authored-By: Claude <noreply@anthropic.com>
 ```
 
-This system has a solid architecture and is ready for deployment with the above security fixes.
+This system has a solid architecture and is ready for deployment. The advanced features branch provides significant UX enhancements for the mixed workforce when ready to integrate.

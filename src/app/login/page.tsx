@@ -5,6 +5,7 @@ import { signIn } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useLanguage } from '@/contexts/LanguageContext'
 import LanguageSwitcher from '@/components/LanguageSwitcher'
+import BiometricAuth from '@/components/BiometricAuth'
 
 export default function LoginPage() {
   const [identifier, setIdentifier] = useState('')
@@ -13,7 +14,33 @@ export default function LoginPage() {
   const [error, setError] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const router = useRouter()
-  const { t } = useLanguage()
+  const { t, language } = useLanguage()
+
+  const handleBiometricLogin = async (credentialId: string) => {
+    setLoading(true)
+    setError('')
+
+    try {
+      // In a real implementation, you would send the credentialId to your server
+      // to verify the WebAuthn authentication and get the user session
+      
+      // For demo purposes, we'll simulate a successful biometric login
+      const result = await signIn('credentials', {
+        biometricCredentialId: credentialId,
+        redirect: false
+      })
+
+      if (result?.error) {
+        setError(t.auth.invalidCredentials)
+      } else {
+        router.push('/dashboard')
+      }
+    } catch (error) {
+      setError(t.auth.loginFailed)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -137,6 +164,30 @@ export default function LoginPage() {
               </button>
             </div>
           </form>
+
+          {/* Biometric Authentication */}
+          <div className="mt-6">
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-300" />
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="bg-white px-2 text-gray-500">
+                  {language === 'es' ? 'o continúa con' : 'or continue with'}
+                </span>
+              </div>
+            </div>
+            
+            <div className="mt-4">
+              <BiometricAuth
+                mode="login"
+                onSuccess={handleBiometricLogin}
+                onError={setError}
+                disabled={loading}
+                className="w-full"
+              />
+            </div>
+          </div>
 
           <div className="mt-6">
             <div className="relative">

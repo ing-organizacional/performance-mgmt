@@ -2,6 +2,7 @@
   "name": "performance-mgmt",
   "version": "0.1.0",
   "private": true,
+  "description": "Performance Management System - Mobile-first OKR and competency evaluation platform for mixed workforce (4000+ employees, 27 companies). Branch: advanced-features includes Speech-to-Text and Biometric Authentication (STANDBY)",
   "scripts": {
     "dev": "next dev",
     "build": "next build",

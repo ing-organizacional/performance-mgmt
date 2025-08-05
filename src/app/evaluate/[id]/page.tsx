@@ -7,6 +7,7 @@ import { useParams } from 'next/navigation'
 import { useLanguage } from '@/contexts/LanguageContext'
 import LanguageSwitcher from '@/components/LanguageSwitcher'
 import ToastContainer from '@/components/ToastContainer'
+import SpeechTextarea from '@/components/SpeechTextarea'
 import { useToast } from '@/hooks/useToast'
 import { hapticFeedback } from '@/utils/haptics'
 
@@ -28,7 +29,7 @@ export default function EvaluatePage() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const params = useParams()
-  const { t } = useLanguage()
+  const { t, language } = useLanguage()
   const { toasts, success, error, removeToast } = useToast()
   const [currentStep, setCurrentStep] = useState(0)
   const [evaluationItems, setEvaluationItems] = useState<EvaluationItem[]>([])
@@ -41,8 +42,7 @@ export default function EvaluatePage() {
   const [editingItemId, setEditingItemId] = useState<string | null>(null)
   const [editingItemData, setEditingItemData] = useState<{ title: string; description: string } | null>(null)
   
-  // Ref for focusing on comment textarea
-  const commentTextareaRef = useRef<HTMLTextAreaElement>(null)
+  // Note: Speech textarea handles focus automatically after speech input
 
   const totalSteps = evaluationItems.length + 1 // +1 for overall rating
   const currentItem = currentStep < evaluationItems.length 
@@ -171,8 +171,8 @@ export default function EvaluatePage() {
       setEditingItemId(null)
       setEditingItemData(null)
       
-    } catch (error) {
-      console.error('Error updating item:', error)
+    } catch (err) {
+      console.error('Error updating item:', err)
       error('Failed to update item')
     }
   }
@@ -190,10 +190,7 @@ export default function EvaluatePage() {
       setOverallRating(rating)
     }
     
-    // Focus on comment textarea after rating (small delay for smooth UX)
-    setTimeout(() => {
-      commentTextareaRef.current?.focus()
-    }, 100)
+    // Note: SpeechTextarea will handle focus automatically after voice input
   }
 
   const handleNext = async () => {
@@ -518,22 +515,23 @@ export default function EvaluatePage() {
                     {t.evaluations.minimumCharacters.replace('{count}', MIN_COMMENT_LENGTH.toString())}. {t.evaluations.commentGuidance}
                   </p>
                   
-                  <textarea
-                    ref={commentTextareaRef}
+                  <SpeechTextarea
                     value={currentItem.comment}
-                    onChange={(e) => {
+                    onChange={(newComment) => {
                       const updatedItems = evaluationItems.map(item => 
-                        item.id === currentItem.id ? { ...item, comment: e.target.value } : item
+                        item.id === currentItem.id ? { ...item, comment: newComment } : item
                       )
                       setEvaluationItems(updatedItems)
                     }}
                     placeholder={t.evaluations.commentPlaceholder}
-                    className={`w-full px-4 py-3 border-2 rounded-xl shadow-sm transition-all duration-200 resize-none text-gray-900 ${
+                    className={`px-4 py-3 border-2 rounded-xl transition-all duration-200 ${
                       (currentItem?.comment.trim().length || 0) >= MIN_COMMENT_LENGTH
                         ? 'border-green-300 focus:border-green-500 focus:ring-green-200'
                         : 'border-red-300 focus:border-red-500 focus:ring-red-200'
                     } focus:ring-4`}
                     rows={8}
+                    maxLength={500}
+                    showCharCount={true}
                   />
                 </div>
               </div>
@@ -589,22 +587,21 @@ export default function EvaluatePage() {
               )}
             </div>
 
-            {/* Comment */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                {t.evaluations.overallComments} <span className="text-red-500">*</span>
-                <span className="text-xs text-gray-500 ml-1">
-                  ({t.evaluations.minimumCharacters.replace('{count}', MIN_COMMENT_LENGTH.toString())} - {overallComment.trim().length}/{MIN_COMMENT_LENGTH})
-                </span>
-              </label>
-              <textarea
-                value={overallComment}
-                onChange={(e) => setOverallComment(e.target.value)}
-                placeholder="Provide comprehensive overall feedback..."
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-gray-900"
-                rows={6}
-              />
-            </div>
+            {/* Comment with Speech-to-Text */}
+            <SpeechTextarea
+              label={`${t.evaluations.overallComments}`}
+              value={overallComment}
+              onChange={setOverallComment}
+              placeholder={language === 'es' 
+                ? "Proporcione comentarios detallados sobre el desempeño general..."
+                : "Provide comprehensive overall feedback..."
+              }
+              rows={6}
+              maxLength={1000}
+              showCharCount={true}
+              required={true}
+              className="shadow-sm"
+            />
           </div>
         )}
       </div>

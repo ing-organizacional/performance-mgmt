@@ -24,6 +24,42 @@ export interface Translations {
     department: string
     manager: string
   }
+
+  // Speech Recognition
+  speech: {
+    startRecording: string
+    stopRecording: string
+    tapToSpeak: string
+    microphoneAccess: string
+    networkError: string
+    noSpeechDetected: string
+    audioNotSupported: string
+    speakNow: string
+    speechNotSupported: string
+    transcriptionError: string
+  }
+
+  // Biometric Authentication
+  biometric: {
+    setup: string
+    use: string
+    setupSuccess: string
+    authSuccess: string
+    notSupported: string
+    cancelled: string
+    failed: string
+    httpsRequired: string
+    credentialExists: string
+    noCredentials: string
+    tapToSetup: string
+    tapToAuth: string
+    settingUp: string
+    authenticating: string
+    faceId: string
+    touchId: string
+    fingerprint: string
+    biometricAuth: string
+  }
   
   // Auth
   auth: {
@@ -196,6 +232,38 @@ export const translations: Record<Language, Translations> = {
       department: 'Department',
       manager: 'Manager'
     },
+    speech: {
+      startRecording: 'Start voice recording',
+      stopRecording: 'Stop recording',
+      tapToSpeak: 'Tap microphone to dictate',
+      microphoneAccess: 'Microphone access denied. Please allow microphone access.',
+      networkError: 'Network error. Please check your internet connection.',
+      noSpeechDetected: 'No speech detected. Please try again.',
+      audioNotSupported: 'No microphone found. Please check your audio settings.',
+      speakNow: 'Speak now...',
+      speechNotSupported: 'Speech recognition is not supported in this browser',
+      transcriptionError: 'Speech recognition error. Please try again.'
+    },
+    biometric: {
+      setup: 'Set up',
+      use: 'Use',
+      setupSuccess: 'Biometric authentication set up successfully',
+      authSuccess: 'Biometric authentication successful',
+      notSupported: 'Biometric authentication is not supported on this device',
+      cancelled: 'Biometric authentication was cancelled',
+      failed: 'Biometric authentication failed',
+      httpsRequired: 'HTTPS required for biometric authentication',
+      credentialExists: 'Biometric credential already exists for this account',
+      noCredentials: 'No biometric credentials found for this account',
+      tapToSetup: 'Tap to set up biometric authentication',
+      tapToAuth: 'Tap to authenticate with biometrics',
+      settingUp: 'Setting up...',
+      authenticating: 'Authenticating...',
+      faceId: 'Face ID',
+      touchId: 'Touch ID',
+      fingerprint: 'Fingerprint',
+      biometricAuth: 'Biometric Authentication'
+    },
     auth: {
       signIn: 'Sign in',
       signOut: 'Sign Out',
@@ -351,6 +419,38 @@ export const translations: Record<Language, Translations> = {
       company: 'Empresa',
       department: 'Departamento',
       manager: 'Supervisor'
+    },
+    speech: {
+      startRecording: 'Iniciar grabación de voz',
+      stopRecording: 'Detener grabación',
+      tapToSpeak: 'Toca el micrófono para dictar',
+      microphoneAccess: 'Acceso al micrófono denegado. Por favor permite el acceso al micrófono.',
+      networkError: 'Error de red. Por favor verifica tu conexión a internet.',
+      noSpeechDetected: 'No se detectó voz. Por favor intenta de nuevo.',
+      audioNotSupported: 'No se encontró micrófono. Por favor verifica tu configuración de audio.',
+      speakNow: 'Habla ahora...',
+      speechNotSupported: 'El reconocimiento de voz no es compatible con este navegador',
+      transcriptionError: 'Error de reconocimiento de voz. Por favor intenta de nuevo.'
+    },
+    biometric: {
+      setup: 'Configurar',
+      use: 'Usar',
+      setupSuccess: 'Autenticación biométrica configurada exitosamente',
+      authSuccess: 'Autenticación biométrica exitosa',
+      notSupported: 'La autenticación biométrica no es compatible con este dispositivo',
+      cancelled: 'La autenticación biométrica fue cancelada',
+      failed: 'Falló la autenticación biométrica',
+      httpsRequired: 'HTTPS requerido para autenticación biométrica',
+      credentialExists: 'Ya existe una credencial biométrica para esta cuenta',
+      noCredentials: 'No se encontraron credenciales biométricas para esta cuenta',
+      tapToSetup: 'Toca para configurar autenticación biométrica',
+      tapToAuth: 'Toca para autenticarte con biometría',
+      settingUp: 'Configurando...',
+      authenticating: 'Autenticando...',
+      faceId: 'Face ID',
+      touchId: 'Touch ID',
+      fingerprint: 'Huella Digital',
+      biometricAuth: 'Autenticación Biométrica'
     },
     auth: {
       signIn: 'Iniciar sesión',
