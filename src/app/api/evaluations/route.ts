@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma-client'
+import { validateCycleWritePermission } from '@/lib/cycle-permissions'
 
 // GET /api/evaluations - Get evaluations for the logged-in user
 export async function GET(request: NextRequest) {
@@ -92,7 +93,8 @@ export async function POST(request: NextRequest) {
       overallRating, 
       overallComment,
       periodType = 'quarterly',
-      periodDate = '2024-Q1'
+      periodDate = '2024-Q1',
+      cycleId
     } = body
 
     if (!employeeId || !evaluationItems || !overallRating) {
@@ -100,6 +102,38 @@ export async function POST(request: NextRequest) {
         success: false, 
         error: 'Missing required fields' 
       }, { status: 400 })
+    }
+
+    // Get the cycle to use (either provided or find active cycle)
+    let targetCycleId = cycleId
+    if (!targetCycleId) {
+      const activeCycle = await prisma.performanceCycle.findFirst({
+        where: {
+          companyId,
+          status: 'active'
+        },
+        orderBy: {
+          createdAt: 'desc'
+        }
+      })
+      targetCycleId = activeCycle?.id || null
+    }
+
+    // Validate cycle permissions
+    if (targetCycleId) {
+      const permission = await validateCycleWritePermission(
+        targetCycleId, 
+        userId, 
+        userRole, 
+        'evaluation'
+      )
+
+      if (!permission.allowed) {
+        return NextResponse.json({ 
+          success: false, 
+          error: permission.error 
+        }, { status: permission.status })
+      }
     }
 
     // Check if evaluation already exists for this period
@@ -122,7 +156,8 @@ export async function POST(request: NextRequest) {
           evaluationItemsData: JSON.stringify(evaluationItems),
           overallRating,
           managerComments: overallComment,
-          status: 'submitted'
+          status: 'submitted',
+          cycleId: targetCycleId
         }
       })
     } else {
@@ -132,6 +167,7 @@ export async function POST(request: NextRequest) {
           employeeId,
           managerId: userId,
           companyId,
+          cycleId: targetCycleId,
           periodType,
           periodDate,
           evaluationItemsData: JSON.stringify(evaluationItems),

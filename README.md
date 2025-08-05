@@ -9,6 +9,7 @@ This system handles performance evaluations for **4000+ employees across 27 comp
 - **Bilingual support** (English/Spanish) with instant language switching
 - **Mixed workforce support** (email login + username/PIN login)
 - **Unified evaluation flow** (OKRs + competencies combined, max 10 items per employee)
+- **Performance cycle management** with read-only enforcement and partial assessments
 - **Real-time analytics** and completion tracking
 - **Multi-company data isolation** with audit trails
 
@@ -42,8 +43,9 @@ Visit http://localhost:3000 and use demo credentials:
 
 **Database:**
 - SQLite with Prisma ORM
-- 4-table schema (Company, User, Evaluation, AuditLog)
-- JSON storage for OKRs/competencies
+- 6-table schema (Company, User, Evaluation, EvaluationItem, PerformanceCycle, PartialAssessment, AuditLog)
+- JSON storage for unified evaluation data
+- Performance cycle management with read-only enforcement
 
 **Deployment:**
 - Docker containerization ready
@@ -75,6 +77,14 @@ Visit http://localhost:3000 and use demo credentials:
 - **Real-time data**: Dynamic team summaries and completion tracking
 - **Back navigation**: Easy return to dashboard from evaluation views
 
+### Performance Cycle Management (NEW!)
+- **Annual/Quarterly Cycles**: Create performance review periods with defined start/end dates
+- **Status Control**: Active → Closed → Archived workflow with automatic enforcement
+- **Read-Only Enforcement**: Managers cannot edit when cycles are closed
+- **Partial Assessments**: HR can make individual item ratings with custom evaluation dates
+- **Visual Indicators**: Clear status banners and cycle selectors throughout the UI
+- **Audit Trail**: Complete tracking of cycle operations and status changes
+
 ### Multi-Company Architecture
 - **Data isolation**: Complete separation between companies
 - **Scalable**: Handles 4000+ employees efficiently
@@ -98,11 +108,24 @@ User {
   passwordHash, pinCode?, userType, managerId
 }
 
--- Evaluations: Unified evaluation items as JSON
+-- Evaluations: Unified evaluation items as JSON with cycle association
 Evaluation {
-  id, employeeId, managerId, companyId, 
+  id, employeeId, managerId, companyId, cycleId?,
   evaluationItemsData, overallRating,
   status, periodType, periodDate
+}
+
+-- Performance Cycles: Annual/quarterly review periods
+PerformanceCycle {
+  id, companyId, name, startDate, endDate,
+  status, closedBy?, closedAt?
+}
+
+-- Partial Assessments: Individual item tracking with evaluation dates
+PartialAssessment {
+  id, cycleId, employeeId, evaluationItemId,
+  rating?, comment?, assessedBy, assessedAt,
+  evaluationDate, assessmentType, isActive
 }
 
 -- AuditLog: Complete change tracking
@@ -208,6 +231,8 @@ docker run -p 3000:3000 -v ./data:/app/prisma performance-mgmt
 - 🔒 **Complete data isolation** between companies
 - 📱 **Works offline** for operational environments
 - 🚀 **Enterprise scale** with consumer simplicity
+- 🔄 **Performance cycle control** with read-only enforcement
+- 📝 **Partial assessment flexibility** for HR corrections
 
 ## 🔒 Security Status
 
@@ -222,6 +247,9 @@ docker run -p 3000:3000 -v ./data:/app/prisma performance-mgmt
 - ✅ Universal "My Evaluations" page for all roles
 - ✅ Streamlined navigation and consistent button styling
 - ✅ Enhanced mobile UX with subtle language switcher
+- ✅ **Performance cycle management system implemented**
+- ✅ **Read-only enforcement with visual indicators**
+- ✅ **Partial assessment tracking with evaluation dates**
 
 **Critical Issues to Address:**
 1. **Change default secrets** in environment files (`NEXTAUTH_SECRET`)

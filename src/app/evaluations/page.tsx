@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { useLanguage } from '@/contexts/LanguageContext'
 import LanguageSwitcher from '@/components/LanguageSwitcher'
+import CycleStatusBanner from '@/components/CycleStatusBanner'
 
 interface Employee {
   id: string
@@ -36,6 +37,7 @@ export default function EvaluationsPage() {
   const [employees, setEmployees] = useState<Employee[]>([])
   const [teamSummary, setTeamSummary] = useState<TeamSummary | null>(null)
   const [loading, setLoading] = useState(true)
+  const [currentCycleId, setCurrentCycleId] = useState<string | null>(null)
   const { t } = useLanguage()
 
   const fetchTeamData = async () => {
@@ -46,6 +48,20 @@ export default function EvaluationsPage() {
       if (data.success) {
         setEmployees(data.employees)
         setTeamSummary(data.summary)
+      }
+
+      // Also fetch current active cycle
+      try {
+        const cyclesResponse = await fetch('/api/admin/cycles')
+        if (cyclesResponse.ok) {
+          const cyclesData = await cyclesResponse.json()
+          const activeCycle = cyclesData.cycles?.find((cycle: any) => cycle.status === 'active')
+          if (activeCycle) {
+            setCurrentCycleId(activeCycle.id)
+          }
+        }
+      } catch (cycleError) {
+        console.log('Could not fetch cycle info (might not be HR):', cycleError)
       }
     } catch (error) {
       console.error('Error fetching team data:', error)
@@ -121,6 +137,14 @@ export default function EvaluationsPage() {
             <LanguageSwitcher />
           </div>
         </div>
+      </div>
+
+      {/* Cycle Status Banner */}
+      <div className="px-4 pt-3">
+        <CycleStatusBanner 
+          cycleId={currentCycleId} 
+          userRole={(session?.user as any)?.role}
+        />
       </div>
 
       {/* Fixed Team Summary Card */}

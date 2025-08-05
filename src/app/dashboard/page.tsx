@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react'
 import ExportButton from '@/components/export-button'
 import { useLanguage } from '@/contexts/LanguageContext'
 import LanguageSwitcher from '@/components/LanguageSwitcher'
+import CycleSelector from '@/components/CycleSelector'
 
 interface CompletionStats {
   total: number
@@ -22,11 +23,20 @@ interface RatingDistribution {
   needs: number
 }
 
+interface PerformanceCycle {
+  id: string
+  name: string
+  status: string
+  startDate: string
+  endDate: string
+}
+
 export default function DashboardPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const { t } = useLanguage()
   const [loading, setLoading] = useState(true)
+  const [selectedCycle, setSelectedCycle] = useState<PerformanceCycle | null>(null)
   const [completionStats, setCompletionStats] = useState<CompletionStats>({
     total: 150,
     completed: 87,
@@ -77,7 +87,20 @@ export default function DashboardPage() {
           <div className="flex items-center justify-between mb-3">
             <div className="min-w-0 flex-1">
               <h1 className="text-lg font-semibold text-gray-900 truncate">{t.dashboard.hrDashboard}</h1>
-              <p className="text-xs text-gray-500">{t.dashboard.q1Reviews}</p>
+              <div className="flex items-center gap-2">
+                <p className="text-xs text-gray-500">
+                  {selectedCycle ? selectedCycle.name : 'No active performance cycle'}
+                </p>
+                {selectedCycle && (
+                  <span className={`text-xs px-2 py-0.5 rounded-full ${
+                    selectedCycle.status === 'active' ? 'text-green-600 bg-green-100' :
+                    selectedCycle.status === 'closed' ? 'text-red-600 bg-red-100' :
+                    'text-gray-600 bg-gray-100'
+                  }`}>
+                    {selectedCycle.status.toUpperCase()}
+                  </span>
+                )}
+              </div>
             </div>
             <button
               onClick={() => signOut({ callbackUrl: '/login' })}
@@ -112,7 +135,13 @@ export default function DashboardPage() {
                 <span>{t.nav.myEvaluations}</span>
               </button>
             </div>
-            <LanguageSwitcher />
+            <div className="flex items-center gap-3">
+              <CycleSelector 
+                showCreateButton={true} 
+                onCycleSelect={setSelectedCycle}
+              />
+              <LanguageSwitcher />
+            </div>
           </div>
         </div>
       </div>

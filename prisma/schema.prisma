@@ -20,6 +20,8 @@ model Company {
   evaluations Evaluation[]
   evaluationItems EvaluationItem[]
   evaluationItemAssignments EvaluationItemAssignment[]
+  performanceCycles PerformanceCycle[]
+  partialAssessments PartialAssessment[]
   
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -57,6 +59,9 @@ model User {
   employeeAssignments EvaluationItemAssignment[] @relation("EmployeeAssignments")
   managerAssignments EvaluationItemAssignment[] @relation("AssignedByManager")
   auditLogs        AuditLog[]
+  closedCycles     PerformanceCycle[] @relation("CycleClosedBy")
+  partialAssessmentsAsEmployee PartialAssessment[] @relation("PartialAssessmentEmployee")
+  partialAssessmentsAsAssessor PartialAssessment[] @relation("PartialAssessmentAssessor")
   
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -70,6 +75,7 @@ model Evaluation {
   employeeId   String
   managerId    String
   companyId    String
+  cycleId      String? // Foreign key to PerformanceCycle (nullable for backwards compatibility)
   periodType   String  // "monthly" | "quarterly" | "semester" | "yearly"
   periodDate   String  // "2024-Q1" | "2024-03" 
   
@@ -83,6 +89,7 @@ model Evaluation {
   employee  User    @relation("EmployeeEvaluations", fields: [employeeId], references: [id])
   manager   User    @relation("ManagerEvaluations", fields: [managerId], references: [id])
   company   Company @relation(fields: [companyId], references: [id])
+  cycle     PerformanceCycle? @relation(fields: [cycleId], references: [id])
   auditLogs AuditLog[]
   
   createdAt DateTime @default(now())
@@ -94,6 +101,7 @@ model Evaluation {
 model EvaluationItem {
   id          String  @id @default(cuid())
   companyId   String
+  cycleId     String? // Foreign key to PerformanceCycle (nullable for backwards compatibility)
   title       String
   description String
   
@@ -109,8 +117,10 @@ model EvaluationItem {
   sortOrder   Int     @default(0)
   
   company     Company @relation(fields: [companyId], references: [id])
+  cycle       PerformanceCycle? @relation(fields: [cycleId], references: [id])
   creator     User    @relation("CreatedEvaluationItems", fields: [createdBy], references: [id])
   individualAssignments EvaluationItemAssignment[]
+  partialAssessments PartialAssessment[]
   
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -146,4 +156,52 @@ model AuditLog {
   user       User       @relation(fields: [userId], references: [id])
   
   timestamp DateTime @default(now())
+}
+
+model PerformanceCycle {
+  id        String   @id @default(cuid())
+  companyId String
+  name      String   // "2024 Annual Review", "Q1 2024"
+  startDate DateTime
+  endDate   DateTime
+  status    String   @default("active") // "active" | "closed" | "archived"
+  closedBy  String?  // HR user ID who closed it
+  closedAt  DateTime?
+
+  company            Company             @relation(fields: [companyId], references: [id])
+  closedByUser       User?               @relation("CycleClosedBy", fields: [closedBy], references: [id])
+  evaluations        Evaluation[]
+  evaluationItems    EvaluationItem[]
+  partialAssessments PartialAssessment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([companyId, name])
+}
+
+model PartialAssessment {
+  id               String   @id @default(cuid())
+  cycleId          String
+  employeeId       String
+  evaluationItemId String
+  rating           Int?     // 1-5 scale
+  comment          String?
+  assessedBy       String   // Manager/HR user ID
+  assessedAt       DateTime @default(now())
+  evaluationDate   DateTime // When the actual evaluation/performance occurred
+  isActive         Boolean  @default(true) // Latest version flag
+  assessmentType   String   // "manager_initial" | "hr_adjustment" | "manager_update"
+  companyId        String
+
+  cycle          PerformanceCycle @relation(fields: [cycleId], references: [id])
+  employee       User             @relation("PartialAssessmentEmployee", fields: [employeeId], references: [id])
+  evaluationItem EvaluationItem   @relation(fields: [evaluationItemId], references: [id])
+  assessedByUser User             @relation("PartialAssessmentAssessor", fields: [assessedBy], references: [id])
+  company        Company          @relation(fields: [companyId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([cycleId, employeeId, evaluationItemId, isActive])
 }

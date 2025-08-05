@@ -277,6 +277,47 @@ export async function seedDatabase() {
     })
   }
 
+  // Create default performance cycle for current year
+  const currentYear = new Date().getFullYear()
+  const defaultCycle = await prisma.performanceCycle.upsert({
+    where: {
+      companyId_name: {
+        companyId: company.id,
+        name: `${currentYear} Annual Review`
+      }
+    },
+    update: {},
+    create: {
+      companyId: company.id,
+      name: `${currentYear} Annual Review`,
+      startDate: new Date(`${currentYear}-01-01`),
+      endDate: new Date(`${currentYear}-12-31`),
+      status: 'active'
+    }
+  })
+
+  // Update existing evaluation items to belong to this cycle
+  await prisma.evaluationItem.updateMany({
+    where: {
+      companyId: company.id,
+      cycleId: null
+    },
+    data: {
+      cycleId: defaultCycle.id
+    }
+  })
+
+  // Update existing evaluations to belong to this cycle
+  await prisma.evaluation.updateMany({
+    where: {
+      companyId: company.id,
+      cycleId: null
+    },
+    data: {
+      cycleId: defaultCycle.id
+    }
+  })
+
   console.log('✅ Database seeded successfully!')
   console.log('📧 HR Admin Login: hr@demo.com / password123')
   console.log('👨‍💼 Manager Login: manager@demo.com / password123')
@@ -289,4 +330,5 @@ export async function seedDatabase() {
   console.log('   HR3 (Learning & Development): hr3@demo.com / password123 (4 employees)')
   console.log('')
   console.log('🎯 8 Default evaluation items created (3 OKRs + 2 Competencies)')
+  console.log(`🔄 Performance cycle created: "${defaultCycle.name}" (${defaultCycle.status})`)
 }

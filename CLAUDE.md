@@ -15,24 +15,32 @@ Performance Management System - A mobile-first web application for managing empl
 - Mobile-first responsive design
 - **Package Manager: YARN** (never use npm)
 
-**Database Schema (4 tables only):**
+**Database Schema (6 tables):**
 - `Company` - Multi-tenant company isolation
 - `User` - Mixed workforce (office: email/password, operational: username/PIN)
-- `Evaluation` - Unified evaluation system with evaluationItemsData JSON field
+- `Evaluation` - Unified evaluation system with evaluationItemsData JSON field + cycleId
+- `EvaluationItem` - OKRs and competencies with cycle association
+- `PerformanceCycle` - Annual/quarterly performance cycles with status management
+- `PartialAssessment` - Individual item assessments with evaluation date tracking
 - `AuditLog` - Complete change tracking
 
 **Key Files:**
 - `/src/lib/prisma-client.ts` - Database connection (use this, not prisma.ts)
 - `/src/auth.ts` - NextAuth v5 configuration
 - `/src/middleware.ts` - Route protection
-- `/prisma/schema.prisma` - Database schema
+- `/prisma/schema.prisma` - Database schema with cycle management
 - `/src/lib/i18n.ts` - Bilingual translations (English/Spanish)
-- `/src/lib/seed.ts` - Database seeding with HR test accounts
+- `/src/lib/seed.ts` - Database seeding with HR test accounts and default cycle
+- `/src/lib/cycle-permissions.ts` - Performance cycle permission validation
+- `/src/components/CycleSelector.tsx` - Cycle management UI component
+- `/src/components/CycleStatusBanner.tsx` - Read-only status indicator
 
 **Key API Endpoints:**
 - `/api/manager/team` - Team data for managers and HR (GET)
-- `/api/evaluations` - Personal evaluations for logged-in user (GET)
-- `/api/evaluations` - Create/update evaluations (POST)
+- `/api/evaluations` - Personal evaluations for logged-in user (GET/POST)
+- `/api/admin/cycles` - Performance cycle management (GET/POST)
+- `/api/admin/cycles/[id]` - Individual cycle operations (GET/PUT)
+- `/api/partial-assessments` - Partial assessment tracking with evaluation dates (GET/POST)
 - `/api/admin/*` - HR admin functions (requires role-based access control)
 
 ## Essential Commands
@@ -63,16 +71,19 @@ yarn tsc --noEmit          # TypeScript check
 
 **HR Dashboard Page (`/dashboard`):**
 - Overview analytics and completion tracking
+- **Performance Cycle Management**: CycleSelector with create/close/reopen capabilities
 - **Dual navigation buttons**: "Employee Evaluations" + "My Evaluations"
 - Quick actions for exports and user management
 - Mobile-optimized compact button styling (text-xs, small icons)
 
 **Manager/HR Evaluations Page (`/evaluations`):**
 - **Back button navigation** for HR users (returns to dashboard)
+- **Cycle Status Banner** - shows read-only status when cycles are closed
 - Sticky header with streamlined navigation
 - **Single "Assignments" button** (redundant "My Evaluations" removed)
 - **Fixed compact summary card** - shows team metrics
 - Scrollable employee list with status indicators
+- **Read-only enforcement** based on cycle status
 - Mobile optimized with touch-friendly targets
 
 **Employee Evaluation Flow (`/evaluate/[id]`):**
@@ -90,9 +101,42 @@ yarn tsc --noEmit          # TypeScript check
 - Performance history and summary analytics
 
 **Role-Based Navigation:**
-- HR → `/dashboard` (analytics) ↔ `/evaluations` (manage teams) ↔ `/my-evaluations` (personal)
+- HR → `/dashboard` (analytics + cycle management) ↔ `/evaluations` (manage teams) ↔ `/my-evaluations` (personal)
 - Manager → `/evaluations` (employee list → evaluation flow) ↔ `/my-evaluations` (personal)
 - Employee → `/my-evaluations` (view history, current status)
+
+## Performance Cycle Management (CRITICAL)
+
+**Enterprise-Grade Cycle Control:**
+- **Annual/Quarterly Cycles**: Create performance review periods with start/end dates
+- **Status Management**: Active → Closed → Archived workflow
+- **Read-Only Enforcement**: Automatic restriction of edit permissions based on cycle status
+- **Partial Assessment System**: HR can make individual item assessments with custom evaluation dates
+- **Audit Trail**: Complete tracking of cycle operations and closures
+
+**Cycle Status Rules (Ridiculously Simple):**
+1. **ACTIVE**: Normal editing permissions for all users
+2. **CLOSED**: Read-only for managers, HR can edit partial assessments only
+3. **ARCHIVED**: Read-only for everyone (historical reference)
+
+**HR Cycle Management Workflow:**
+1. **Create Cycle**: Dashboard → CycleSelector → "+ New Cycle"
+2. **Monitor Progress**: Real-time evaluation completion tracking
+3. **Make Partial Assessments**: Individual OKR/competency ratings with evaluation dates
+4. **Close Cycle**: Dashboard → CycleSelector → ⚙️ → "🔒 Close Cycle"
+5. **Reopen if Needed**: Dashboard → CycleSelector → ⚙️ → "🔓 Reopen Cycle"
+
+**Manager Experience During Closed Cycles:**
+- **Visual Indicators**: Red CycleStatusBanner appears on evaluation pages
+- **Clear Messaging**: "Performance cycle is closed. All evaluations are now read-only."
+- **Historical Access**: Can view all past evaluations and cycle data
+- **No Disruption**: Normal workflow during active cycles
+
+**Partial Assessment Features:**
+- **Evaluation Date Tracking**: Record when performance actually occurred vs. when assessed
+- **Assessment Types**: manager_initial, hr_adjustment, manager_update
+- **Version Control**: Latest version flagging with complete history
+- **HR Flexibility**: Make corrections and adjustments even after cycle closure
 
 ## Unified Evaluation System (CRITICAL)
 
@@ -259,6 +303,8 @@ interface EvaluationItem {
 8. **Universal My Evaluations**: All roles can now access their personal evaluation history
 9. **Streamlined Navigation**: Removed redundant buttons, standardized sizing across pages
 10. **Enhanced Mobile UX**: Consistent button styling, improved language switcher subtlety
+11. **Performance Cycle Management**: Complete cycle creation, status management, and read-only enforcement
+12. **Partial Assessment System**: HR can make individual item assessments with evaluation date tracking
 
 **New Features Added:**
 - **HR Manager Support**: HR users can access `/evaluations` page to manage their direct reports
@@ -267,6 +313,10 @@ interface EvaluationItem {
 - **Test Data**: Three HR managers with teams (hr1@demo.com, hr2@demo.com, hr3@demo.com)
 - **Real-time My Evaluations**: Dynamic data fetching based on logged-in user ID
 - **Consistent Button Styling**: Standardized text-xs, compact padding across all pages
+- **Performance Cycle APIs**: Complete CRUD operations for cycle management
+- **Cycle Status Enforcement**: API-level validation of read-only permissions
+- **Partial Assessment Tracking**: Individual item assessments with evaluation date history
+- **Visual Status Indicators**: CycleSelector and CycleStatusBanner components
 
 **UI/UX Improvements:**
 - Language switcher made more subtle (removed prominent orange border)
@@ -274,6 +324,9 @@ interface EvaluationItem {
 - Removed redundant "My Evaluations" button from evaluations page
 - Standardized button sizes between dashboard and evaluations pages
 - Added proper focus states and accessibility improvements
+- **Cycle Management Interface**: Dropdown actions for close/reopen operations
+- **Read-Only Status Banners**: Clear visual indicators when cycles are closed
+- **Real-time Status Updates**: Cycle selector refreshes automatically after operations
 
 **Breaking Changes:**
 - `okrsData` and `competenciesData` fields removed from database
@@ -281,6 +334,9 @@ interface EvaluationItem {
 - Export functions use new data structure
 - Translation keys cleaned up (some removed)
 - Navigation flow updated for HR users
+- **Database schema expanded**: Added PerformanceCycle and PartialAssessment tables
+- **API changes**: Evaluation endpoints now include cycle validation
+- **Permission system**: New role-based cycle access controls
 
 **Performance Notes:**
 - SQLite handles the scale easily (4K employees across 27 companies)
@@ -306,3 +362,142 @@ Co-Authored-By: Claude <noreply@anthropic.com>
 ```
 
 This system has a solid architecture and is ready for deployment with the above security fixes.
+
+## API Documentation - Performance Cycle Management
+
+### **Cycle Management APIs**
+
+#### **GET /api/admin/cycles**
+**Purpose**: List all performance cycles for the company  
+**Access**: HR only  
+**Response**:
+```json
+{
+  "success": true,
+  "cycles": [
+    {
+      "id": "cycle_123",
+      "name": "2025 Annual Review",
+      "status": "active",
+      "startDate": "2025-01-01T00:00:00.000Z",
+      "endDate": "2025-12-31T23:59:59.999Z",
+      "closedBy": null,
+      "closedAt": null,
+      "_count": {
+        "evaluations": 125,
+        "evaluationItems": 8,
+        "partialAssessments": 15
+      }
+    }
+  ]
+}
+```
+
+#### **POST /api/admin/cycles**
+**Purpose**: Create a new performance cycle  
+**Access**: HR only  
+**Payload**:
+```json
+{
+  "name": "2025 Q2 Review",
+  "startDate": "2025-04-01",
+  "endDate": "2025-06-30"
+}
+```
+
+#### **PUT /api/admin/cycles/[id]**
+**Purpose**: Update cycle or change status (close/reopen)  
+**Access**: HR only  
+**Payload**:
+```json
+{
+  "status": "closed"  // or "active" to reopen
+}
+```
+
+### **Partial Assessment APIs**
+
+#### **GET /api/partial-assessments**  
+**Purpose**: Get partial assessments for analysis  
+**Access**: HR and Managers  
+**Query Parameters**:
+- `cycleId` - Filter by performance cycle
+- `employeeId` - Filter by employee
+- `evaluationItemId` - Filter by specific item
+
+#### **POST /api/partial-assessments**
+**Purpose**: Create or update partial assessment  
+**Access**: HR (always), Managers (only during active cycles)  
+**Payload**:
+```json
+{
+  "cycleId": "cycle_123",
+  "employeeId": "user_456", 
+  "evaluationItemId": "item_789",
+  "rating": 4,
+  "comment": "Shows strong performance in this area",
+  "evaluationDate": "2025-03-15T10:00:00.000Z",
+  "assessmentType": "hr_adjustment"
+}
+```
+
+### **Permission Validation Function**
+
+#### **canEditInCycle(cycleId, userId, userRole, itemType)**
+**Purpose**: Core permission checking for cycle-based editing  
+**Returns**:
+```typescript
+{
+  canEdit: boolean,
+  canEditPartialAssessments: boolean,
+  cycleStatus: string | null,
+  reason?: string
+}
+```
+
+**Rules**:
+- **ACTIVE cycle**: Normal editing permissions
+- **CLOSED cycle**: Read-only for managers, HR can edit partial assessments
+- **ARCHIVED cycle**: Read-only for everyone
+
+### **Enhanced Evaluation APIs**
+
+#### **POST /api/evaluations** (Updated)
+**Purpose**: Create/update evaluations with cycle validation  
+**Added Features**:
+- Automatic cycle assignment (uses active cycle if not specified)
+- Cycle permission validation before allowing edits
+- Enhanced error messages for cycle restrictions
+
+**New Payload Fields**:
+```json
+{
+  "employeeId": "user_123",
+  "evaluationItems": [...],
+  "overallRating": 4,
+  "overallComment": "Great performance",
+  "cycleId": "cycle_456"  // Optional - uses active cycle if omitted
+}
+```
+
+### **Error Handling**
+
+**Common Error Responses**:
+```json
+{
+  "success": false,
+  "error": "Performance cycle is closed",
+  "status": 403
+}
+```
+
+**Permission Denied**:
+```json
+{
+  "success": false,
+  "error": "Access denied - HR role required",
+  "status": 403
+}
+```
+
+This API design maintains the "ridiculously simple" philosophy while providing enterprise-grade cycle management and proper access controls.
