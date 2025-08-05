@@ -97,6 +97,7 @@ export default function AssignmentsPage() {
   const [editingItem, setEditingItem] = useState<EditingItem | null>(null)
   const [creatingNew, setCreatingNew] = useState(false)
   const [newItemType, setNewItemType] = useState<'okr' | 'competency'>('okr')
+  const [confirmingUnassign, setConfirmingUnassign] = useState<string | null>(null) // Format: "itemId-employeeId"
 
   // Tab navigation with swipe support
   const tabs: ActiveTab[] = ['company', 'department', 'individual']
@@ -178,8 +179,29 @@ export default function AssignmentsPage() {
     )
   }
 
+  // Helper function to check if an employee already has a specific item assigned
+  const employeeHasItem = (employeeId: string, itemId: string): boolean => {
+    const employee = employees.find(emp => emp.id === employeeId)
+    return employee ? employee.assignedItems.includes(itemId) : false
+  }
+
+  // Helper function to get employees who already have this item
+  const getEmployeesWithItem = (itemId: string): Employee[] => {
+    return employees.filter(employee => employee.assignedItems.includes(itemId))
+  }
+
+  // Helper function to get employees who can be assigned (don't already have the item)
+  const getEligibleEmployees = (itemId: string): string[] => {
+    return selectedEmployees.filter(employeeId => !employeeHasItem(employeeId, itemId))
+  }
+
   const handleBulkAssignment = async (itemId: string) => {
-    if (selectedEmployees.length === 0) return
+    const eligibleEmployees = getEligibleEmployees(itemId)
+    
+    if (eligibleEmployees.length === 0) {
+      alert('All selected employees already have this item assigned.')
+      return
+    }
 
     try {
       const response = await fetch('/api/evaluation-items/assign', {
@@ -187,7 +209,7 @@ export default function AssignmentsPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           itemId,
-          employeeIds: selectedEmployees
+          employeeIds: eligibleEmployees
         })
       })
 
@@ -197,6 +219,41 @@ export default function AssignmentsPage() {
       }
     } catch (error) {
       console.error('Error assigning items:', error)
+    }
+  }
+
+  const handleUnassignFromEmployee = async (itemId: string, employeeId: string) => {
+    const confirmKey = `${itemId}-${employeeId}`
+    
+    if (confirmingUnassign === confirmKey) {
+      // Actually perform the unassignment
+      try {
+        const response = await fetch('/api/evaluation-items/assign', {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            itemId,
+            employeeIds: [employeeId]
+          })
+        })
+
+        if (response.ok) {
+          await fetchData() // Refresh data
+        }
+      } catch (error) {
+        console.error('Error unassigning item:', error)
+      } finally {
+        setConfirmingUnassign(null) // Reset confirmation state
+      }
+    } else {
+      // Set confirmation state
+      setConfirmingUnassign(confirmKey)
+      // Auto-reset after 3 seconds
+      setTimeout(() => {
+        if (confirmingUnassign === confirmKey) {
+          setConfirmingUnassign(null)
+        }
+      }, 3000)
     }
   }
 
@@ -607,6 +664,43 @@ export default function AssignmentsPage() {
                       <div className="text-sm text-gray-500">
                         {employee.email || employee.username} • {employee.department}
                       </div>
+                      {/* Show assigned items for this employee */}
+                      {employee.assignedItems.length > 0 && (
+                        <div className="mt-1 flex flex-wrap gap-1">
+                          {employee.assignedItems.slice(0, 3).map((itemId) => {
+                            const item = evaluationItems.find(evalItem => evalItem.id === itemId)
+                            return item ? (
+                              <div key={itemId} className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs bg-blue-100 text-blue-700 border border-blue-200">
+                                <span>{item.type === 'okr' ? '🎯' : '⭐'} {item.title.slice(0, 12)}...</span>
+                                <button
+                                  onClick={(e) => {
+                                    e.preventDefault()
+                                    e.stopPropagation()
+                                    handleUnassignFromEmployee(itemId, employee.id)
+                                  }}
+                                  className={`flex items-center justify-center w-4 h-4 min-w-[16px] text-white text-xs rounded-full active:scale-95 transition-all duration-150 touch-manipulation ${
+                                    confirmingUnassign === `${itemId}-${employee.id}`
+                                      ? 'bg-orange-500 hover:bg-orange-600 animate-pulse'
+                                      : 'bg-red-500 hover:bg-red-600'
+                                  }`}
+                                  title={
+                                    confirmingUnassign === `${itemId}-${employee.id}`
+                                      ? 'Click again to confirm removal'
+                                      : `Remove "${item.title}" from ${employee.name}`
+                                  }
+                                >
+                                  {confirmingUnassign === `${itemId}-${employee.id}` ? '?' : '✕'}
+                                </button>
+                              </div>
+                            ) : null
+                          })}
+                          {employee.assignedItems.length > 3 && (
+                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-gray-100 text-gray-600">
+                              +{employee.assignedItems.length - 3} more
+                            </span>
+                          )}
+                        </div>
+                      )}
                     </div>
                     <div className="text-xs text-gray-500">
                       {employee.assignedItems.length} {t.assignments.itemsAssigned}
@@ -618,6 +712,13 @@ export default function AssignmentsPage() {
                 <div className="mt-4 p-3 bg-blue-50 rounded-lg">
                   <p className="text-sm text-blue-700 font-medium">
                     {selectedEmployees.length} {t.assignments.employeesSelected}
+                  </p>
+                </div>
+              )}
+              {confirmingUnassign && (
+                <div className="mt-4 p-3 bg-orange-50 rounded-lg border border-orange-200">
+                  <p className="text-sm text-orange-700 font-medium">
+                    🤔 Click the orange button again to confirm removal
                   </p>
                 </div>
               )}
@@ -749,11 +850,42 @@ export default function AssignmentsPage() {
                       
                       <p className="text-gray-600 text-sm ml-11 leading-relaxed">{item.description}</p>
                       
-                      <div className="ml-11">
+                      {/* Show current assignments for this item */}
+                      {getEmployeesWithItem(item.id).length > 0 && (
+                        <div className="ml-11 mt-3 p-3 bg-gray-50 rounded-lg">
+                          <h4 className="text-sm font-medium text-gray-700 mb-2">
+Currently assigned to ({getEmployeesWithItem(item.id).length}):
+                          </h4>
+                          <div className="flex flex-wrap gap-2">
+                            {getEmployeesWithItem(item.id).map((employee) => (
+                              <div key={employee.id} className="inline-flex items-center gap-2 px-3 py-2 rounded-lg text-xs bg-green-100 text-green-700 border border-green-200">
+                                <span>👤 {employee.name}</span>
+                                <button
+                                  onClick={() => handleUnassignFromEmployee(item.id, employee.id)}
+                                  className={`flex items-center justify-center w-5 h-5 min-w-[20px] min-h-[20px] text-white text-xs rounded-full active:scale-95 transition-all duration-150 touch-manipulation ${
+                                    confirmingUnassign === `${item.id}-${employee.id}`
+                                      ? 'bg-orange-500 hover:bg-orange-600 animate-pulse'
+                                      : 'bg-red-500 hover:bg-red-600'
+                                  }`}
+                                  title={
+                                    confirmingUnassign === `${item.id}-${employee.id}`
+                                      ? 'Click again to confirm removal'
+                                      : `Remove from ${employee.name}`
+                                  }
+                                >
+                                  {confirmingUnassign === `${item.id}-${employee.id}` ? '?' : '✕'}
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      
+                      <div className="ml-11 mt-3">
                         <button
                           onClick={() => handleBulkAssignment(item.id)}
                           disabled={selectedEmployees.length === 0}
-                          className="flex items-center space-x-2 px-6 py-3 min-h-[44px] bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 active:scale-95 active:bg-green-800 disabled:bg-gray-300 disabled:cursor-not-allowed disabled:active:scale-100 transition-all duration-150 touch-manipulation"
+                          className="flex items-center space-x-2 px-6 py-3 min-h-[44px] bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 active:scale-95 active:bg-green-800 disabled:bg-gray-300 disabled:cursor-not-allowed disabled:active:scale-100 transition-all duration-150 touch-manipulation shadow-sm"
                         >
                           <span>➕</span>
                           <span>{t.assignments.assignToSelected}</span>

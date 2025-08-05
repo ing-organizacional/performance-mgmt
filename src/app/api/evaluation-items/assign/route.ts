@@ -139,13 +139,20 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Remove assignments
+    // HR can remove any assignment, managers can only remove their own
+    const whereClause: any = {
+      evaluationItemId: itemId,
+      employeeId: { in: employeeIds },
+      companyId
+    }
+    
+    // Only restrict to assignedBy for managers, not HR
+    if (userRole !== 'hr') {
+      whereClause.assignedBy = userId
+    }
+    
     const result = await prisma.evaluationItemAssignment.deleteMany({
-      where: {
-        evaluationItemId: itemId,
-        employeeId: { in: employeeIds },
-        assignedBy: userId, // Only allow removing assignments they created
-        companyId
-      }
+      where: whereClause
     })
 
     return NextResponse.json({
