@@ -657,13 +657,13 @@ export default function AssignmentsPage() {
                         title: e.target.value
                       })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-gray-900"
-                      placeholder="Enter title..."
+                      placeholder={`${t.common.edit} ${newItemType === 'okr' ? t.evaluations.okr : t.evaluations.competency}...`}
                     />
                   </div>
                   
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {newItemType === 'okr' ? t.okrs.keyResults : 'Description'}
+                      {newItemType === 'okr' ? t.okrs.keyResults : t.companyItems.description}
                     </label>
                     <textarea
                       value={editingItem.description}
@@ -673,7 +673,7 @@ export default function AssignmentsPage() {
                       })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-gray-900"
                       rows={3}
-                      placeholder="Enter description..."
+                      placeholder={`${t.common.edit} ${t.companyItems.description.toLowerCase()}...`}
                     />
                   </div>
                   
@@ -992,7 +992,7 @@ Currently assigned to ({getEmployeesWithItem(item.id).length}):
 
             {/* Create New Individual Items Section */}
             <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
-              <h3 className="font-semibold text-gray-900 mb-3">Create Individual OKRs & Competencies</h3>
+              <h3 className="font-semibold text-gray-900 mb-3">{t.assignments.createNewDepartmentItems}</h3>
               <div className="flex space-x-3">
                 <button
                   onClick={() => {
@@ -1042,7 +1042,7 @@ Currently assigned to ({getEmployeesWithItem(item.id).length}):
                         {newItemType === 'okr' ? t.evaluations.okr : t.evaluations.competency}
                       </span>
                       <span className="text-xs px-2 py-1 rounded-full font-medium bg-yellow-100 text-yellow-700">
-                        👤 Individual
+                        👤 {t.assignments.individualAssignments}
                       </span>
                     </div>
                   </div>
@@ -1059,13 +1059,13 @@ Currently assigned to ({getEmployeesWithItem(item.id).length}):
                         title: e.target.value
                       })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-gray-900"
-                      placeholder="Enter title..."
+                      placeholder={`${t.common.edit} ${newItemType === 'okr' ? t.evaluations.okr : t.evaluations.competency}...`}
                     />
                   </div>
                   
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {newItemType === 'okr' ? t.okrs.keyResults : 'Description'}
+                      {newItemType === 'okr' ? t.okrs.keyResults : t.companyItems.description}
                     </label>
                     <textarea
                       value={editingItem.description}
@@ -1075,7 +1075,7 @@ Currently assigned to ({getEmployeesWithItem(item.id).length}):
                       })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-gray-900"
                       rows={3}
-                      placeholder="Enter description..."
+                      placeholder={`${t.common.edit} ${t.companyItems.description.toLowerCase()}...`}
                     />
                   </div>
                   
@@ -1125,7 +1125,7 @@ Currently assigned to ({getEmployeesWithItem(item.id).length}):
             <div className="space-y-4">
               {employees.length === 0 ? (
                 <div className="text-center py-8 text-gray-500">
-                  <p>No employees found. Make sure you have team members assigned to manage individual assignments.</p>
+                  <p>{t.users.noUsersFound}</p>
                 </div>
               ) : (
                 employees.map((employee) => (
@@ -1151,7 +1151,7 @@ Currently assigned to ({getEmployeesWithItem(item.id).length}):
                   {employee.assignedItems.length > 0 && (
                     <div className="mb-4 p-3 bg-gray-50 rounded-lg">
                       <h4 className="text-sm font-medium text-gray-700 mb-2">
-                        Current assignments ({employee.assignedItems.length}):
+                        {t.assignments.itemsAssigned} ({employee.assignedItems.length}):
                       </h4>
                       <div className="flex flex-wrap gap-1">
                         {employee.assignedItems.map((itemId) => {
@@ -1172,8 +1172,8 @@ Currently assigned to ({getEmployeesWithItem(item.id).length}):
                                 }`}
                                 title={
                                   confirmingUnassign === `${itemId}-${employee.id}`
-                                    ? 'Click again to confirm removal'
-                                    : `Remove "${item.title}" from ${employee.name}`
+                                    ? t.common.yes
+                                    : `${t.common.delete} "${item.title}"`
                                 }
                               >
                                 {confirmingUnassign === `${itemId}-${employee.id}` ? '?' : '✕'}
@@ -1187,9 +1187,9 @@ Currently assigned to ({getEmployeesWithItem(item.id).length}):
 
                   {/* Individual Items for Assignment */}
                   <div className="space-y-3">
-                    <h4 className="text-sm font-medium text-gray-700">Available Individual Items:</h4>
+                    <h4 className="text-sm font-medium text-gray-700">{t.assignments.selectEmployees}:</h4>
                     {filteredItems.filter(item => item.level === 'manager').length === 0 ? (
-                      <p className="text-sm text-gray-500 italic">No individual items created yet. Create some above to assign to this employee.</p>
+                      <p className="text-sm text-gray-500 italic">{t.companyItems.noItemsDescription}</p>
                     ) : (
                       filteredItems.filter(item => item.level === 'manager').map((item) => (
                         <div key={item.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
@@ -1213,7 +1213,7 @@ Currently assigned to ({getEmployeesWithItem(item.id).length}):
                             }`}
                           >
                             <span>{employeeHasItem(employee.id, item.id) ? '✓' : '➕'}</span>
-                            <span>{employeeHasItem(employee.id, item.id) ? 'Assigned' : 'Assign'}</span>
+                            <span>{employeeHasItem(employee.id, item.id) ? t.evaluations.completed : t.assignments.assignToSelected.split(' ')[0]}</span>
                           </button>
                         </div>
                       ))
