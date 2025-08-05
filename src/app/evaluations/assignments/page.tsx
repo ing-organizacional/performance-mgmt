@@ -257,6 +257,68 @@ export default function AssignmentsPage() {
     }
   }
 
+  const handleSaveIndividualItem = async () => {
+    if (!editingItem || !editingItem.title.trim() || !editingItem.description.trim()) return
+
+    // Validate deadline if provided
+    if (editingItem.evaluationDeadline) {
+      const deadlineDate = new Date(editingItem.evaluationDeadline)
+      const oneHourFromNow = new Date(Date.now() + 60 * 60 * 1000)
+      
+      if (deadlineDate <= oneHourFromNow) {
+        alert('Deadline must be at least 1 hour in the future.')
+        return
+      }
+    }
+
+    try {
+      const response = await fetch('/api/evaluation-items', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: editingItem.title,
+          description: editingItem.description,
+          type: newItemType,
+          level: 'manager', // Individual items use 'manager' level
+          evaluationDeadline: editingItem.evaluationDeadline || null
+        })
+      })
+
+      if (response.ok) {
+        await fetchData() // Refresh data
+        setEditingItem(null)
+        setCreatingNew(false)
+      } else {
+        console.error('Failed to create individual item')
+      }
+    } catch (error) {
+      console.error('Error creating individual item:', error)
+    }
+  }
+
+  const handleIndividualAssignment = async (itemId: string, employeeId: string) => {
+    if (employeeHasItem(employeeId, itemId)) {
+      return // Already assigned
+    }
+
+    try {
+      const response = await fetch('/api/evaluation-items/assign', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          itemId,
+          employeeIds: [employeeId]
+        })
+      })
+
+      if (response.ok) {
+        await fetchData() // Refresh data
+      }
+    } catch (error) {
+      console.error('Error assigning individual item:', error)
+    }
+  }
+
   const handleEditItem = (item: EvaluationItem) => {
     setEditingItem({
       id: item.id,
@@ -488,7 +550,9 @@ export default function AssignmentsPage() {
           <div className="space-y-4 animate-in fade-in duration-300">
             <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
               <div className="flex items-center space-x-2 mb-2">
-                <span className="text-xl">ℹ️</span>
+                <svg className="w-6 h-6 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm3 1h2v2H7V5zm2 4H7v2h2V9zm2-4h2v2h-2V5zm2 4h-2v2h2V9zm-6 4h2v2H7v-2zm4 0h2v2h-2v-2z" clipRule="evenodd" />
+                </svg>
                 <h3 className="font-semibold text-blue-900">{t.assignments.companyWideItems}</h3>
               </div>
               <p className="text-sm text-blue-700">
@@ -530,6 +594,18 @@ export default function AssignmentsPage() {
         {/* Department Tab - Batch Assignment */}
         {activeTab === 'department' && (
           <div className="space-y-6 animate-in fade-in duration-300">
+            <div className="bg-green-50 rounded-lg p-4 border border-green-200">
+              <div className="flex items-center space-x-2 mb-2">
+                <svg className="w-6 h-6 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z" />
+                </svg>
+                <h3 className="font-semibold text-green-900">Department-Level Assignments</h3>
+              </div>
+              <p className="text-sm text-green-700">
+                Create OKRs and competencies for your department. Select team members and assign items in bulk to streamline the evaluation process.
+              </p>
+            </div>
+
             {/* Create New Section */}
             <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
               <h3 className="font-semibold text-gray-900 mb-3">{t.assignments.createNewDepartmentItems}</h3>
@@ -901,10 +977,12 @@ Currently assigned to ({getEmployeesWithItem(item.id).length}):
 
         {/* Individual Tab - Employee-Specific Assignment */}
         {activeTab === 'individual' && (
-          <div className="space-y-4 animate-in fade-in duration-300">
+          <div className="space-y-6 animate-in fade-in duration-300">
             <div className="bg-yellow-50 rounded-lg p-4 border border-yellow-200">
               <div className="flex items-center space-x-2 mb-2">
-                <span className="text-xl">👤</span>
+                <svg className="w-6 h-6 text-yellow-600" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+                </svg>
                 <h3 className="font-semibold text-yellow-900">{t.assignments.individualAssignments}</h3>
               </div>
               <p className="text-sm text-yellow-700">
@@ -912,9 +990,238 @@ Currently assigned to ({getEmployeesWithItem(item.id).length}):
               </p>
             </div>
 
-            {/* Individual assignment interface will be implemented next */}
-            <div className="text-center py-8 text-gray-500">
-              {t.assignments.comingSoon}
+            {/* Create New Individual Items Section */}
+            <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
+              <h3 className="font-semibold text-gray-900 mb-3">Create Individual OKRs & Competencies</h3>
+              <div className="flex space-x-3">
+                <button
+                  onClick={() => {
+                    setNewItemType('okr')
+                    setCreatingNew(true)
+                    setEditingItem({
+                      id: 'new-individual',
+                      title: '',
+                      description: '',
+                      evaluationDeadline: ''
+                    })
+                  }}
+                  className="flex items-center space-x-2 px-6 py-3 min-h-[44px] bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 active:scale-95 active:bg-blue-800 transition-all duration-150 touch-manipulation"
+                >
+                  <span>🎯</span>
+                  <span>{t.assignments.newOKR}</span>
+                </button>
+                <button
+                  onClick={() => {
+                    setNewItemType('competency')
+                    setCreatingNew(true)
+                    setEditingItem({
+                      id: 'new-individual',
+                      title: '',
+                      description: '',
+                      evaluationDeadline: ''
+                    })
+                  }}
+                  className="flex items-center space-x-2 px-6 py-3 min-h-[44px] bg-purple-600 text-white text-sm font-medium rounded-lg hover:bg-purple-700 active:scale-95 active:bg-purple-800 transition-all duration-150 touch-manipulation"
+                >
+                  <span>⭐</span>
+                  <span>{t.assignments.newCompetency}</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Create New Individual Item Form */}
+            {creatingNew && editingItem && editingItem.id === 'new-individual' && (
+              <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
+                <div className="space-y-4">
+                  <div className="flex items-center space-x-3 mb-4">
+                    <span className="text-2xl">
+                      {newItemType === 'okr' ? '🎯' : '⭐'}
+                    </span>
+                    <div className="flex items-center space-x-2">
+                      <span className="text-sm font-bold text-blue-700 uppercase tracking-wide">
+                        {newItemType === 'okr' ? t.evaluations.okr : t.evaluations.competency}
+                      </span>
+                      <span className="text-xs px-2 py-1 rounded-full font-medium bg-yellow-100 text-yellow-700">
+                        👤 Individual
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      {newItemType === 'okr' ? t.okrs.objective : t.evaluations.competency}
+                    </label>
+                    <input
+                      type="text"
+                      value={editingItem.title}
+                      onChange={(e) => setEditingItem({
+                        ...editingItem,
+                        title: e.target.value
+                      })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-gray-900"
+                      placeholder="Enter title..."
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      {newItemType === 'okr' ? t.okrs.keyResults : 'Description'}
+                    </label>
+                    <textarea
+                      value={editingItem.description}
+                      onChange={(e) => setEditingItem({
+                        ...editingItem,
+                        description: e.target.value
+                      })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-gray-900"
+                      rows={3}
+                      placeholder="Enter description..."
+                    />
+                  </div>
+                  
+                  {canSetDeadlineForLevel('manager') && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        {t.assignments.evaluationDeadline}
+                      </label>
+                      <input
+                        type="datetime-local"
+                        value={editingItem.evaluationDeadline}
+                        onChange={(e) => setEditingItem({
+                          ...editingItem,
+                          evaluationDeadline: e.target.value
+                        })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-gray-900"
+                        min={new Date().toISOString().slice(0, 16)} // Prevent past dates
+                      />
+                    </div>
+                  )}
+                  
+                  <div className="flex space-x-3">
+                    <button
+                      onClick={() => handleSaveIndividualItem()}
+                      disabled={!editingItem.title.trim() || !editingItem.description.trim()}
+                      className="flex items-center space-x-2 px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+                    >
+                      <span>✓</span>
+                      <span>{t.assignments.create}</span>
+                    </button>
+                    <button
+                      onClick={() => {
+                        setEditingItem(null)
+                        setCreatingNew(false)
+                      }}
+                      className="flex items-center space-x-2 px-4 py-2 bg-gray-200 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-300 transition-colors"
+                    >
+                      <span>✕</span>
+                      <span>{t.common.cancelButton}</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Employee List for Individual Assignment */}
+            <div className="space-y-4">
+              {employees.length === 0 ? (
+                <div className="text-center py-8 text-gray-500">
+                  <p>No employees found. Make sure you have team members assigned to manage individual assignments.</p>
+                </div>
+              ) : (
+                employees.map((employee) => (
+                <div key={employee.id} className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+                        <span className="text-lg">👤</span>
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-gray-900">{employee.name}</h3>
+                        <p className="text-sm text-gray-500">
+                          {employee.email || employee.username} • {employee.department}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="text-xs text-gray-500">
+                      {employee.assignedItems.length} {t.assignments.itemsAssigned}
+                    </div>
+                  </div>
+
+                  {/* Show current assignments for this employee */}
+                  {employee.assignedItems.length > 0 && (
+                    <div className="mb-4 p-3 bg-gray-50 rounded-lg">
+                      <h4 className="text-sm font-medium text-gray-700 mb-2">
+                        Current assignments ({employee.assignedItems.length}):
+                      </h4>
+                      <div className="flex flex-wrap gap-1">
+                        {employee.assignedItems.map((itemId) => {
+                          const item = evaluationItems.find(evalItem => evalItem.id === itemId)
+                          return item ? (
+                            <div key={itemId} className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs bg-blue-100 text-blue-700 border border-blue-200">
+                              <span>{item.type === 'okr' ? '🎯' : '⭐'} {item.title.slice(0, 12)}...</span>
+                              <button
+                                onClick={(e) => {
+                                  e.preventDefault()
+                                  e.stopPropagation()
+                                  handleUnassignFromEmployee(itemId, employee.id)
+                                }}
+                                className={`flex items-center justify-center w-4 h-4 min-w-[16px] text-white text-xs rounded-full active:scale-95 transition-all duration-150 touch-manipulation ${
+                                  confirmingUnassign === `${itemId}-${employee.id}`
+                                    ? 'bg-orange-500 hover:bg-orange-600 animate-pulse'
+                                    : 'bg-red-500 hover:bg-red-600'
+                                }`}
+                                title={
+                                  confirmingUnassign === `${itemId}-${employee.id}`
+                                    ? 'Click again to confirm removal'
+                                    : `Remove "${item.title}" from ${employee.name}`
+                                }
+                              >
+                                {confirmingUnassign === `${itemId}-${employee.id}` ? '?' : '✕'}
+                              </button>
+                            </div>
+                          ) : null
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Individual Items for Assignment */}
+                  <div className="space-y-3">
+                    <h4 className="text-sm font-medium text-gray-700">Available Individual Items:</h4>
+                    {filteredItems.filter(item => item.level === 'manager').length === 0 ? (
+                      <p className="text-sm text-gray-500 italic">No individual items created yet. Create some above to assign to this employee.</p>
+                    ) : (
+                      filteredItems.filter(item => item.level === 'manager').map((item) => (
+                        <div key={item.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                          <div className="flex-1">
+                            <div className="flex items-center space-x-2 mb-1">
+                              <span className="text-lg">{item.type === 'okr' ? '🎯' : '⭐'}</span>
+                              <span className="text-sm font-bold text-blue-700 uppercase tracking-wide">
+                                {item.type === 'okr' ? t.evaluations.okr : t.evaluations.competency}
+                              </span>
+                            </div>
+                            <h5 className="font-medium text-gray-900">{item.title}</h5>
+                            <p className="text-sm text-gray-600">{item.description}</p>
+                          </div>
+                          <button
+                            onClick={() => handleIndividualAssignment(item.id, employee.id)}
+                            disabled={employeeHasItem(employee.id, item.id)}
+                            className={`flex items-center space-x-2 px-4 py-2 min-h-[44px] text-sm font-medium rounded-lg transition-all duration-150 touch-manipulation ${
+                              employeeHasItem(employee.id, item.id)
+                                ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                                : 'bg-green-600 text-white hover:bg-green-700 active:scale-95'
+                            }`}
+                          >
+                            <span>{employeeHasItem(employee.id, item.id) ? '✓' : '➕'}</span>
+                            <span>{employeeHasItem(employee.id, item.id) ? 'Assigned' : 'Assign'}</span>
+                          </button>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+                ))
+              )}
             </div>
           </div>
         )}
