@@ -26,7 +26,8 @@ yarn dev
 ```
 
 Visit http://localhost:3000 and use demo credentials:
-- **HR**: hr@demo.com / password123
+- **HR Admin**: hr@demo.com / password123 (admin functions only)
+- **HR Managers**: hr1@demo.com, hr2@demo.com, hr3@demo.com / password123 (with teams)
 - **Manager**: manager@demo.com / password123
 - **Employee**: employee1@demo.com / password123
 - **Worker**: worker1 / 1234
@@ -65,6 +66,14 @@ Visit http://localhost:3000 and use demo credentials:
 - **Three-tier system**: Company/Department/Manager level items
 - **Auto-save**: No data loss during evaluations
 - **Thumb-friendly**: Minimum 44px touch targets
+- **Universal access**: Works for HR, managers, and employees
+
+### HR Team Management (NEW!)
+- **Dual-role support**: HR users can both manage teams and access admin functions
+- **Team evaluations**: HR managers have their own direct reports to evaluate
+- **Seamless navigation**: Dashboard ↔ Evaluations ↔ My Evaluations workflow
+- **Real-time data**: Dynamic team summaries and completion tracking
+- **Back navigation**: Easy return to dashboard from evaluation views
 
 ### Multi-Company Architecture
 - **Data isolation**: Complete separation between companies
@@ -209,6 +218,10 @@ docker run -p 3000:3000 -v ./data:/app/prisma performance-mgmt
 - ✅ Export functions updated for unified evaluation system  
 - ✅ Code quality improved with proper type safety
 - ✅ Translation system optimized (28% reduction in unused keys)
+- ✅ HR team management functionality added
+- ✅ Universal "My Evaluations" page for all roles
+- ✅ Streamlined navigation and consistent button styling
+- ✅ Enhanced mobile UX with subtle language switcher
 
 **Critical Issues to Address:**
 1. **Change default secrets** in environment files (`NEXTAUTH_SECRET`)

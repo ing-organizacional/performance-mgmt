@@ -27,6 +27,13 @@ Performance Management System - A mobile-first web application for managing empl
 - `/src/middleware.ts` - Route protection
 - `/prisma/schema.prisma` - Database schema
 - `/src/lib/i18n.ts` - Bilingual translations (English/Spanish)
+- `/src/lib/seed.ts` - Database seeding with HR test accounts
+
+**Key API Endpoints:**
+- `/api/manager/team` - Team data for managers and HR (GET)
+- `/api/evaluations` - Personal evaluations for logged-in user (GET)
+- `/api/evaluations` - Create/update evaluations (POST)
+- `/api/admin/*` - HR admin functions (requires role-based access control)
 
 ## Essential Commands
 
@@ -54,9 +61,17 @@ yarn tsc --noEmit          # TypeScript check
 
 ## Mobile-First UI Architecture
 
-**Manager Evaluations Page (`/evaluations`):**
-- Sticky header with navigation and sign out
-- **Fixed compact summary card** (recent update) - shows team metrics
+**HR Dashboard Page (`/dashboard`):**
+- Overview analytics and completion tracking
+- **Dual navigation buttons**: "Employee Evaluations" + "My Evaluations"
+- Quick actions for exports and user management
+- Mobile-optimized compact button styling (text-xs, small icons)
+
+**Manager/HR Evaluations Page (`/evaluations`):**
+- **Back button navigation** for HR users (returns to dashboard)
+- Sticky header with streamlined navigation
+- **Single "Assignments" button** (redundant "My Evaluations" removed)
+- **Fixed compact summary card** - shows team metrics
 - Scrollable employee list with status indicators
 - Mobile optimized with touch-friendly targets
 
@@ -68,9 +83,15 @@ yarn tsc --noEmit          # TypeScript check
 - Auto-save functionality
 - Thumb-friendly touch targets (44px minimum)
 
+**My Evaluations Page (`/my-evaluations`):**
+- **Universal access** - works for employees, managers, and HR
+- Shows evaluations received by the logged-in user
+- Real-time data fetching from API
+- Performance history and summary analytics
+
 **Role-Based Navigation:**
-- HR → `/dashboard` (completion tracking, analytics)
-- Manager → `/evaluations` (employee list → evaluation flow)
+- HR → `/dashboard` (analytics) ↔ `/evaluations` (manage teams) ↔ `/my-evaluations` (personal)
+- Manager → `/evaluations` (employee list → evaluation flow) ↔ `/my-evaluations` (personal)
 - Employee → `/my-evaluations` (view history, current status)
 
 ## Unified Evaluation System (CRITICAL)
@@ -110,8 +131,11 @@ interface EvaluationItem {
 - No AD dependency (optional integration available)
 
 **Login Patterns:**
-- `hr@demo.com / password123` (HR admin) 
-- `manager@demo.com / password123` (Manager)
+- `hr@demo.com / password123` (HR Admin - no direct reports, admin functions only)
+- `hr1@demo.com / password123` (HR Manager - Human Resources team, 4 employees)
+- `hr2@demo.com / password123` (HR Manager - Talent Acquisition team, 4 employees)
+- `hr3@demo.com / password123` (HR Manager - Learning & Development team, 4 employees)
+- `manager@demo.com / password123` (Manager - Operations team, 8 employees)
 - `employee1@demo.com / password123` (Office worker)
 - `worker1 / 1234` (Operational worker with PIN)
 
@@ -158,9 +182,13 @@ interface EvaluationItem {
 - Test on mobile devices first
 - Ensure company data isolation
 - Add proper error handling
-- Update documentation if touching user operations
+- Update CLAUDE.md documentation if touching user operations
 - Maintain audit trail in database
 - Check bilingual support works properly
+- Test with different user roles (HR, Manager, Employee)
+- Verify navigation flows work for all roles
+- Ensure consistent button styling (text-xs, compact design)
+- Test language switching functionality
 
 **Code Quality Standards:**
 - TypeScript compilation must be clean (`yarn tsc --noEmit`)
@@ -227,18 +255,39 @@ interface EvaluationItem {
 4. **Export Functions**: Updated for new unified data structure (PDF/Excel)
 5. **UI Improvements**: Compact manager summary card, better mobile experience
 6. **Code Quality**: ESLint warnings addressed, better maintainability
+7. **HR Team Management**: Added support for HR users to manage their own teams
+8. **Universal My Evaluations**: All roles can now access their personal evaluation history
+9. **Streamlined Navigation**: Removed redundant buttons, standardized sizing across pages
+10. **Enhanced Mobile UX**: Consistent button styling, improved language switcher subtlety
+
+**New Features Added:**
+- **HR Manager Support**: HR users can access `/evaluations` page to manage their direct reports
+- **Team Data API**: Extended `/api/manager/team` to support both manager and HR roles
+- **Back Navigation**: Added back button to evaluations page for HR dashboard navigation
+- **Test Data**: Three HR managers with teams (hr1@demo.com, hr2@demo.com, hr3@demo.com)
+- **Real-time My Evaluations**: Dynamic data fetching based on logged-in user ID
+- **Consistent Button Styling**: Standardized text-xs, compact padding across all pages
+
+**UI/UX Improvements:**
+- Language switcher made more subtle (removed prominent orange border)
+- Button height consistency fixed between English/Spanish versions
+- Removed redundant "My Evaluations" button from evaluations page
+- Standardized button sizes between dashboard and evaluations pages
+- Added proper focus states and accessibility improvements
 
 **Breaking Changes:**
 - `okrsData` and `competenciesData` fields removed from database
 - All evaluation data now in unified `evaluationItemsData` JSON field
 - Export functions use new data structure
 - Translation keys cleaned up (some removed)
+- Navigation flow updated for HR users
 
 **Performance Notes:**
 - SQLite handles the scale easily (4K employees across 27 companies)
 - JSON queries for evaluation data are efficient
 - Mobile-optimized bundle size critical for operational workers
 - TypeScript compilation is clean and fast
+- Reduced redundant API calls through better data management
 
 ## GitHub Repository
 

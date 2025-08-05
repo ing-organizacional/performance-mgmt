@@ -2,6 +2,65 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma-client'
 
+// GET /api/evaluations - Get evaluations for the logged-in user
+export async function GET(request: NextRequest) {
+  try {
+    const session = await auth()
+    
+    if (!session?.user?.id) {
+      return NextResponse.json({ 
+        success: false, 
+        error: 'Unauthorized' 
+      }, { status: 401 })
+    }
+
+    const { searchParams } = new URL(request.url)
+    const employeeId = searchParams.get('employeeId')
+    
+    // If employeeId is provided, use it; otherwise use the logged-in user's ID
+    const targetEmployeeId = employeeId || session.user.id
+
+    // Fetch evaluations for the target employee
+    const evaluations = await prisma.evaluation.findMany({
+      where: {
+        employeeId: targetEmployeeId
+      },
+      include: {
+        manager: {
+          select: {
+            name: true,
+            email: true
+          }
+        }
+      },
+      orderBy: {
+        createdAt: 'desc'
+      }
+    })
+
+    // Transform the data to match the expected format
+    const formattedEvaluations = evaluations.map(evaluation => ({
+      id: evaluation.id,
+      period: `${evaluation.periodDate} ${evaluation.periodType}`,
+      status: evaluation.status,
+      overallRating: evaluation.overallRating,
+      submittedAt: evaluation.createdAt.toISOString(),
+      managerName: evaluation.manager.name
+    }))
+
+    return NextResponse.json({
+      success: true,
+      evaluations: formattedEvaluations
+    })
+  } catch (error) {
+    console.error('Error fetching evaluations:', error)
+    return NextResponse.json({ 
+      success: false, 
+      error: 'Failed to fetch evaluations' 
+    }, { status: 500 })
+  }
+}
+
 // POST /api/evaluations - Create/Save evaluation
 export async function POST(request: NextRequest) {
   try {

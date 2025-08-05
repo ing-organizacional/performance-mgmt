@@ -92,12 +92,26 @@ export default function DashboardPage() {
           
           {/* Actions Section */}
           <div className="flex items-center justify-between">
-            <button
-              onClick={() => router.push('/evaluations')}
-              className="px-3 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 active:scale-95 transition-all duration-150 touch-manipulation"
-            >
-              {t.dashboard.newEvaluation}
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => router.push('/evaluations')}
+                className="flex items-center justify-center space-x-1 px-2 py-2 bg-blue-600 text-white text-xs font-medium rounded-lg hover:bg-blue-700 active:scale-95 transition-all duration-150 touch-manipulation whitespace-nowrap tracking-tighter leading-none"
+              >
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
+                </svg>
+                <span>{t.nav.employeeEvaluations}</span>
+              </button>
+              <button
+                onClick={() => router.push('/my-evaluations')}
+                className="flex items-center justify-center space-x-1 px-2 py-2 bg-green-100 text-green-700 text-xs font-medium rounded-lg hover:bg-green-200 active:scale-95 transition-all duration-150 touch-manipulation whitespace-nowrap tracking-tighter leading-none"
+              >
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                <span>{t.nav.myEvaluations}</span>
+              </button>
+            </div>
             <LanguageSwitcher />
           </div>
         </div>
