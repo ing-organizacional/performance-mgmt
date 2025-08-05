@@ -45,7 +45,8 @@ model User {
   requiresPinOnly Boolean @default(false)
   
   // Employee details
-  employeeId String?
+  employeeId String? // Company-assigned employee number
+  personID   String? // National ID number (cédula, DNI, etc.)
   department String?
   shift      String?
   lastLogin  DateTime?
@@ -68,6 +69,8 @@ model User {
   
   @@unique([companyId, email])
   @@unique([companyId, username])
+  @@unique([companyId, employeeId]) // Employee ID unique per company (HRIS integration)
+  @@unique([companyId, personID]) // National ID unique per company (for data isolation)
 }
 
 model Evaluation {

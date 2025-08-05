@@ -143,6 +143,12 @@ export interface Translations {
     manageUsers: string
     startEvaluating: string
     lastUpdated: string
+    newCycle: string
+    cycleName: string
+    startDate: string
+    endDate: string
+    createCycle: string
+    creating: string
   }
   
   // User Management
@@ -169,6 +175,15 @@ export interface Translations {
     successfullyImported: string
     importFailed: string
     uploadFailed: string
+    basicExampleCSV: string
+    advancedExampleCSV: string
+    usesPersonIdMatching: string
+    showsBothIdOptions: string
+    fieldExplanations: string
+    employeeIdExplanation: string
+    personIdExplanation: string
+    managerPersonIdExplanation: string
+    managerEmployeeIdExplanation: string
   }
 }
 
@@ -302,7 +317,13 @@ export const translations: Record<Language, Translations> = {
       allPeriods: 'All Periods',
       manageUsers: 'Manage Users',
       startEvaluating: 'Start Evaluating',
-      lastUpdated: 'Last updated'
+      lastUpdated: 'Last updated',
+      newCycle: 'New Cycle',
+      cycleName: 'Cycle Name',
+      startDate: 'Start Date',
+      endDate: 'End Date',
+      createCycle: 'Create Cycle',
+      creating: 'Creating...'
     },
     users: {
       userManagement: 'User Management',
@@ -326,7 +347,16 @@ export const translations: Record<Language, Translations> = {
       uploadingProcessing: 'Uploading and processing...',
       successfullyImported: 'Successfully imported',
       importFailed: 'Import failed',
-      uploadFailed: 'Upload failed'
+      uploadFailed: 'Upload failed',
+      basicExampleCSV: 'Basic Example CSV',
+      advancedExampleCSV: 'Advanced Example CSV',
+      usesPersonIdMatching: 'Uses PersonID for manager matching',
+      showsBothIdOptions: 'Shows both PersonID and EmployeeID options',
+      fieldExplanations: 'Field Explanations:',
+      employeeIdExplanation: 'Company-assigned ID (EMP001, MGR001) - Required for HRIS integration',
+      personIdExplanation: 'National ID/Cédula - Legally unique identifier',
+      managerPersonIdExplanation: 'Manager\'s National ID for hierarchy',
+      managerEmployeeIdExplanation: 'Alternative: Manager\'s Employee ID'
     }
   },
   es: {
@@ -350,7 +380,7 @@ export const translations: Record<Language, Translations> = {
       standardized: 'Estandarizado',
       company: 'Empresa',
       department: 'Departamento',
-      manager: 'Supervisor'
+      manager: 'Jefatura'
     },
     auth: {
       signIn: 'Iniciar sesión',
@@ -363,13 +393,13 @@ export const translations: Record<Language, Translations> = {
       signInToAccount: 'Inicia sesión en tu cuenta',
       demoCredentials: 'Credenciales de Demo',
       hr: 'RRHH',
-      manager: 'Supervisor',
-      employee: 'Empleado',
+      manager: 'Jefatura',
+      employee: 'Colaborador',
       worker: 'Trabajador'
     },
     nav: {
       performanceManagement: 'Gestión de Desempeño',
-      employeeEvaluations: 'Evaluaciones de Empleados',
+      employeeEvaluations: 'Evaluaciones de Colaboradores',
       myEvaluations: 'Mis Evaluaciones',
       selectEmployee: 'Selecciona un empleado para evaluar',
       employees: 'empleados',
@@ -377,8 +407,8 @@ export const translations: Record<Language, Translations> = {
     },
     evaluations: {
       evaluation: 'Evaluación',
-      evaluateEmployee: 'Evaluar Empleado',
-      employeeEvaluation: 'Evaluación de Empleado',
+      evaluateEmployee: 'Evaluar Colaborador',
+      employeeEvaluation: 'Evaluación de Colaborador',
       selectEmployeeToEvaluate: 'Selecciona un empleado para evaluar',
       overallPerformance: 'Desempeño General',
       overallRating: 'Calificación General',
@@ -415,8 +445,8 @@ export const translations: Record<Language, Translations> = {
       manageOKRsCompetencies: 'Gestionar OKRs y Competencias',
       companyWideItems: 'Elementos de Toda la Empresa',
       companyWideDescription: 'Estos elementos son establecidos por RRHH y se aplican automáticamente a todos los empleados. No puedes modificar estas asignaciones.',
-      appliedToAllEmployees: 'Aplicado a: Todos los Empleados',
-      selectEmployeesForBatch: 'Seleccionar Empleados para Asignación Masiva',
+      appliedToAllEmployees: 'Aplicado a: Todos los Colaboradores',
+      selectEmployeesForBatch: 'Seleccionar Colaboradores para Asignación Masiva',
       selectEmployees: 'Seleccionar empleados',
       itemsAssigned: 'elementos asignados',
       employeesSelected: 'empleado(s) seleccionado(s) para asignación masiva',
@@ -458,7 +488,13 @@ export const translations: Record<Language, Translations> = {
       allPeriods: 'Todos los Períodos',
       manageUsers: 'Gestionar Usuarios',
       startEvaluating: 'Comenzar Evaluación',
-      lastUpdated: 'Última actualización'
+      lastUpdated: 'Última actualización',
+      newCycle: 'Nuevo Ciclo',
+      cycleName: 'Nombre del Ciclo',
+      startDate: 'Fecha de Inicio',
+      endDate: 'Fecha de Fin',
+      createCycle: 'Crear Ciclo',
+      creating: 'Creando...'
     },
     users: {
       userManagement: 'Gestión de Usuarios',
@@ -475,14 +511,23 @@ export const translations: Record<Language, Translations> = {
       active: 'Activo',
       inactive: 'Inactivo',
       department: 'Departamento',
-      manager: 'Supervisor',
+      manager: 'Jefatura',
       manages: 'Gestiona',
       evaluationsReceived: 'evaluaciones recibidas',
       noUsersFound: 'No se encontraron usuarios que coincidan con los criterios',
       uploadingProcessing: 'Subiendo y procesando...',
       successfullyImported: 'Importados exitosamente',
       importFailed: 'Error en la importación',
-      uploadFailed: 'Error en la subida'
+      uploadFailed: 'Error en la subida',
+      basicExampleCSV: 'CSV de Ejemplo Básico',
+      advancedExampleCSV: 'CSV de Ejemplo Avanzado',
+      usesPersonIdMatching: 'Usa PersonID para emparejar jefaturas',
+      showsBothIdOptions: 'Muestra opciones de PersonID y EmployeeID',
+      fieldExplanations: 'Explicación de Campos:',
+      employeeIdExplanation: 'ID asignado por la empresa (EMP001, MGR001) - Requerido para integración HRIS',
+      personIdExplanation: 'Cédula/ID Nacional - Identificador legalmente único',
+      managerPersonIdExplanation: 'Cédula de la Jefatura para jerarquía',
+      managerEmployeeIdExplanation: 'Alternativa: ID de Empleado de la Jefatura'
     }
   }
 }

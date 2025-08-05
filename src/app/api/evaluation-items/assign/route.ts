@@ -18,11 +18,11 @@ export async function POST(request: NextRequest) {
     const userRole = session.user.role
     const companyId = session.user.companyId
 
-    // Only managers can assign items
-    if (userRole !== 'manager') {
+    // Only managers and HR can assign items
+    if (userRole !== 'manager' && userRole !== 'hr') {
       return NextResponse.json({ 
         success: false, 
-        error: 'Access denied - Manager role required' 
+        error: 'Access denied - Manager or HR role required' 
       }, { status: 403 })
     }
 
@@ -120,11 +120,11 @@ export async function DELETE(request: NextRequest) {
     const userRole = session.user.role
     const companyId = session.user.companyId
 
-    // Only managers can remove assignments
-    if (userRole !== 'manager') {
+    // Only managers and HR can remove assignments
+    if (userRole !== 'manager' && userRole !== 'hr') {
       return NextResponse.json({ 
         success: false, 
-        error: 'Access denied - Manager role required' 
+        error: 'Access denied - Manager or HR role required' 
       }, { status: 403 })
     }
 

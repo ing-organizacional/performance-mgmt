@@ -19,11 +19,11 @@ export async function GET() {
     const userRole = session.user.role
     const companyId = session.user.companyId
 
-    // Only managers can access this endpoint
-    if (userRole !== 'manager') {
+    // Only managers and HR can access this endpoint
+    if (userRole !== 'manager' && userRole !== 'hr') {
       return NextResponse.json({ 
         success: false, 
-        error: 'Access denied - Manager role required' 
+        error: 'Access denied - Manager or HR role required' 
       }, { status: 403 })
     }
 

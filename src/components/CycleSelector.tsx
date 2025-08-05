@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState, useCallback } from 'react'
+import { useLanguage } from '@/contexts/LanguageContext'
 
 interface PerformanceCycle {
   id: string
@@ -23,12 +24,19 @@ interface CycleSelectorProps {
 }
 
 export default function CycleSelector({ onCycleSelect, showCreateButton = false }: CycleSelectorProps) {
+  const { t } = useLanguage()
   const [cycles, setCycles] = useState<PerformanceCycle[]>([])
   const [selectedCycle, setSelectedCycle] = useState<PerformanceCycle | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [showActions, setShowActions] = useState(false)
   const [actionLoading, setActionLoading] = useState(false)
+  const [showCreateModal, setShowCreateModal] = useState(false)
+  const [createForm, setCreateForm] = useState({
+    name: '',
+    startDate: '',
+    endDate: ''
+  })
 
   const fetchCycles = useCallback(async () => {
     try {
@@ -52,7 +60,7 @@ export default function CycleSelector({ onCycleSelect, showCreateButton = false 
     } finally {
       setLoading(false)
     }
-  }, [onCycleSelect])
+  }, [])
 
   useEffect(() => {
     fetchCycles()
@@ -142,6 +150,52 @@ export default function CycleSelector({ onCycleSelect, showCreateButton = false 
     }
   }
 
+  const handleCreateCycle = () => {
+    setShowCreateModal(true)
+  }
+
+  const handleModalSubmit = async () => {
+    if (!createForm.name.trim() || !createForm.startDate || !createForm.endDate) {
+      alert('Please fill in all fields')
+      return
+    }
+
+    setActionLoading(true)
+    try {
+      const response = await fetch('/api/admin/cycles', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: createForm.name.trim(),
+          startDate: createForm.startDate,
+          endDate: createForm.endDate
+        })
+      })
+
+      if (response.ok) {
+        await fetchCycles() // Refresh the cycles list
+        setShowCreateModal(false)
+        setCreateForm({ name: '', startDate: '', endDate: '' })
+        alert('Performance cycle created successfully!')
+      } else {
+        const errorData = await response.json()
+        alert(`Failed to create cycle: ${errorData.error || 'Unknown error'}`)
+      }
+    } catch (error) {
+      console.error('Error creating cycle:', error)
+      alert('Error creating cycle. Please try again.')
+    } finally {
+      setActionLoading(false)
+    }
+  }
+
+  const handleModalCancel = () => {
+    setShowCreateModal(false)
+    setCreateForm({ name: '', startDate: '', endDate: '' })
+  }
+
   if (loading) {
     return (
       <div className="flex items-center space-x-2">
@@ -225,11 +279,12 @@ export default function CycleSelector({ onCycleSelect, showCreateButton = false 
 
       {showCreateButton && (
         <button
-          onClick={() => {/* TODO: Open create cycle modal */}}
+          onClick={handleCreateCycle}
           className="text-xs bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700 transition-colors"
           title="Create new performance cycle"
+          disabled={actionLoading}
         >
-          + New Cycle
+          {actionLoading ? '...' : `+ ${t.dashboard.newCycle}`}
         </button>
       )}
 
@@ -239,6 +294,87 @@ export default function CycleSelector({ onCycleSelect, showCreateButton = false 
           className="fixed inset-0 z-40" 
           onClick={() => setShowActions(false)}
         ></div>
+      )}
+
+      {/* Create Cycle Modal */}
+      {showCreateModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 w-full max-w-md">
+            {/* Modal Header */}
+            <div className="px-4 py-3 border-b border-gray-200">
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg font-semibold text-gray-900">{t.dashboard.newCycle}</h2>
+                <button
+                  onClick={handleModalCancel}
+                  className="p-2 -mr-2 text-gray-400 hover:text-gray-600"
+                  disabled={actionLoading}
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            {/* Modal Body */}
+            <div className="px-4 py-4 space-y-4">
+              <div>
+                <label className="block text-xs font-medium text-gray-700 mb-1">
+                  {t.dashboard.cycleName}
+                </label>
+                <input
+                  type="text"
+                  value={createForm.name}
+                  onChange={(e) => setCreateForm(prev => ({ ...prev, name: e.target.value }))}
+                  placeholder="e.g., 2025 Annual Review"
+                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-xs font-medium text-gray-700 mb-1">
+                  {t.dashboard.startDate}
+                </label>
+                <input
+                  type="date"
+                  value={createForm.startDate}
+                  onChange={(e) => setCreateForm(prev => ({ ...prev, startDate: e.target.value }))}
+                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-xs font-medium text-gray-700 mb-1">
+                  {t.dashboard.endDate}
+                </label>
+                <input
+                  type="date"
+                  value={createForm.endDate}
+                  onChange={(e) => setCreateForm(prev => ({ ...prev, endDate: e.target.value }))}
+                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                />
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="px-4 py-3 border-t border-gray-200 flex justify-end gap-2">
+              <button
+                onClick={handleModalCancel}
+                className="px-3 py-2 text-xs font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 active:scale-95 transition-all duration-150 touch-manipulation"
+                disabled={actionLoading}
+              >
+                {t.common.cancel}
+              </button>
+              <button
+                onClick={handleModalSubmit}
+                className="px-3 py-2 text-xs font-medium bg-blue-600 text-white rounded-lg hover:bg-blue-700 active:scale-95 transition-all duration-150 touch-manipulation"
+                disabled={actionLoading}
+              >
+                {actionLoading ? t.dashboard.creating : t.dashboard.createCycle}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   )

@@ -75,8 +75,8 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white shadow-sm border-b border-gray-200">
+      {/* Fixed Header */}
+      <div className="fixed top-0 left-0 right-0 z-50 bg-white shadow-sm border-b border-gray-200">
         <div className="px-4 py-3">
           {/* Title Section */}
           <div className="flex items-center justify-between mb-3">
@@ -141,7 +141,8 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <div className="px-4 py-6 space-y-6">
+      {/* Main Content with top padding to account for fixed header */}
+      <div className="pt-28 px-4 py-6 space-y-6">
         {/* Completion Overview */}
         <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
           <div className="flex items-center justify-between mb-4">

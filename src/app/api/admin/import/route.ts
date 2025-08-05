@@ -11,7 +11,10 @@ interface ImportUserData {
   department?: string
   userType?: string
   password?: string
-  managerEmail?: string
+  employeeId?: string
+  personID?: string
+  managerPersonID?: string
+  managerEmployeeId?: string
   companyCode?: string
 }
 
@@ -21,7 +24,7 @@ interface ImportResults {
   errors: string[]
 }
 
-// POST /api/admin/import - Import users from CSV data
+// POST /api/admin/import - Import users from CSV file
 export async function POST(request: NextRequest) {
   const authResult = await requireHRRole(request)
   if (authResult instanceof NextResponse) {
@@ -30,14 +33,58 @@ export async function POST(request: NextRequest) {
   const { user } = authResult
 
   try {
-    const body = await request.json()
-    const { users, companyId } = body
-    const finalCompanyId = companyId || user.companyId
+    const formData = await request.formData()
+    const file = formData.get('file') as File
 
-    if (!users || !Array.isArray(users)) {
+    if (!file) {
       return NextResponse.json({ 
         success: false, 
-        error: 'Users array is required' 
+        error: 'CSV file is required' 
+      }, { status: 400 })
+    }
+
+    if (!file.name.endsWith('.csv')) {
+      return NextResponse.json({ 
+        success: false, 
+        error: 'File must be a CSV' 
+      }, { status: 400 })
+    }
+
+    // Parse CSV file
+    const csvText = await file.text()
+    const lines = csvText.split('\n').filter(line => line.trim())
+    
+    if (lines.length < 2) {
+      return NextResponse.json({ 
+        success: false, 
+        error: 'CSV must have header row and at least one data row' 
+      }, { status: 400 })
+    }
+
+    // Parse header row
+    const headers = lines[0].split(',').map(h => h.trim().replace(/['"]/g, ''))
+    
+    // Parse data rows
+    const users: ImportUserData[] = []
+    for (let i = 1; i < lines.length; i++) {
+      const values = lines[i].split(',').map(v => v.trim().replace(/['"]/g, ''))
+      if (values.length !== headers.length) continue // Skip malformed rows
+      
+      const userData: ImportUserData = {}
+      headers.forEach((header, index) => {
+        const value = values[index]
+        if (value && value !== '') {
+          (userData as any)[header] = value
+        }
+      })
+      
+      users.push(userData)
+    }
+
+    if (users.length === 0) {
+      return NextResponse.json({ 
+        success: false, 
+        error: 'No valid user data found in CSV' 
       }, { status: 400 })
     }
 
@@ -47,7 +94,10 @@ export async function POST(request: NextRequest) {
       errors: []
     }
 
-    for (const userData of users as ImportUserData[]) {
+    // Use the current user's company as default
+    const finalCompanyId = user.companyId
+
+    for (const userData of users) {
       try {
         const { 
           name, 
@@ -57,7 +107,10 @@ export async function POST(request: NextRequest) {
           department, 
           userType, 
           password, 
-          managerEmail 
+          employeeId,
+          personID,
+          managerPersonID,
+          managerEmployeeId 
         } = userData
 
         // Validate required fields
@@ -70,6 +123,12 @@ export async function POST(request: NextRequest) {
         if (!email && !username) {
           results.failed++
           results.errors.push(`Row skipped - missing email or username: ${name}`)
+          continue
+        }
+
+        if (!personID) {
+          results.failed++
+          results.errors.push(`Row skipped - missing personID (national ID): ${name}`)
           continue
         }
 
@@ -100,7 +159,7 @@ export async function POST(request: NextRequest) {
           continue
         }
 
-        // Check if user already exists
+        // Check if user already exists (email, username, employeeId, or personID)
         const existingUser = await prisma.user.findFirst({
           where: {
             AND: [
@@ -108,8 +167,10 @@ export async function POST(request: NextRequest) {
               {
                 OR: [
                   email ? { email } : {},
-                  username ? { username } : {}
-                ]
+                  username ? { username } : {},
+                  employeeId ? { employeeId } : {},
+                  personID ? { personID } : {}
+                ].filter(condition => Object.keys(condition).length > 0)
               }
             ]
           }
@@ -117,23 +178,39 @@ export async function POST(request: NextRequest) {
 
         if (existingUser) {
           results.failed++
-          results.errors.push(`User already exists: ${email || username}`)
+          // Provide specific error message about which field conflicts
+          const conflictField = 
+            existingUser.email === email ? `email: ${email}` :
+            existingUser.username === username ? `username: ${username}` :
+            existingUser.employeeId === employeeId ? `employeeId: ${employeeId}` :
+            existingUser.personID === personID ? `personID: ${personID}` :
+            'unknown field'
+          results.errors.push(`User already exists with ${conflictField}`)
           continue
         }
 
-        // Find manager if specified
+        // Find manager if specified (try personID first, then employeeId)
         let managerId = null
-        if (managerEmail) {
+        if (managerPersonID || managerEmployeeId) {
           const manager = await prisma.user.findFirst({
             where: { 
-              email: managerEmail,
-              companyId: targetCompanyId 
+              AND: [
+                { companyId: targetCompanyId },
+                { role: { in: ['manager', 'hr'] } }, // Ensure only managers/HR can be assigned as managers
+                {
+                  OR: [
+                    managerPersonID ? { personID: managerPersonID } : {},
+                    managerEmployeeId ? { employeeId: managerEmployeeId } : {}
+                  ].filter(condition => Object.keys(condition).length > 0)
+                }
+              ]
             }
           })
           if (manager) {
             managerId = manager.id
           } else {
-            results.errors.push(`Manager not found: ${managerEmail} for user ${name}`)
+            const identifier = managerPersonID ? `PersonID: ${managerPersonID}` : `EmployeeID: ${managerEmployeeId}`
+            results.errors.push(`Manager not found with ${identifier} for user ${name}`)
           }
         }
 
@@ -147,6 +224,8 @@ export async function POST(request: NextRequest) {
             companyId: targetCompanyId,
             managerId,
             department: department || null,
+            employeeId: employeeId || null,
+            personID: personID,
             userType: userType || 'office',
             passwordHash: await bcrypt.hash(password || 'changeme123', 12),
             pinCode: (userType === 'operational') ? (password || '1234') : null,
@@ -166,7 +245,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       message: `Import completed: ${results.success} created, ${results.failed} failed`,
-      results
+      imported: results.success,
+      failed: results.failed,
+      errors: results.errors
     })
   } catch (error) {
     console.error('Error importing users:', error)

@@ -192,6 +192,19 @@ export default function UsersPage() {
     }
   }
 
+  const getRoleDisplayName = (role: string) => {
+    switch (role) {
+      case 'hr':
+        return t.auth.hr
+      case 'manager':
+        return t.auth.manager
+      case 'employee':
+        return t.auth.employee
+      default:
+        return role
+    }
+  }
+
   const filteredUsers = users.filter(user => {
     const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -212,8 +225,8 @@ export default function UsersPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white shadow-sm border-b border-gray-200">
+      {/* Fixed Header */}
+      <div className="fixed top-0 left-0 right-0 z-50 bg-white shadow-sm border-b border-gray-200">
         <div className="px-4 py-3">
           {/* Title Section */}
           <div className="flex items-center justify-between mb-3">
@@ -255,7 +268,8 @@ export default function UsersPage() {
         </div>
       </div>
 
-      <div className="px-4 py-6 space-y-6">
+      {/* Main Content with top padding to account for fixed header */}
+      <div className="pt-28 px-4 py-6 space-y-6">
         {/* User Management Section */}
         <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
           {/* Search and Filter */}
@@ -276,9 +290,9 @@ export default function UsersPage() {
                 className="px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
               >
                 <option value="">{t.users.allRoles}</option>
-                <option value="hr">HR</option>
-                <option value="manager">Manager</option>
-                <option value="employee">Employee</option>
+                <option value="hr">{t.auth.hr}</option>
+                <option value="manager">{t.auth.manager}</option>
+                <option value="employee">{t.auth.employee}</option>
               </select>
             </div>
           </div>
@@ -296,7 +310,7 @@ export default function UsersPage() {
                         user.role === 'manager' ? 'bg-blue-100 text-blue-800' :
                         'bg-gray-100 text-gray-800'
                       }`}>
-                        {user.role}
+                        {getRoleDisplayName(user.role)}
                       </span>
                       <span className={`px-2 py-1 text-xs rounded-full ${
                         user.active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
@@ -364,16 +378,38 @@ export default function UsersPage() {
             </div>
             <div className="text-xs text-gray-500">
               <p className="font-medium mb-1">{t.users.csvFormat}</p>
-              <p>name,email,username,role,department,userType,password,managerEmail,companyCode</p>
-              <p className="mt-2">
-                <a 
-                  href="/example-users.csv" 
-                  download 
-                  className="text-blue-600 hover:text-blue-800 underline"
-                >
-                  {t.users.downloadExample}
-                </a>
-              </p>
+              <p>name,email,username,role,department,userType,password,employeeId,personID,managerPersonID,managerEmployeeId,companyCode</p>
+              <div className="mt-2 space-y-1">
+                <div>
+                  <a 
+                    href="/example-users.csv" 
+                    download 
+                    className="text-blue-600 hover:text-blue-800 underline"
+                  >
+                    📋 {t.users.basicExampleCSV}
+                  </a>
+                  <span className="text-gray-400 ml-2">- {t.users.usesPersonIdMatching}</span>
+                </div>
+                <div>
+                  <a 
+                    href="/example-users-advanced.csv" 
+                    download 
+                    className="text-blue-600 hover:text-blue-800 underline"
+                  >
+                    🔧 {t.users.advancedExampleCSV}
+                  </a>
+                  <span className="text-gray-400 ml-2">- {t.users.showsBothIdOptions}</span>
+                </div>
+              </div>
+              <div className="mt-3 p-2 bg-blue-50 rounded text-xs">
+                <p className="font-medium text-blue-800 mb-1">{t.users.fieldExplanations}</p>
+                <ul className="text-blue-700 space-y-0.5">
+                  <li><strong>employeeId:</strong> {t.users.employeeIdExplanation}</li>
+                  <li><strong>personID:</strong> {t.users.personIdExplanation}</li>
+                  <li><strong>managerPersonID:</strong> {t.users.managerPersonIdExplanation}</li>
+                  <li><strong>managerEmployeeId:</strong> {t.users.managerEmployeeIdExplanation}</li>
+                </ul>
+              </div>
             </div>
           </div>
         </div>

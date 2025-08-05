@@ -90,8 +90,8 @@ export default function AssignmentsPage() {
       return
     }
 
-    // Only managers can access this page
-    if (session.user?.role !== 'manager') {
+    // Only managers and HR can access this page
+    if (session.user?.role !== 'manager' && session.user?.role !== 'hr') {
       router.push('/dashboard')
       return
     }

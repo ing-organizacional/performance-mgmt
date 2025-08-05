@@ -101,59 +101,56 @@ export default function UserForm({ user, onSave, onCancel, companies = [], manag
 
   return (
     <>
-      {/* Backdrop */}
-      <div className="fixed inset-0 bg-black bg-opacity-50 z-50 transition-opacity duration-300" />
-      
-      {/* Modal */}
-      <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
-        <div className="bg-white w-full max-w-2xl sm:rounded-lg shadow-xl sm:max-h-[90vh] max-h-screen overflow-y-auto transform transition-transform duration-300">
-          {/* Header */}
-          <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4">
-            <div className="flex justify-between items-center">
-              <h2 className="text-xl font-semibold text-gray-900">
+      {/* Modal Backdrop */}
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 w-full max-w-md max-h-[90vh] overflow-y-auto">
+          {/* Modal Header */}
+          <div className="px-4 py-3 border-b border-gray-200">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-gray-900">
                 {user ? 'Edit User' : 'Add New User'}
               </h2>
               <button
                 onClick={onCancel}
-                className="p-2 -mr-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors touch-manipulation"
+                className="p-2 -mr-2 text-gray-400 hover:text-gray-600"
+                disabled={loading}
               >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
             </div>
           </div>
 
-          {/* Form Content */}
-          <div className="px-6 pt-6">
-
-          <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Modal Body */}
+          <div className="px-4 py-4 space-y-4">
+            <form id="user-form" onSubmit={handleSubmit} className="space-y-4">
             {/* Name */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-xs font-medium text-gray-700 mb-1">
                 Full Name *
               </label>
               <input
                 type="text"
                 value={formData.name}
                 onChange={(e) => handleChange('name', e.target.value)}
-                className={`w-full px-3 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500 text-gray-900 ${
+                className={`w-full px-3 py-2 text-sm border rounded-lg focus:ring-blue-500 focus:border-blue-500 ${
                   errors.name ? 'border-red-500' : 'border-gray-300'
                 }`}
                 placeholder="John Smith"
               />
-              {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
+              {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
             </div>
 
             {/* User Type */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-xs font-medium text-gray-700 mb-1">
                 Worker Type *
               </label>
               <select
                 value={formData.userType}
                 onChange={(e) => handleChange('userType', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-gray-900"
+                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
               >
                 <option value="office">Office Worker (uses email/password)</option>
                 <option value="operational">Operational Worker (uses username/PIN)</option>
@@ -163,64 +160,64 @@ export default function UserForm({ user, onSave, onCancel, companies = [], manag
             {/* Email or Username based on type */}
             {formData.userType === 'office' ? (
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-xs font-medium text-gray-700 mb-1">
                   Email Address *
                 </label>
                 <input
                   type="email"
                   value={formData.email || ''}
                   onChange={(e) => handleChange('email', e.target.value)}
-                  className={`w-full px-3 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500 text-gray-900 ${
+                  className={`w-full px-3 py-2 text-sm border rounded-lg focus:ring-blue-500 focus:border-blue-500 ${
                     errors.email ? 'border-red-500' : 'border-gray-300'
                   }`}
                   placeholder="john@company.com"
                 />
-                {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
+                {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
               </div>
             ) : (
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-xs font-medium text-gray-700 mb-1">
                   Username *
                 </label>
                 <input
                   type="text"
                   value={formData.username || ''}
                   onChange={(e) => handleChange('username', e.target.value)}
-                  className={`w-full px-3 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500 text-gray-900 ${
+                  className={`w-full px-3 py-2 text-sm border rounded-lg focus:ring-blue-500 focus:border-blue-500 ${
                     errors.username ? 'border-red-500' : 'border-gray-300'
                   }`}
                   placeholder="john.smith"
                 />
-                {errors.username && <p className="text-red-500 text-sm mt-1">{errors.username}</p>}
+                {errors.username && <p className="text-red-500 text-xs mt-1">{errors.username}</p>}
               </div>
             )}
 
             {/* Password */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-xs font-medium text-gray-700 mb-1">
                 {user ? 'New Password (leave blank to keep current)' : 'Password *'}
               </label>
               <input
                 type="password"
                 value={formData.password || ''}
                 onChange={(e) => handleChange('password', e.target.value)}
-                className={`w-full px-3 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500 ${
+                className={`w-full px-3 py-2 text-sm border rounded-lg focus:ring-blue-500 focus:border-blue-500 ${
                   errors.password ? 'border-red-500' : 'border-gray-300'
                 }`}
                 placeholder={formData.userType === 'operational' ? '4-digit PIN' : 'Password'}
               />
-              {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
+              {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
             </div>
 
             {/* Role */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-xs font-medium text-gray-700 mb-1">
                 Role *
               </label>
               <select
                 value={formData.role}
                 onChange={(e) => handleChange('role', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-gray-900"
+                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
               >
                 <option value="employee">Employee</option>
                 <option value="manager">Manager</option>
@@ -230,13 +227,13 @@ export default function UserForm({ user, onSave, onCancel, companies = [], manag
 
             {/* Company */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-xs font-medium text-gray-700 mb-1">
                 Company *
               </label>
               <select
                 value={formData.companyId}
                 onChange={(e) => handleChange('companyId', e.target.value)}
-                className={`w-full px-3 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500 ${
+                className={`w-full px-3 py-2 text-sm border rounded-lg focus:ring-blue-500 focus:border-blue-500 ${
                   errors.companyId ? 'border-red-500' : 'border-gray-300'
                 }`}
               >
@@ -247,18 +244,18 @@ export default function UserForm({ user, onSave, onCancel, companies = [], manag
                   </option>
                 ))}
               </select>
-              {errors.companyId && <p className="text-red-500 text-sm mt-1">{errors.companyId}</p>}
+              {errors.companyId && <p className="text-red-500 text-xs mt-1">{errors.companyId}</p>}
             </div>
 
             {/* Manager */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-xs font-medium text-gray-700 mb-1">
                 Manager (optional)
               </label>
               <select
                 value={formData.managerId || ''}
                 onChange={(e) => handleChange('managerId', e.target.value || '')}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-gray-900"
+                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
               >
                 <option value="">No Manager</option>
                 {managers.map((manager) => (
@@ -271,14 +268,14 @@ export default function UserForm({ user, onSave, onCancel, companies = [], manag
 
             {/* Department */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-xs font-medium text-gray-700 mb-1">
                 Department (optional)
               </label>
               <input
                 type="text"
                 value={formData.department || ''}
                 onChange={(e) => handleChange('department', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-gray-900"
+                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
                 placeholder="Operations, Sales, Manufacturing..."
               />
             </div>
@@ -292,31 +289,32 @@ export default function UserForm({ user, onSave, onCancel, companies = [], manag
                 onChange={(e) => handleChange('active', e.target.checked)}
                 className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
               />
-              <label htmlFor="active" className="ml-2 block text-sm text-gray-900">
+              <label htmlFor="active" className="ml-2 block text-xs text-gray-900">
                 Active User
               </label>
             </div>
 
-            {/* Form Actions */}
-            <div className="sticky bottom-0 bg-white border-t border-gray-200 pt-4 -mx-6 px-6 pb-6">
-              <div className="flex gap-3">
-                <button
-                  type="button"
-                  onClick={onCancel}
-                  className="flex-1 px-4 py-3 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition-colors touch-manipulation"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="flex-1 px-4 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 transition-colors touch-manipulation"
-                >
-                  {loading ? 'Saving...' : (user ? 'Update User' : 'Create User')}
-                </button>
-              </div>
-            </div>
-          </form>
+            </form>
+          </div>
+
+          {/* Modal Footer */}
+          <div className="px-4 py-3 border-t border-gray-200 flex justify-end gap-2">
+            <button
+              type="button"
+              onClick={onCancel}
+              className="px-3 py-2 text-xs font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 active:scale-95 transition-all duration-150 touch-manipulation"
+              disabled={loading}
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              form="user-form"
+              className="px-3 py-2 text-xs font-medium bg-blue-600 text-white rounded-lg hover:bg-blue-700 active:scale-95 transition-all duration-150 touch-manipulation"
+              disabled={loading}
+            >
+              {loading ? 'Saving...' : (user ? 'Update User' : 'Create User')}
+            </button>
           </div>
         </div>
       </div>
