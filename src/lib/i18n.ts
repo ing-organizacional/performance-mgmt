@@ -85,6 +85,7 @@ export interface Translations {
     minimumCharacters: string
     tapToRate: string
     commentPlaceholder: string
+    commentGuidance: string
   }
   
   // OKRs (only commonly used keys)
@@ -227,7 +228,8 @@ export const translations: Record<Language, Translations> = {
       comments: 'Comments',
       minimumCharacters: 'Minimum {count} characters',
       tapToRate: 'Tap a star to rate this item',
-      commentPlaceholder: 'Please provide specific feedback (minimum 20 characters required)...'
+      commentPlaceholder: 'Provide specific feedback and examples...',
+      commentGuidance: 'Include specific examples and actionable suggestions.'
     },
     okrs: {
       objective: 'Objective',
@@ -362,7 +364,8 @@ export const translations: Record<Language, Translations> = {
       comments: 'Comentarios',
       minimumCharacters: 'Mínimo {count} caracteres',
       tapToRate: 'Toca una estrella para calificar',
-      commentPlaceholder: 'Proporciona comentarios específicos (mínimo 20 caracteres requeridos)...'
+      commentPlaceholder: 'Proporciona comentarios específicos y ejemplos...',
+      commentGuidance: 'Incluye ejemplos específicos y sugerencias prácticas.'
     },
     okrs: {
       objective: 'Objetivo',

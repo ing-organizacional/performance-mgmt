@@ -4,11 +4,10 @@ import { prisma } from '@/lib/prisma-client'
 // Simple endpoint - just get all active evaluation items for a company
 export async function GET(request: NextRequest) {
   try {
-    // Just get all active company-level items (no hardcoded companyId)
+    // Get all active evaluation items (company, department, and manager levels)
     const items = await prisma.evaluationItem.findMany({
       where: {
-        active: true,
-        level: 'company' // For now, just get company-wide items
+        active: true
       },
       include: {
         creator: {

@@ -109,19 +109,84 @@ export async function seedDatabase() {
     })
   }
 
-  // Create default evaluation items (mix of OKRs and Competencies)
-  const defaultItems = [
-    // Company OKRs (set by HR)
-    { type: 'okr', title: 'Increase Sales by 20%', description: 'Drive revenue growth through new client acquisition', sortOrder: 1 },
-    { type: 'okr', title: 'Launch New Product Line', description: 'Successfully launch and market new product offering', sortOrder: 2 },
+  // Create three-tier evaluation items structure
+  const evaluationItems = [
+    // 2 Company-wide OKRs (set by HR - read-only)
+    { 
+      type: 'okr', 
+      level: 'company',
+      title: 'Increase Company Revenue by 25%', 
+      description: 'Drive overall company growth through strategic initiatives and market expansion',
+      createdBy: hrAdmin.id,
+      sortOrder: 1 
+    },
+    { 
+      type: 'okr', 
+      level: 'company',
+      title: 'Digital Transformation Initiative', 
+      description: 'Successfully implement digital tools across all departments to improve efficiency',
+      createdBy: hrAdmin.id,
+      sortOrder: 2 
+    },
     
-    // Company Competencies (set by HR)  
-    { type: 'competency', title: 'Communication', description: 'Clear and effective verbal and written communication', sortOrder: 3 },
-    { type: 'competency', title: 'Leadership', description: 'Ability to guide and motivate team members', sortOrder: 4 },
-    { type: 'competency', title: 'Problem Solving', description: 'Analytical thinking and creative solutions', sortOrder: 5 }
+    // 2 Company-wide Competencies (set by HR - read-only)
+    { 
+      type: 'competency', 
+      level: 'company',
+      title: 'Communication Excellence', 
+      description: 'Clear, professional communication across all channels and stakeholders',
+      createdBy: hrAdmin.id,
+      sortOrder: 3 
+    },
+    { 
+      type: 'competency', 
+      level: 'company',
+      title: 'Adaptability', 
+      description: 'Flexibility and resilience in changing business environments',
+      createdBy: hrAdmin.id,
+      sortOrder: 4 
+    },
+    
+    // 2 Department/Team-wide OKRs (set by Manager - editable)
+    { 
+      type: 'okr', 
+      level: 'department',
+      title: 'Improve Department Efficiency by 15%', 
+      description: 'Streamline processes and reduce waste in daily operations',
+      createdBy: manager.id,
+      sortOrder: 5 
+    },
+    { 
+      type: 'okr', 
+      level: 'department',
+      title: 'Reduce Customer Response Time', 
+      description: 'Achieve average response time of under 2 hours for all customer inquiries',
+      createdBy: manager.id,
+      sortOrder: 6 
+    },
+    
+    // 1 Individual OKR (set by Manager - editable)
+    { 
+      type: 'okr', 
+      level: 'manager',
+      title: 'Personal Skill Development', 
+      description: 'Complete assigned training and demonstrate new skills in daily work',
+      createdBy: manager.id,
+      sortOrder: 7 
+    },
+    
+    // 1 Individual Competency (set by Manager - editable)
+    { 
+      type: 'competency', 
+      level: 'manager',
+      title: 'Problem Solving', 
+      description: 'Identify issues proactively and develop creative solutions independently',
+      createdBy: manager.id,
+      sortOrder: 8 
+    }
   ]
 
-  for (const itemData of defaultItems) {
+  for (const itemData of evaluationItems) {
     await prisma.evaluationItem.upsert({
       where: { 
         id: `${company.id}-${itemData.sortOrder}`
@@ -133,8 +198,8 @@ export async function seedDatabase() {
         title: itemData.title,
         description: itemData.description,
         type: itemData.type,
-        level: 'company',
-        createdBy: hrAdmin.id,
+        level: itemData.level,
+        createdBy: itemData.createdBy,
         assignedTo: null,
         sortOrder: itemData.sortOrder,
         active: true

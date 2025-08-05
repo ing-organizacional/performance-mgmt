@@ -48,8 +48,8 @@ export default function EvaluatePage() {
   const isOverall = currentStep >= evaluationItems.length
   const isOKR = currentItem?.type === 'okr'
   
-  // Minimum comment length (approximately 2 sentences - around 20 characters minimum)
-  const MIN_COMMENT_LENGTH = 20
+  // Minimum comment length (approximately 2-3 sentences - around 100 characters minimum)
+  const MIN_COMMENT_LENGTH = 100
   
   // Check if current item has valid rating and comment
   const isCurrentItemValid = () => {
@@ -140,6 +140,22 @@ export default function EvaluatePage() {
     if (!editingItemId || !editingItemData) return
 
     try {
+      // Save to database
+      const response = await fetch(`/api/evaluation-items/${editingItemId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          title: editingItemData.title,
+          description: editingItemData.description
+        })
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to save changes')
+      }
+
       // Update the item in local state
       setEvaluationItems(prevItems => prevItems.map(item => 
         item.id === editingItemId 
@@ -151,9 +167,8 @@ export default function EvaluatePage() {
       setEditingItemId(null)
       setEditingItemData(null)
       
-      // Optional: Show brief success feedback
-      // alert('Item updated successfully!')
     } catch (error) {
+      console.error('Error updating item:', error)
       alert('Failed to update item')
     }
   }
@@ -177,6 +192,20 @@ export default function EvaluatePage() {
   const handleNext = async () => {
     if (currentStep < totalSteps - 1) {
       setCurrentStep(currentStep + 1)
+      
+      // Auto-scroll to top of rating section for better UX
+      setTimeout(() => {
+        const ratingSection = document.querySelector('[data-rating-section]')
+        if (ratingSection) {
+          ratingSection.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'start' 
+          })
+        } else {
+          // Fallback: scroll to top of page
+          window.scrollTo({ top: 0, behavior: 'smooth' })
+        }
+      }, 100)
     } else {
       // Submit evaluation
       try {
@@ -299,20 +328,18 @@ export default function EvaluatePage() {
         {!isOverall && currentItem && (
           <>
             {/* Fixed OKR/Competency Card */}
-            <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-lg mx-4 mb-4 flex-shrink-0">
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center space-x-3">
-                  <div className="flex items-center justify-center w-10 h-10 rounded-full bg-blue-100">
-                    <span className="text-xl">
+            <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-lg mx-4 mb-4 flex-shrink-0">
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex-1">
+                  <div className="flex items-center space-x-3 mb-2">
+                    <span className="text-2xl">
                       {isOKR ? '🎯' : '⭐'}
                     </span>
-                  </div>
-                  <div>
-                    <span className="text-sm font-semibold text-blue-700 uppercase tracking-wide">
-                      {isOKR ? t.evaluations.okr : t.evaluations.competency}
-                    </span>
-                    {isOKR && currentItem.level && (
-                      <div className="flex items-center mt-1 space-x-2">
+                    <div className="flex items-center space-x-2">
+                      <span className="text-sm font-bold text-blue-700 uppercase tracking-wide">
+                        {isOKR ? t.evaluations.okr : t.evaluations.competency}
+                      </span>
+                      {currentItem.level && (
                         <span className={`text-xs px-2 py-1 rounded-full font-medium ${
                           currentItem.level === 'company' ? 'bg-purple-100 text-purple-700' :
                           currentItem.level === 'department' ? 'bg-green-100 text-green-700' :
@@ -322,14 +349,16 @@ export default function EvaluatePage() {
                            currentItem.level === 'department' ? `🏬 ${t.common.department}` :
                            `👤 ${t.common.manager}`}
                         </span>
-                        {currentItem.createdBy && (
-                          <span className="text-xs text-gray-500">by {currentItem.createdBy}</span>
-                        )}
-                      </div>
-                    )}
+                      )}
+                    </div>
                   </div>
+                  {currentItem.createdBy && (
+                    <p className="text-xs text-gray-500 ml-11">
+                      by {currentItem.createdBy}
+                    </p>
+                  )}
                 </div>
-                {isOKR && currentItem.level !== 'company' && (
+                {currentItem.level !== 'company' && (
                   <button
                     onClick={() => {
                       if (editingItemId === currentItem.id) {
@@ -343,13 +372,18 @@ export default function EvaluatePage() {
                         })
                       }
                     }}
-                    className={`text-xs font-medium px-3 py-2 rounded-full transition-all duration-200 ${
+                    className={`flex items-center space-x-1 px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 flex-shrink-0 ${
                       editingItemId === currentItem.id 
                         ? 'bg-red-100 text-red-700 hover:bg-red-200' 
-                        : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                     }`}
                   >
-                    {editingItemId === currentItem.id ? `❌ ${t.common.cancelButton}` : `✏️ ${t.common.editButton}`}
+                    <span className="text-sm">
+                      {editingItemId === currentItem.id ? '✕' : '✏️'}
+                    </span>
+                    <span>
+                      {editingItemId === currentItem.id ? t.common.cancelButton : t.common.editButton}
+                    </span>
                   </button>
                 )}
               </div>
@@ -389,9 +423,10 @@ export default function EvaluatePage() {
                   <div>
                     <button
                       onClick={() => handleSaveItemEdit()}
-                      className="px-3 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700 transition-colors"
+                      className="group flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold text-sm rounded-xl hover:from-green-600 hover:to-green-700 transition-all duration-300 transform hover:scale-105 shadow-sm shadow-green-200"
                     >
-                      ✅ {t.common.saveButton}
+                      <span className="text-lg group-hover:scale-110 transition-transform duration-200">✓</span>
+                      <span>{t.common.saveButton}</span>
                     </button>
                   </div>
                 </div>
@@ -421,7 +456,7 @@ export default function EvaluatePage() {
 <div className="flex-1 overflow-y-auto px-4 pb-20">
               <div className="space-y-4">
                 {/* Rating Section */}
-                <div className="bg-gray-50 rounded-xl p-6">
+                <div className="bg-gray-50 rounded-xl p-6" data-rating-section>
                   <div className="text-center mb-3">
                     <p className="text-lg font-bold text-gray-800 mb-1">{t.evaluations.ratePerformance}</p>
                     <p className="text-sm text-gray-600">{t.evaluations.tapToRate}</p>
@@ -471,7 +506,7 @@ export default function EvaluatePage() {
                   </div>
                   
                   <p className="text-sm text-gray-600 mb-4">
-                    {t.evaluations.minimumCharacters.replace('{count}', MIN_COMMENT_LENGTH.toString())}
+                    {t.evaluations.minimumCharacters.replace('{count}', MIN_COMMENT_LENGTH.toString())}. {t.evaluations.commentGuidance}
                   </p>
                   
                   <textarea
@@ -489,7 +524,7 @@ export default function EvaluatePage() {
                         ? 'border-green-300 focus:border-green-500 focus:ring-green-200'
                         : 'border-red-300 focus:border-red-500 focus:ring-red-200'
                     } focus:ring-4`}
-                    rows={6}
+                    rows={8}
                   />
                 </div>
               </div>
@@ -556,9 +591,9 @@ export default function EvaluatePage() {
               <textarea
                 value={overallComment}
                 onChange={(e) => setOverallComment(e.target.value)}
-                placeholder="Please provide overall feedback (minimum 20 characters required)..."
+                placeholder="Provide comprehensive overall feedback..."
                 className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-gray-900"
-                rows={4}
+                rows={6}
               />
             </div>
           </div>
