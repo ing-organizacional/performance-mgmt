@@ -15,16 +15,33 @@ interface CompletionStats {
 
 
 async function getDashboardData(companyId: string) {
-  // Get active performance cycle
-  const activeCycle = await prisma.performanceCycle.findFirst({
+  // Get all performance cycles for company
+  const allCycles = await prisma.performanceCycle.findMany({
     where: {
-      companyId,
-      status: 'active'
+      companyId
     },
-    orderBy: {
-      createdAt: 'desc'
-    }
+    include: {
+      _count: {
+        select: {
+          evaluations: true,
+          evaluationItems: true,
+          partialAssessments: true
+        }
+      },
+      closedByUser: {
+        select: {
+          name: true
+        }
+      }
+    },
+    orderBy: [
+      { status: 'desc' },  // Active cycles first
+      { createdAt: 'desc' }
+    ]
   })
+
+  // Get active performance cycle
+  const activeCycle = allCycles.find(cycle => cycle.status === 'active') || null
 
   // Get all employees in the company (excluding HR admin role)
   const totalEmployees = await prisma.user.count({
@@ -116,10 +133,23 @@ async function getDashboardData(companyId: string) {
     duesSoon: 0 // TODO: Implement deadline tracking
   }
 
+  // Format cycles for client
+  const formattedCycles = allCycles.map(cycle => ({
+    id: cycle.id,
+    name: cycle.name,
+    status: cycle.status,
+    startDate: cycle.startDate.toISOString(),
+    endDate: cycle.endDate.toISOString(),
+    closedBy: cycle.closedByUser?.name || null,
+    closedAt: cycle.closedAt?.toISOString() || null,
+    _count: cycle._count
+  }))
+
   return {
     completionStats,
     ratingDistribution: ratingCounts,
-    activeCycle: activeCycle as EvaluationCycle | null
+    activeCycle: activeCycle as EvaluationCycle | null,
+    allCycles: formattedCycles
   }
 }
 
@@ -141,7 +171,7 @@ export default async function DashboardPage() {
   }
 
   // Fetch dashboard data directly from database
-  const { completionStats, ratingDistribution, activeCycle } = await getDashboardData(companyId)
+  const { completionStats, ratingDistribution, activeCycle, allCycles } = await getDashboardData(companyId)
 
   return (
     <DashboardClient 
@@ -150,6 +180,7 @@ export default async function DashboardPage() {
       completionStats={completionStats}
       ratingDistribution={ratingDistribution}
       activeCycle={activeCycle}
+      allCycles={allCycles}
     />
   )
 }

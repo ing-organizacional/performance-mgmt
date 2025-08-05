@@ -25,19 +25,36 @@ interface RatingDistribution {
   needs: number
 }
 
+interface PerformanceCycle {
+  id: string
+  name: string
+  status: string
+  startDate: string
+  endDate: string
+  closedBy?: string | null
+  closedAt?: string | null
+  _count: {
+    evaluations: number
+    evaluationItems: number
+    partialAssessments: number
+  }
+}
+
 interface DashboardClientProps {
   userRole: string
   companyId: string
   completionStats: CompletionStats
   ratingDistribution: RatingDistribution
   activeCycle: EvaluationCycle | null
+  allCycles: PerformanceCycle[]
 }
 
 export default function DashboardClient({
   companyId,
   completionStats,
   ratingDistribution,
-  activeCycle
+  activeCycle,
+  allCycles
 }: DashboardClientProps) {
   const router = useRouter()
   const { t } = useLanguage()
@@ -125,6 +142,8 @@ export default function DashboardClient({
               <CycleSelector 
                 showCreateButton={false} 
                 onCycleSelect={() => {}} // TODO: Handle cycle changes
+                initialCycles={allCycles}
+                selectedCycleId={activeCycle?.id || null}
               />
               <LanguageSwitcher />
             </div>

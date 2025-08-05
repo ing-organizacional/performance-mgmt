@@ -21,11 +21,10 @@ This document analyzes all existing API endpoints to determine which can be conv
 *These GET endpoints are still being used by client components*
 
 10. **`/api/evaluations/[id]` (GET)** - Used by evaluation forms → **Convert to Server Component** (COMPLEX)
-11. **`/api/manager/team-assignments` (GET)** - Used by assignment pages → **Convert to Server Component** (COMPLEX)  
-13. **`/api/evaluation-items` (GET)** - Used by evaluation forms → **Convert to Server Component**
-14. **`/api/manager/team` (GET)** - Used by evaluation forms → **Convert to Server Component**
-15. **`/api/admin/cycles` (GET)** - Used by cycle selector component → **Convert to Server Component**
-16. **`/api/admin/cycles/[id]` (GET/PUT)** - Used by cycle selector component → **Convert to Server Component**
+11. **`/api/evaluation-items` (GET)** - Used by evaluation forms → **Convert to Server Component**
+12. **`/api/manager/team` (GET)** - Used by evaluation forms → **Convert to Server Component**
+13. **`/api/admin/cycles` (GET)** - Used by cycle selector component → **Convert to Server Component**
+14. **`/api/admin/cycles/[id]` (GET/PUT)** - Used by cycle selector component → **Convert to Server Component**
 
 ### 🗑️ **SUCCESSFULLY ELIMINATED - Server Actions Conversion**
 *These have been converted from API routes to Server Actions*
@@ -37,6 +36,7 @@ This document analyzes all existing API endpoints to determine which can be conv
 - ~~`/api/admin/cycles` (POST)~~ - ✅ **ELIMINATED** (converted to createCycle Server Action)
 - ~~`/api/admin/cycles/[id]` (PUT)~~ - ✅ **ELIMINATED** (converted to updateCycleStatus Server Action)
 - ~~`/api/evaluation-items/all` (GET)~~ - ✅ **ELIMINATED** (converted to company-items server component)
+- ~~`/api/manager/team-assignments` (GET)~~ - ✅ **ELIMINATED** (converted to assignments page server component)
 
 ### 🟢 **PREVIOUSLY CONVERTED - Server Components**
 *These were converted to server components in earlier phases*
@@ -139,17 +139,18 @@ async function MyEvaluationsPage() {
 ## Current Progress Status
 
 ### ✅ **Major Achievements So Far:**
-- **Converted 4 major pages** to server components + Server Actions  
-- **Eliminated 9 of 21 original API endpoints** (43% reduction achieved!)
+- **Converted 5 major pages** to server components + Server Actions  
+- **Eliminated 11 of 21 original API endpoints** (52% reduction achieved!)
 - **Removed all loading states** from converted pages
 - **Improved page load speed** (server-rendered data)
 - **Simplified code architecture** (direct database queries + Server Actions)
 
 ### 📊 **API Elimination Breakdown:**
-- **Phase 1 (Server Components):** 3 endpoints eliminated
+- **Phase 1 (Server Components):** 4 endpoints eliminated
   - `/api/evaluations` (GET) ✅ 
   - `/api/manager/team` (GET) ✅
   - `/api/evaluation-items/all` (GET) ✅ 
+  - `/api/manager/team-assignments` (GET) ✅
 - **Phase 2 (Server Actions):** 7 endpoints eliminated  
   - `/api/admin/users` (GET) ✅
   - `/api/admin/users` (POST) ✅
@@ -161,8 +162,8 @@ async function MyEvaluationsPage() {
 
 ### 🎯 **Remaining Work:**
 - **9 required API endpoints** (auth, forms, mutations) - ✅ **KEEP**
-- **6 convertible GET endpoints** still active - 🟡 **CONVERT**
-- **Target:** 71% of all read-only APIs eliminated when complete
+- **5 convertible GET endpoints** still active - 🟡 **CONVERT**
+- **Target:** 76% of all read-only APIs eliminated when complete
 
 ### 📊 **Before vs After Comparison:**
 
@@ -194,6 +195,10 @@ async function MyEvaluationsPage() {
 - ❌ Before: Client component + API call + loading states + complex data fetching
 - ✅ After: Server component + Server Actions + direct DB operations + progressive enhancement
 
+**`/evaluations/assignments` page (FOURTH BREAKTHROUGH!):**
+- ❌ Before: Client component + API call + loading states + complex form handling + client-side validation
+- ✅ After: Server component + Server Actions + direct DB operations + progressive enhancement + server-side validation
+
 ### 🎯 **Final Architecture Goal:**
 - **Reduce from 21 to 9 core API endpoints** (57% total reduction)
 - **Eliminate all loading states** for data display pages  
@@ -202,12 +207,13 @@ async function MyEvaluationsPage() {
 - **Better SEO** (server-rendered content)  
 - **Fewer bugs** (no async state management issues)
 
-### 📈 **Success Metrics (9 of 21 endpoints eliminated = 43% progress):**
+### 📈 **Success Metrics (11 of 21 endpoints eliminated = 52% progress):**
 
 **✅ ELIMINATED (Server Components):**
 - `/api/evaluations` (GET) - my-evaluations page
 - `/api/manager/team` (GET) - evaluations page  
-- `/api/evaluation-items/all` (GET) - deadlines page
+- `/api/evaluation-items/all` (GET) - deadlines & company-items pages
+- `/api/manager/team-assignments` (GET) - assignments page
 
 **✅ ELIMINATED (Server Actions):**  
 - `/api/admin/users` (GET) - users page
@@ -216,11 +222,10 @@ async function MyEvaluationsPage() {
 - `/api/admin/users/[id]` (DELETE) - user deletion
 - `/api/admin/cycles` (POST) - cycle creation
 - `/api/admin/cycles/[id]` (PUT) - cycle updates
-- `/api/evaluation-items/all` (GET) - company items page
+- `/api/evaluation-items/all` (duplicated, moved to server components)
 
-**🟡 NEXT PRIORITY (6 remaining convertible):**
+**🟡 NEXT PRIORITY (5 remaining convertible):**
 - `/api/evaluations/[id]` (GET) - evaluation forms (COMPLEX)
-- `/api/manager/team-assignments` (GET) - assignment pages (COMPLEX)
 - `/api/evaluation-items` (GET) - evaluation forms (COMPLEX)
 - `/api/manager/team` (GET) - evaluation forms (COMPLEX)
 - `/api/admin/cycles` (GET) - cycle selector component
