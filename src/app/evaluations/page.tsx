@@ -74,9 +74,9 @@ export default function EvaluationsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20">
+    <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-10">
+      <div className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-20">
         <div className="px-4 py-4">
           <div className="flex items-center justify-between">
             <div>
@@ -96,28 +96,28 @@ export default function EvaluationsPage() {
         </div>
       </div>
 
-      {/* Team Summary Card */}
+      {/* Fixed Team Summary Card */}
       {teamSummary && (
-        <div className="px-4 pt-6">
-          <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm mb-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">{t.evaluations.teamSummary}</h2>
-            <div className="grid grid-cols-2 gap-4">
+        <div className="sticky top-[73px] z-10 bg-gray-50 px-4 pt-3 pb-2">
+          <div className="bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
+            <h2 className="text-base font-semibold text-gray-900 mb-3">{t.evaluations.teamSummary}</h2>
+            <div className="grid grid-cols-2 gap-3">
               <div className="text-center">
-                <div className="text-2xl font-bold text-orange-600">{teamSummary.pendingEvaluations}</div>
-                <div className="text-sm text-gray-600">{t.evaluations.pendingReviews}</div>
+                <div className="text-xl font-bold text-orange-600">{teamSummary.pendingEvaluations}</div>
+                <div className="text-xs text-gray-600">{t.evaluations.pendingReviews}</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-blue-600">
+                <div className="text-xl font-bold text-blue-600">
                   {teamSummary.averageScore > 0 ? teamSummary.averageScore.toFixed(1) : '—'}
                 </div>
-                <div className="text-sm text-gray-600">{t.evaluations.teamAverage}</div>
+                <div className="text-xs text-gray-600">{t.evaluations.teamAverage}</div>
               </div>
             </div>
-            <div className="mt-4 pt-4 border-t border-gray-200">
-              <div className="flex justify-between text-sm">
-                <span className="text-green-600">✅ {teamSummary.completedEvaluations} {t.evaluations.completed}</span>
-                <span className="text-yellow-600">🔄 {teamSummary.inProgressEvaluations} {t.evaluations.inProgress}</span>
-                <span className="text-gray-500">⭕ {teamSummary.totalEmployees - teamSummary.completedEvaluations - teamSummary.inProgressEvaluations} {t.evaluations.notStarted}</span>
+            <div className="mt-3 pt-3 border-t border-gray-200">
+              <div className="flex justify-between text-xs">
+                <span className="text-green-600">✅ {teamSummary.completedEvaluations}</span>
+                <span className="text-yellow-600">🔄 {teamSummary.inProgressEvaluations}</span>
+                <span className="text-gray-500">⭕ {teamSummary.totalEmployees - teamSummary.completedEvaluations - teamSummary.inProgressEvaluations}</span>
               </div>
             </div>
           </div>
@@ -125,7 +125,7 @@ export default function EvaluationsPage() {
       )}
 
       {/* Employee List */}
-      <div className="px-4 pb-6 space-y-3">
+      <div className="px-4 pb-24 space-y-3">
         {employees.map((employee) => {
           const getEvaluationStatus = () => {
             const latestEval = employee.evaluationsReceived[0]

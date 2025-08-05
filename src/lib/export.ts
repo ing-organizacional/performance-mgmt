@@ -2,6 +2,36 @@ import { prisma } from './prisma-client'
 import jsPDF from 'jspdf'
 import * as XLSX from 'xlsx'
 
+interface EvaluationItem {
+  id: string
+  title: string
+  description: string
+  type: 'okr' | 'competency'
+  rating: number | null
+  comment: string
+  level?: string
+  createdBy?: string
+}
+
+interface AnalyticsData {
+  Metric: string
+  Category: string
+  Count: number
+  Percentage: string
+}
+
+interface ExcelRowData {
+  'Employee Name': string
+  'Employee ID': string
+  'Department': string
+  'Manager': string
+  'Period': string
+  'Type': string
+  'Item': string
+  'Rating': number | string
+  'Comment': string
+}
+
 interface EvaluationData {
   id: string
   employee: {
@@ -21,7 +51,7 @@ interface EvaluationData {
   }
   periodType: string
   periodDate: string
-  evaluationItemsData: any[]
+  evaluationItemsData: EvaluationItem[]
   overallRating: number | null
   managerComments: string | null
   status: string
@@ -61,8 +91,9 @@ export async function getEvaluationData(evaluationId: string): Promise<Evaluatio
 
   return {
     ...evaluation,
-    evaluationItemsData: evaluation.evaluationItemsData ? JSON.parse(evaluation.evaluationItemsData) : []
-  }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    evaluationItemsData: (evaluation as any).evaluationItemsData ? JSON.parse((evaluation as any).evaluationItemsData) : []
+  } as EvaluationData
 }
 
 export async function getCompanyEvaluations(
@@ -108,8 +139,9 @@ export async function getCompanyEvaluations(
 
   return evaluations.map(evaluation => ({
     ...evaluation,
-    evaluationItemsData: evaluation.evaluationItemsData ? JSON.parse(evaluation.evaluationItemsData) : []
-  }))
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    evaluationItemsData: (evaluation as any).evaluationItemsData ? JSON.parse((evaluation as any).evaluationItemsData) : []
+  }) as EvaluationData)
 }
 
 export function generatePDF(evaluation: EvaluationData): Buffer {
@@ -180,7 +212,7 @@ export function generatePDF(evaluation: EvaluationData): Buffer {
     doc.text('Evaluation Items', 20, yPosition)
     yPosition += 10
 
-    evaluation.evaluationItemsData.forEach((item: any) => {
+    evaluation.evaluationItemsData.forEach((item: EvaluationItem) => {
       doc.setFontSize(12)
       const itemType = item.type === 'okr' ? '🎯 OKR' : '⭐ Competency'
       doc.text(`${itemType}: ${item.title}`, 20, yPosition)
@@ -252,12 +284,12 @@ export function generateExcel(evaluations: EvaluationData[]): Buffer {
   XLSX.utils.book_append_sheet(workbook, summarySheet, 'Summary')
 
   // Detailed Sheet
-  const detailedData: any[] = []
+  const detailedData: ExcelRowData[] = []
   
   evaluations.forEach(evaluation => {
     // Add Evaluation Items
     if (evaluation.evaluationItemsData && evaluation.evaluationItemsData.length > 0) {
-      evaluation.evaluationItemsData.forEach((item: any) => {
+      evaluation.evaluationItemsData.forEach((item: EvaluationItem) => {
         detailedData.push({
           'Employee Name': evaluation.employee.name,
           'Employee ID': evaluation.employee.employeeId || '',
@@ -295,8 +327,8 @@ function getRatingText(rating: number): string {
   }
 }
 
-function generateAnalytics(evaluations: EvaluationData[]): any[] {
-  const analytics: any[] = []
+function generateAnalytics(evaluations: EvaluationData[]): AnalyticsData[] {
+  const analytics: AnalyticsData[] = []
 
   // Rating distribution
   const ratingCounts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }
