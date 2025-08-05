@@ -421,7 +421,7 @@ export default function EvaluatePage() {
                         ...editingItemData,
                         description: e.target.value
                       })}
-                      className="w-full text-gray-600 bg-blue-50 border border-blue-200 rounded-md px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full text-gray-900 bg-blue-50 border border-blue-200 rounded-md px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
                       rows={2}
                       placeholder="Description"
                     />
@@ -473,10 +473,10 @@ export default function EvaluatePage() {
                       <button
                         key={star}
                         onClick={() => handleRating(star)}
-                        className={`p-3 min-h-[44px] min-w-[44px] rounded-full transition-all duration-200 transform touch-manipulation active:scale-110 ${
+                        className={`flex items-center justify-center p-3 min-h-[44px] min-w-[44px] rounded-lg transition-colors duration-150 touch-manipulation ${
                           currentItem.rating && currentItem.rating >= star
-                            ? 'text-yellow-500 bg-yellow-100 shadow-lg scale-105 animate-pulse'
-                            : 'text-gray-300 hover:text-yellow-400 hover:bg-yellow-50 hover:scale-105 active:bg-yellow-100'
+                            ? 'text-yellow-500 bg-yellow-100'
+                            : 'text-gray-300 hover:text-yellow-400 hover:bg-yellow-50 active:bg-yellow-100'
                         }`}
                       >
                         <svg className="w-10 h-10" fill="currentColor" viewBox="0 0 20 20">
@@ -563,10 +563,10 @@ export default function EvaluatePage() {
                   <button
                     key={star}
                     onClick={() => handleRating(star)}
-                    className={`p-3 min-h-[44px] min-w-[44px] rounded-full transition-all duration-200 transform touch-manipulation active:scale-110 ${
+                    className={`flex items-center justify-center p-3 min-h-[44px] min-w-[44px] rounded-lg transition-colors duration-150 touch-manipulation ${
                       overallRating && overallRating >= star
-                        ? 'text-yellow-500 bg-yellow-100 shadow-lg scale-105'
-                        : 'text-gray-300 hover:text-yellow-400 hover:bg-yellow-50 hover:scale-105 active:bg-yellow-100'
+                        ? 'text-yellow-500 bg-yellow-100'
+                        : 'text-gray-300 hover:text-yellow-400 hover:bg-yellow-50 active:bg-yellow-100'
                     }`}
                   >
                     <svg className="w-10 h-10" fill="currentColor" viewBox="0 0 20 20">

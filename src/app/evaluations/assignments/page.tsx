@@ -387,7 +387,7 @@ export default function AssignmentsPage() {
                         ...editingItem,
                         title: e.target.value
                       })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-gray-900"
                       placeholder="Enter title..."
                     />
                   </div>
@@ -402,7 +402,7 @@ export default function AssignmentsPage() {
                         ...editingItem,
                         description: e.target.value
                       })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-gray-900"
                       rows={3}
                       placeholder="Enter description..."
                     />
@@ -501,7 +501,7 @@ export default function AssignmentsPage() {
                             ...editingItem,
                             title: e.target.value
                           })}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-gray-900"
                           placeholder="Title"
                         />
                       </div>
@@ -516,7 +516,7 @@ export default function AssignmentsPage() {
                             ...editingItem,
                             description: e.target.value
                           })}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-gray-900"
                           rows={3}
                           placeholder="Description"
                         />

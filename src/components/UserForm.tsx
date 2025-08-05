@@ -143,7 +143,7 @@ export default function UserForm({ user, onSave, onCancel, companies = [], manag
                 type="text"
                 value={formData.name}
                 onChange={(e) => handleChange('name', e.target.value)}
-                className={`w-full px-3 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500 ${
+                className={`w-full px-3 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500 text-gray-900 ${
                   errors.name ? 'border-red-500' : 'border-gray-300'
                 }`}
                 placeholder="John Smith"
@@ -159,7 +159,7 @@ export default function UserForm({ user, onSave, onCancel, companies = [], manag
               <select
                 value={formData.userType}
                 onChange={(e) => handleChange('userType', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-gray-900"
               >
                 <option value="office">Office Worker (uses email/password)</option>
                 <option value="operational">Operational Worker (uses username/PIN)</option>
@@ -176,7 +176,7 @@ export default function UserForm({ user, onSave, onCancel, companies = [], manag
                   type="email"
                   value={formData.email || ''}
                   onChange={(e) => handleChange('email', e.target.value)}
-                  className={`w-full px-3 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500 ${
+                  className={`w-full px-3 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500 text-gray-900 ${
                     errors.email ? 'border-red-500' : 'border-gray-300'
                   }`}
                   placeholder="john@company.com"
@@ -192,7 +192,7 @@ export default function UserForm({ user, onSave, onCancel, companies = [], manag
                   type="text"
                   value={formData.username || ''}
                   onChange={(e) => handleChange('username', e.target.value)}
-                  className={`w-full px-3 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500 ${
+                  className={`w-full px-3 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500 text-gray-900 ${
                     errors.username ? 'border-red-500' : 'border-gray-300'
                   }`}
                   placeholder="john.smith"
@@ -226,7 +226,7 @@ export default function UserForm({ user, onSave, onCancel, companies = [], manag
               <select
                 value={formData.role}
                 onChange={(e) => handleChange('role', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-gray-900"
               >
                 <option value="employee">Employee</option>
                 <option value="manager">Manager</option>
@@ -264,7 +264,7 @@ export default function UserForm({ user, onSave, onCancel, companies = [], manag
               <select
                 value={formData.managerId || ''}
                 onChange={(e) => handleChange('managerId', e.target.value || undefined)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-gray-900"
               >
                 <option value="">No Manager</option>
                 {managers.map((manager) => (
@@ -284,7 +284,7 @@ export default function UserForm({ user, onSave, onCancel, companies = [], manag
                 type="text"
                 value={formData.department || ''}
                 onChange={(e) => handleChange('department', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-gray-900"
                 placeholder="Operations, Sales, Manufacturing..."
               />
             </div>
