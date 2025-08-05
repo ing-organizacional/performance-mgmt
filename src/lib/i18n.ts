@@ -229,6 +229,7 @@ export interface Translations {
     resetDatabaseButton: string
     resetSuccess: string
     resetFailed: string
+    addUser: string
   }
 }
 
@@ -444,7 +445,8 @@ export const translations: Record<Language, Translations> = {
       resetDatabaseConfirm: 'Type "RESET" to confirm this destructive action',
       resetDatabaseButton: 'Reset Everything',
       resetSuccess: 'Database reset successfully',
-      resetFailed: 'Database reset failed'
+      resetFailed: 'Database reset failed',
+      addUser: 'Add User'
     }
   },
   es: {
@@ -658,7 +660,8 @@ export const translations: Record<Language, Translations> = {
       resetDatabaseConfirm: 'Escribe "RESET" para confirmar esta acción destructiva',
       resetDatabaseButton: 'Resetear Todo',
       resetSuccess: 'Base de datos reseteada exitosamente',
-      resetFailed: 'Error al resetear la base de datos'
+      resetFailed: 'Error al resetear la base de datos',
+      addUser: 'Agregar Usuario'
     }
   }
 }
