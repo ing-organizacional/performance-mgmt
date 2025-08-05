@@ -211,11 +211,23 @@ export default function AssignmentsPage() {
   const getBadgeIcon = (level: string) => {
     switch (level) {
       case 'company':
-        return '🏢'
+        return (
+          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+            <path fillRule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm3 1h2v2H7V5zm2 4H7v2h2V9zm2-4h2v2h-2V5zm2 4h-2v2h2V9zm-6 4h2v2H7v-2zm4 0h2v2h-2v-2z" clipRule="evenodd" />
+          </svg>
+        )
       case 'department':
-        return '🏬'
+        return (
+          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z" />
+          </svg>
+        )
       default:
-        return '👤'
+        return (
+          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+            <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+          </svg>
+        )
     }
   }
 
@@ -273,15 +285,15 @@ export default function AssignmentsPage() {
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`flex-1 py-4 px-4 min-h-[44px] text-sm font-medium rounded-t-lg transition-all duration-200 active:scale-95 touch-manipulation ${
+                className={`flex-1 py-2 px-2 min-h-[44px] text-xs font-medium rounded-t-lg transition-all duration-200 active:scale-95 touch-manipulation ${
                   activeTab === tab
                     ? 'bg-blue-50 text-blue-700 border-b-2 border-blue-700 shadow-sm'
                     : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50 active:bg-gray-100'
                 }`}
               >
-                <div className="flex items-center justify-center space-x-2">
-                  <span className="text-lg">{getBadgeIcon(tab)}</span>
-                  <span className="capitalize">{getBadgeLabel(tab)}</span>
+                <div className="flex flex-col items-center justify-center space-y-0.5">
+                  {getBadgeIcon(tab)}
+                  <span className="capitalize text-center leading-tight">{getBadgeLabel(tab)}</span>
                 </div>
               </button>
             ))}
@@ -316,8 +328,9 @@ export default function AssignmentsPage() {
                         <span className="text-sm font-bold text-blue-700 uppercase tracking-wide">
                           {item.type === 'okr' ? t.evaluations.okr : t.evaluations.competency}
                         </span>
-                        <span className={`text-xs px-2 py-1 rounded-full font-medium ${getBadgeStyles(item.level)}`}>
-                          {getBadgeIcon(item.level)} {getBadgeLabel(item.level)}
+                        <span className={`flex items-center space-x-1 text-xs px-2 py-1 rounded-full font-medium ${getBadgeStyles(item.level)}`}>
+                          {getBadgeIcon(item.level)}
+                          <span>{getBadgeLabel(item.level)}</span>
                         </span>
                       </div>
                       <h3 className="font-semibold text-gray-900">{item.title}</h3>
@@ -485,7 +498,10 @@ export default function AssignmentsPage() {
                             {item.type === 'okr' ? t.evaluations.okr : t.evaluations.competency}
                           </span>
                           <span className={`text-xs px-2 py-1 rounded-full font-medium ${getBadgeStyles(item.level)}`}>
-                            {getBadgeIcon(item.level)} {getBadgeLabel(item.level)}
+                            <span className="flex items-center space-x-1">
+                              {getBadgeIcon(item.level)}
+                              <span>{getBadgeLabel(item.level)}</span>
+                            </span>
                           </span>
                         </div>
                       </div>
@@ -554,7 +570,10 @@ export default function AssignmentsPage() {
                                 {item.type === 'okr' ? t.evaluations.okr : t.evaluations.competency}
                               </span>
                               <span className={`text-xs px-2 py-1 rounded-full font-medium ${getBadgeStyles(item.level)}`}>
-                                {getBadgeIcon(item.level)} {getBadgeLabel(item.level)}
+                                <span className="flex items-center space-x-1">
+                              {getBadgeIcon(item.level)}
+                              <span>{getBadgeLabel(item.level)}</span>
+                            </span>
                               </span>
                             </div>
                             <h3 className="font-semibold text-gray-900 text-lg leading-tight">{item.title}</h3>

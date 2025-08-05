@@ -83,20 +83,25 @@ export default function EvaluationsPage() {
               <h1 className="text-xl font-semibold text-gray-900">{t.nav.employeeEvaluations}</h1>
               <p className="text-sm text-gray-600 mt-1">{t.nav.selectEmployee}</p>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
               <button
                 onClick={() => router.push('/evaluations/assignments')}
-                className="flex items-center space-x-2 px-4 py-3 min-h-[44px] bg-blue-100 text-blue-700 text-sm font-medium rounded-lg hover:bg-blue-200 active:scale-95 active:bg-blue-300 transition-all duration-150 touch-manipulation"
+                className="flex items-center space-x-2 px-3 py-2 bg-blue-100 text-blue-700 text-sm font-medium rounded-lg hover:bg-blue-200 active:scale-95 transition-all duration-150 touch-manipulation"
               >
-                <span>⚙️</span>
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd" />
+                </svg>
                 <span>{t.nav.assignments}</span>
               </button>
               <LanguageSwitcher />
               <button
                 onClick={() => signOut({ callbackUrl: '/login' })}
-                className="text-sm text-gray-600 hover:text-gray-900"
+                className="flex items-center justify-center w-10 h-10 bg-green-600 text-white rounded-lg hover:bg-green-700 active:scale-95 transition-all duration-150 touch-manipulation"
+                title={t.auth.signOut}
               >
-                {t.auth.signOut}
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                </svg>
               </button>
             </div>
           </div>

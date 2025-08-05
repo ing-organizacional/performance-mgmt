@@ -3,6 +3,8 @@
 import { useSession, signOut } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
+import { useLanguage } from '@/contexts/LanguageContext'
+import LanguageSwitcher from '@/components/LanguageSwitcher'
 
 interface Evaluation {
   id: string
@@ -16,6 +18,7 @@ interface Evaluation {
 export default function MyEvaluationsPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
+  const { t } = useLanguage()
   const [loading, setLoading] = useState(true)
   const [evaluations, setEvaluations] = useState<Evaluation[]>([
     {
@@ -58,7 +61,7 @@ export default function MyEvaluationsPage() {
   if (status === 'loading' || loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-lg">Loading...</div>
+        <div className="text-lg">{t.common.loading}</div>
       </div>
     )
   }
@@ -98,17 +101,23 @@ export default function MyEvaluationsPage() {
         <div className="px-4 py-4">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-xl font-semibold text-gray-900">My Evaluations</h1>
+              <h1 className="text-xl font-semibold text-gray-900">{t.nav.myEvaluations}</h1>
               <p className="text-sm text-gray-600 mt-1">
                 Welcome back, {session?.user?.name}
               </p>
             </div>
-            <button
-              onClick={() => signOut({ callbackUrl: '/login' })}
-              className="text-sm text-gray-600 hover:text-gray-900"
-            >
-              Sign Out
-            </button>
+            <div className="flex items-center gap-3">
+              <LanguageSwitcher />
+              <button
+                onClick={() => signOut({ callbackUrl: '/login' })}
+                className="flex items-center justify-center w-10 h-10 bg-green-600 text-white rounded-lg hover:bg-green-700 active:scale-95 transition-all duration-150 touch-manipulation"
+                title={t.auth.signOut}
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                </svg>
+              </button>
+            </div>
           </div>
         </div>
       </div>
