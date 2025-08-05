@@ -387,7 +387,7 @@ export default function AssignmentsPage() {
       </div>
 
       {/* Tab Navigation */}
-      <div className="bg-white border-b border-gray-200">
+      <div className="bg-white border-b border-gray-200 fixed top-20 left-0 right-0 z-10">
         <div className="px-4">
           <div className="flex space-x-1 relative">
             {/* Swipe indicator */}
@@ -425,7 +425,7 @@ export default function AssignmentsPage() {
       </div>
 
       {/* Content */}
-      <div ref={elementRef as React.RefObject<HTMLDivElement>} className="px-4 py-6 pt-28 min-h-[400px] touch-pan-y">
+      <div ref={elementRef as React.RefObject<HTMLDivElement>} className="px-4 py-6 pt-36 min-h-[400px] touch-pan-y">
         {/* Company Tab - Read Only */}
         {activeTab === 'company' && (
           <div className="space-y-4 animate-in fade-in duration-300">
