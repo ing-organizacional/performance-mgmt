@@ -1,0 +1,127 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Company {
+  id       String  @id @default(cuid())
+  name     String
+  code     String  @unique
+  active   Boolean @default(true)
+  
+  users       User[]
+  evaluations Evaluation[]
+  evaluationItems EvaluationItem[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model User {
+  id         String  @id @default(cuid())
+  companyId  String
+  email      String?
+  username   String?
+  name       String
+  role       String  // "employee" | "manager" | "hr"
+  managerId  String?
+  active     Boolean @default(true)
+  
+  // Authentication fields
+  passwordHash     String?
+  pinCode         String?
+  userType        String @default("office") // "office" | "operational"  
+  loginMethod     String @default("email")  // "email" | "username" | "qr"
+  requiresPinOnly Boolean @default(false)
+  
+  // Employee details
+  employeeId String?
+  department String?
+  shift      String?
+  lastLogin  DateTime?
+  
+  company          Company      @relation(fields: [companyId], references: [id])
+  manager          User?        @relation("ManagerEmployee", fields: [managerId], references: [id])
+  employees        User[]       @relation("ManagerEmployee")
+  evaluationsGiven Evaluation[] @relation("ManagerEvaluations")
+  evaluationsReceived Evaluation[] @relation("EmployeeEvaluations")
+  createdEvaluationItems EvaluationItem[] @relation("CreatedEvaluationItems")
+  auditLogs        AuditLog[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@unique([companyId, email])
+  @@unique([companyId, username])
+}
+
+model Evaluation {
+  id           String  @id @default(cuid())
+  employeeId   String
+  managerId    String
+  companyId    String
+  periodType   String  // "monthly" | "quarterly" | "semester" | "yearly"
+  periodDate   String  // "2024-Q1" | "2024-03" 
+  
+  // JSON data for flexibility
+  evaluationItemsData String? // JSON string - unified OKRs and competencies
+  
+  overallRating    Int?    // 1-5 scale
+  managerComments  String?
+  status          String @default("draft") // "draft" | "submitted" | "approved"
+  
+  employee  User    @relation("EmployeeEvaluations", fields: [employeeId], references: [id])
+  manager   User    @relation("ManagerEvaluations", fields: [managerId], references: [id])
+  company   Company @relation(fields: [companyId], references: [id])
+  auditLogs AuditLog[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@unique([employeeId, periodType, periodDate])
+}
+
+model EvaluationItem {
+  id          String  @id @default(cuid())
+  companyId   String
+  title       String
+  description String
+  
+  // Item type: "okr" or "competency" 
+  type        String  // "okr" | "competency"
+  
+  // Three-tier assignment system
+  level       String  // "company" | "department" | "manager"
+  createdBy   String  // HR user ID or Manager user ID
+  assignedTo  String? // Department name or specific manager ID
+  
+  active      Boolean @default(true)
+  sortOrder   Int     @default(0)
+  
+  company     Company @relation(fields: [companyId], references: [id])
+  creator     User    @relation("CreatedEvaluationItems", fields: [createdBy], references: [id])
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model AuditLog {
+  id           String @id @default(cuid())
+  evaluationId String
+  userId       String
+  action       String // "created" | "updated" | "submitted" | "approved"
+  oldData      String? // JSON snapshot
+  newData      String? // JSON snapshot
+  
+  evaluation Evaluation @relation(fields: [evaluationId], references: [id])
+  user       User       @relation(fields: [userId], references: [id])
+  
+  timestamp DateTime @default(now())
+}

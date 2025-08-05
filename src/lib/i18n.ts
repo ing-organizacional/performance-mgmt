@@ -1,0 +1,516 @@
+export type Language = 'en' | 'es'
+
+export interface Translations {
+  // Common
+  common: {
+    loading: string
+    save: string
+    cancel: string
+    edit: string
+    delete: string
+    submit: string
+    next: string
+    previous: string
+    signOut: string
+    dashboard: string
+    back: string
+    yes: string
+    no: string
+    editButton: string
+    cancelButton: string
+    saveButton: string
+    standardized: string
+    company: string
+    department: string
+    manager: string
+  }
+  
+  // Auth
+  auth: {
+    signIn: string
+    signOut: string
+    emailOrUsername: string
+    password: string
+    signingIn: string
+    invalidCredentials: string
+    loginFailed: string
+    signInToAccount: string
+    demoCredentials: string
+    hr: string
+    manager: string
+    employee: string
+    worker: string
+  }
+  
+  // Navigation
+  nav: {
+    performanceManagement: string
+    employeeEvaluations: string
+    myEvaluations: string
+    selectEmployee: string
+    employees: string
+  }
+  
+  // Evaluations
+  evaluations: {
+    evaluation: string
+    evaluateEmployee: string
+    employeeEvaluation: string
+    selectEmployeeToEvaluate: string
+    overallPerformance: string
+    overallRating: string
+    overallComments: string
+    submitEvaluation: string
+    okr: string
+    competency: string
+    ratePerformance: string
+    optionalComment: string
+    provideFeedback: string
+    addSpecificFeedback: string
+    needsImprovement: string
+    belowExpectations: string
+    meetsExpectations: string
+    exceedsExpectations: string
+    outstanding: string
+    teamSummary: string
+    pendingReviews: string
+    teamAverage: string
+    completed: string
+    inProgress: string
+    notStarted: string
+    evaluationSubmitted: string
+    evaluationSubmittedDesc: string
+    redirecting: string
+    comments: string
+    minimumCharacters: string
+    tapToRate: string
+    commentPlaceholder: string
+  }
+  
+  // OKRs & Competencies
+  okrs: {
+    increaseSales: string
+    increaseSalesDesc: string
+    launchProduct: string
+    launchProductDesc: string
+    customerSatisfaction: string
+    customerSatisfactionDesc: string
+    teamDevelopment: string
+    teamDevelopmentDesc: string
+    processOptimization: string
+    processOptimizationDesc: string
+    objective: string
+    keyResults: string
+  }
+  
+  competencies: {
+    communication: string
+    communicationDesc: string
+    leadership: string
+    leadershipDesc: string
+    problemSolving: string
+    problemSolvingDesc: string
+    teamwork: string
+    teamworkDesc: string
+    adaptability: string
+    adaptabilityDesc: string
+  }
+  
+  // Departments & Roles
+  departments: {
+    operations: string
+    manufacturing: string
+    sales: string
+    hr: string
+    it: string
+    finance: string
+  }
+  
+  // Dashboard
+  dashboard: {
+    hrDashboard: string
+    q1Reviews: string
+    newEvaluation: string
+    completionStatus: string
+    completed: string
+    remaining: string
+    overdueEvaluations: string
+    pastDueDate: string
+    sendReminders: string
+    dueSoon: string
+    dueWithinDays: string
+    viewList: string
+    ratingDistribution: string
+    outstanding: string
+    exceeds: string
+    meets: string
+    below: string
+    needsImprovement: string
+    quickActions: string
+    exportAllEvaluations: string
+    generateReports: string
+    allPeriods: string
+    manageUsers: string
+    startEvaluating: string
+    lastUpdated: string
+  }
+  
+  // User Management
+  users: {
+    userManagement: string
+    totalUsers: string
+    importUsersCSV: string
+    uploadCSVFile: string
+    csvFormat: string
+    downloadExample: string
+    databaseManagement: string
+    advancedOperations: string
+    openPrismaStudio: string
+    searchUsers: string
+    allRoles: string
+    active: string
+    inactive: string
+    department: string
+    manager: string
+    manages: string
+    evaluationsReceived: string
+    noUsersFound: string
+    uploadingProcessing: string
+    successfullyImported: string
+    importFailed: string
+    uploadFailed: string
+  }
+}
+
+export const translations: Record<Language, Translations> = {
+  en: {
+    common: {
+      loading: 'Loading...',
+      save: 'Save',
+      cancel: 'Cancel',
+      edit: 'Edit',
+      delete: 'Delete',
+      submit: 'Submit',
+      next: 'Next',
+      previous: 'Previous',
+      signOut: 'Sign Out',
+      dashboard: 'Dashboard',
+      back: 'Back',
+      yes: 'Yes',
+      no: 'No',
+      editButton: 'Edit',
+      cancelButton: 'Cancel',
+      saveButton: 'Save',
+      standardized: 'Standardized',
+      company: 'Company',
+      department: 'Department',
+      manager: 'Manager'
+    },
+    auth: {
+      signIn: 'Sign in',
+      signOut: 'Sign Out',
+      emailOrUsername: 'Email or Username',
+      password: 'Password',
+      signingIn: 'Signing in...',
+      invalidCredentials: 'Invalid credentials',
+      loginFailed: 'Login failed',
+      signInToAccount: 'Sign in to your account',
+      demoCredentials: 'Demo Credentials',
+      hr: 'HR',
+      manager: 'Manager',
+      employee: 'Employee',
+      worker: 'Worker'
+    },
+    nav: {
+      performanceManagement: 'Performance Management',
+      employeeEvaluations: 'Employee Evaluations',
+      myEvaluations: 'My Evaluations',
+      selectEmployee: 'Select an employee to evaluate',
+      employees: 'employees'
+    },
+    evaluations: {
+      evaluation: 'Evaluation',
+      evaluateEmployee: 'Evaluate Employee',
+      employeeEvaluation: 'Employee Evaluation',
+      selectEmployeeToEvaluate: 'Select an employee to evaluate',
+      overallPerformance: 'Overall Performance',
+      overallRating: 'Overall Rating',
+      overallComments: 'Overall Comments',
+      submitEvaluation: 'Submit Evaluation',
+      okr: 'OKR',
+      competency: 'Competency',
+      ratePerformance: 'Rate Performance',
+      optionalComment: 'Optional Comment',
+      provideFeedback: 'Provide an overall assessment of the employee\'s performance',
+      addSpecificFeedback: 'Add specific feedback or examples...',
+      needsImprovement: 'Needs Improvement',
+      belowExpectations: 'Below Expectations',
+      meetsExpectations: 'Meets Expectations',
+      exceedsExpectations: 'Exceeds Expectations',
+      outstanding: 'Outstanding',
+      teamSummary: 'Team Summary',
+      pendingReviews: 'Pending Reviews',
+      teamAverage: 'Team Average',
+      completed: 'Completed',
+      inProgress: 'In Progress',
+      notStarted: 'Not Started',
+      evaluationSubmitted: 'Evaluation Submitted Successfully!',
+      evaluationSubmittedDesc: 'The performance evaluation for {name} has been saved and submitted. You\'ll be redirected back to the team overview.',
+      redirecting: 'Redirecting...',
+      comments: 'Comments',
+      minimumCharacters: 'Minimum {count} characters',
+      tapToRate: 'Tap a star to rate this item',
+      commentPlaceholder: 'Please provide specific feedback (minimum 20 characters required)...'
+    },
+    okrs: {
+      increaseSales: 'Increase Sales by 20%',
+      increaseSalesDesc: 'Drive revenue growth through new client acquisition',
+      launchProduct: 'Launch New Product Line',
+      launchProductDesc: 'Successfully launch and market new product offering',
+      customerSatisfaction: 'Improve Customer Satisfaction',
+      customerSatisfactionDesc: 'Achieve 90%+ customer satisfaction rating',
+      teamDevelopment: 'Team Development',
+      teamDevelopmentDesc: 'Mentor and develop team members skills',
+      processOptimization: 'Process Optimization',
+      processOptimizationDesc: 'Streamline workflows to improve efficiency',
+      objective: 'Objective',
+      keyResults: 'Key Results'
+    },
+    competencies: {
+      communication: 'Communication',
+      communicationDesc: 'Clear and effective verbal and written communication',
+      leadership: 'Leadership',
+      leadershipDesc: 'Ability to guide and motivate team members',
+      problemSolving: 'Problem Solving',
+      problemSolvingDesc: 'Analytical thinking and creative solutions',
+      teamwork: 'Teamwork',
+      teamworkDesc: 'Collaboration and support of colleagues',
+      adaptability: 'Adaptability',
+      adaptabilityDesc: 'Flexibility in changing environments'
+    },
+    departments: {
+      operations: 'Operations',
+      manufacturing: 'Manufacturing',
+      sales: 'Sales',
+      hr: 'HR',
+      it: 'IT',
+      finance: 'Finance'
+    },
+    dashboard: {
+      hrDashboard: 'HR Dashboard',
+      q1Reviews: 'Q1 2024 Performance Reviews',
+      newEvaluation: 'New Evaluation',
+      completionStatus: 'Completion Status',
+      completed: 'Completed',
+      remaining: 'Remaining',
+      overdueEvaluations: 'Overdue Evaluations',
+      pastDueDate: 'These evaluations are past their due date',
+      sendReminders: 'Send Reminders',
+      dueSoon: 'Due Soon',
+      dueWithinDays: 'Due within the next 3 days',
+      viewList: 'View List',
+      ratingDistribution: 'Rating Distribution',
+      outstanding: 'Outstanding (5)',
+      exceeds: 'Exceeds (4)',
+      meets: 'Meets (3)',
+      below: 'Below (2)',
+      needsImprovement: 'Needs Improvement (1)',
+      quickActions: 'Quick Actions',
+      exportAllEvaluations: 'Export All Evaluations',
+      generateReports: 'Generate Reports',
+      allPeriods: 'All Periods',
+      manageUsers: 'Manage Users',
+      startEvaluating: 'Start Evaluating',
+      lastUpdated: 'Last updated'
+    },
+    users: {
+      userManagement: 'User Management',
+      totalUsers: 'total users',
+      importUsersCSV: 'Import Users from CSV',
+      uploadCSVFile: 'Upload CSV File',
+      csvFormat: 'CSV Format:',
+      downloadExample: 'Download example CSV file',
+      databaseManagement: 'Database Management',
+      advancedOperations: 'Use Prisma Studio for advanced database operations and direct editing',
+      openPrismaStudio: 'Open Prisma Studio',
+      searchUsers: 'Search users...',
+      allRoles: 'All Roles',
+      active: 'Active',
+      inactive: 'Inactive',
+      department: 'Department',
+      manager: 'Manager',
+      manages: 'Manages',
+      evaluationsReceived: 'evaluations received',
+      noUsersFound: 'No users found matching your criteria',
+      uploadingProcessing: 'Uploading and processing...',
+      successfullyImported: 'Successfully imported',
+      importFailed: 'Import failed',
+      uploadFailed: 'Upload failed'
+    }
+  },
+  es: {
+    common: {
+      loading: 'Cargando...',
+      save: 'Guardar',
+      cancel: 'Cancelar',
+      edit: 'Editar',
+      delete: 'Eliminar',
+      submit: 'Enviar',
+      next: 'Siguiente',
+      previous: 'Anterior',
+      signOut: 'Cerrar Sesión',
+      dashboard: 'Panel de Control',
+      back: 'Atrás',
+      yes: 'Sí',
+      no: 'No',
+      editButton: 'Editar',
+      cancelButton: 'Cancelar',
+      saveButton: 'Guardar',
+      standardized: 'Estandarizado',
+      company: 'Empresa',
+      department: 'Departamento',
+      manager: 'Gerente'
+    },
+    auth: {
+      signIn: 'Iniciar sesión',
+      signOut: 'Cerrar Sesión',
+      emailOrUsername: 'Email o Usuario',
+      password: 'Contraseña',
+      signingIn: 'Iniciando sesión...',
+      invalidCredentials: 'Credenciales inválidas',
+      loginFailed: 'Error de inicio de sesión',
+      signInToAccount: 'Inicia sesión en tu cuenta',
+      demoCredentials: 'Credenciales de Demo',
+      hr: 'RRHH',
+      manager: 'Gerente',
+      employee: 'Empleado',
+      worker: 'Trabajador'
+    },
+    nav: {
+      performanceManagement: 'Gestión de Desempeño',
+      employeeEvaluations: 'Evaluaciones de Empleados',
+      myEvaluations: 'Mis Evaluaciones',
+      selectEmployee: 'Selecciona un empleado para evaluar',
+      employees: 'empleados'
+    },
+    evaluations: {
+      evaluation: 'Evaluación',
+      evaluateEmployee: 'Evaluar Empleado',
+      employeeEvaluation: 'Evaluación de Empleado',
+      selectEmployeeToEvaluate: 'Selecciona un empleado para evaluar',
+      overallPerformance: 'Desempeño General',
+      overallRating: 'Calificación General',
+      overallComments: 'Comentarios Generales',
+      submitEvaluation: 'Enviar Evaluación',
+      okr: 'OKR',
+      competency: 'Competencia',
+      ratePerformance: 'Calificar Desempeño',
+      optionalComment: 'Comentario Opcional',
+      provideFeedback: 'Proporciona una evaluación general del desempeño del empleado',
+      addSpecificFeedback: 'Añade comentarios específicos o ejemplos...',
+      needsImprovement: 'Necesita Mejorar',
+      belowExpectations: 'Por Debajo de las Expectativas',
+      meetsExpectations: 'Cumple las Expectativas',
+      exceedsExpectations: 'Supera las Expectativas',
+      outstanding: 'Excepcional',
+      teamSummary: 'Resumen del Equipo',
+      pendingReviews: 'Revisiones Pendientes',
+      teamAverage: 'Promedio del Equipo',
+      completed: 'Completado',
+      inProgress: 'En Progreso',
+      notStarted: 'Sin Iniciar',
+      evaluationSubmitted: '¡Evaluación Enviada Exitosamente!',
+      evaluationSubmittedDesc: 'La evaluación de desempeño de {name} ha sido guardada y enviada. Serás redirigido de vuelta al resumen del equipo.',
+      redirecting: 'Redirigiendo...',
+      comments: 'Comentarios',
+      minimumCharacters: 'Mínimo {count} caracteres',
+      tapToRate: 'Toca una estrella para calificar',
+      commentPlaceholder: 'Proporciona comentarios específicos (mínimo 20 caracteres requeridos)...'
+    },
+    okrs: {
+      increaseSales: 'Aumentar Ventas en 20%',
+      increaseSalesDesc: 'Impulsar el crecimiento de ingresos mediante la adquisición de nuevos clientes',
+      launchProduct: 'Lanzar Nueva Línea de Productos',
+      launchProductDesc: 'Lanzar y comercializar exitosamente nueva oferta de productos',
+      customerSatisfaction: 'Mejorar Satisfacción del Cliente',
+      customerSatisfactionDesc: 'Lograr una calificación de satisfacción del cliente del 90%+',
+      teamDevelopment: 'Desarrollo del Equipo',
+      teamDevelopmentDesc: 'Mentorear y desarrollar las habilidades de los miembros del equipo',
+      processOptimization: 'Optimización de Procesos',
+      processOptimizationDesc: 'Optimizar flujos de trabajo para mejorar la eficiencia',
+      objective: 'Objetivo',
+      keyResults: 'Resultados Clave'
+    },
+    competencies: {
+      communication: 'Comunicación',
+      communicationDesc: 'Comunicación verbal y escrita clara y efectiva',
+      leadership: 'Liderazgo',
+      leadershipDesc: 'Capacidad para guiar y motivar a los miembros del equipo',
+      problemSolving: 'Resolución de Problemas',
+      problemSolvingDesc: 'Pensamiento analítico y soluciones creativas',
+      teamwork: 'Trabajo en Equipo',
+      teamworkDesc: 'Colaboración y apoyo a los colegas',
+      adaptability: 'Adaptabilidad',
+      adaptabilityDesc: 'Flexibilidad en entornos cambiantes'
+    },
+    departments: {
+      operations: 'Operaciones',
+      manufacturing: 'Manufactura',
+      sales: 'Ventas',
+      hr: 'RRHH',
+      it: 'TI',
+      finance: 'Finanzas'
+    },
+    dashboard: {
+      hrDashboard: 'Panel de RRHH',
+      q1Reviews: 'Evaluaciones de Desempeño Q1 2024',
+      newEvaluation: 'Nueva Evaluación',
+      completionStatus: 'Estado de Completitud',
+      completed: 'Completadas',
+      remaining: 'Pendientes',
+      overdueEvaluations: 'Evaluaciones Vencidas',
+      pastDueDate: 'Estas evaluaciones han pasado su fecha límite',
+      sendReminders: 'Enviar Recordatorios',
+      dueSoon: 'Próximas a Vencer',
+      dueWithinDays: 'Vencen en los próximos 3 días',
+      viewList: 'Ver Lista',
+      ratingDistribution: 'Distribución de Calificaciones',
+      outstanding: 'Excepcional (5)',
+      exceeds: 'Supera (4)',
+      meets: 'Cumple (3)',
+      below: 'Por Debajo (2)',
+      needsImprovement: 'Necesita Mejorar (1)',
+      quickActions: 'Acciones Rápidas',
+      exportAllEvaluations: 'Exportar Todas las Evaluaciones',
+      generateReports: 'Generar Reportes',
+      allPeriods: 'Todos los Períodos',
+      manageUsers: 'Gestionar Usuarios',
+      startEvaluating: 'Comenzar Evaluación',
+      lastUpdated: 'Última actualización'
+    },
+    users: {
+      userManagement: 'Gestión de Usuarios',
+      totalUsers: 'usuarios en total',
+      importUsersCSV: 'Importar Usuarios desde CSV',
+      uploadCSVFile: 'Subir Archivo CSV',
+      csvFormat: 'Formato CSV:',
+      downloadExample: 'Descargar archivo CSV de ejemplo',
+      databaseManagement: 'Gestión de Base de Datos',
+      advancedOperations: 'Usar Prisma Studio para operaciones avanzadas y edición directa',
+      openPrismaStudio: 'Abrir Prisma Studio',
+      searchUsers: 'Buscar usuarios...',
+      allRoles: 'Todos los Roles',
+      active: 'Activo',
+      inactive: 'Inactivo',
+      department: 'Departamento',
+      manager: 'Gerente',
+      manages: 'Gestiona',
+      evaluationsReceived: 'evaluaciones recibidas',
+      noUsersFound: 'No se encontraron usuarios que coincidan con los criterios',
+      uploadingProcessing: 'Subiendo y procesando...',
+      successfullyImported: 'Importados exitosamente',
+      importFailed: 'Error en la importación',
+      uploadFailed: 'Error en la subida'
+    }
+  }
+}

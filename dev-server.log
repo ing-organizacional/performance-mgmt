@@ -1,0 +1,32 @@
+
+✘ node v22.17.1, and next.js v15.4.5 are not yet supported in the Community edition of Console Ninja.
+We are working hard on it for you https://tinyurl.com/3h9mtwra.
+
+Estimated release dates:
+  - Community users: around 28th September, 2025 (subject to team availability)
+  - PRO users:       priority access is available now
+
+ ⚠ Port 3000 is in use by process 910
+91327, using available port 3001 instead.
+
+✘ node v22.17.1, and next.js v15.4.5 are not yet supported in the Community edition of Console Ninja.
+We are working hard on it for you https://tinyurl.com/3h9mtwra.
+
+Estimated release dates:
+  - Community users: around 28th September, 2025 (subject to team availability)
+  - PRO users:       priority access is available now
+
+   ▲ Next.js 15.4.5
+   - Local:        http://localhost:3001
+   - Network:      http://192.168.130.114:3001
+   - Environments: .env.local, .env
+   - Experiments (use with caution):
+     · serverActions
+
+ ✓ Starting...
+ ✓ Ready in 1667ms
+ ✓ Compiled /middleware in 245ms (252 modules)
+ ○ Compiling /login ...
+ ✓ Compiled /login in 659ms (558 modules)
+ GET /login 200 in 942ms
+[?25h

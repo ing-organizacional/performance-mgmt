@@ -1,0 +1,591 @@
+'use client'
+
+import { useSession } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
+import { useEffect, useState, useRef } from 'react'
+import { useParams } from 'next/navigation'
+import { useLanguage } from '@/contexts/LanguageContext'
+import LanguageSwitcher from '@/components/LanguageSwitcher'
+
+interface EvaluationItem {
+  id: string
+  title: string
+  description: string
+  type: string // 'okr' or 'competency'
+  rating: number | null
+  comment: string
+  level?: string
+  createdBy?: string
+  creatorRole?: string
+}
+
+// These will be populated with translated content in the component
+
+export default function EvaluatePage() {
+  const { data: session, status } = useSession()
+  const router = useRouter()
+  const params = useParams()
+  const { t } = useLanguage()
+  const [currentStep, setCurrentStep] = useState(0)
+  const [evaluationItems, setEvaluationItems] = useState<EvaluationItem[]>([])
+  const [overallRating, setOverallRating] = useState<number | null>(null)
+  const [overallComment, setOverallComment] = useState('')
+  const [loading, setLoading] = useState(true)
+  const [submitting, setSubmitting] = useState(false)
+  const [showSuccess, setShowSuccess] = useState(false)
+  const [employeeName, setEmployeeName] = useState('')
+  const [editingItemId, setEditingItemId] = useState<string | null>(null)
+  const [editingItemData, setEditingItemData] = useState<{ title: string; description: string } | null>(null)
+  
+  // Ref for focusing on comment textarea
+  const commentTextareaRef = useRef<HTMLTextAreaElement>(null)
+
+  const totalSteps = evaluationItems.length + 1 // +1 for overall rating
+  const currentItem = currentStep < evaluationItems.length 
+    ? evaluationItems[currentStep] 
+    : null
+
+  const isOverall = currentStep >= evaluationItems.length
+  const isOKR = currentItem?.type === 'okr'
+  
+  // Minimum comment length (approximately 2 sentences - around 20 characters minimum)
+  const MIN_COMMENT_LENGTH = 20
+  
+  // Check if current item has valid rating and comment
+  const isCurrentItemValid = () => {
+    if (isOverall) {
+      return overallRating && overallComment.trim().length >= MIN_COMMENT_LENGTH
+    } else if (currentItem) {
+      return currentItem.rating && currentItem.comment.trim().length >= MIN_COMMENT_LENGTH
+    }
+    return false
+  }
+
+  useEffect(() => {
+    if (status === 'loading') return
+    
+    if (!session) {
+      router.push('/login')
+      return
+    }
+
+    // Fetch evaluation items and employee data
+    fetchEvaluationData()
+  }, [session, status, router, t])
+
+  const fetchEvaluationData = async () => {
+    try {
+      // Fetch evaluation items from database
+      const itemsResponse = await fetch('/api/evaluation-items')
+      if (itemsResponse.ok) {
+        const itemsData = await itemsResponse.json()
+        setEvaluationItems(itemsData.items || [])
+      }
+
+      // Fetch employee data
+      const employeeResponse = await fetch('/api/manager/team')
+      if (employeeResponse.ok) {
+        const employeeData = await employeeResponse.json()
+        const employee = employeeData.employees?.find((emp: any) => emp.id === params.id)
+        if (employee) {
+          setEmployeeName(employee.name)
+          
+          // Check if employee has existing evaluation
+          const latestEval = employee.evaluationsReceived?.[0]
+          if (latestEval && (latestEval.status === 'submitted' || latestEval.status === 'approved' || latestEval.status === 'draft')) {
+            await loadExistingEvaluation(latestEval.id)
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching evaluation data:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const loadExistingEvaluation = async (evaluationId: string) => {
+    try {
+      const response = await fetch(`/api/evaluations/${evaluationId}`)
+      if (response.ok) {
+        const data = await response.json()
+        const evaluation = data.data
+        
+        // Parse and load existing evaluation items data
+        if (evaluation.evaluationItemsData) {
+          const savedItems = JSON.parse(evaluation.evaluationItemsData)
+          setEvaluationItems(prevItems => prevItems.map((item, index) => ({
+            ...item,
+            title: savedItems[index]?.title || item.title,
+            description: savedItems[index]?.description || item.description,
+            rating: savedItems[index]?.rating || null,
+            comment: savedItems[index]?.comment || ''
+          })))
+        }
+        
+        // Load overall rating and comments
+        if (evaluation.overallRating) {
+          setOverallRating(evaluation.overallRating)
+        }
+        if (evaluation.managerComments) {
+          setOverallComment(evaluation.managerComments)
+        }
+      }
+    } catch (error) {
+      console.error('Error loading existing evaluation:', error)
+    }
+  }
+
+  const handleSaveItemEdit = async () => {
+    if (!editingItemId || !editingItemData) return
+
+    try {
+      // Update the item in local state
+      setEvaluationItems(prevItems => prevItems.map(item => 
+        item.id === editingItemId 
+          ? { ...item, title: editingItemData.title, description: editingItemData.description }
+          : item
+      ))
+      
+      // Exit edit mode
+      setEditingItemId(null)
+      setEditingItemData(null)
+      
+      // Optional: Show brief success feedback
+      // alert('Item updated successfully!')
+    } catch (error) {
+      alert('Failed to update item')
+    }
+  }
+
+  const handleRating = (rating: number) => {
+    if (currentItem) {
+      const updatedItems = evaluationItems.map(item => 
+        item.id === currentItem.id ? { ...item, rating } : item
+      )
+      setEvaluationItems(updatedItems)
+    } else if (isOverall) {
+      setOverallRating(rating)
+    }
+    
+    // Focus on comment textarea after rating (small delay for smooth UX)
+    setTimeout(() => {
+      commentTextareaRef.current?.focus()
+    }, 100)
+  }
+
+  const handleNext = async () => {
+    if (currentStep < totalSteps - 1) {
+      setCurrentStep(currentStep + 1)
+    } else {
+      // Submit evaluation
+      try {
+        setSubmitting(true)
+        const response = await fetch('/api/evaluations', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            employeeId: params.id,
+            evaluationItems,
+            overallRating,
+            overallComment,
+            periodType: 'quarterly',
+            periodDate: '2024-Q1'
+          }),
+        })
+
+        if (response.ok) {
+          setShowSuccess(true)
+          // Redirect after showing success message
+          setTimeout(() => {
+            router.push('/evaluations')
+          }, 2000)
+        } else {
+          const error = await response.json()
+          alert(`Error: ${error.error}`)
+          setSubmitting(false)
+        }
+      } catch (error) {
+        alert('Failed to submit evaluation')
+        setSubmitting(false)
+      }
+    }
+  }
+
+  const handlePrevious = () => {
+    if (currentStep > 0) {
+      setCurrentStep(currentStep - 1)
+    }
+  }
+
+  if (status === 'loading' || loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-lg">{t.common.loading}</div>
+      </div>
+    )
+  }
+
+  // Success screen
+  if (showSuccess) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+        <div className="bg-white rounded-lg border border-gray-200 p-8 shadow-sm text-center max-w-md w-full">
+          <div className="mb-6">
+            <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 mb-4">
+              <svg className="h-8 w-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">
+              {t.evaluations.evaluationSubmitted}
+            </h2>
+            <p className="text-gray-600">
+              {t.evaluations.evaluationSubmittedDesc.replace('{name}', employeeName)}
+            </p>
+          </div>
+          
+          <div className="flex items-center justify-center">
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+            <span className="ml-2 text-sm text-gray-500">{t.evaluations.redirecting}</span>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <div className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-10">
+        <div className="px-4 py-4">
+          <div className="flex items-center justify-between">
+            <button
+              onClick={() => router.back()}
+              className="p-2 -ml-2 text-gray-600"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+            <div className="text-center">
+              <h1 className="text-lg font-semibold text-gray-900">
+                {employeeName ? `${employeeName} - ${t.evaluations.evaluation}` : t.evaluations.employeeEvaluation}
+              </h1>
+              <p className="text-sm text-gray-600">
+                {currentStep + 1} of {totalSteps}
+              </p>
+            </div>
+            <LanguageSwitcher />
+            <div className="w-9" />
+          </div>
+          
+          {/* Progress Bar */}
+          <div className="mt-4">
+            <div className="bg-gray-200 rounded-full h-2">
+              <div 
+                className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                style={{ width: `${((currentStep + 1) / totalSteps) * 100}%` }}
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="flex flex-col h-[calc(100vh-140px)]">
+        {!isOverall && currentItem && (
+          <>
+            {/* Fixed OKR/Competency Card */}
+            <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-lg mx-4 mb-4 flex-shrink-0">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center space-x-3">
+                  <div className="flex items-center justify-center w-10 h-10 rounded-full bg-blue-100">
+                    <span className="text-xl">
+                      {isOKR ? '🎯' : '⭐'}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-sm font-semibold text-blue-700 uppercase tracking-wide">
+                      {isOKR ? t.evaluations.okr : t.evaluations.competency}
+                    </span>
+                    {isOKR && currentItem.level && (
+                      <div className="flex items-center mt-1 space-x-2">
+                        <span className={`text-xs px-2 py-1 rounded-full font-medium ${
+                          currentItem.level === 'company' ? 'bg-purple-100 text-purple-700' :
+                          currentItem.level === 'department' ? 'bg-green-100 text-green-700' :
+                          'bg-blue-100 text-blue-700'
+                        }`}>
+                          {currentItem.level === 'company' ? `🏢 ${t.common.company}` :
+                           currentItem.level === 'department' ? `🏬 ${t.common.department}` :
+                           `👤 ${t.common.manager}`}
+                        </span>
+                        {currentItem.createdBy && (
+                          <span className="text-xs text-gray-500">by {currentItem.createdBy}</span>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+                {isOKR && currentItem.level !== 'company' && (
+                  <button
+                    onClick={() => {
+                      if (editingItemId === currentItem.id) {
+                        setEditingItemId(null)
+                        setEditingItemData(null)
+                      } else {
+                        setEditingItemId(currentItem.id)
+                        setEditingItemData({
+                          title: currentItem.title,
+                          description: currentItem.description
+                        })
+                      }
+                    }}
+                    className={`text-xs font-medium px-3 py-2 rounded-full transition-all duration-200 ${
+                      editingItemId === currentItem.id 
+                        ? 'bg-red-100 text-red-700 hover:bg-red-200' 
+                        : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
+                    }`}
+                  >
+                    {editingItemId === currentItem.id ? `❌ ${t.common.cancelButton}` : `✏️ ${t.common.editButton}`}
+                  </button>
+                )}
+              </div>
+              
+              {editingItemId === currentItem.id && editingItemData ? (
+                <div className="space-y-2">
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">
+                      {t.okrs.objective}
+                    </label>
+                    <input
+                      type="text"
+                      value={editingItemData.title}
+                      onChange={(e) => setEditingItemData({
+                        ...editingItemData,
+                        title: e.target.value
+                      })}
+                      className="w-full text-xl font-semibold text-gray-900 bg-blue-50 border border-blue-200 rounded-md px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="Title"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">
+                      {t.okrs.keyResults}
+                    </label>
+                    <textarea
+                      value={editingItemData.description}
+                      onChange={(e) => setEditingItemData({
+                        ...editingItemData,
+                        description: e.target.value
+                      })}
+                      className="w-full text-gray-600 bg-blue-50 border border-blue-200 rounded-md px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
+                      rows={2}
+                      placeholder="Description"
+                    />
+                  </div>
+                  <div>
+                    <button
+                      onClick={() => handleSaveItemEdit()}
+                      className="px-3 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700 transition-colors"
+                    >
+                      ✅ {t.common.saveButton}
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">
+                      {isOKR ? t.okrs.objective : t.evaluations.competency}
+                    </label>
+                    <h2 className="text-xl font-semibold text-gray-900">
+                      {currentItem.title}
+                    </h2>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">
+                      {isOKR ? t.okrs.keyResults : t.evaluations.competency}
+                    </label>
+                    <p className="text-gray-600">
+                      {currentItem.description}
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Scrollable Rating and Comments Section */}
+<div className="flex-1 overflow-y-auto px-4 pb-20">
+              <div className="space-y-4">
+                {/* Rating Section */}
+                <div className="bg-gray-50 rounded-xl p-6">
+                  <div className="text-center mb-3">
+                    <p className="text-lg font-bold text-gray-800 mb-1">{t.evaluations.ratePerformance}</p>
+                    <p className="text-sm text-gray-600">{t.evaluations.tapToRate}</p>
+                  </div>
+                  
+                  <div className="flex gap-2 justify-center mb-1 px-4">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <button
+                        key={star}
+                        onClick={() => handleRating(star)}
+                        className={`p-2 rounded-full transition-all duration-200 transform hover:scale-105 ${
+                          currentItem.rating && currentItem.rating >= star
+                            ? 'text-yellow-500 bg-yellow-100 shadow-md scale-105'
+                            : 'text-gray-300 hover:text-yellow-400 hover:bg-yellow-50'
+                        }`}
+                      >
+                        <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
+                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                        </svg>
+                      </button>
+                    ))}
+                  </div>
+                  {currentItem.rating && (
+                    <p className="text-center text-lg font-semibold text-gray-800 mt-3">
+                      {currentItem.rating === 1 && t.evaluations.needsImprovement}
+                      {currentItem.rating === 2 && t.evaluations.belowExpectations}
+                      {currentItem.rating === 3 && t.evaluations.meetsExpectations}
+                      {currentItem.rating === 4 && t.evaluations.exceedsExpectations}
+                      {currentItem.rating === 5 && t.evaluations.outstanding}
+                    </p>
+                  )}
+                </div>
+
+                {/* Comments Section */}
+                <div className="bg-blue-50 rounded-xl p-6">
+                  <div className="flex items-center justify-between mb-3">
+                    <label className="text-lg font-semibold text-gray-800">
+                      {t.evaluations.comments} <span className="text-red-500">*</span>
+                    </label>
+                    <div className={`text-xs px-2 py-1 rounded-full ${
+                      (currentItem?.comment.trim().length || 0) >= MIN_COMMENT_LENGTH 
+                        ? 'bg-green-100 text-green-700' 
+                        : 'bg-red-100 text-red-700'
+                    }`}>
+                      {currentItem?.comment.trim().length || 0}/{MIN_COMMENT_LENGTH}
+                    </div>
+                  </div>
+                  
+                  <p className="text-sm text-gray-600 mb-4">
+                    {t.evaluations.minimumCharacters.replace('{count}', MIN_COMMENT_LENGTH.toString())}
+                  </p>
+                  
+                  <textarea
+                    ref={commentTextareaRef}
+                    value={currentItem.comment}
+                    onChange={(e) => {
+                      const updatedItems = evaluationItems.map(item => 
+                        item.id === currentItem.id ? { ...item, comment: e.target.value } : item
+                      )
+                      setEvaluationItems(updatedItems)
+                    }}
+                    placeholder={t.evaluations.commentPlaceholder}
+                    className={`w-full px-4 py-3 border-2 rounded-xl shadow-sm transition-all duration-200 resize-none text-gray-900 ${
+                      (currentItem?.comment.trim().length || 0) >= MIN_COMMENT_LENGTH
+                        ? 'border-green-300 focus:border-green-500 focus:ring-green-200'
+                        : 'border-red-300 focus:border-red-500 focus:ring-red-200'
+                    } focus:ring-4`}
+                    rows={6}
+                  />
+                </div>
+              </div>
+            </div>
+          </>
+        )}
+
+        {isOverall && (
+          <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
+            <div className="mb-6">
+              <div className="flex items-center mb-2">
+                <span className="text-2xl mr-2">📊</span>
+                <span className="text-xs font-medium text-blue-600 uppercase tracking-wide">
+                  {t.evaluations.overallRating}
+                </span>
+              </div>
+              <h2 className="text-xl font-semibold text-gray-900 mb-2">
+                {t.evaluations.overallPerformance}
+              </h2>
+              <p className="text-gray-600">
+                {t.evaluations.provideFeedback}
+              </p>
+            </div>
+
+            {/* Rating Stars */}
+            <div className="mb-6">
+              <p className="text-sm font-bold text-gray-700 mb-3">{t.evaluations.overallRating}</p>
+              <div className="flex gap-2 justify-center">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <button
+                    key={star}
+                    onClick={() => handleRating(star)}
+                    className={`p-2 rounded-full transition-colors ${
+                      overallRating && overallRating >= star
+                        ? 'text-yellow-400'
+                        : 'text-gray-300 hover:text-yellow-300'
+                    }`}
+                  >
+                    <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                    </svg>
+                  </button>
+                ))}
+              </div>
+              {overallRating && (
+                <p className="text-center text-sm text-gray-600 mt-2">
+                  {overallRating === 1 && t.evaluations.needsImprovement}
+                  {overallRating === 2 && t.evaluations.belowExpectations}
+                  {overallRating === 3 && t.evaluations.meetsExpectations}
+                  {overallRating === 4 && t.evaluations.exceedsExpectations}
+                  {overallRating === 5 && t.evaluations.outstanding}
+                </p>
+              )}
+            </div>
+
+            {/* Comment */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                {t.evaluations.overallComments} <span className="text-red-500">*</span>
+                <span className="text-xs text-gray-500 ml-1">
+                  ({t.evaluations.minimumCharacters.replace('{count}', MIN_COMMENT_LENGTH.toString())} - {overallComment.trim().length}/{MIN_COMMENT_LENGTH})
+                </span>
+              </label>
+              <textarea
+                value={overallComment}
+                onChange={(e) => setOverallComment(e.target.value)}
+                placeholder="Please provide overall feedback (minimum 20 characters required)..."
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-gray-900"
+                rows={4}
+              />
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Bottom Navigation */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-4">
+        <div className="flex gap-3">
+          {currentStep > 0 && (
+            <button
+              onClick={handlePrevious}
+              className="flex-1 py-3 px-4 border border-gray-300 rounded-md text-gray-700 font-medium hover:bg-gray-50 transition-colors"
+            >
+              {t.common.previous}
+            </button>
+          )}
+          <button
+            onClick={handleNext}
+            disabled={!isCurrentItemValid() || submitting}
+            className="flex-1 py-3 px-4 bg-blue-600 text-white rounded-md font-medium hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+          >
+            {submitting ? 'Submitting...' : (currentStep === totalSteps - 1 ? t.evaluations.submitEvaluation : t.common.next)}
+          </button>
+        </div>
+      </div>
+
+    </div>
+  )
+}

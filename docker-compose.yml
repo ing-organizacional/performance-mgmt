@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  performance-mgmt:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=file:./data/production.db
+      - NEXTAUTH_URL=http://localhost:3000
+      - NEXTAUTH_SECRET=change-this-in-production-use-openssl-rand-base64-32
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Multi-company setup example
+  company-1:
+    build: .
+    ports:
+      - "3001:3000"
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=file:./data/company1.db
+      - NEXTAUTH_URL=http://localhost:3001
+      - NEXTAUTH_SECRET=change-this-in-production-company1
+      - COMPANY_ID=company-1
+    volumes:
+      - ./data/company1:/app/data
+    restart: unless-stopped
+    profiles: ["multi-company"]
+
+  company-2:
+    build: .
+    ports:
+      - "3002:3000"
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=file:./data/company2.db
+      - NEXTAUTH_URL=http://localhost:3002
+      - NEXTAUTH_SECRET=change-this-in-production-company2
+      - COMPANY_ID=company-2
+    volumes:
+      - ./data/company2:/app/data
+    restart: unless-stopped
+    profiles: ["multi-company"]
+
+volumes:
+  data:
+    driver: local

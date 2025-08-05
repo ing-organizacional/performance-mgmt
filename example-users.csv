@@ -1,0 +1,11 @@
+name,email,username,role,department,userType,password,managerEmail,companyCode,employeeId
+Sarah Johnson,sarah.johnson@demo.com,,manager,Sales,office,password123,,DEMO_001,MGR001
+David Chen,david.chen@demo.com,,employee,Sales,office,password123,sarah.johnson@demo.com,DEMO_001,EMP010
+Lisa Wang,lisa.wang@demo.com,,employee,Sales,office,password123,sarah.johnson@demo.com,DEMO_001,EMP011
+Mike Rodriguez,,mike.production,employee,Manufacturing,operational,5678,manager@demo.com,DEMO_001,EMP020
+Anna Kowalski,,anna.assembly,employee,Manufacturing,operational,9012,manager@demo.com,DEMO_001,EMP021
+Tom Wilson,tom.wilson@demo.com,,employee,IT,office,password123,manager@demo.com,DEMO_001,EMP030
+Emma Thompson,,emma.quality,employee,Quality Control,operational,3456,manager@demo.com,DEMO_001,EMP031
+Carlos Garcia,carlos.garcia@demo.com,,manager,Operations,office,password123,,DEMO_001,MGR002
+Jennifer Lee,jennifer.lee@demo.com,,employee,HR,office,password123,hr@demo.com,DEMO_001,EMP040
+Robert Kim,,robert.shipping,employee,Shipping,operational,7890,carlos.garcia@demo.com,DEMO_001,EMP050
