@@ -10,16 +10,17 @@ Performance Management System - A mobile-first web application for managing empl
 
 **Tech Stack:**
 - Next.js 15 with App Router + TypeScript + Tailwind CSS
-- SQLite database with Prisma ORM (4-table schema)
+- SQLite database with Prisma ORM (7-table schema)
 - NextAuth v5 for authentication
 - Mobile-first responsive design
 - **Package Manager: YARN** (never use npm)
 
-**Database Schema (6 tables):**
+**Database Schema (7 tables):**
 - `Company` - Multi-tenant company isolation
-- `User` - Mixed workforce (office: email/password, operational: username/PIN)
+- `User` - Mixed workforce with personID/employeeId identifiers for HRIS integration
 - `Evaluation` - Unified evaluation system with evaluationItemsData JSON field + cycleId
-- `EvaluationItem` - OKRs and competencies with cycle association
+- `EvaluationItem` - OKR/Competency definitions with 3-tier assignment system
+- `EvaluationItemAssignment` - Individual item-to-employee assignments
 - `PerformanceCycle` - Annual/quarterly performance cycles with status management
 - `PartialAssessment` - Individual item assessments with evaluation date tracking
 - `AuditLog` - Complete change tracking
@@ -37,11 +38,16 @@ Performance Management System - A mobile-first web application for managing empl
 
 **Key API Endpoints:**
 - `/api/manager/team` - Team data for managers and HR (GET)
+- `/api/manager/team-assignments` - Team assignment management (GET)
 - `/api/evaluations` - Personal evaluations for logged-in user (GET/POST)
+- `/api/evaluation-items` - OKR/Competency management with 3-tier assignments (GET/POST)
+- `/api/evaluation-items/assign` - Individual item assignments (POST)
+- `/api/partial-assessments` - Granular performance tracking (GET/POST)
 - `/api/admin/cycles` - Performance cycle management (GET/POST)
 - `/api/admin/cycles/[id]` - Individual cycle operations (GET/PUT)
-- `/api/partial-assessments` - Partial assessment tracking with evaluation dates (GET/POST)
-- `/api/admin/*` - HR admin functions (requires role-based access control)
+- `/api/admin/users` - User management with personID/employeeId support (GET/POST)
+- `/api/admin/import` - CSV user import with enhanced field support (POST)
+- `/api/export/*` - Data export functionality (GET)
 
 ## Essential Commands
 
@@ -138,23 +144,28 @@ yarn tsc --noEmit          # TypeScript check
 - **Version Control**: Latest version flagging with complete history
 - **HR Flexibility**: Make corrections and adjustments even after cycle closure
 
-## Unified Evaluation System (CRITICAL)
+## Evaluation System Architecture (CRITICAL)
 
-**Current Implementation:**
+**Dual System Implementation:**
+The system supports both traditional evaluations and the new structured evaluation items system:
+
+**Traditional Evaluations (Evaluation model):**
 - **Single data field:** `evaluationItemsData` (JSON string in database)
 - **Unified interface:** Combines OKRs and Competencies in one array
-- **Item structure:** Each item has `type: 'okr' | 'competency'`
-- **Three-tier system:** Company/Department/Manager levels
-- **Visual differentiation:** 🎯 for OKRs, ⭐ for Competencies
+- **Backward compatibility:** Supports existing evaluation workflows
+- **Cycle association:** Links to PerformanceCycle via `cycleId`
 
-**IMPORTANT - Never use these fields (deprecated):**
-- ❌ `okrsData` - Removed from schema
-- ❌ `competenciesData` - Removed from schema
-- ❌ Separate OKR/Competency models - All unified
+**Structured Evaluation Items (EvaluationItem model):**
+- **Separate model:** Individual OKR/Competency definitions stored as records
+- **3-tier assignment system:** Company/Department/Manager level assignments
+- **Individual assignments:** EvaluationItemAssignment table for specific employee-item links
+- **Partial assessments:** Granular tracking via PartialAssessment model
+- **Cycle integration:** Full performance cycle workflow support
 
-**Evaluation Item Structure:**
+**Current Data Structure:**
 ```typescript
-interface EvaluationItem {
+// Traditional evaluation item (JSON stored)
+interface TraditionalEvaluationItem {
   id: string
   title: string
   description: string
@@ -162,7 +173,21 @@ interface EvaluationItem {
   rating: number | null
   comment: string
   level?: 'company' | 'department' | 'manager'
-  createdBy?: string
+}
+
+// Structured evaluation item (database model)
+interface StructuredEvaluationItem {
+  id: string
+  companyId: string
+  cycleId?: string
+  title: string
+  description: string
+  type: 'okr' | 'competency'
+  level: 'company' | 'department' | 'manager'
+  createdBy: string
+  assignedTo?: string
+  active: boolean
+  sortOrder: number
 }
 ```
 

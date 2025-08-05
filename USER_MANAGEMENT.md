@@ -36,9 +36,10 @@ curl -X POST http://localhost:3000/api/admin/users \
 Create a CSV file with these columns:
 
 ```csv
-name,email,username,role,department,userType,password,managerEmail,companyCode,employeeId
-John Smith,john@company.com,,employee,Sales,office,password123,manager@company.com,DEMO_001,EMP001
-Maria Worker,,maria.worker,employee,Manufacturing,operational,1234,supervisor@company.com,DEMO_001,EMP002
+name,email,username,role,department,userType,password,employeeId,personID,managerPersonID,managerEmployeeId,companyCode
+John Smith,john@company.com,,employee,Sales,office,password123,EMP001,12345678,87654321,,DEMO_001
+Maria Worker,,maria.worker,employee,Manufacturing,operational,1234,EMP002,87654321,12345678,,DEMO_001
+HR Manager,hr1@demo.com,,hr,Human Resources,office,password123,HR001,11111111,,,DEMO_001
 ```
 
 ### Column Definitions:
@@ -49,15 +50,19 @@ Maria Worker,,maria.worker,employee,Manufacturing,operational,1234,supervisor@co
 - **department**: Team/department name
 - **userType**: office (default) or operational
 - **password** (required): Initial password
-- **managerEmail**: Manager's email (optional)
+- **employeeId**: Company-assigned ID (EMP001, MGR001) for HRIS integration
+- **personID**: National ID/Cédula for legal identification
+- **managerPersonID**: Manager's National ID for hierarchy matching
+- **managerEmployeeId**: Alternative manager matching via Employee ID
 - **companyCode** (required): Company identifier
-- **employeeId**: Employee ID number (optional)
 
 ### Rules:
 - Either email OR username is required
 - Operational workers typically use username + PIN
 - Office workers typically use email + password
-- Manager relationships are created automatically if managerEmail exists
+- Manager relationships created via personID matching (managerPersonID)
+- Alternative manager matching via employeeId (managerEmployeeId)
+- personID and employeeId must be unique per company
 
 ## 🔧 Admin API Endpoints
 
@@ -87,7 +92,8 @@ Content-Type: application/json
   "userType": "office",
   "password": "password123",
   "department": "Sales",
-  "employeeId": "EMP001"
+  "employeeId": "EMP001",
+  "personID": "12345678"
 }
 ```
 

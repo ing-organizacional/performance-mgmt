@@ -43,8 +43,8 @@ Visit http://localhost:3000 and use demo credentials:
 
 **Database:**
 - SQLite with Prisma ORM
-- 6-table schema (Company, User, Evaluation, EvaluationItem, PerformanceCycle, PartialAssessment, AuditLog)
-- JSON storage for unified evaluation data
+- 7-table schema (Company, User, Evaluation, EvaluationItem, EvaluationItemAssignment, PerformanceCycle, PartialAssessment, AuditLog)
+- Dual evaluation system (traditional JSON + structured items)
 - Performance cycle management with read-only enforcement
 
 **Deployment:**
@@ -102,30 +102,42 @@ Visit http://localhost:3000 and use demo credentials:
 -- Companies: Multi-tenant isolation
 Company { id, name, code, active }
 
--- Users: Mixed workforce (office + operational)
+-- Users: Mixed workforce with HRIS integration identifiers
 User { 
   id, companyId, name, email?, username?, role,
-  passwordHash, pinCode?, userType, managerId
+  passwordHash, pinCode?, userType, managerId,
+  employeeId?, personID?, department?, shift?
 }
 
--- Evaluations: Unified evaluation items as JSON with cycle association
+-- Traditional Evaluations: JSON-based evaluation data with cycle association
 Evaluation {
   id, employeeId, managerId, companyId, cycleId?,
   evaluationItemsData, overallRating,
   status, periodType, periodDate
 }
 
--- Performance Cycles: Annual/quarterly review periods
+-- Structured Evaluation Items: Individual OKR/Competency definitions
+EvaluationItem {
+  id, companyId, cycleId?, title, description,
+  type, level, createdBy, assignedTo?, active, sortOrder
+}
+
+-- Individual Item Assignments: Employee-specific item assignments
+EvaluationItemAssignment {
+  id, evaluationItemId, employeeId, assignedBy, companyId
+}
+
+-- Performance Cycles: Annual/quarterly review periods with status management
 PerformanceCycle {
   id, companyId, name, startDate, endDate,
   status, closedBy?, closedAt?
 }
 
--- Partial Assessments: Individual item tracking with evaluation dates
+-- Partial Assessments: Granular item tracking with evaluation date history
 PartialAssessment {
   id, cycleId, employeeId, evaluationItemId,
   rating?, comment?, assessedBy, assessedAt,
-  evaluationDate, assessmentType, isActive
+  evaluationDate, assessmentType, isActive, companyId
 }
 
 -- AuditLog: Complete change tracking
@@ -154,10 +166,16 @@ yarn lint                  # Code linting
 
 ### CSV Import Format
 ```csv
-name,email,username,role,department,userType,password,managerEmail,companyCode
-John Smith,john@company.com,,employee,Sales,office,password123,manager@company.com,DEMO_001
-Maria Worker,,maria.worker,employee,Manufacturing,operational,1234,supervisor@company.com,DEMO_001
+name,email,username,role,department,userType,password,employeeId,personID,managerPersonID,managerEmployeeId,companyCode
+John Smith,john@company.com,,employee,Sales,office,password123,EMP001,12345678,87654321,,DEMO_001
+Maria Worker,,maria.worker,employee,Manufacturing,operational,1234,EMP002,87654321,12345678,,DEMO_001
 ```
+
+**Enhanced Fields:**
+- `employeeId`: Company-assigned ID (EMP001, MGR001) for HRIS integration
+- `personID`: National ID/Cédula for legal identification and manager matching
+- `managerPersonID`: Manager's National ID for hierarchy establishment
+- `managerEmployeeId`: Alternative manager matching via Employee ID
 
 ### Admin API Examples
 ```bash
