@@ -16,6 +16,10 @@ interface EvaluationItem {
   createdBy: string
   creatorRole: string
   assignedEmployees?: string[] // For individual assignments
+  evaluationDeadline?: string | null
+  deadlineSetBy?: string | null
+  deadlineSetByRole?: string | null
+  assignedTo?: string | null // Department name or manager ID
 }
 
 interface Employee {
@@ -31,6 +35,7 @@ interface EditingItem {
   id: string
   title: string
   description: string
+  evaluationDeadline?: string
 }
 
 type ActiveTab = 'company' | 'department' | 'individual'
@@ -41,6 +46,50 @@ export default function AssignmentsPage() {
   const { t } = useLanguage()
   
   const [activeTab, setActiveTab] = useState<ActiveTab>('company')
+
+  // Helper function to check if current user can edit deadlines for an item
+  const canEditDeadline = (item: EvaluationItem): boolean => {
+    if (!session?.user) return false
+    
+    const userRole = session.user.role
+    const userId = session.user.id
+    const userDepartment = session.user.department
+    
+    // HR can edit deadlines for all items
+    if (userRole === 'hr') return true
+    
+    // Managers can edit deadlines for items they created or manage
+    if (userRole === 'manager') {
+      // Company-level items can only be edited by HR
+      if (item.level === 'company') return false
+      
+      // Check if manager created this item
+      if (item.createdBy === session.user.name) return true
+      
+      // Check if item is assigned to this manager or their department
+      if (item.level === 'department' && item.assignedTo === userDepartment) return true
+      if (item.level === 'manager' && item.assignedTo === userId) return true
+    }
+    
+    return false
+  }
+
+  // Helper function to check if current user can set deadlines for new items at a given level
+  const canSetDeadlineForLevel = (level: 'company' | 'department' | 'manager'): boolean => {
+    if (!session?.user) return false
+    
+    const userRole = session.user.role
+    
+    // HR can set deadlines for all levels
+    if (userRole === 'hr') return true
+    
+    // Managers can set deadlines for department and manager level items
+    if (userRole === 'manager') {
+      return level !== 'company'
+    }
+    
+    return false
+  }
   const [evaluationItems, setEvaluationItems] = useState<EvaluationItem[]>([])
   const [employees, setEmployees] = useState<Employee[]>([])
   const [selectedEmployees, setSelectedEmployees] = useState<string[]>([])
@@ -155,12 +204,24 @@ export default function AssignmentsPage() {
     setEditingItem({
       id: item.id,
       title: item.title,
-      description: item.description
+      description: item.description,
+      evaluationDeadline: item.evaluationDeadline ? item.evaluationDeadline.slice(0, 16) : '' // Format for datetime-local input
     })
   }
 
   const handleSaveEdit = async () => {
     if (!editingItem) return
+
+    // Validate deadline if provided
+    if (editingItem.evaluationDeadline) {
+      const deadlineDate = new Date(editingItem.evaluationDeadline)
+      const oneHourFromNow = new Date(Date.now() + 60 * 60 * 1000)
+      
+      if (deadlineDate <= oneHourFromNow) {
+        alert('Deadline must be at least 1 hour in the future.')
+        return
+      }
+    }
 
     try {
       const response = await fetch(`/api/evaluation-items/${editingItem.id}`, {
@@ -168,7 +229,8 @@ export default function AssignmentsPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           title: editingItem.title,
-          description: editingItem.description
+          description: editingItem.description,
+          evaluationDeadline: editingItem.evaluationDeadline || null
         })
       })
 
@@ -193,12 +255,24 @@ export default function AssignmentsPage() {
     setEditingItem({
       id: 'new',
       title: '',
-      description: ''
+      description: '',
+      evaluationDeadline: ''
     })
   }
 
   const handleSaveNew = async () => {
     if (!editingItem || !editingItem.title.trim() || !editingItem.description.trim()) return
+
+    // Validate deadline if provided
+    if (editingItem.evaluationDeadline) {
+      const deadlineDate = new Date(editingItem.evaluationDeadline)
+      const oneHourFromNow = new Date(Date.now() + 60 * 60 * 1000)
+      
+      if (deadlineDate <= oneHourFromNow) {
+        alert('Deadline must be at least 1 hour in the future.')
+        return
+      }
+    }
 
     try {
       const response = await fetch('/api/evaluation-items', {
@@ -208,7 +282,8 @@ export default function AssignmentsPage() {
           title: editingItem.title,
           description: editingItem.description,
           type: newItemType,
-          level: 'department'
+          level: 'department',
+          evaluationDeadline: editingItem.evaluationDeadline || null
         })
       })
 
@@ -469,6 +544,24 @@ export default function AssignmentsPage() {
                     />
                   </div>
                   
+                  {canSetDeadlineForLevel('department') && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        {t.assignments.evaluationDeadline}
+                      </label>
+                      <input
+                        type="datetime-local"
+                        value={editingItem.evaluationDeadline}
+                        onChange={(e) => setEditingItem({
+                          ...editingItem,
+                          evaluationDeadline: e.target.value
+                        })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-gray-900"
+                        min={new Date().toISOString().slice(0, 16)} // Prevent past dates
+                      />
+                    </div>
+                  )}
+                  
                   <div className="flex space-x-3">
                     <button
                       onClick={handleSaveNew}
@@ -585,6 +678,24 @@ export default function AssignmentsPage() {
                           placeholder="Description"
                         />
                       </div>
+                      
+                      {canEditDeadline(item) && (
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            {t.assignments.evaluationDeadline}
+                          </label>
+                          <input
+                            type="datetime-local"
+                            value={editingItem.evaluationDeadline}
+                            onChange={(e) => setEditingItem({
+                              ...editingItem,
+                              evaluationDeadline: e.target.value
+                            })}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-gray-900"
+                            min={new Date().toISOString().slice(0, 16)} // Prevent past dates
+                          />
+                        </div>
+                      )}
                       
                       <div className="flex space-x-3">
                         <button

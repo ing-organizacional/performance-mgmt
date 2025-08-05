@@ -4290,6 +4290,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"lucide-react@npm:^0.536.0":
+  version: 0.536.0
+  resolution: "lucide-react@npm:0.536.0"
+  peerDependencies:
+    react: ^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0
+  checksum: 10c0/643d6960630c5e8678c8140ccb60710b019a385c847f4ad089b2598ae3321f80ddc7f73c2b3a648576674c3e475a6effa2fc58665da9c07e568a010e677cab42
+  languageName: node
+  linkType: hard
+
 "magic-string@npm:^0.30.17":
   version: 0.30.17
   resolution: "magic-string@npm:0.30.17"
@@ -4926,6 +4935,7 @@ __metadata:
     eslint: "npm:^9"
     eslint-config-next: "npm:15.4.5"
     jspdf: "npm:^3.0.1"
+    lucide-react: "npm:^0.536.0"
     next: "npm:15.4.5"
     next-auth: "npm:^5.0.0-beta.29"
     prisma: "npm:6.13.0"

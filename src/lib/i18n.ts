@@ -108,6 +108,7 @@ export interface Translations {
     newOKR: string
     newCompetency: string
     create: string
+    evaluationDeadline: string
   }
   
   // OKRs (only commonly used keys)
@@ -286,7 +287,8 @@ export const translations: Record<Language, Translations> = {
       createNewDepartmentItems: 'Create New Department Items',
       newOKR: 'New OKR',
       newCompetency: 'New Competency',
-      create: 'Create'
+      create: 'Create',
+      evaluationDeadline: 'Evaluation Deadline (Optional)'
     },
     okrs: {
       objective: 'Objective',
@@ -457,7 +459,8 @@ export const translations: Record<Language, Translations> = {
       createNewDepartmentItems: 'Crear Nuevos Elementos Departamentales',
       newOKR: 'Nuevo OKR',
       newCompetency: 'Nueva Competencia',
-      create: 'Crear'
+      create: 'Crear',
+      evaluationDeadline: 'Fecha Límite de Evaluación (Opcional)'
     },
     okrs: {
       objective: 'Objetivo',

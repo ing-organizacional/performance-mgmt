@@ -29,6 +29,12 @@ export async function GET() {
             role: true
           }
         },
+        deadlineSetByUser: {
+          select: {
+            name: true,
+            role: true
+          }
+        },
         individualAssignments: {
           include: {
             employee: {
@@ -47,7 +53,7 @@ export async function GET() {
       ]
     })
 
-    // Transform to include assignment information
+    // Transform to include assignment information and deadlines
     const formattedItems = items.map((item) => ({
       id: item.id,
       title: item.title,
@@ -57,7 +63,11 @@ export async function GET() {
       createdBy: item.creator.name,
       creatorRole: item.creator.role,
       assignedEmployees: item.individualAssignments.map(assignment => assignment.employee.name),
-      assignedEmployeeIds: item.individualAssignments.map(assignment => assignment.employeeId)
+      assignedEmployeeIds: item.individualAssignments.map(assignment => assignment.employeeId),
+      evaluationDeadline: item.evaluationDeadline?.toISOString() || null,
+      deadlineSetBy: item.deadlineSetByUser?.name || null,
+      deadlineSetByRole: item.deadlineSetByUser?.role || null,
+      assignedTo: item.assignedTo
     }))
 
     return NextResponse.json({ 

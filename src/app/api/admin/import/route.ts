@@ -70,15 +70,18 @@ export async function POST(request: NextRequest) {
       const values = lines[i].split(',').map(v => v.trim().replace(/['"]/g, ''))
       if (values.length !== headers.length) continue // Skip malformed rows
       
-      const userData: ImportUserData = {}
+      const userData: Partial<ImportUserData> = {}
       headers.forEach((header, index) => {
         const value = values[index]
         if (value && value !== '') {
-          (userData as any)[header] = value
+          (userData as Record<string, string>)[header] = value
         }
       })
       
-      users.push(userData)
+      // Only add users with required fields
+      if (userData.name && userData.role) {
+        users.push(userData as ImportUserData)
+      }
     }
 
     if (users.length === 0) {

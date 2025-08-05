@@ -22,6 +22,7 @@
     "@types/bcryptjs": "^3.0.0",
     "bcryptjs": "^3.0.2",
     "jspdf": "^3.0.1",
+    "lucide-react": "^0.536.0",
     "next": "15.4.5",
     "next-auth": "^5.0.0-beta.29",
     "react": "19.1.0",

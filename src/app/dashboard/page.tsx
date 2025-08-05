@@ -129,6 +129,15 @@ export default function DashboardPage() {
                 </svg>
                 <span>{t.nav.myEvaluations}</span>
               </button>
+              <button
+                onClick={() => router.push('/dashboard/deadlines')}
+                className="flex items-center justify-center space-x-1 px-2 py-2 bg-orange-100 text-orange-700 text-xs font-medium rounded-lg hover:bg-orange-200 active:scale-95 transition-all duration-150 touch-manipulation whitespace-nowrap tracking-tighter leading-none"
+              >
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>Deadlines</span>
+              </button>
             </div>
             <div className="flex items-center gap-3">
               <CycleSelector 

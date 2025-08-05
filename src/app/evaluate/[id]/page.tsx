@@ -7,6 +7,7 @@ import { useParams } from 'next/navigation'
 import { useLanguage } from '@/contexts/LanguageContext'
 import LanguageSwitcher from '@/components/LanguageSwitcher'
 import ToastContainer from '@/components/ToastContainer'
+import DeadlineDisplay from '@/components/DeadlineDisplay'
 import { useToast } from '@/hooks/useToast'
 import { hapticFeedback } from '@/utils/haptics'
 
@@ -20,6 +21,9 @@ interface EvaluationItem {
   level?: string
   createdBy?: string
   creatorRole?: string
+  evaluationDeadline?: string | null
+  deadlineSetBy?: string | null
+  deadlineSetByRole?: string | null
 }
 
 // These will be populated with translated content in the component
@@ -344,7 +348,7 @@ export default function EvaluatePage() {
                     <span className="text-2xl">
                       {isOKR ? '🎯' : '⭐'}
                     </span>
-                    <div className="flex items-center space-x-2">
+                    <div className="flex items-center space-x-2 flex-wrap gap-2">
                       <span className="text-sm font-bold text-blue-700 uppercase tracking-wide">
                         {isOKR ? t.evaluations.okr : t.evaluations.competency}
                       </span>
@@ -359,13 +363,28 @@ export default function EvaluatePage() {
                            `👤 ${t.common.manager}`}
                         </span>
                       )}
+                      {currentItem.evaluationDeadline && (
+                        <DeadlineDisplay 
+                          deadline={currentItem.evaluationDeadline} 
+                          showIcon={true}
+                          showDate={false}
+                          compact={true}
+                        />
+                      )}
                     </div>
                   </div>
-                  {currentItem.createdBy && (
-                    <p className="text-xs text-gray-500 ml-11">
-                      by {currentItem.createdBy}
-                    </p>
-                  )}
+                  <div className="ml-11 space-y-1">
+                    {currentItem.createdBy && (
+                      <p className="text-xs text-gray-500">
+                        by {currentItem.createdBy}
+                      </p>
+                    )}
+                    {currentItem.evaluationDeadline && currentItem.deadlineSetBy && (
+                      <p className="text-xs text-gray-500">
+                        deadline set by {currentItem.deadlineSetBy}
+                      </p>
+                    )}
+                  </div>
                 </div>
                 {currentItem.level !== 'company' && (
                   <button

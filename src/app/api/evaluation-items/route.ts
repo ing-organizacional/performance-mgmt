@@ -56,6 +56,12 @@ export async function GET(request: NextRequest) {
             name: true,
             role: true
           }
+        },
+        deadlineSetByUser: {
+          select: {
+            name: true,
+            role: true
+          }
         }
       }
     })
@@ -69,6 +75,12 @@ export async function GET(request: NextRequest) {
       },
       include: {
         creator: {
+          select: {
+            name: true,
+            role: true
+          }
+        },
+        deadlineSetByUser: {
           select: {
             name: true,
             role: true
@@ -90,6 +102,12 @@ export async function GET(request: NextRequest) {
             name: true,
             role: true
           }
+        },
+        deadlineSetByUser: {
+          select: {
+            name: true,
+            role: true
+          }
         }
       }
     })
@@ -104,6 +122,12 @@ export async function GET(request: NextRequest) {
         evaluationItem: {
           include: {
             creator: {
+              select: {
+                name: true,
+                role: true
+              }
+            },
+            deadlineSetByUser: {
               select: {
                 name: true,
                 role: true
@@ -137,7 +161,10 @@ export async function GET(request: NextRequest) {
       comment: '',
       level: item.level,
       createdBy: item.creator.name,
-      creatorRole: item.creator.role
+      creatorRole: item.creator.role,
+      evaluationDeadline: item.evaluationDeadline?.toISOString() || null,
+      deadlineSetBy: item.deadlineSetByUser?.name || null,
+      deadlineSetByRole: item.deadlineSetByUser?.role || null
     }))
 
     return NextResponse.json({ 
@@ -180,13 +207,44 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { title, description, type, level } = body
+    const { title, description, type, level, evaluationDeadline } = body
 
     if (!title || !description || !type || !level) {
       return NextResponse.json({ 
         success: false, 
         error: 'Title, description, type, and level are required' 
       }, { status: 400 })
+    }
+
+    // Validate deadline if provided
+    let deadlineDate = null
+    if (evaluationDeadline) {
+      deadlineDate = new Date(evaluationDeadline)
+      if (isNaN(deadlineDate.getTime())) {
+        return NextResponse.json({ 
+          success: false, 
+          error: 'Invalid deadline date format. Please provide a valid date and time.' 
+        }, { status: 400 })
+      }
+      
+      // Deadline must be in the future (at least 1 hour from now)
+      const now = new Date()
+      const oneHourFromNow = new Date(now.getTime() + 60 * 60 * 1000)
+      if (deadlineDate <= oneHourFromNow) {
+        return NextResponse.json({ 
+          success: false, 
+          error: 'Deadline must be at least 1 hour in the future.' 
+        }, { status: 400 })
+      }
+
+      // Check if deadline is not too far in the future (e.g., more than 2 years)
+      const twoYearsFromNow = new Date(now.getTime() + 2 * 365 * 24 * 60 * 60 * 1000)
+      if (deadlineDate > twoYearsFromNow) {
+        return NextResponse.json({ 
+          success: false, 
+          error: 'Deadline cannot be more than 2 years in the future.' 
+        }, { status: 400 })
+      }
     }
 
     // Validate type and level
@@ -243,7 +301,9 @@ export async function POST(request: NextRequest) {
         createdBy: userId,
         assignedTo,
         sortOrder,
-        active: true
+        active: true,
+        evaluationDeadline: deadlineDate,
+        deadlineSetBy: deadlineDate ? userId : null
       },
       include: {
         creator: {
@@ -251,9 +311,31 @@ export async function POST(request: NextRequest) {
             name: true,
             role: true
           }
+        },
+        deadlineSetByUser: {
+          select: {
+            name: true,
+            role: true
+          }
         }
       }
     })
+
+    // Log deadline setting for audit purposes
+    if (deadlineDate) {
+      const auditLog = {
+        timestamp: new Date().toISOString(),
+        userId: userId,
+        userName: session.user.name,
+        userRole: userRole,
+        action: 'deadline_set_on_creation',
+        itemId: newItem.id,
+        itemTitle: newItem.title,
+        deadline: deadlineDate.toISOString(),
+        companyId: companyId
+      }
+      console.log('AUDIT: Evaluation item created with deadline:', JSON.stringify(auditLog, null, 2))
+    }
 
     return NextResponse.json({
       success: true,
@@ -264,7 +346,10 @@ export async function POST(request: NextRequest) {
         type: newItem.type,
         level: newItem.level,
         createdBy: newItem.creator.name,
-        creatorRole: newItem.creator.role
+        creatorRole: newItem.creator.role,
+        evaluationDeadline: newItem.evaluationDeadline?.toISOString() || null,
+        deadlineSetBy: newItem.deadlineSetByUser?.name || null,
+        deadlineSetByRole: newItem.deadlineSetByUser?.role || null
       },
       message: 'Evaluation item created successfully'
     })

@@ -19,7 +19,7 @@ Performance Management System - A mobile-first web application for managing empl
 - `Company` - Multi-tenant company isolation
 - `User` - Mixed workforce with personID/employeeId identifiers for HRIS integration
 - `Evaluation` - Unified evaluation system with evaluationItemsData JSON field + cycleId
-- `EvaluationItem` - OKR/Competency definitions with 3-tier assignment system
+- `EvaluationItem` - OKR/Competency definitions with 3-tier assignment system + deadline management
 - `EvaluationItemAssignment` - Individual item-to-employee assignments
 - `PerformanceCycle` - Annual/quarterly performance cycles with status management
 - `PartialAssessment` - Individual item assessments with evaluation date tracking
@@ -29,18 +29,22 @@ Performance Management System - A mobile-first web application for managing empl
 - `/src/lib/prisma-client.ts` - Database connection (use this, not prisma.ts)
 - `/src/auth.ts` - NextAuth v5 configuration
 - `/src/middleware.ts` - Route protection
-- `/prisma/schema.prisma` - Database schema with cycle management
+- `/prisma/schema.prisma` - Database schema with cycle management + deadline fields
 - `/src/lib/i18n.ts` - Bilingual translations (English/Spanish)
 - `/src/lib/seed.ts` - Database seeding with HR test accounts and default cycle
 - `/src/lib/cycle-permissions.ts` - Performance cycle permission validation
+- `/src/lib/deadline-utils.ts` - Deadline calculation and urgency management utilities
 - `/src/components/CycleSelector.tsx` - Cycle management UI component
 - `/src/components/CycleStatusBanner.tsx` - Read-only status indicator
+- `/src/components/DeadlineDisplay.tsx` - Deadline visualization components
 
 **Key API Endpoints:**
 - `/api/manager/team` - Team data for managers and HR (GET)
 - `/api/manager/team-assignments` - Team assignment management (GET)
 - `/api/evaluations` - Personal evaluations for logged-in user (GET/POST)
-- `/api/evaluation-items` - OKR/Competency management with 3-tier assignments (GET/POST)
+- `/api/evaluation-items` - OKR/Competency management with 3-tier assignments + deadlines (GET/POST)
+- `/api/evaluation-items/[id]` - Individual item operations with deadline management (PUT)
+- `/api/evaluation-items/all` - Complete item list with deadline data for HR overview (GET)
 - `/api/evaluation-items/assign` - Individual item assignments (POST)
 - `/api/partial-assessments` - Granular performance tracking (GET/POST)
 - `/api/admin/cycles` - Performance cycle management (GET/POST)
@@ -78,7 +82,7 @@ yarn tsc --noEmit          # TypeScript check
 **HR Dashboard Page (`/dashboard`):**
 - Overview analytics and completion tracking
 - **Performance Cycle Management**: CycleSelector with create/close/reopen capabilities
-- **Dual navigation buttons**: "Employee Evaluations" + "My Evaluations"
+- **Triple navigation buttons**: "Employee Evaluations" + "My Evaluations" + "Deadlines"
 - Quick actions for exports and user management
 - Mobile-optimized compact button styling (text-xs, small icons)
 
@@ -94,11 +98,12 @@ yarn tsc --noEmit          # TypeScript check
 
 **Employee Evaluation Flow (`/evaluate/[id]`):**
 - Progressive disclosure (one decision per screen)
-- Fixed evaluation item card (always visible)
+- Fixed evaluation item card (always visible) with deadline indicators
 - Star rating system (1-5 scale) with auto-focus on textarea
 - Step-by-step wizard with progress bar
 - Auto-save functionality
 - Thumb-friendly touch targets (44px minimum)
+- **Deadline Display**: Shows evaluation deadlines with urgency indicators
 
 **My Evaluations Page (`/my-evaluations`):**
 - **Universal access** - works for employees, managers, and HR
@@ -106,8 +111,16 @@ yarn tsc --noEmit          # TypeScript check
 - Real-time data fetching from API
 - Performance history and summary analytics
 
+**Deadline Management Page (`/dashboard/deadlines`):**
+- **HR-only access** - comprehensive deadline oversight interface
+- **Urgency-based organization**: Overdue, due soon, this week, future
+- **Filtering capabilities**: Filter by urgency level with visual indicators
+- **Dual view modes**: Groups by department/manager OR flat list view
+- **Progress tracking**: Visual progress bars and completion statistics
+- **Role-based data**: Shows who set deadlines and assignment levels
+
 **Role-Based Navigation:**
-- HR → `/dashboard` (analytics + cycle management) ↔ `/evaluations` (manage teams) ↔ `/my-evaluations` (personal)
+- HR → `/dashboard` (analytics + cycle management) ↔ `/evaluations` (manage teams) ↔ `/my-evaluations` (personal) ↔ `/dashboard/deadlines` (deadline oversight)
 - Manager → `/evaluations` (employee list → evaluation flow) ↔ `/my-evaluations` (personal)
 - Employee → `/my-evaluations` (view history, current status)
 
@@ -161,6 +174,7 @@ The system supports both traditional evaluations and the new structured evaluati
 - **Individual assignments:** EvaluationItemAssignment table for specific employee-item links
 - **Partial assessments:** Granular tracking via PartialAssessment model
 - **Cycle integration:** Full performance cycle workflow support
+- **Deadline management:** Evaluation deadlines with role-based permissions and urgency tracking
 
 **Current Data Structure:**
 ```typescript
@@ -173,6 +187,9 @@ interface TraditionalEvaluationItem {
   rating: number | null
   comment: string
   level?: 'company' | 'department' | 'manager'
+  evaluationDeadline?: string | null
+  deadlineSetBy?: string | null
+  deadlineSetByRole?: string | null
 }
 
 // Structured evaluation item (database model)
@@ -188,6 +205,9 @@ interface StructuredEvaluationItem {
   assignedTo?: string
   active: boolean
   sortOrder: number
+  evaluationDeadline?: Date | null
+  deadlineSetBy?: string | null
+  deadlineSetByUser?: User // Relation for audit trail
 }
 ```
 
@@ -330,6 +350,7 @@ interface StructuredEvaluationItem {
 10. **Enhanced Mobile UX**: Consistent button styling, improved language switcher subtlety
 11. **Performance Cycle Management**: Complete cycle creation, status management, and read-only enforcement
 12. **Partial Assessment System**: HR can make individual item assessments with evaluation date tracking
+13. **Evaluation Deadlines**: Complete deadline management system with role-based permissions and urgency tracking
 
 **New Features Added:**
 - **HR Manager Support**: HR users can access `/evaluations` page to manage their direct reports
@@ -342,6 +363,9 @@ interface StructuredEvaluationItem {
 - **Cycle Status Enforcement**: API-level validation of read-only permissions
 - **Partial Assessment Tracking**: Individual item assessments with evaluation date history
 - **Visual Status Indicators**: CycleSelector and CycleStatusBanner components
+- **Deadline Management System**: Role-based deadline setting, urgency tracking, HR oversight interface
+- **Deadline Utilities**: Comprehensive deadline calculation and styling utilities
+- **Deadline Display Components**: Reusable deadline visualization with urgency indicators
 
 **UI/UX Improvements:**
 - Language switcher made more subtle (removed prominent orange border)
@@ -526,3 +550,85 @@ This system has a solid architecture and is ready for deployment with the above 
 ```
 
 This API design maintains the "ridiculously simple" philosophy while providing enterprise-grade cycle management and proper access controls.
+
+## Evaluation Deadline Management (NEW)
+
+### **Deadline System Overview**
+
+**Role-Based Deadline Setting:**
+- **HR**: Can set deadlines for all items (company, department, manager level)
+- **Managers**: Can set deadlines only for department and manager level items they create or manage
+- **Employees**: Cannot set deadlines (read-only access)
+
+**Database Schema Extensions:**
+```prisma
+model EvaluationItem {
+  // ... existing fields
+  evaluationDeadline DateTime?
+  deadlineSetBy      String? // User ID who set the deadline
+  deadlineSetByUser  User? @relation("DeadlineSetBy", fields: [deadlineSetBy], references: [id])
+}
+```
+
+### **Deadline Features**
+
+**Urgency Classification:**
+- **Overdue**: Past the deadline date (red indicators)
+- **High**: Due within 3 days (orange indicators)
+- **Medium**: Due within 7 days (yellow indicators)
+- **Low**: More than 7 days remaining (green indicators)
+
+**Visual Indicators:**
+- **Card Badges**: Compact deadline display on evaluation cards
+- **Progress Bars**: Visual urgency representation
+- **Color Coding**: Consistent urgency color scheme across interface
+- **Icons**: Clock, warning, and calendar icons for different states
+
+**HR Deadline Overview (`/dashboard/deadlines`):**
+- **Filtering**: Filter by urgency level (overdue, high, medium, low)
+- **View Modes**: Groups by department/manager OR flat list view
+- **Statistics**: Real-time urgency counts and progress tracking
+- **Department Grouping**: Organized by department and manager hierarchy
+- **Audit Trail**: Shows who set deadlines and when
+
+### **Implementation Files**
+
+**Core Utilities:**
+- `/src/lib/deadline-utils.ts` - Deadline calculation and urgency classification
+- `/src/components/DeadlineDisplay.tsx` - Reusable deadline visualization components
+
+**API Enhancements:**
+- `/api/evaluation-items` - Added deadline parameter support with validation
+- `/api/evaluation-items/all` - Returns deadline data for HR oversight
+- `/api/evaluation-items/[id]` - Deadline editing with role-based permissions
+
+**UI Integration:**
+- `/src/app/evaluate/[id]/page.tsx` - Shows deadline on evaluation cards
+- `/src/app/evaluations/assignments/page.tsx` - Deadline setting forms with role checks
+- `/src/app/dashboard/deadlines/page.tsx` - Comprehensive HR deadline management interface
+
+### **Deadline Validation Rules**
+
+**Time Constraints:**
+- Minimum: 1 hour in the future (prevents immediate deadlines)
+- Maximum: 2 years in the future (prevents data entry errors)
+- Timezone: Handled in local browser timezone
+
+**Permission Logic:**
+```typescript
+// HR can edit all deadlines
+if (userRole === 'hr') return true
+
+// Managers can edit non-company items they created or manage
+if (userRole === 'manager') {
+  if (item.level === 'company') return false
+  return item.createdBy === userName || item.assignedTo === userId
+}
+```
+
+**Audit Features:**
+- Track who set each deadline (`deadlineSetBy` field)
+- Role information stored for accountability
+- Change history through existing audit log system
+
+This deadline system provides enterprise-grade evaluation timeline management while maintaining the application's core simplicity principle.

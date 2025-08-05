@@ -11,62 +11,63 @@ datasource db {
 }
 
 model Company {
-  id       String  @id @default(cuid())
-  name     String
-  code     String  @unique
-  active   Boolean @default(true)
-  
-  users       User[]
-  evaluations Evaluation[]
-  evaluationItems EvaluationItem[]
+  id     String  @id @default(cuid())
+  name   String
+  code   String  @unique
+  active Boolean @default(true)
+
+  users                     User[]
+  evaluations               Evaluation[]
+  evaluationItems           EvaluationItem[]
   evaluationItemAssignments EvaluationItemAssignment[]
-  performanceCycles PerformanceCycle[]
-  partialAssessments PartialAssessment[]
-  
+  performanceCycles         PerformanceCycle[]
+  partialAssessments        PartialAssessment[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 model User {
-  id         String  @id @default(cuid())
-  companyId  String
-  email      String?
-  username   String?
-  name       String
-  role       String  // "employee" | "manager" | "hr"
-  managerId  String?
-  active     Boolean @default(true)
-  
+  id        String  @id @default(cuid())
+  companyId String
+  email     String?
+  username  String?
+  name      String
+  role      String // "employee" | "manager" | "hr"
+  managerId String?
+  active    Boolean @default(true)
+
   // Authentication fields
-  passwordHash     String?
+  passwordHash    String?
   pinCode         String?
-  userType        String @default("office") // "office" | "operational"  
-  loginMethod     String @default("email")  // "email" | "username" | "qr"
+  userType        String  @default("office") // "office" | "operational"  
+  loginMethod     String  @default("email") // "email" | "username" | "qr"
   requiresPinOnly Boolean @default(false)
-  
+
   // Employee details
   employeeId String? // Company-assigned employee number
   personID   String? // National ID number (cédula, DNI, etc.)
   department String?
   shift      String?
   lastLogin  DateTime?
-  
-  company          Company      @relation(fields: [companyId], references: [id])
-  manager          User?        @relation("ManagerEmployee", fields: [managerId], references: [id])
-  employees        User[]       @relation("ManagerEmployee")
-  evaluationsGiven Evaluation[] @relation("ManagerEvaluations")
-  evaluationsReceived Evaluation[] @relation("EmployeeEvaluations")
-  createdEvaluationItems EvaluationItem[] @relation("CreatedEvaluationItems")
-  employeeAssignments EvaluationItemAssignment[] @relation("EmployeeAssignments")
-  managerAssignments EvaluationItemAssignment[] @relation("AssignedByManager")
-  auditLogs        AuditLog[]
-  closedCycles     PerformanceCycle[] @relation("CycleClosedBy")
-  partialAssessmentsAsEmployee PartialAssessment[] @relation("PartialAssessmentEmployee")
-  partialAssessmentsAsAssessor PartialAssessment[] @relation("PartialAssessmentAssessor")
-  
+
+  company                      Company                    @relation(fields: [companyId], references: [id])
+  manager                      User?                      @relation("ManagerEmployee", fields: [managerId], references: [id])
+  employees                    User[]                     @relation("ManagerEmployee")
+  evaluationsGiven             Evaluation[]               @relation("ManagerEvaluations")
+  evaluationsReceived          Evaluation[]               @relation("EmployeeEvaluations")
+  createdEvaluationItems       EvaluationItem[]           @relation("CreatedEvaluationItems")
+  deadlineAssignments          EvaluationItem[]           @relation("DeadlineSetBy")
+  employeeAssignments          EvaluationItemAssignment[] @relation("EmployeeAssignments")
+  managerAssignments           EvaluationItemAssignment[] @relation("AssignedByManager")
+  auditLogs                    AuditLog[]
+  closedCycles                 PerformanceCycle[]         @relation("CycleClosedBy")
+  partialAssessmentsAsEmployee PartialAssessment[]        @relation("PartialAssessmentEmployee")
+  partialAssessmentsAsAssessor PartialAssessment[]        @relation("PartialAssessmentAssessor")
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  
+
   @@unique([companyId, email])
   @@unique([companyId, username])
   @@unique([companyId, employeeId]) // Employee ID unique per company (HRIS integration)
@@ -74,30 +75,30 @@ model User {
 }
 
 model Evaluation {
-  id           String  @id @default(cuid())
-  employeeId   String
-  managerId    String
-  companyId    String
-  cycleId      String? // Foreign key to PerformanceCycle (nullable for backwards compatibility)
-  periodType   String  // "monthly" | "quarterly" | "semester" | "yearly"
-  periodDate   String  // "2024-Q1" | "2024-03" 
-  
+  id         String  @id @default(cuid())
+  employeeId String
+  managerId  String
+  companyId  String
+  cycleId    String? // Foreign key to PerformanceCycle (nullable for backwards compatibility)
+  periodType String // "monthly" | "quarterly" | "semester" | "yearly"
+  periodDate String // "2024-Q1" | "2024-03" 
+
   // JSON data for flexibility
   evaluationItemsData String? // JSON string - unified OKRs and competencies
-  
-  overallRating    Int?    // 1-5 scale
-  managerComments  String?
-  status          String @default("draft") // "draft" | "submitted" | "approved"
-  
-  employee  User    @relation("EmployeeEvaluations", fields: [employeeId], references: [id])
-  manager   User    @relation("ManagerEvaluations", fields: [managerId], references: [id])
-  company   Company @relation(fields: [companyId], references: [id])
+
+  overallRating   Int? // 1-5 scale
+  managerComments String?
+  status          String  @default("draft") // "draft" | "submitted" | "approved"
+
+  employee  User              @relation("EmployeeEvaluations", fields: [employeeId], references: [id])
+  manager   User              @relation("ManagerEvaluations", fields: [managerId], references: [id])
+  company   Company           @relation(fields: [companyId], references: [id])
   cycle     PerformanceCycle? @relation(fields: [cycleId], references: [id])
   auditLogs AuditLog[]
-  
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  
+
   @@unique([employeeId, periodType, periodDate])
 }
 
@@ -107,68 +108,73 @@ model EvaluationItem {
   cycleId     String? // Foreign key to PerformanceCycle (nullable for backwards compatibility)
   title       String
   description String
-  
+
   // Item type: "okr" or "competency" 
-  type        String  // "okr" | "competency"
-  
+  type String // "okr" | "competency"
+
   // Three-tier assignment system
-  level       String  // "company" | "department" | "manager"
-  createdBy   String  // HR user ID or Manager user ID
-  assignedTo  String? // Department name or specific manager ID
-  
-  active      Boolean @default(true)
-  sortOrder   Int     @default(0)
-  
-  company     Company @relation(fields: [companyId], references: [id])
-  cycle       PerformanceCycle? @relation(fields: [cycleId], references: [id])
-  creator     User    @relation("CreatedEvaluationItems", fields: [createdBy], references: [id])
+  level      String // "company" | "department" | "manager"
+  createdBy  String // HR user ID or Manager user ID
+  assignedTo String? // Department name or specific manager ID
+
+  active    Boolean @default(true)
+  sortOrder Int     @default(0)
+
+  // Evaluation deadline fields
+  evaluationDeadline DateTime?
+  deadlineSetBy      String? // User ID who set the deadline
+
+  company               Company                    @relation(fields: [companyId], references: [id])
+  cycle                 PerformanceCycle?          @relation(fields: [cycleId], references: [id])
+  creator               User                       @relation("CreatedEvaluationItems", fields: [createdBy], references: [id])
+  deadlineSetByUser     User?                      @relation("DeadlineSetBy", fields: [deadlineSetBy], references: [id])
   individualAssignments EvaluationItemAssignment[]
-  partialAssessments PartialAssessment[]
-  
+  partialAssessments    PartialAssessment[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 model EvaluationItemAssignment {
-  id              String @id @default(cuid())
+  id               String @id @default(cuid())
   evaluationItemId String
-  employeeId      String
-  assignedBy      String // Manager who made the assignment
-  companyId       String
-  
-  evaluationItem  EvaluationItem @relation(fields: [evaluationItemId], references: [id], onDelete: Cascade)
-  employee        User @relation("EmployeeAssignments", fields: [employeeId], references: [id])
-  assignedByUser  User @relation("AssignedByManager", fields: [assignedBy], references: [id])
-  company         Company @relation(fields: [companyId], references: [id])
-  
+  employeeId       String
+  assignedBy       String // Manager who made the assignment
+  companyId        String
+
+  evaluationItem EvaluationItem @relation(fields: [evaluationItemId], references: [id], onDelete: Cascade)
+  employee       User           @relation("EmployeeAssignments", fields: [employeeId], references: [id])
+  assignedByUser User           @relation("AssignedByManager", fields: [assignedBy], references: [id])
+  company        Company        @relation(fields: [companyId], references: [id])
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  
+
   @@unique([evaluationItemId, employeeId])
 }
 
 model AuditLog {
-  id           String @id @default(cuid())
+  id           String  @id @default(cuid())
   evaluationId String
   userId       String
   action       String // "created" | "updated" | "submitted" | "approved"
   oldData      String? // JSON snapshot
   newData      String? // JSON snapshot
-  
+
   evaluation Evaluation @relation(fields: [evaluationId], references: [id])
   user       User       @relation(fields: [userId], references: [id])
-  
+
   timestamp DateTime @default(now())
 }
 
 model PerformanceCycle {
-  id        String   @id @default(cuid())
+  id        String    @id @default(cuid())
   companyId String
-  name      String   // "2024 Annual Review", "Q1 2024"
+  name      String // "2024 Annual Review", "Q1 2024"
   startDate DateTime
   endDate   DateTime
-  status    String   @default("active") // "active" | "closed" | "archived"
-  closedBy  String?  // HR user ID who closed it
+  status    String    @default("active") // "active" | "closed" | "archived"
+  closedBy  String? // HR user ID who closed it
   closedAt  DateTime?
 
   company            Company             @relation(fields: [companyId], references: [id])
@@ -188,13 +194,13 @@ model PartialAssessment {
   cycleId          String
   employeeId       String
   evaluationItemId String
-  rating           Int?     // 1-5 scale
+  rating           Int? // 1-5 scale
   comment          String?
-  assessedBy       String   // Manager/HR user ID
+  assessedBy       String // Manager/HR user ID
   assessedAt       DateTime @default(now())
   evaluationDate   DateTime // When the actual evaluation/performance occurred
   isActive         Boolean  @default(true) // Latest version flag
-  assessmentType   String   // "manager_initial" | "hr_adjustment" | "manager_update"
+  assessmentType   String // "manager_initial" | "hr_adjustment" | "manager_update"
   companyId        String
 
   cycle          PerformanceCycle @relation(fields: [cycleId], references: [id])
