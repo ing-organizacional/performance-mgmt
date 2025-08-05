@@ -49,6 +49,7 @@ export interface Translations {
     myEvaluations: string
     selectEmployee: string
     employees: string
+    assignments: string
   }
   
   // Evaluations
@@ -86,6 +87,27 @@ export interface Translations {
     tapToRate: string
     commentPlaceholder: string
     commentGuidance: string
+  }
+  
+  // Assignments
+  assignments: {
+    assignmentManager: string
+    manageOKRsCompetencies: string
+    companyWideItems: string
+    companyWideDescription: string
+    appliedToAllEmployees: string
+    selectEmployeesForBatch: string
+    selectEmployees: string
+    itemsAssigned: string
+    employeesSelected: string
+    assignToSelected: string
+    individualAssignments: string
+    individualDescription: string
+    comingSoon: string
+    createNewDepartmentItems: string
+    newOKR: string
+    newCompetency: string
+    create: string
   }
   
   // OKRs (only commonly used keys)
@@ -194,7 +216,8 @@ export const translations: Record<Language, Translations> = {
       employeeEvaluations: 'Employee Evaluations',
       myEvaluations: 'My Evaluations',
       selectEmployee: 'Select an employee to evaluate',
-      employees: 'employees'
+      employees: 'employees',
+      assignments: 'Assignments'
     },
     evaluations: {
       evaluation: 'Evaluation',
@@ -230,6 +253,25 @@ export const translations: Record<Language, Translations> = {
       tapToRate: 'Tap a star to rate this item',
       commentPlaceholder: 'Provide specific feedback and examples...',
       commentGuidance: 'Include specific examples and actionable suggestions.'
+    },
+    assignments: {
+      assignmentManager: 'Assignment Manager',
+      manageOKRsCompetencies: 'Manage OKRs & Competencies',
+      companyWideItems: 'Company-Wide Items',
+      companyWideDescription: 'These items are set by HR and automatically applied to all employees. You cannot modify these assignments.',
+      appliedToAllEmployees: 'Applied to: All Employees',
+      selectEmployeesForBatch: 'Select Employees for Batch Assignment',
+      selectEmployees: 'Select employees',
+      itemsAssigned: 'items assigned',
+      employeesSelected: 'employee(s) selected for batch assignment',
+      assignToSelected: 'Assign to Selected',
+      individualAssignments: 'Individual Assignments',
+      individualDescription: 'Create and assign specific OKRs/competencies to individual employees based on their role and development needs.',
+      comingSoon: 'Individual assignment interface coming soon...',
+      createNewDepartmentItems: 'Create New Department Items',
+      newOKR: 'New OKR',
+      newCompetency: 'New Competency',
+      create: 'Create'
     },
     okrs: {
       objective: 'Objective',
@@ -330,7 +372,8 @@ export const translations: Record<Language, Translations> = {
       employeeEvaluations: 'Evaluaciones de Empleados',
       myEvaluations: 'Mis Evaluaciones',
       selectEmployee: 'Selecciona un empleado para evaluar',
-      employees: 'empleados'
+      employees: 'empleados',
+      assignments: 'Asignaciones'
     },
     evaluations: {
       evaluation: 'Evaluación',
@@ -366,6 +409,25 @@ export const translations: Record<Language, Translations> = {
       tapToRate: 'Toca una estrella para calificar',
       commentPlaceholder: 'Proporciona comentarios específicos y ejemplos...',
       commentGuidance: 'Incluye ejemplos específicos y sugerencias prácticas.'
+    },
+    assignments: {
+      assignmentManager: 'Gestor de Asignaciones',
+      manageOKRsCompetencies: 'Gestionar OKRs y Competencias',
+      companyWideItems: 'Elementos de Toda la Empresa',
+      companyWideDescription: 'Estos elementos son establecidos por RRHH y se aplican automáticamente a todos los empleados. No puedes modificar estas asignaciones.',
+      appliedToAllEmployees: 'Aplicado a: Todos los Empleados',
+      selectEmployeesForBatch: 'Seleccionar Empleados para Asignación Masiva',
+      selectEmployees: 'Seleccionar empleados',
+      itemsAssigned: 'elementos asignados',
+      employeesSelected: 'empleado(s) seleccionado(s) para asignación masiva',
+      assignToSelected: 'Asignar a Seleccionados',
+      individualAssignments: 'Asignaciones Individuales',
+      individualDescription: 'Crear y asignar OKRs/competencias específicos a empleados individuales basándose en su rol y necesidades de desarrollo.',
+      comingSoon: 'La interfaz de asignación individual estará disponible pronto...',
+      createNewDepartmentItems: 'Crear Nuevos Elementos Departamentales',
+      newOKR: 'Nuevo OKR',
+      newCompetency: 'Nueva Competencia',
+      create: 'Crear'
     },
     okrs: {
       objective: 'Objetivo',

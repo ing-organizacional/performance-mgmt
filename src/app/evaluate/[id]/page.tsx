@@ -75,8 +75,8 @@ export default function EvaluatePage() {
 
   const fetchEvaluationData = async () => {
     try {
-      // Fetch evaluation items from database
-      const itemsResponse = await fetch('/api/evaluation-items')
+      // Fetch evaluation items for this specific employee
+      const itemsResponse = await fetch(`/api/evaluation-items?employeeId=${params.id}`)
       if (itemsResponse.ok) {
         const itemsData = await itemsResponse.json()
         setEvaluationItems(itemsData.items || [])

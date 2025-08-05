@@ -84,6 +84,13 @@ export default function EvaluationsPage() {
               <p className="text-sm text-gray-600 mt-1">{t.nav.selectEmployee}</p>
             </div>
             <div className="flex items-center gap-2">
+              <button
+                onClick={() => router.push('/evaluations/assignments')}
+                className="flex items-center space-x-1 px-3 py-1.5 bg-blue-100 text-blue-700 text-sm font-medium rounded-lg hover:bg-blue-200 transition-colors"
+              >
+                <span>⚙️</span>
+                <span>{t.nav.assignments}</span>
+              </button>
               <LanguageSwitcher />
               <button
                 onClick={() => signOut({ callbackUrl: '/login' })}

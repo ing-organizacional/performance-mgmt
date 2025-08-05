@@ -19,6 +19,7 @@ model Company {
   users       User[]
   evaluations Evaluation[]
   evaluationItems EvaluationItem[]
+  evaluationItemAssignments EvaluationItemAssignment[]
   
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -53,6 +54,8 @@ model User {
   evaluationsGiven Evaluation[] @relation("ManagerEvaluations")
   evaluationsReceived Evaluation[] @relation("EmployeeEvaluations")
   createdEvaluationItems EvaluationItem[] @relation("CreatedEvaluationItems")
+  employeeAssignments EvaluationItemAssignment[] @relation("EmployeeAssignments")
+  managerAssignments EvaluationItemAssignment[] @relation("AssignedByManager")
   auditLogs        AuditLog[]
   
   createdAt DateTime @default(now())
@@ -107,9 +110,28 @@ model EvaluationItem {
   
   company     Company @relation(fields: [companyId], references: [id])
   creator     User    @relation("CreatedEvaluationItems", fields: [createdBy], references: [id])
+  individualAssignments EvaluationItemAssignment[]
   
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model EvaluationItemAssignment {
+  id              String @id @default(cuid())
+  evaluationItemId String
+  employeeId      String
+  assignedBy      String // Manager who made the assignment
+  companyId       String
+  
+  evaluationItem  EvaluationItem @relation(fields: [evaluationItemId], references: [id], onDelete: Cascade)
+  employee        User @relation("EmployeeAssignments", fields: [employeeId], references: [id])
+  assignedByUser  User @relation("AssignedByManager", fields: [assignedBy], references: [id])
+  company         Company @relation(fields: [companyId], references: [id])
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@unique([evaluationItemId, employeeId])
 }
 
 model AuditLog {

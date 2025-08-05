@@ -75,7 +75,7 @@ export async function seedDatabase() {
         passwordHash: await bcrypt.hash('password123', 12),
         userType: 'office',
         loginMethod: 'email',
-        department: 'Operations',
+        department: 'Sales',
         active: true
       }
     })
@@ -102,15 +102,23 @@ export async function seedDatabase() {
         userType: 'operational',
         loginMethod: 'username',
         requiresPinOnly: true,
-        department: 'Manufacturing',
+        department: 'Sales',
         shift: i <= 2 ? 'Day' : 'Night',
         active: true
       }
     })
   }
 
-  // Create three-tier evaluation items structure
-  const evaluationItems = [
+  // Create three-tier evaluation items structure  
+  const evaluationItems: Array<{
+    type: string
+    level: string  
+    title: string
+    description: string
+    createdBy: string
+    assignedTo?: string
+    sortOrder: number
+  }> = [
     // 2 Company-wide OKRs (set by HR - read-only)
     { 
       type: 'okr', 
@@ -154,6 +162,7 @@ export async function seedDatabase() {
       title: 'Improve Department Efficiency by 15%', 
       description: 'Streamline processes and reduce waste in daily operations',
       createdBy: manager.id,
+      assignedTo: 'Sales', // Department name
       sortOrder: 5 
     },
     { 
@@ -162,6 +171,7 @@ export async function seedDatabase() {
       title: 'Reduce Customer Response Time', 
       description: 'Achieve average response time of under 2 hours for all customer inquiries',
       createdBy: manager.id,
+      assignedTo: 'Sales', // Department name
       sortOrder: 6 
     },
     
@@ -172,6 +182,7 @@ export async function seedDatabase() {
       title: 'Personal Skill Development', 
       description: 'Complete assigned training and demonstrate new skills in daily work',
       createdBy: manager.id,
+      assignedTo: manager.id, // Manager ID
       sortOrder: 7 
     },
     
@@ -182,6 +193,7 @@ export async function seedDatabase() {
       title: 'Problem Solving', 
       description: 'Identify issues proactively and develop creative solutions independently',
       createdBy: manager.id,
+      assignedTo: manager.id, // Manager ID
       sortOrder: 8 
     }
   ]
@@ -200,7 +212,7 @@ export async function seedDatabase() {
         type: itemData.type,
         level: itemData.level,
         createdBy: itemData.createdBy,
-        assignedTo: null,
+        assignedTo: itemData.assignedTo || null,
         sortOrder: itemData.sortOrder,
         active: true
       }
