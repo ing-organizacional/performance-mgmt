@@ -21,8 +21,7 @@ interface EvaluationData {
   }
   periodType: string
   periodDate: string
-  okrsData: any
-  competenciesData: any
+  evaluationItemsData: any[]
   overallRating: number | null
   managerComments: string | null
   status: string
@@ -62,8 +61,7 @@ export async function getEvaluationData(evaluationId: string): Promise<Evaluatio
 
   return {
     ...evaluation,
-    okrsData: evaluation.okrsData ? JSON.parse(evaluation.okrsData) : {},
-    competenciesData: evaluation.competenciesData ? JSON.parse(evaluation.competenciesData) : {}
+    evaluationItemsData: evaluation.evaluationItemsData ? JSON.parse(evaluation.evaluationItemsData) : []
   }
 }
 
@@ -110,8 +108,7 @@ export async function getCompanyEvaluations(
 
   return evaluations.map(evaluation => ({
     ...evaluation,
-    okrsData: evaluation.okrsData ? JSON.parse(evaluation.okrsData) : {},
-    competenciesData: evaluation.competenciesData ? JSON.parse(evaluation.competenciesData) : {}
+    evaluationItemsData: evaluation.evaluationItemsData ? JSON.parse(evaluation.evaluationItemsData) : []
   }))
 }
 
@@ -177,61 +174,31 @@ export function generatePDF(evaluation: EvaluationData): Buffer {
     yPosition += 15
   }
 
-  // OKRs Section
-  if (evaluation.okrsData && Object.keys(evaluation.okrsData).length > 0) {
+  // Evaluation Items Section
+  if (evaluation.evaluationItemsData && evaluation.evaluationItemsData.length > 0) {
     doc.setFontSize(16)
-    doc.text('Objectives and Key Results (OKRs)', 20, yPosition)
+    doc.text('Evaluation Items', 20, yPosition)
     yPosition += 10
 
-    Object.entries(evaluation.okrsData).forEach(([key, okr]: [string, any]) => {
+    evaluation.evaluationItemsData.forEach((item: any) => {
       doc.setFontSize(12)
-      doc.text(`${okr.title}`, 20, yPosition)
+      const itemType = item.type === 'okr' ? '🎯 OKR' : '⭐ Competency'
+      doc.text(`${itemType}: ${item.title}`, 20, yPosition)
       yPosition += 6
       
-      if (okr.rating) {
-        doc.text(`Rating: ${okr.rating}/5 - ${getRatingText(okr.rating)}`, 25, yPosition)
+      if (item.rating) {
+        doc.text(`Rating: ${item.rating}/5 - ${getRatingText(item.rating)}`, 25, yPosition)
         yPosition += 6
       }
       
-      if (okr.comment) {
-        const lines = doc.splitTextToSize(`Comment: ${okr.comment}`, 160)
+      if (item.comment) {
+        const lines = doc.splitTextToSize(`Comment: ${item.comment}`, 160)
         doc.text(lines, 25, yPosition)
         yPosition += (lines.length * 6)
       }
       yPosition += 8
     })
     yPosition += 10
-  }
-
-  // Competencies Section
-  if (evaluation.competenciesData && Object.keys(evaluation.competenciesData).length > 0) {
-    // Check if we need a new page
-    if (yPosition > 250) {
-      doc.addPage()
-      yPosition = 20
-    }
-
-    doc.setFontSize(16)
-    doc.text('Competencies', 20, yPosition)
-    yPosition += 10
-
-    Object.entries(evaluation.competenciesData).forEach(([key, competency]: [string, any]) => {
-      doc.setFontSize(12)
-      doc.text(`${competency.title}`, 20, yPosition)
-      yPosition += 6
-      
-      if (competency.rating) {
-        doc.text(`Rating: ${competency.rating}/5 - ${getRatingText(competency.rating)}`, 25, yPosition)
-        yPosition += 6
-      }
-      
-      if (competency.comment) {
-        const lines = doc.splitTextToSize(`Comment: ${competency.comment}`, 160)
-        doc.text(lines, 25, yPosition)
-        yPosition += (lines.length * 6)
-      }
-      yPosition += 8
-    })
   }
 
   // Manager Comments
@@ -288,36 +255,19 @@ export function generateExcel(evaluations: EvaluationData[]): Buffer {
   const detailedData: any[] = []
   
   evaluations.forEach(evaluation => {
-    // Add OKRs
-    if (evaluation.okrsData) {
-      Object.entries(evaluation.okrsData).forEach(([key, okr]: [string, any]) => {
+    // Add Evaluation Items
+    if (evaluation.evaluationItemsData && evaluation.evaluationItemsData.length > 0) {
+      evaluation.evaluationItemsData.forEach((item: any) => {
         detailedData.push({
           'Employee Name': evaluation.employee.name,
           'Employee ID': evaluation.employee.employeeId || '',
           'Department': evaluation.employee.department || '',
           'Manager': evaluation.manager.name,
           'Period': `${evaluation.periodType} ${evaluation.periodDate}`,
-          'Type': 'OKR',
-          'Item': okr.title || '',
-          'Rating': okr.rating || '',
-          'Comment': okr.comment || ''
-        })
-      })
-    }
-
-    // Add Competencies
-    if (evaluation.competenciesData) {
-      Object.entries(evaluation.competenciesData).forEach(([key, competency]: [string, any]) => {
-        detailedData.push({
-          'Employee Name': evaluation.employee.name,
-          'Employee ID': evaluation.employee.employeeId || '',
-          'Department': evaluation.employee.department || '',
-          'Manager': evaluation.manager.name,
-          'Period': `${evaluation.periodType} ${evaluation.periodDate}`,
-          'Type': 'Competency',
-          'Item': competency.title || '',
-          'Rating': competency.rating || '',
-          'Comment': competency.comment || ''
+          'Type': item.type === 'okr' ? 'OKR' : 'Competency',
+          'Item': item.title || '',
+          'Rating': item.rating || '',
+          'Comment': item.comment || ''
         })
       })
     }
@@ -345,8 +295,8 @@ function getRatingText(rating: number): string {
   }
 }
 
-function generateAnalytics(evaluations: EvaluationData[]) {
-  const analytics = []
+function generateAnalytics(evaluations: EvaluationData[]): any[] {
+  const analytics: any[] = []
 
   // Rating distribution
   const ratingCounts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }

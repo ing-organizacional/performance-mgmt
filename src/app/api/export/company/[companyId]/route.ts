@@ -28,7 +28,7 @@ export async function GET(
       const excelBuffer = generateExcel(evaluations)
       const filename = `evaluations_${companyName}${periodSuffix}.xlsx`
       
-      return new NextResponse(excelBuffer, {
+      return new NextResponse(new Uint8Array(excelBuffer), {
         headers: {
           'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
           'Content-Disposition': `attachment; filename="${filename}"`,

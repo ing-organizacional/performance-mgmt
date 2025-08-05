@@ -106,7 +106,7 @@ export default function LoginPage() {
                   style={{ 
                     WebkitTextSecurity: showPassword ? 'none' : 'disc',
                     color: '#111827'
-                  }}
+                  } as React.CSSProperties & { WebkitTextSecurity?: string }}
                 />
                 <button
                   type="button"

@@ -87,43 +87,10 @@ export interface Translations {
     commentPlaceholder: string
   }
   
-  // OKRs & Competencies
+  // OKRs (only commonly used keys)
   okrs: {
-    increaseSales: string
-    increaseSalesDesc: string
-    launchProduct: string
-    launchProductDesc: string
-    customerSatisfaction: string
-    customerSatisfactionDesc: string
-    teamDevelopment: string
-    teamDevelopmentDesc: string
-    processOptimization: string
-    processOptimizationDesc: string
     objective: string
     keyResults: string
-  }
-  
-  competencies: {
-    communication: string
-    communicationDesc: string
-    leadership: string
-    leadershipDesc: string
-    problemSolving: string
-    problemSolvingDesc: string
-    teamwork: string
-    teamworkDesc: string
-    adaptability: string
-    adaptabilityDesc: string
-  }
-  
-  // Departments & Roles
-  departments: {
-    operations: string
-    manufacturing: string
-    sales: string
-    hr: string
-    it: string
-    finance: string
   }
   
   // Dashboard
@@ -263,38 +230,8 @@ export const translations: Record<Language, Translations> = {
       commentPlaceholder: 'Please provide specific feedback (minimum 20 characters required)...'
     },
     okrs: {
-      increaseSales: 'Increase Sales by 20%',
-      increaseSalesDesc: 'Drive revenue growth through new client acquisition',
-      launchProduct: 'Launch New Product Line',
-      launchProductDesc: 'Successfully launch and market new product offering',
-      customerSatisfaction: 'Improve Customer Satisfaction',
-      customerSatisfactionDesc: 'Achieve 90%+ customer satisfaction rating',
-      teamDevelopment: 'Team Development',
-      teamDevelopmentDesc: 'Mentor and develop team members skills',
-      processOptimization: 'Process Optimization',
-      processOptimizationDesc: 'Streamline workflows to improve efficiency',
       objective: 'Objective',
       keyResults: 'Key Results'
-    },
-    competencies: {
-      communication: 'Communication',
-      communicationDesc: 'Clear and effective verbal and written communication',
-      leadership: 'Leadership',
-      leadershipDesc: 'Ability to guide and motivate team members',
-      problemSolving: 'Problem Solving',
-      problemSolvingDesc: 'Analytical thinking and creative solutions',
-      teamwork: 'Teamwork',
-      teamworkDesc: 'Collaboration and support of colleagues',
-      adaptability: 'Adaptability',
-      adaptabilityDesc: 'Flexibility in changing environments'
-    },
-    departments: {
-      operations: 'Operations',
-      manufacturing: 'Manufacturing',
-      sales: 'Sales',
-      hr: 'HR',
-      it: 'IT',
-      finance: 'Finance'
     },
     dashboard: {
       hrDashboard: 'HR Dashboard',
@@ -428,38 +365,8 @@ export const translations: Record<Language, Translations> = {
       commentPlaceholder: 'Proporciona comentarios específicos (mínimo 20 caracteres requeridos)...'
     },
     okrs: {
-      increaseSales: 'Aumentar Ventas en 20%',
-      increaseSalesDesc: 'Impulsar el crecimiento de ingresos mediante la adquisición de nuevos clientes',
-      launchProduct: 'Lanzar Nueva Línea de Productos',
-      launchProductDesc: 'Lanzar y comercializar exitosamente nueva oferta de productos',
-      customerSatisfaction: 'Mejorar Satisfacción del Cliente',
-      customerSatisfactionDesc: 'Lograr una calificación de satisfacción del cliente del 90%+',
-      teamDevelopment: 'Desarrollo del Equipo',
-      teamDevelopmentDesc: 'Mentorear y desarrollar las habilidades de los miembros del equipo',
-      processOptimization: 'Optimización de Procesos',
-      processOptimizationDesc: 'Optimizar flujos de trabajo para mejorar la eficiencia',
       objective: 'Objetivo',
       keyResults: 'Resultados Clave'
-    },
-    competencies: {
-      communication: 'Comunicación',
-      communicationDesc: 'Comunicación verbal y escrita clara y efectiva',
-      leadership: 'Liderazgo',
-      leadershipDesc: 'Capacidad para guiar y motivar a los miembros del equipo',
-      problemSolving: 'Resolución de Problemas',
-      problemSolvingDesc: 'Pensamiento analítico y soluciones creativas',
-      teamwork: 'Trabajo en Equipo',
-      teamworkDesc: 'Colaboración y apoyo a los colegas',
-      adaptability: 'Adaptabilidad',
-      adaptabilityDesc: 'Flexibilidad en entornos cambiantes'
-    },
-    departments: {
-      operations: 'Operaciones',
-      manufacturing: 'Manufactura',
-      sales: 'Ventas',
-      hr: 'RRHH',
-      it: 'TI',
-      finance: 'Finanzas'
     },
     dashboard: {
       hrDashboard: 'Panel de RRHH',

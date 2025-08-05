@@ -14,6 +14,10 @@ interface User {
   username?: string
   role: string
   department?: string
+  userType: string
+  managerId?: string
+  companyId: string
+  active: boolean
   company: {
     name: string
     code: string
@@ -22,8 +26,6 @@ interface User {
     name: string
     email?: string
   }
-  active: boolean
-  userType: string
   _count: {
     employees: number
     evaluationsReceived: number
@@ -42,7 +44,7 @@ export default function UsersPage() {
   const [showUserForm, setShowUserForm] = useState(false)
   const [editingUser, setEditingUser] = useState<User | undefined>(undefined)
   const [companies, setCompanies] = useState([])
-  const [managers, setManagers] = useState([])
+  const [managers, setManagers] = useState<any[]>([])
 
   useEffect(() => {
     if (status === 'loading') return

@@ -23,7 +23,7 @@ export async function GET(
       
       const filename = `evaluation_${evaluation.employee.name.replace(/\s+/g, '_')}_${evaluation.periodDate}.pdf`
       
-      return new NextResponse(pdfBuffer, {
+      return new NextResponse(new Uint8Array(pdfBuffer), {
         headers: {
           'Content-Type': 'application/pdf',
           'Content-Disposition': `attachment; filename="${filename}"`,

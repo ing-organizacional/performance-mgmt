@@ -9,6 +9,7 @@ export interface AuthUser {
   role: string
   companyId: string
   userType: 'office' | 'operational'
+  department?: string
 }
 
 export async function authenticateUser(
