@@ -193,8 +193,8 @@ export default function UsersPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Fixed Header */}
-      <div className="fixed top-0 left-0 right-0 z-50 bg-white shadow-sm border-b border-gray-200">
+      {/* Header */}
+      <div className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-20">
         <div className="px-4 py-3">
           {/* Title Section */}
           <div className="flex items-center justify-between mb-3">
@@ -225,18 +225,24 @@ export default function UsersPage() {
           
           {/* Actions Section */}
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
+            <div className="flex items-center gap-2">
               <button
                 onClick={handleAddUser}
-                className="px-3 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 active:scale-95 transition-all duration-150 touch-manipulation"
+                className="flex items-center justify-center space-x-1 px-2 py-2 bg-blue-100 text-blue-700 text-xs font-medium rounded-lg hover:bg-blue-200 active:scale-95 transition-all duration-150 touch-manipulation whitespace-nowrap tracking-tighter leading-none"
               >
-                Add User
+                <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M8 9a3 3 0 100-6 3 3 0 000 6zM8 11a6 6 0 016 6H2a6 6 0 016-6zM16 7a1 1 0 10-2 0v1h-1a1 1 0 100 2h1v1a1 1 0 102 0v-1h1a1 1 0 100-2h-1V7z" />
+                </svg>
+                <span>Add User</span>
               </button>
               <button
                 onClick={() => router.push('/users/advanced')}
-                className="px-3 py-2 bg-orange-600 text-white rounded-lg text-sm font-medium hover:bg-orange-700 active:scale-95 transition-all duration-150 touch-manipulation"
+                className="flex items-center justify-center space-x-1 px-2 py-2 bg-orange-100 text-orange-700 text-xs font-medium rounded-lg hover:bg-orange-200 active:scale-95 transition-all duration-150 touch-manipulation whitespace-nowrap tracking-tighter leading-none"
               >
-                {t.users.advanced}
+                <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd" />
+                </svg>
+                <span>{t.users.advanced}</span>
               </button>
             </div>
             <LanguageSwitcher />
@@ -244,26 +250,25 @@ export default function UsersPage() {
         </div>
       </div>
 
-      {/* Main Content with top padding to account for fixed header */}
-      <div className="pt-28 px-4 py-6 space-y-6">
-        {/* User Management Section */}
-        <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
-          {/* Search and Filter */}
-          <div className="flex flex-col sm:flex-row gap-4 mb-6">
+      {/* Main Content */}
+      <div className="px-4 py-6 space-y-6">
+        {/* Search and Filter Section */}
+        <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
+          <div className="flex flex-col sm:flex-row gap-3">
             <div className="flex-1">
               <input
                 type="text"
                 placeholder={t.users.searchUsers}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-gray-900"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-gray-900"
               />
             </div>
             <div>
               <select
                 value={filterRole}
                 onChange={(e) => setFilterRole(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-gray-900"
               >
                 <option value="">{t.users.allRoles}</option>
                 <option value="hr">{t.auth.hr}</option>
@@ -272,66 +277,103 @@ export default function UsersPage() {
               </select>
             </div>
           </div>
+        </div>
 
-          {/* User List */}
-          <div className="space-y-3">
-            {filteredUsers.map((user) => (
-              <div key={user.id} className="border border-gray-200 rounded-lg p-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3">
-                      <h3 className="font-medium text-gray-900">{user.name}</h3>
-                      <span className={`px-2 py-1 text-xs rounded-full ${
-                        user.role === 'hr' ? 'bg-purple-100 text-purple-800' :
-                        user.role === 'manager' ? 'bg-blue-100 text-blue-800' :
-                        'bg-gray-100 text-gray-800'
+        {/* User List Section */}
+        <div className="space-y-3">
+          {filteredUsers.map((user) => (
+            <div key={user.id} className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
+              <div className="flex items-start justify-between">
+                <div className="flex items-center space-x-3 flex-1">
+                  <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+                    <svg className="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <h3 className="font-semibold text-gray-900 truncate">{user.name}</h3>
+                      <span className={`px-2 py-0.5 text-xs rounded-full font-medium ${
+                        user.role === 'hr' ? 'bg-purple-100 text-purple-700' :
+                        user.role === 'manager' ? 'bg-blue-100 text-blue-700' :
+                        'bg-gray-100 text-gray-700'
                       }`}>
                         {getRoleDisplayName(user.role)}
                       </span>
-                      <span className={`px-2 py-1 text-xs rounded-full ${
-                        user.active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                      <span className={`px-2 py-0.5 text-xs rounded-full font-medium ${
+                        user.active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
                       }`}>
                         {user.active ? t.users.active : t.users.inactive}
                       </span>
                     </div>
-                    <div className="mt-1 text-sm text-gray-600">
-                      <p>{user.email || user.username} • {user.company.name}</p>
-                      {user.department && <p>{t.users.department}: {user.department}</p>}
-                      {user.manager && <p>{t.users.manager}: {user.manager.name}</p>}
+                    <p className="text-sm text-gray-600 mb-1">
+                      {user.email || user.username} • {user.company.name}
+                    </p>
+                    {user.department && (
+                      <p className="text-xs text-gray-500">
+                        {t.users.department}: {user.department}
+                      </p>
+                    )}
+                    {user.manager && (
+                      <p className="text-xs text-gray-500">
+                        {t.users.manager}: {user.manager.name}
+                      </p>
+                    )}
+                    <div className="mt-2 flex items-center space-x-4 text-xs text-gray-500">
+                      {user._count.employees > 0 && (
+                        <span className="flex items-center space-x-1">
+                          <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
+                          </svg>
+                          <span>{t.users.manages} {user._count.employees}</span>
+                        </span>
+                      )}
+                      <span className="flex items-center space-x-1">
+                        <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" clipRule="evenodd" />
+                        </svg>
+                        <span>{user._count.evaluationsReceived} {t.users.evaluationsReceived}</span>
+                      </span>
                     </div>
-                    <div className="mt-2 text-xs text-gray-500">
-                      {user._count.employees > 0 && <span>{t.users.manages} {user._count.employees} employees • </span>}
-                      {user._count.evaluationsReceived} {t.users.evaluationsReceived}
-                    </div>
-                  </div>
-                  
-                  {/* Action Buttons */}
-                  <div className="flex items-center gap-2 ml-4">
-                    <button
-                      onClick={() => handleEditUser(user)}
-                      className="px-3 py-1 text-sm text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded transition-colors"
-                    >
-                      {t.common.edit}
-                    </button>
-                    <button
-                      onClick={() => handleDeleteUser(user.id, user.name)}
-                      className="px-3 py-1 text-sm text-red-600 hover:text-red-800 hover:bg-red-50 rounded transition-colors"
-                    >
-                      {t.common.delete}
-                    </button>
                   </div>
                 </div>
+                
+                {/* Action Buttons */}
+                <div className="flex items-center gap-1 ml-3">
+                  <button
+                    onClick={() => handleEditUser(user)}
+                    className="p-2 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-colors"
+                    title={t.common.edit}
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                  </button>
+                  <button
+                    onClick={() => handleDeleteUser(user.id, user.name)}
+                    className="p-2 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg transition-colors"
+                    title={t.common.delete}
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                  </button>
+                </div>
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
 
           {filteredUsers.length === 0 && (
-            <div className="text-center py-8 text-gray-500">
-              {t.users.noUsersFound}
+            <div className="bg-white rounded-xl border border-gray-200 p-8 shadow-sm text-center">
+              <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
+                <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
+                </svg>
+              </div>
+              <p className="text-gray-500">{t.users.noUsersFound}</p>
             </div>
           )}
         </div>
-
       </div>
 
       {/* User Form Modal */}
