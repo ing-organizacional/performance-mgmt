@@ -1,12 +1,7 @@
-'use client'
-
-import { useSession, signOut } from 'next-auth/react'
-import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
-import { useLanguage } from '@/contexts/LanguageContext'
-import LanguageSwitcher from '@/components/LanguageSwitcher'
-import CycleStatusBanner from '@/components/CycleStatusBanner'
-import type { EvaluationCycle } from '@/types'
+import { auth } from '@/auth'
+import { redirect } from 'next/navigation'
+import { prisma } from '@/lib/prisma-client'
+import EvaluationsClient from './EvaluationsClient'
 
 interface Employee {
   id: string
@@ -32,204 +27,118 @@ interface TeamSummary {
   averageScore: number
 }
 
-export default function EvaluationsPage() {
-  const { data: session, status } = useSession()
-  const router = useRouter()
-  const [employees, setEmployees] = useState<Employee[]>([])
-  const [teamSummary, setTeamSummary] = useState<TeamSummary | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [currentCycleId, setCurrentCycleId] = useState<string | null>(null)
-  const { t } = useLanguage()
-
-  const fetchTeamData = async () => {
-    try {
-      const response = await fetch('/api/manager/team')
-      const data = await response.json()
-      
-      if (data.success) {
-        setEmployees(data.employees)
-        setTeamSummary(data.summary)
-      }
-
-      // Also fetch current active cycle
-      try {
-        const cyclesResponse = await fetch('/api/admin/cycles')
-        if (cyclesResponse.ok) {
-          const cyclesData = await cyclesResponse.json()
-          const activeCycle = cyclesData.cycles?.find((cycle: EvaluationCycle) => cycle.status === 'active')
-          if (activeCycle) {
-            setCurrentCycleId(activeCycle.id)
-          }
+async function getTeamData(userId: string, userRole: string, companyId: string) {
+  // Get all employees managed by this user
+  const employees = await prisma.user.findMany({
+    where: {
+      managerId: userId,
+      active: true
+    },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      department: true,
+      role: true,
+      _count: {
+        select: {
+          evaluationsReceived: true
         }
-      } catch (cycleError) {
-        console.log('Could not fetch cycle info (might not be HR):', cycleError)
+      },
+      evaluationsReceived: {
+        select: {
+          id: true,
+          status: true,
+          overallRating: true,
+          periodDate: true
+        },
+        orderBy: {
+          createdAt: 'desc'
+        },
+        take: 1 // Get only the latest evaluation
       }
-    } catch (error) {
-      console.error('Error fetching team data:', error)
-    } finally {
-      setLoading(false)
+    },
+    orderBy: {
+      name: 'asc'
     }
+  })
+
+  // Calculate team summary
+  let totalCompleted = 0
+  let totalInProgress = 0
+  let totalRatings = 0
+  let ratingSum = 0
+
+  employees.forEach(employee => {
+    const latestEval = employee.evaluationsReceived[0]
+    if (latestEval) {
+      if (latestEval.status === 'submitted' || latestEval.status === 'approved' || latestEval.status === 'completed') {
+        totalCompleted++
+        if (latestEval.overallRating) {
+          totalRatings++
+          ratingSum += latestEval.overallRating
+        }
+      } else if (latestEval.status === 'draft') {
+        totalInProgress++
+      }
+    }
+  })
+
+  const summary: TeamSummary = {
+    totalEmployees: employees.length,
+    completedEvaluations: totalCompleted,
+    inProgressEvaluations: totalInProgress,
+    pendingEvaluations: employees.length - totalCompleted - totalInProgress,
+    averageScore: totalRatings > 0 ? ratingSum / totalRatings : 0
   }
 
-  useEffect(() => {
-    if (status === 'loading') return
-    
-    if (!session) {
-      router.push('/login')
-      return
-    }
-
-    fetchTeamData()
-  }, [session, status, router])
-
-  if (status === 'loading' || loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-lg">{t.common.loading}</div>
-      </div>
-    )
+  // Get current active cycle
+  let currentCycleId: string | null = null
+  if (userRole === 'hr') {
+    const activeCycle = await prisma.performanceCycle.findFirst({
+      where: {
+        companyId,
+        status: 'active'
+      },
+      orderBy: {
+        createdAt: 'desc'
+      }
+    })
+    currentCycleId = activeCycle?.id || null
   }
+
+  return {
+    employees: employees as Employee[],
+    summary,
+    currentCycleId
+  }
+}
+
+export default async function EvaluationsPage() {
+  const session = await auth()
+  
+  if (!session?.user?.id) {
+    redirect('/login')
+  }
+
+  const userId = session.user.id
+  const userRole = session.user.role
+  const companyId = session.user.companyId
+
+  // Only managers and HR can access this page
+  if (userRole !== 'manager' && userRole !== 'hr') {
+    redirect('/my-evaluations')
+  }
+
+  // Fetch team data directly from database
+  const { employees, summary, currentCycleId } = await getTeamData(userId, userRole, companyId)
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-20">
-        <div className="px-4 py-3">
-          {/* Title Section */}
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-3 min-w-0 flex-1">
-              <button
-                onClick={() => router.back()}
-                className="p-2 -ml-2 text-gray-600 hover:text-gray-900"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                </svg>
-              </button>
-              <div className="min-w-0 flex-1">
-                <h1 className="text-lg font-semibold text-gray-900 truncate">{t.nav.employeeEvaluations}</h1>
-                <p className="text-xs text-gray-500">{t.nav.selectEmployee}</p>
-              </div>
-            </div>
-            <button
-              onClick={() => signOut({ callbackUrl: '/login' })}
-              className="flex items-center justify-center w-9 h-9 bg-red-600 text-white rounded-lg hover:bg-red-700 active:scale-95 transition-all duration-150 touch-manipulation ml-3"
-              title={t.auth.signOut}
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-              </svg>
-            </button>
-          </div>
-          
-          {/* Actions Section */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => router.push('/evaluations/assignments')}
-                className="flex items-center justify-center space-x-1 px-2 py-2 bg-blue-100 text-blue-700 text-xs font-medium rounded-lg hover:bg-blue-200 active:scale-95 transition-all duration-150 touch-manipulation whitespace-nowrap tracking-tighter leading-none"
-              >
-                <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd" />
-                </svg>
-                <span>{t.nav.assignments}</span>
-              </button>
-            </div>
-            <LanguageSwitcher />
-          </div>
-        </div>
-      </div>
-
-      {/* Cycle Status Banner */}
-      <div className="px-4 pt-3">
-        <CycleStatusBanner 
-          cycleId={currentCycleId} 
-          userRole={session?.user?.role}
-        />
-      </div>
-
-      {/* Fixed Team Summary Card */}
-      {teamSummary && (
-        <div className="sticky top-[85px] z-10 bg-gray-50 px-4 pt-3 pb-2">
-          <div className="bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
-            <h2 className="text-base font-semibold text-gray-900 mb-3">{t.evaluations.teamSummary}</h2>
-            <div className="grid grid-cols-2 gap-3">
-              <div className="text-center">
-                <div className="text-xl font-bold text-orange-600">{teamSummary.pendingEvaluations}</div>
-                <div className="text-xs text-gray-600">{t.evaluations.pendingReviews}</div>
-              </div>
-              <div className="text-center">
-                <div className="text-xl font-bold text-blue-600">
-                  {teamSummary.averageScore > 0 ? teamSummary.averageScore.toFixed(1) : '—'}
-                </div>
-                <div className="text-xs text-gray-600">{t.evaluations.teamAverage}</div>
-              </div>
-            </div>
-            <div className="mt-3 pt-3 border-t border-gray-200">
-              <div className="flex justify-between text-xs">
-                <span className="text-green-600">✅ {teamSummary.completedEvaluations}</span>
-                <span className="text-yellow-600">🔄 {teamSummary.inProgressEvaluations}</span>
-                <span className="text-gray-500">⭕ {teamSummary.totalEmployees - teamSummary.completedEvaluations - teamSummary.inProgressEvaluations}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Employee List */}
-      <div className="px-4 pb-24 space-y-3">
-        {employees.map((employee) => {
-          const getEvaluationStatus = () => {
-            const latestEval = employee.evaluationsReceived[0]
-            if (!latestEval) return { status: 'empty', icon: '⭕', color: 'text-gray-500', label: t.evaluations.notStarted }
-            if (latestEval.status === 'submitted' || latestEval.status === 'approved') {
-              return { status: 'completed', icon: '✅', color: 'text-green-600', label: t.evaluations.completed }
-            }
-            return { status: 'inprogress', icon: '🔄', color: 'text-yellow-600', label: t.evaluations.inProgress }
-          }
-          
-          const statusInfo = getEvaluationStatus()
-          
-          return (
-            <div
-              key={employee.id}
-              onClick={() => router.push(`/evaluate/${employee.id}`)}
-              className="bg-white rounded-lg border border-gray-200 p-5 min-h-[80px] shadow-sm hover:shadow-md active:scale-[0.98] active:bg-gray-50 transition-all duration-150 cursor-pointer touch-manipulation"
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <h3 className="text-base font-medium text-gray-900 truncate">
-                      {employee.name}
-                    </h3>
-                    <span className={`text-sm ${statusInfo.color}`}>
-                      {statusInfo.icon}
-                    </span>
-                  </div>
-                  <p className="text-sm text-gray-500 truncate">
-                    {employee.department}
-                  </p>
-                  <p className={`text-xs ${statusInfo.color} mt-1`}>
-                    {statusInfo.label}
-                  </p>
-                </div>
-                <div className="flex-shrink-0 ml-4">
-                  <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
-                </div>
-              </div>
-            </div>
-          )
-        })}
-      </div>
-
-      {/* Bottom Navigation */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-3">
-        <div className="flex justify-center items-center">
-          <span className="text-sm text-gray-500">{employees.length} {t.nav.employees}</span>
-        </div>
-      </div>
-    </div>
+    <EvaluationsClient 
+      employees={employees}
+      teamSummary={summary}
+      currentCycleId={currentCycleId}
+      userRole={userRole}
+    />
   )
 }
