@@ -6,7 +6,6 @@ import { useLanguage } from '@/contexts/LanguageContext'
 import LanguageSwitcher from '@/components/LanguageSwitcher'
 import DeadlineDisplay, { CompactDeadlineDisplay } from '@/components/DeadlineDisplay'
 import { 
-  calculateDeadlineInfo, 
   sortByDeadlineUrgency, 
   filterByUrgency 
 } from '@/lib/deadline-utils'
@@ -52,7 +51,7 @@ export default function DeadlinesClient({
   deadlineGroups: initialGroups 
 }: DeadlinesClientProps) {
   const router = useRouter()
-  const { t } = useLanguage()
+  const { } = useLanguage()
   
   const [urgencyFilter, setUrgencyFilter] = useState<UrgencyFilter>('all')
   const [viewMode, setViewMode] = useState<'groups' | 'list'>('groups')

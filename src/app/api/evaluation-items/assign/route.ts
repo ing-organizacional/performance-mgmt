@@ -140,7 +140,12 @@ export async function DELETE(request: NextRequest) {
 
     // Remove assignments
     // HR can remove any assignment, managers can only remove their own
-    const whereClause: any = {
+    const whereClause: {
+      evaluationItemId: string
+      employeeId: { in: string[] }
+      companyId: string
+      assignedBy?: string
+    } = {
       evaluationItemId: itemId,
       employeeId: { in: employeeIds },
       companyId

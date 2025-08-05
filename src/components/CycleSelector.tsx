@@ -60,7 +60,7 @@ export default function CycleSelector({ onCycleSelect, showCreateButton = false 
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [onCycleSelect])
 
   useEffect(() => {
     fetchCycles()

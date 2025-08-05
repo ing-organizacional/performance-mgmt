@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import { auth } from '@/auth'
 
 export interface AuthUser {
@@ -31,7 +31,7 @@ export async function requireAuth(): Promise<{ user: AuthUser } | NextResponse> 
   return { user }
 }
 
-export async function requireHRRole(_request: NextRequest): Promise<{ user: AuthUser } | NextResponse> {
+export async function requireHRRole(): Promise<{ user: AuthUser } | NextResponse> {
   const authResult = await requireAuth()
   
   if (authResult instanceof NextResponse) {
@@ -50,7 +50,7 @@ export async function requireHRRole(_request: NextRequest): Promise<{ user: Auth
   return { user }
 }
 
-export async function requireManagerOrHR(_request: NextRequest): Promise<{ user: AuthUser } | NextResponse> {
+export async function requireManagerOrHR(): Promise<{ user: AuthUser } | NextResponse> {
   const authResult = await requireAuth()
   
   if (authResult instanceof NextResponse) {
