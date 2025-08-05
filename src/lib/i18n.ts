@@ -218,6 +218,17 @@ export interface Translations {
     personIdExplanation: string
     managerPersonIdExplanation: string
     managerEmployeeIdExplanation: string
+    advanced: string
+    advancedAdmin: string
+    dangerZone: string
+    resetDatabase: string
+    resetDatabaseTitle: string
+    resetDatabaseDescription: string
+    resetDatabaseWarning: string
+    resetDatabaseConfirm: string
+    resetDatabaseButton: string
+    resetSuccess: string
+    resetFailed: string
   }
 }
 
@@ -422,7 +433,18 @@ export const translations: Record<Language, Translations> = {
       employeeIdExplanation: 'Company-assigned ID (EMP001, MGR001) - Required for HRIS integration',
       personIdExplanation: 'National ID/Cédula - Legally unique identifier',
       managerPersonIdExplanation: 'Manager\'s National ID for hierarchy',
-      managerEmployeeIdExplanation: 'Alternative: Manager\'s Employee ID'
+      managerEmployeeIdExplanation: 'Alternative: Manager\'s Employee ID',
+      advanced: 'Advanced',
+      advancedAdmin: 'Advanced Administration',
+      dangerZone: 'Danger Zone',
+      resetDatabase: 'Reset Database',
+      resetDatabaseTitle: 'Complete Database Reset',
+      resetDatabaseDescription: 'This will permanently delete ALL data including users, evaluations, companies, and performance cycles. This action cannot be undone.',
+      resetDatabaseWarning: 'WARNING: This action will destroy all data and cannot be reversed!',
+      resetDatabaseConfirm: 'Type "RESET" to confirm this destructive action',
+      resetDatabaseButton: 'Reset Everything',
+      resetSuccess: 'Database reset successfully',
+      resetFailed: 'Database reset failed'
     }
   },
   es: {
@@ -625,7 +647,18 @@ export const translations: Record<Language, Translations> = {
       employeeIdExplanation: 'ID asignado por la empresa (EMP001, MGR001) - Requerido para integración HRIS',
       personIdExplanation: 'Cédula/ID Nacional - Identificador legalmente único',
       managerPersonIdExplanation: 'Cédula de la Jefatura para jerarquía',
-      managerEmployeeIdExplanation: 'Alternativa: ID de Empleado de la Jefatura'
+      managerEmployeeIdExplanation: 'Alternativa: ID de Empleado de la Jefatura',
+      advanced: 'Avanzado',
+      advancedAdmin: 'Administración Avanzada',
+      dangerZone: 'Zona de Peligro',
+      resetDatabase: 'Resetear Base de Datos',
+      resetDatabaseTitle: 'Reseteo Completo de Base de Datos',
+      resetDatabaseDescription: 'Esto eliminará permanentemente TODOS los datos incluyendo usuarios, evaluaciones, empresas y ciclos de desempeño. Esta acción no se puede deshacer.',
+      resetDatabaseWarning: '¡ADVERTENCIA: Esta acción destruirá todos los datos y no se puede revertir!',
+      resetDatabaseConfirm: 'Escribe "RESET" para confirmar esta acción destructiva',
+      resetDatabaseButton: 'Resetear Todo',
+      resetSuccess: 'Base de datos reseteada exitosamente',
+      resetFailed: 'Error al resetear la base de datos'
     }
   }
 }

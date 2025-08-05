@@ -29,7 +29,6 @@ export default function UsersPage() {
   const { confirmState, confirm } = useConfirm()
   const [users, setUsers] = useState<UserWithDetails[]>([])
   const [loading, setLoading] = useState(true)
-  const [uploading, setUploading] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
   const [filterRole, setFilterRole] = useState('')
   const [showUserForm, setShowUserForm] = useState(false)
@@ -161,37 +160,6 @@ export default function UsersPage() {
     setShowUserForm(true)
   }
 
-  const handleCSVUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
-    if (!file) return
-
-    setUploading(true)
-    const formData = new FormData()
-    formData.append('file', file)
-
-    try {
-      const response = await fetch('/api/admin/import', {
-        method: 'POST',
-        body: formData,
-      })
-
-      if (response.ok) {
-        const result = await response.json()
-        success(`${t.users.successfullyImported} ${result.imported} users`)
-        fetchUsers() // Refresh the list
-      } else {
-        const errorData = await response.json()
-        error(`${t.users.importFailed}: ${errorData.error}`)
-      }
-    } catch {
-      error(t.users.uploadFailed)
-    } finally {
-      setUploading(false)
-      // Reset file input
-      event.target.value = ''
-    }
-  }
-
   const getRoleDisplayName = (role: string) => {
     switch (role) {
       case 'hr':
@@ -257,12 +225,20 @@ export default function UsersPage() {
           
           {/* Actions Section */}
           <div className="flex items-center justify-between">
-            <button
-              onClick={handleAddUser}
-              className="px-3 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 active:scale-95 transition-all duration-150 touch-manipulation"
-            >
-              Add User
-            </button>
+            <div className="flex items-center space-x-3">
+              <button
+                onClick={handleAddUser}
+                className="px-3 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 active:scale-95 transition-all duration-150 touch-manipulation"
+              >
+                Add User
+              </button>
+              <button
+                onClick={() => router.push('/users/advanced')}
+                className="px-3 py-2 bg-orange-600 text-white rounded-lg text-sm font-medium hover:bg-orange-700 active:scale-95 transition-all duration-150 touch-manipulation"
+              >
+                {t.users.advanced}
+              </button>
+            </div>
             <LanguageSwitcher />
           </div>
         </div>
@@ -356,81 +332,6 @@ export default function UsersPage() {
           )}
         </div>
 
-        {/* CSV Upload Section */}
-        <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">{t.users.importUsersCSV}</h2>
-          <div className="space-y-4">
-            <div>
-              <label htmlFor="csvFile" className="block text-sm font-medium text-gray-700 mb-2">
-                {t.users.uploadCSVFile}
-              </label>
-              <input
-                id="csvFile"
-                type="file"
-                accept=".csv"
-                onChange={handleCSVUpload}
-                disabled={uploading}
-                className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 disabled:opacity-50"
-              />
-              {uploading && (
-                <p className="text-sm text-blue-600 mt-2">{t.users.uploadingProcessing}</p>
-              )}
-            </div>
-            <div className="text-xs text-gray-500">
-              <p className="font-medium mb-1">{t.users.csvFormat}</p>
-              <p>name,email,username,role,department,userType,password,employeeId,personID,managerPersonID,managerEmployeeId,companyCode</p>
-              <div className="mt-2 space-y-1">
-                <div>
-                  <a 
-                    href="/example-users.csv" 
-                    download 
-                    className="text-blue-600 hover:text-blue-800 underline"
-                  >
-                    📋 {t.users.basicExampleCSV}
-                  </a>
-                  <span className="text-gray-400 ml-2">- {t.users.usesPersonIdMatching}</span>
-                </div>
-                <div>
-                  <a 
-                    href="/example-users-advanced.csv" 
-                    download 
-                    className="text-blue-600 hover:text-blue-800 underline"
-                  >
-                    🔧 {t.users.advancedExampleCSV}
-                  </a>
-                  <span className="text-gray-400 ml-2">- {t.users.showsBothIdOptions}</span>
-                </div>
-              </div>
-              <div className="mt-3 p-2 bg-blue-50 rounded text-xs">
-                <p className="font-medium text-blue-800 mb-1">{t.users.fieldExplanations}</p>
-                <ul className="text-blue-700 space-y-0.5">
-                  <li><strong>employeeId:</strong> {t.users.employeeIdExplanation}</li>
-                  <li><strong>personID:</strong> {t.users.personIdExplanation}</li>
-                  <li><strong>managerPersonID:</strong> {t.users.managerPersonIdExplanation}</li>
-                  <li><strong>managerEmployeeId:</strong> {t.users.managerEmployeeIdExplanation}</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Prisma Studio Option */}
-        <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">{t.users.databaseManagement}</h2>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">
-                {t.users.advancedOperations}
-              </p>
-            </div>
-            <button
-              onClick={() => window.open('http://localhost:5555', '_blank')}
-              className="px-4 py-2 bg-purple-600 text-white rounded-md text-sm font-medium hover:bg-purple-700 transition-colors"
-            >
-              {t.users.openPrismaStudio}
-            </button>
-          </div>
-        </div>
       </div>
 
       {/* User Form Modal */}
