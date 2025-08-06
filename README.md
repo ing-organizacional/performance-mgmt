@@ -43,7 +43,7 @@ Visit http://localhost:3000 and use demo credentials:
 
 **Database:**
 - SQLite with Prisma ORM
-- 7-table schema (Company, User, Evaluation, EvaluationItem, EvaluationItemAssignment, PerformanceCycle, PartialAssessment, AuditLog)
+- 8-model schema (Company, User, Evaluation, EvaluationItem, EvaluationItemAssignment, PerformanceCycle, PartialAssessment, AuditLog)
 - Dual evaluation system (traditional JSON + structured items)
 - Performance cycle management with read-only enforcement
 
@@ -94,7 +94,7 @@ Visit http://localhost:3000 and use demo credentials:
 ### User Management (3 Methods)
 1. **Visual Interface**: `yarn db:studio`
 2. **CSV Import**: `yarn db:import users.csv`
-3. **REST API**: `/api/admin/users`
+3. **Server Actions**: `/src/lib/actions/users.ts`
 
 ## 📊 Database Schema
 
@@ -177,20 +177,37 @@ Maria Worker,,maria.worker,employee,Manufacturing,operational,1234,EMP002,876543
 - `managerPersonID`: Manager's National ID for hierarchy establishment
 - `managerEmployeeId`: Alternative manager matching via Employee ID
 
-### Admin API Examples
+### Server Actions Examples
+```typescript
+// User management via Server Actions (not REST APIs)
+import { createUser, updateUser, deleteUser } from '@/lib/actions/users'
+
+// Create user
+const newUser = await createUser({
+  name: "New User",
+  email: "new@demo.com", 
+  role: "employee",
+  companyId: "company-id"
+})
+
+// Update user  
+const updatedUser = await updateUser("user-id", {
+  department: "New Department"
+})
+
+// Delete user
+await deleteUser("user-id")
+```
+
+### Available REST APIs
 ```bash
-# List all users
-curl http://localhost:3000/api/admin/users
-
-# Create user
-curl -X POST http://localhost:3000/api/admin/users \
+# Import users from CSV
+curl -X POST http://localhost:3000/api/admin/import \
   -H "Content-Type: application/json" \
-  -d '{"name":"New User","email":"new@demo.com","role":"employee","companyId":"company-id"}'
+  -d '{"users": [{"name":"User","email":"user@demo.com"}]}'
 
-# Update user
-curl -X PUT http://localhost:3000/api/admin/users/user-id \
-  -H "Content-Type: application/json" \
-  -d '{"department":"New Department"}'
+# Get company data
+curl http://localhost:3000/api/admin/companies
 ```
 
 ## 🔐 Authentication

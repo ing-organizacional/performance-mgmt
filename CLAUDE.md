@@ -15,7 +15,7 @@ Performance Management System - A mobile-first web application for managing empl
 - React 19.1.0 with mobile-first responsive design
 - **Package Manager: YARN** (never use npm)
 
-**Database Schema (8 tables):**
+**Database Schema (8 models):**
 - `Company` - Multi-tenant company isolation
 - `User` - Mixed workforce with personID/employeeId identifiers for HRIS integration
 - `Evaluation` - Unified evaluation system with evaluationItemsData JSON field + cycleId
@@ -38,7 +38,7 @@ Performance Management System - A mobile-first web application for managing empl
 - `/src/components/CycleStatusBanner.tsx` - Read-only status indicator
 - `/src/components/DeadlineDisplay.tsx` - Deadline visualization components
 
-**Key API Endpoints (16 implemented):**
+**Key API Endpoints (14 implemented):**
 - **Authentication**:
   - `/api/auth/[...nextauth]` - NextAuth v5 authentication routes (POST)
   - `/api/auth/update-last-login` - Track user login times (POST)
@@ -51,7 +51,6 @@ Performance Management System - A mobile-first web application for managing empl
   - `/api/partial-assessments` - Granular performance tracking (POST)
 - **Manager Functions**:
   - `/api/manager/team` - Team data for managers and HR (GET)
-  - `/api/manager/team-assignments` - Team assignment management (GET/POST)
 - **Admin Functions**:
   - `/api/admin/companies` - Company management (GET)
   - `/api/admin/import` - CSV user import with enhanced field support (POST)
@@ -61,6 +60,11 @@ Performance Management System - A mobile-first web application for managing empl
   - `/api/export/evaluation/[id]` - Individual evaluation export (GET)
 - **Utility**:
   - `/api/health` - System health check (GET)
+
+**User Management via Server Actions** (not REST APIs):
+- `/src/lib/actions/users.ts` - createUser, updateUser, deleteUser Server Actions
+- `/src/lib/actions/cycles.ts` - createCycle, updateCycleStatus Server Actions
+- `/src/lib/actions/evaluations.ts` - evaluation management Server Actions
 
 ## Essential Commands
 
@@ -84,7 +88,7 @@ yarn tsc --noEmit          # TypeScript check
 **User Management (3 methods):**
 1. **Prisma Studio:** `yarn db:studio` (visual interface)
 2. **CSV Import:** `yarn db:import file.csv` (bulk operations)
-3. **Admin API:** `/api/admin/users` (programmatic)
+3. **Server Actions:** `/src/lib/actions/users.ts` (createUser, updateUser, deleteUser)
 
 ## Mobile-First UI Architecture
 
@@ -319,13 +323,18 @@ export async function GET(request: NextRequest) {
 
 **3. Component Organization:**
 ```typescript
-// Feature-based component organization
+// Feature-based component organization (NEW ARCHITECTURE)
 src/components/
-├── ui/              // Reusable UI primitives
+├── ui/              // Reusable UI primitives (ConfirmDialog, LoadingSpinner, Toast)
 ├── features/        // Domain-specific components
-│   ├── evaluation/  // Evaluation-related components
-│   ├── users/       // User management components
-│   └── cycles/      // Performance cycle components
+│   ├── cycles/      // Performance cycle components (CycleSelector, CycleStatusBanner)
+│   ├── dashboard/   // Dashboard components (export-button)
+│   ├── evaluation/  // Evaluation components (DeadlineDisplay)
+│   └── users/       // User management components (future)
+├── forms/           // Form components (UserForm)
+├── layout/          // Layout components (LanguageSwitcher)
+├── providers/       // React context providers (auth-provider)
+└── index.ts         // Centralized exports
 ```
 
 **Code Quality Standards:**
@@ -470,22 +479,31 @@ src/components/
 Co-Authored-By: Claude <noreply@anthropic.com>
 ```
 
-## Missing Implementation Items
+## Architecture Design Decisions
 
-**API Endpoints to Implement:**
-1. `/api/dashboard/stats/route.ts` - Dashboard analytics (directory exists, file missing)
-2. `/api/admin/users` and `/api/admin/users/[id]` - User CRUD operations (referenced in docs but not implemented)
-3. `/api/admin/cycles` and `/api/admin/cycles/[id]` - Performance cycle management (referenced in docs but not implemented)
+**Server Actions vs REST APIs:**
+The application uses **Next.js Server Actions** for user management and admin operations instead of REST API endpoints:
+- ✅ **User Management**: Server Actions in `/src/lib/actions/users.ts`
+- ✅ **Cycle Management**: Server Actions in `/src/lib/actions/cycles.ts`  
+- ✅ **Evaluation Management**: Server Actions in `/src/lib/actions/evaluations.ts`
 
-**Cleanup Tasks:**
-1. Remove empty `/api/test-okrs/` directory (development leftover)
-2. Implement missing dashboard stats endpoint
-3. Add missing user management API endpoints
+**Benefits of Server Actions Approach:**
+- Simplified architecture (no API layer needed)
+- Better type safety with TypeScript
+- Built-in form handling and progressive enhancement
+- Direct database operations with Prisma
+- Automatic revalidation and cache management
+
+**When APIs are Still Used:**
+- External integrations (CSV import, exports)
+- Client-side data fetching (evaluation forms)
+- Authentication endpoints (NextAuth)
+- Health checks and monitoring
 
 **Enhancement Opportunities:**
 1. **Rate Limiting**: Add rate limiting to auth endpoints
 2. **Error Standardization**: Implement consistent error response format across APIs  
-3. **API Documentation**: Generate OpenAPI/Swagger documentation for the 16 endpoints
+3. **API Documentation**: Generate OpenAPI/Swagger documentation for the 14 endpoints
 4. **Monitoring**: Add application performance monitoring (APM)
 5. **Caching**: Implement Redis caching for frequently accessed data
 

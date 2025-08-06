@@ -20,15 +20,18 @@ yarn db:import example-users.csv
 - Validates data and shows detailed results
 - Handles manager relationships automatically
 
-### Method 3: Admin API (Programmatic Access)
-```bash
-# Get all users
-curl http://localhost:3000/api/admin/users
+### Method 3: Server Actions (Programmatic Access)
+```typescript
+// Import from actions
+import { createUser, updateUser, deleteUser } from '@/lib/actions/users'
 
-# Create single user
-curl -X POST http://localhost:3000/api/admin/users \
-  -H "Content-Type: application/json" \
-  -d '{"name":"New User","email":"new@demo.com","role":"employee","companyId":"company-id"}'
+// Create single user
+const newUser = await createUser({
+  name: "New User",
+  email: "new@demo.com", 
+  role: "employee",
+  companyId: "company-id"
+})
 ```
 
 ## 📊 CSV Import Format
@@ -64,65 +67,52 @@ HR Manager,hr1@demo.com,,hr,Human Resources,office,password123,HR001,11111111,,,
 - Alternative manager matching via employeeId (managerEmployeeId)
 - personID and employeeId must be unique per company
 
-## 🔧 Admin API Endpoints
+## 🔧 Server Actions for User Management
 
-### Get All Users
-```bash
-GET /api/admin/users
-```
-Returns all users with company and manager info.
+### User Management Actions
+```typescript
+// Import the actions
+import { createUser, updateUser, deleteUser } from '@/lib/actions/users'
 
-### Get Single User
-```bash
-GET /api/admin/users/[id]
-```
-Returns detailed user info including evaluations.
+// Get all users (via server component)
+// In your page.tsx or component:
+const users = await prisma.user.findMany({
+  where: { companyId: session.user.companyId },
+  include: { manager: true, company: true }
+})
 
-### Create User
-```bash
-POST /api/admin/users
-Content-Type: application/json
+// Create user
+const newUser = await createUser({
+  name: "New Employee",
+  email: "new@company.com",
+  role: "employee",
+  companyId: "clr123...",
+  managerId: "clr456...",
+  userType: "office",
+  password: "password123",
+  department: "Sales",
+  employeeId: "EMP001",
+  personID: "12345678"
+})
 
-{
-  "name": "New Employee",
-  "email": "new@company.com",
-  "role": "employee",
-  "companyId": "clr123...",
-  "managerId": "clr456...",
-  "userType": "office",
-  "password": "password123",
-  "department": "Sales",
-  "employeeId": "EMP001",
-  "personID": "12345678"
-}
-```
+// Update user
+const updatedUser = await updateUser("user-id", {
+  name: "Updated Name",
+  department: "New Department",
+  active: true
+})
 
-### Update User
-```bash
-PUT /api/admin/users/[id]
-Content-Type: application/json
-
-{
-  "name": "Updated Name",
-  "department": "New Department",
-  "active": true
-}
+// Deactivate user (soft delete)
+await deleteUser("user-id")
 ```
 
-### Deactivate User
+### Available Admin REST APIs
 ```bash
-DELETE /api/admin/users/[id]
-```
-Soft deletes (sets active=false).
-
-### Get Companies
-```bash
+# Get Companies (actual REST API)
 GET /api/admin/companies
-```
-Lists all companies with user counts.
+# Lists all companies with user counts
 
-### Bulk Import
-```bash
+# CSV Import (actual REST API) 
 POST /api/admin/import
 Content-Type: application/json
 
@@ -143,35 +133,35 @@ Content-Type: application/json
 ## 🎯 Common Scenarios
 
 ### Scenario 1: New Office Employee
-```bash
-curl -X POST http://localhost:3000/api/admin/users \
-  -H "Content-Type: application/json" \
-  -d '{
-    "name": "Sarah Johnson",
-    "email": "sarah@company.com",
-    "role": "employee",
-    "companyId": "clr123...",
-    "managerId": "clr456...",
-    "userType": "office",
-    "password": "password123",
-    "department": "Marketing"
-  }'
+```typescript
+import { createUser } from '@/lib/actions/users'
+
+const newUser = await createUser({
+  name: "Sarah Johnson",
+  email: "sarah@company.com", 
+  role: "employee",
+  companyId: "clr123...",
+  managerId: "clr456...",
+  userType: "office",
+  password: "password123",
+  department: "Marketing"
+})
 ```
 
 ### Scenario 2: New Operational Worker
-```bash
-curl -X POST http://localhost:3000/api/admin/users \
-  -H "Content-Type: application/json" \
-  -d '{
-    "name": "Mike Rodriguez",
-    "username": "mike.production",
-    "role": "employee",
-    "companyId": "clr123...",
-    "managerId": "clr456...",
-    "userType": "operational",
-    "password": "1234",
-    "department": "Manufacturing"
-  }'
+```typescript
+import { createUser } from '@/lib/actions/users'
+
+const newWorker = await createUser({
+  name: "Mike Rodriguez",
+  username: "mike.production",
+  role: "employee", 
+  companyId: "clr123...",
+  managerId: "clr456...",
+  userType: "operational",
+  password: "1234",
+  department: "Manufacturing"
+})
 ```
 
 ### Scenario 3: Bulk Import from HR System
