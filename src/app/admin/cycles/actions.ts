@@ -76,13 +76,14 @@ export async function createCycle(formData: FormData) {
     }
 
     // Create new cycle
-    const cycle = await prisma.performanceCycle.create({
+    await prisma.performanceCycle.create({
       data: {
         name: cycleData.name,
         startDate: new Date(cycleData.startDate),
         endDate: new Date(cycleData.endDate),
         status: 'active',
-        companyId: currentUser.companyId
+        companyId: currentUser.companyId,
+        createdBy: currentUser.id
       }
     })
 
@@ -177,7 +178,7 @@ export async function updateCycleStatus(cycleId: string, formData: FormData) {
     }
 
     // Update cycle
-    const updatedCycle = await prisma.performanceCycle.update({
+    await prisma.performanceCycle.update({
       where: { id: cycleId },
       data: updateData
     })

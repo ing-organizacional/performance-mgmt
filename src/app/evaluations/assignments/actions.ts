@@ -31,8 +31,7 @@ export async function assignItemsToEmployees(itemId: string, employeeIds: string
     }))
 
     await prisma.evaluationItemAssignment.createMany({
-      data: assignments,
-      skipDuplicates: true // Prevent duplicate assignments
+      data: assignments
     })
 
     revalidatePath('/evaluations/assignments')

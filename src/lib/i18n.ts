@@ -23,6 +23,8 @@ export interface Translations {
     company: string
     department: string
     manager: string
+    createdBy: string
+    saving: string
   }
   
   // Auth
@@ -109,6 +111,9 @@ export interface Translations {
     newCompetency: string
     create: string
     evaluationDeadline: string
+    departmentLevelAssignments: string
+    departmentDescription: string
+    currentlyAssignedTo: string
   }
 
   // Company Items
@@ -282,7 +287,9 @@ export const translations: Record<Language, Translations> = {
       standardized: 'Standardized',
       company: 'Company',
       department: 'Department',
-      manager: 'Manager'
+      manager: 'Manager',
+      createdBy: 'Created by',
+      saving: 'Saving...'
     },
     auth: {
       signIn: 'Sign in',
@@ -360,7 +367,10 @@ export const translations: Record<Language, Translations> = {
       newOKR: 'New OKR',
       newCompetency: 'New Competency',
       create: 'Create',
-      evaluationDeadline: 'Evaluation Deadline (Optional)'
+      evaluationDeadline: 'Evaluation Deadline (Optional)',
+      departmentLevelAssignments: 'Department-Level Assignments',
+      departmentDescription: 'These items are created by managers and applied to employees within specific departments.',
+      currentlyAssignedTo: 'Currently assigned to'
     },
     companyItems: {
       title: 'Company-Wide Items',
@@ -524,7 +534,9 @@ export const translations: Record<Language, Translations> = {
       standardized: 'Estandarizado',
       company: 'Empresa',
       department: 'Departamento',
-      manager: 'Jefatura'
+      manager: 'Jefatura',
+      createdBy: 'Creado por',
+      saving: 'Guardando...'
     },
     auth: {
       signIn: 'Iniciar sesión',
@@ -602,7 +614,10 @@ export const translations: Record<Language, Translations> = {
       newOKR: 'Nuevo OKR',
       newCompetency: 'Nueva Competencia',
       create: 'Crear',
-      evaluationDeadline: 'Fecha Límite de Evaluación (Opcional)'
+      evaluationDeadline: 'Fecha Límite de Evaluación (Opcional)',
+      departmentLevelAssignments: 'Asignaciones de Nivel Departamental',
+      departmentDescription: 'Estos elementos son creados por gerentes y aplicados a empleados dentro de departamentos específicos.',
+      currentlyAssignedTo: 'Actualmente asignado a'
     },
     companyItems: {
       title: 'Elementos de Toda la Empresa',

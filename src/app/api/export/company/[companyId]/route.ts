@@ -6,7 +6,7 @@ export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ companyId: string }> }
 ) {
-  const authResult = await requireManagerOrHR(request)
+  const authResult = await requireManagerOrHR()
   if (authResult instanceof NextResponse) {
     return authResult
   }

@@ -28,6 +28,11 @@ async function getDashboardData(companyId: string) {
           partialAssessments: true
         }
       },
+      createdByUser: {
+        select: {
+          name: true
+        }
+      },
       closedByUser: {
         select: {
           name: true
@@ -140,6 +145,7 @@ async function getDashboardData(companyId: string) {
     status: cycle.status,
     startDate: cycle.startDate.toISOString(),
     endDate: cycle.endDate.toISOString(),
+    createdBy: cycle.createdBy,
     closedBy: cycle.closedByUser?.name || null,
     closedAt: cycle.closedAt?.toISOString() || null,
     _count: cycle._count

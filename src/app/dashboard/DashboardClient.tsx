@@ -31,6 +31,7 @@ interface PerformanceCycle {
   status: string
   startDate: string
   endDate: string
+  createdBy: string
   closedBy?: string | null
   closedAt?: string | null
   _count: {

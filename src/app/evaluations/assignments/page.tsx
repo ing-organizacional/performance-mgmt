@@ -120,8 +120,8 @@ export default async function AssignmentsPage() {
     id: item.id,
     title: item.title,
     description: item.description,
-    type: item.type,
-    level: item.level,
+    type: item.type as 'okr' | 'competency',
+    level: item.level as 'company' | 'department' | 'manager',
     createdBy: item.creator.name,
     creatorRole: item.creator.role,
     assignedTo: item.assignedTo,
@@ -133,8 +133,8 @@ export default async function AssignmentsPage() {
   const formattedEmployees: Employee[] = teamMembers.map(member => ({
     id: member.id,
     name: member.name,
-    email: member.email,
-    username: member.username,
+    email: member.email || undefined,
+    username: member.username || undefined,
     department: member.department || '',
     assignedItems: assignments
       .filter(assignment => assignment.employeeId === member.id)

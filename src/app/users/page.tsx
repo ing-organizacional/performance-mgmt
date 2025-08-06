@@ -11,9 +11,7 @@ async function getUsersData(companyId: string) {
       companyId
     },
     include: {
-      company: {
-        select: { name: true, code: true }
-      },
+      company: true,
       manager: {
         select: { name: true, email: true }
       },
@@ -82,7 +80,11 @@ export default async function UsersPage() {
 
   return (
     <UsersClient 
-      users={users}
+      users={users.map(user => ({
+        ...user,
+        role: user.role as 'employee' | 'manager' | 'hr',
+        userType: user.userType as 'office' | 'operational'
+      }))}
       companies={companies}
       managers={managers}
     />

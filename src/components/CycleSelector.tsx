@@ -10,8 +10,9 @@ interface PerformanceCycle {
   status: string
   startDate: string
   endDate: string
-  closedBy?: string
-  closedAt?: string
+  createdBy: string
+  closedBy?: string | null
+  closedAt?: string | null
   _count: {
     evaluations: number
     evaluationItems: number
@@ -251,9 +252,9 @@ export default function CycleSelector({
           onClick={handleCreateCycle}
           className="text-xs bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700 transition-colors"
           title="Create new performance cycle"
-          disabled={actionLoading}
+          disabled={isPending}
         >
-          {actionLoading ? '...' : `+ ${t.dashboard.newCycle}`}
+          {isPending ? '...' : `+ ${t.dashboard.newCycle}`}
         </button>
       )}
 
@@ -276,7 +277,7 @@ export default function CycleSelector({
                 <button
                   onClick={handleModalCancel}
                   className="p-2 -mr-2 text-gray-400 hover:text-gray-600"
-                  disabled={actionLoading}
+                  disabled={isPending}
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -330,16 +331,16 @@ export default function CycleSelector({
               <button
                 onClick={handleModalCancel}
                 className="px-3 py-2 text-xs font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 active:scale-95 transition-all duration-150 touch-manipulation"
-                disabled={actionLoading}
+                disabled={isPending}
               >
                 {t.common.cancel}
               </button>
               <button
                 onClick={handleModalSubmit}
                 className="px-3 py-2 text-xs font-medium bg-blue-600 text-white rounded-lg hover:bg-blue-700 active:scale-95 transition-all duration-150 touch-manipulation"
-                disabled={actionLoading}
+                disabled={isPending}
               >
-                {actionLoading ? t.dashboard.creating : t.dashboard.createCycle}
+                {isPending ? t.dashboard.creating : t.dashboard.createCycle}
               </button>
             </div>
           </div>
