@@ -22,6 +22,14 @@ interface DepartmentRating {
     evaluated: number
     pending: number
   }
+  allEmployees: {
+    id: string
+    name: string
+    rating: number
+    status: string
+    evaluationId: string
+    isManager: boolean
+  }[]
   criticalEmployees: {
     id: string
     name: string
@@ -113,6 +121,7 @@ async function getDepartmentRatings(companyId: string) {
           evaluated: 0,
           pending: 0
         },
+        allEmployees: [],
         criticalEmployees: []
       })
     }
@@ -127,6 +136,16 @@ async function getDepartmentRatings(companyId: string) {
     if (departmentInfo && evaluation.overallRating) {
       departmentInfo.employees.evaluated++
       departmentInfo.ratings.total++
+      
+      // Add to all employees list
+      departmentInfo.allEmployees.push({
+        id: evaluation.employee.id,
+        name: evaluation.employee.name,
+        rating: evaluation.overallRating,
+        status: evaluation.status,
+        evaluationId: evaluation.id,
+        isManager: evaluation.employee.role === 'manager'
+      })
       
       // Add to critical employees list if rating is 1 or 2
       if (evaluation.overallRating <= 2) {

@@ -26,6 +26,14 @@ interface DepartmentRating {
     evaluated: number
     pending: number
   }
+  allEmployees: {
+    id: string
+    name: string
+    rating: number
+    status: string
+    evaluationId: string
+    isManager: boolean
+  }[]
   criticalEmployees: {
     id: string
     name: string
@@ -195,15 +203,15 @@ function DepartmentRatingCard({ department }: { department: DepartmentRating }) 
             )}
           </div>
           
-          {/* Expandable Critical Employees Section */}
-          {department.criticalEmployees.length > 0 && (
+          {/* Expandable All Employees Section */}
+          {department.allEmployees.length > 0 && (
             <div className="mt-4 pt-4 border-t border-gray-100">
               <button 
                 onClick={() => setShowDetails(!showDetails)}
                 className="flex items-center justify-between w-full text-left hover:bg-gray-50 rounded-lg p-2 -m-2 transition-colors"
               >
-                <span className="text-sm font-medium text-orange-600">
-                  {department.criticalEmployees.length} {t.dashboard.employeesNeedReview}
+                <span className="text-sm font-medium text-blue-600">
+                  {department.allEmployees.length} {t.dashboard.allEmployees}
                 </span>
                 <svg 
                   className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${showDetails ? 'rotate-180' : ''}`}
@@ -217,21 +225,27 @@ function DepartmentRatingCard({ department }: { department: DepartmentRating }) 
               
               {showDetails && (
                 <div className="mt-3 space-y-2 animate-in slide-in-from-top-1 duration-200">
-                  {department.criticalEmployees
+                  {department.allEmployees
                     .sort((a, b) => {
-                      // Managers first, then by rating (worst first)
+                      // Managers first, then by rating (best first for full list)
                       if (a.isManager && !b.isManager) return -1
                       if (!a.isManager && b.isManager) return 1
-                      return a.rating - b.rating
+                      return b.rating - a.rating
                     })
                     .map(employee => (
                     <button
                       key={employee.id}
                       onClick={() => router.push(`/evaluation-summary/${employee.evaluationId}`)}
                       className={`w-full flex items-center justify-between p-3 rounded-lg border transition-all duration-150 hover:shadow-md active:scale-[0.98] touch-manipulation ${
-                        employee.rating === 1 
-                          ? 'bg-red-50 border-red-100 hover:bg-red-100' 
-                          : 'bg-orange-50 border-orange-100 hover:bg-orange-100'
+                        employee.rating === 5 
+                          ? 'bg-green-50 border-green-100 hover:bg-green-100' 
+                          : employee.rating === 4
+                          ? 'bg-blue-50 border-blue-100 hover:bg-blue-100'
+                          : employee.rating === 3
+                          ? 'bg-gray-50 border-gray-100 hover:bg-gray-100'
+                          : employee.rating === 2
+                          ? 'bg-orange-50 border-orange-100 hover:bg-orange-100'
+                          : 'bg-red-50 border-red-100 hover:bg-red-100'
                       }`}
                     >
                       <div className="flex-1 text-left">
@@ -247,14 +261,23 @@ function DepartmentRatingCard({ department }: { department: DepartmentRating }) 
                           )}
                         </div>
                         <div className="text-xs text-gray-500 mt-1">
-                          {employee.rating === 1 ? t.dashboard.needsImprovementShort : t.dashboard.belowShort}
+                          {employee.rating === 5 ? t.dashboard.outstandingShort : 
+                           employee.rating === 4 ? t.dashboard.exceedsShort :
+                           employee.rating === 3 ? t.dashboard.meetsShort :
+                           employee.rating === 2 ? t.dashboard.belowShort : t.dashboard.needsImprovementShort}
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
                         <div className={`flex items-center gap-1 px-2 py-1 rounded text-xs font-medium ${
-                          employee.rating === 1 
-                            ? 'bg-red-100 text-red-700' 
-                            : 'bg-orange-100 text-orange-700'
+                          employee.rating === 5 
+                            ? 'bg-green-100 text-green-700' 
+                            : employee.rating === 4
+                            ? 'bg-blue-100 text-blue-700'
+                            : employee.rating === 3
+                            ? 'bg-gray-100 text-gray-700'
+                            : employee.rating === 2
+                            ? 'bg-orange-100 text-orange-700'
+                            : 'bg-red-100 text-red-700'
                         }`}>
                           <span>{employee.rating}/5</span>
                         </div>
@@ -265,10 +288,12 @@ function DepartmentRatingCard({ department }: { department: DepartmentRating }) 
                     </button>
                   ))}
                   
-                  {/* Quick action hint */}
-                  <div className="text-xs text-gray-500 text-center pt-2 border-t border-gray-100">
-                    💡 {t.dashboard.scheduleOneOnOnes}
-                  </div>
+                  {/* Critical employees hint */}
+                  {department.criticalEmployees.length > 0 && (
+                    <div className="text-xs text-orange-600 text-center pt-2 border-t border-gray-100">
+                      💡 {department.criticalEmployees.length} {t.dashboard.employeesNeedReview} - {t.dashboard.scheduleOneOnOnes}
+                    </div>
+                  )}
                 </div>
               )}
             </div>

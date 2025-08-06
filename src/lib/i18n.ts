@@ -268,6 +268,8 @@ export interface Translations {
     noDepartmentsFound: string
     addEmployeesWithDepartments: string
     employeesNeedReview: string
+    allEmployees: string
+    viewAllEmployees: string
     scheduleOneOnOnes: string
     // Evaluation summary page
     okrAverage: string
@@ -556,6 +558,8 @@ export const translations: Record<Language, Translations> = {
       noDepartmentsFound: 'No Departments Found',
       addEmployeesWithDepartments: 'Add employees with departments to see rating distributions',
       employeesNeedReview: 'employees need review',
+      allEmployees: 'all employees',
+      viewAllEmployees: 'View all employees in this department',
       scheduleOneOnOnes: 'Consider scheduling 1:1 meetings with these employees',
       // Evaluation summary page
       okrAverage: 'OKR Average',
@@ -898,6 +902,8 @@ export const translations: Record<Language, Translations> = {
       noDepartmentsFound: 'No se Encontraron Departamentos',
       addEmployeesWithDepartments: 'Agrega empleados con departamentos para ver las distribuciones de calificación',
       employeesNeedReview: 'empleados requieren revisión',
+      allEmployees: 'todos los empleados',
+      viewAllEmployees: 'Ver todos los empleados de este departamento',
       scheduleOneOnOnes: 'Considera programar reuniones individuales con estos empleados',
       // Evaluation summary page
       okrAverage: 'Promedio OKR',
