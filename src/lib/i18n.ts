@@ -161,6 +161,7 @@ export interface Translations {
     q1Reviews: string
     newEvaluation: string
     completionStatus: string
+    complete: string
     completed: string
     remaining: string
     overdueEvaluations: string
@@ -477,6 +478,7 @@ export const translations: Record<Language, Translations> = {
       q1Reviews: 'Q1 2024 Performance Reviews',
       newEvaluation: 'New Evaluation',
       completionStatus: 'Completion Status',
+      complete: 'Complete',
       completed: 'Completed',
       remaining: 'Remaining',
       overdueEvaluations: 'Overdue Evaluations',
@@ -788,7 +790,8 @@ export const translations: Record<Language, Translations> = {
       hrDashboard: 'Panel de RRHH',
       q1Reviews: 'Evaluaciones de Desempeño Q1 2024',
       newEvaluation: 'Nueva Evaluación',
-      completionStatus: 'Estado de Completitud',
+      completionStatus: 'Estatus de Avance',
+      complete: 'Completo',
       completed: 'Completadas',
       remaining: 'Pendientes',
       overdueEvaluations: 'Evaluaciones Vencidas',

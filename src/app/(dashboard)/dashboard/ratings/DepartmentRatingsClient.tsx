@@ -108,7 +108,7 @@ function DepartmentRatingCard({ department }: { department: DepartmentRating }) 
           </button>
           <div className="text-right">
             <div className="text-3xl font-bold text-gray-900">{completionPercentage}%</div>
-            <div className="text-xs text-gray-500 uppercase tracking-wide font-medium">Complete</div>
+            <div className="text-xs text-gray-500 uppercase tracking-wide font-medium">{t.dashboard.complete}</div>
           </div>
         </div>
       </div>
