@@ -2,7 +2,7 @@
 
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma-client'
-import { getEvaluationData, getCompanyEvaluations, generatePDF, generateExcel } from '@/lib/export'
+import { getEvaluationData, getCompanyEvaluations, generatePDF, generateExcel, generateMultiEvaluationPDF } from '@/lib/export'
 
 interface ExportResult {
   success: boolean
@@ -15,7 +15,7 @@ interface ExportResult {
 /**
  * Export individual evaluation - accessible by employee (own), manager (their team), HR (all)
  */
-export async function exportEvaluation(evaluationId: string, format: 'pdf' | 'excel' = 'pdf'): Promise<ExportResult> {
+export async function exportEvaluation(evaluationId: string, format: 'pdf' | 'excel' = 'pdf', language = 'en'): Promise<ExportResult> {
   try {
     const session = await auth()
     if (!session?.user?.id) {
@@ -64,7 +64,7 @@ export async function exportEvaluation(evaluationId: string, format: 'pdf' | 'ex
 
     if (format === 'pdf') {
       try {
-        const pdfBuffer = generatePDF(evaluationData)
+        const pdfBuffer = generatePDF(evaluationData, language)
         const filename = `evaluation_${evaluation.employee.name.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`
         
         console.log('PDF generated successfully, buffer size:', pdfBuffer.length)
@@ -92,7 +92,7 @@ export async function exportEvaluation(evaluationId: string, format: 'pdf' | 'ex
 /**
  * Export team evaluations - accessible by manager (their team only) and HR (all)
  */
-export async function exportTeamEvaluations(format: 'pdf' | 'excel' = 'excel'): Promise<ExportResult> {
+export async function exportTeamEvaluations(format: 'pdf' | 'excel' = 'excel', language = 'en'): Promise<ExportResult> {
   try {
     const session = await auth()
     if (!session?.user?.id) {
@@ -126,7 +126,7 @@ export async function exportTeamEvaluations(format: 'pdf' | 'excel' = 'excel'): 
     const dateSuffix = new Date().toISOString().split('T')[0]
 
     if (format === 'excel') {
-      const excelBuffer = generateExcel(evaluations)
+      const excelBuffer = generateExcel(evaluations, language)
       const filename = `team_evaluations_${companyName}_${teamSuffix}_${dateSuffix}.xlsx`
       
       return {
@@ -137,7 +137,20 @@ export async function exportTeamEvaluations(format: 'pdf' | 'excel' = 'excel'): 
       }
     }
 
-    return { success: false, error: 'PDF format not implemented for team exports. Use Excel.' }
+    if (format === 'pdf') {
+      // For PDF export of multiple evaluations, create a consolidated summary PDF
+      const pdfBuffer = generateMultiEvaluationPDF(evaluations, language, 'Team Evaluations')
+      const filename = `team_evaluations_${companyName}_${teamSuffix}_${dateSuffix}.pdf`
+      
+      return {
+        success: true,
+        data: Array.from(pdfBuffer),
+        filename,
+        contentType: 'application/pdf'
+      }
+    }
+
+    return { success: false, error: 'Unsupported format for team exports.' }
 
   } catch (error) {
     console.error('Error in exportTeamEvaluations:', error)
@@ -148,7 +161,7 @@ export async function exportTeamEvaluations(format: 'pdf' | 'excel' = 'excel'): 
 /**
  * Export department evaluations - accessible by managers (their department) and HR (any department)
  */
-export async function exportDepartmentEvaluations(department?: string, format: 'pdf' | 'excel' = 'excel'): Promise<ExportResult> {
+export async function exportDepartmentEvaluations(department?: string, format: 'pdf' | 'excel' = 'excel', language = 'en'): Promise<ExportResult> {
   try {
     const session = await auth()
     if (!session?.user?.id) {
@@ -186,7 +199,7 @@ export async function exportDepartmentEvaluations(department?: string, format: '
     const dateSuffix = new Date().toISOString().split('T')[0]
 
     if (format === 'excel') {
-      const excelBuffer = generateExcel(departmentEvaluations)
+      const excelBuffer = generateExcel(departmentEvaluations, language)
       const filename = `department_evaluations_${companyName}_${departmentName}_${dateSuffix}.xlsx`
       
       return {
@@ -197,7 +210,20 @@ export async function exportDepartmentEvaluations(department?: string, format: '
       }
     }
 
-    return { success: false, error: 'PDF format not implemented for department exports. Use Excel.' }
+    if (format === 'pdf') {
+      // For PDF export of department evaluations
+      const pdfBuffer = generateMultiEvaluationPDF(departmentEvaluations, language, `Department: ${targetDepartment}`)
+      const filename = `department_evaluations_${companyName}_${departmentName}_${dateSuffix}.pdf`
+      
+      return {
+        success: true,
+        data: Array.from(pdfBuffer),
+        filename,
+        contentType: 'application/pdf'
+      }
+    }
+
+    return { success: false, error: 'Unsupported format for department exports.' }
 
   } catch (error) {
     console.error('Error in exportDepartmentEvaluations:', error)
@@ -208,7 +234,7 @@ export async function exportDepartmentEvaluations(department?: string, format: '
 /**
  * Export company-wide evaluations - accessible by HR only
  */
-export async function exportCompanyEvaluations(format: 'pdf' | 'excel' = 'excel'): Promise<ExportResult> {
+export async function exportCompanyEvaluations(format: 'pdf' | 'excel' = 'excel', language = 'en'): Promise<ExportResult> {
   try {
     const session = await auth()
     if (!session?.user?.id) {
@@ -232,7 +258,7 @@ export async function exportCompanyEvaluations(format: 'pdf' | 'excel' = 'excel'
     const dateSuffix = new Date().toISOString().split('T')[0]
 
     if (format === 'excel') {
-      const excelBuffer = generateExcel(evaluations)
+      const excelBuffer = generateExcel(evaluations, language)
       const filename = `company_evaluations_${companyName}_${dateSuffix}.xlsx`
       
       return {
@@ -243,7 +269,20 @@ export async function exportCompanyEvaluations(format: 'pdf' | 'excel' = 'excel'
       }
     }
 
-    return { success: false, error: 'PDF format not implemented for company exports. Use Excel.' }
+    if (format === 'pdf') {
+      // For PDF export of company evaluations
+      const pdfBuffer = generateMultiEvaluationPDF(evaluations, language, 'Company Evaluations')
+      const filename = `company_evaluations_${companyName}_${dateSuffix}.pdf`
+      
+      return {
+        success: true,
+        data: Array.from(pdfBuffer),
+        filename,
+        contentType: 'application/pdf'
+      }
+    }
+
+    return { success: false, error: 'Unsupported format for company exports.' }
 
   } catch (error) {
     console.error('Error in exportCompanyEvaluations:', error)

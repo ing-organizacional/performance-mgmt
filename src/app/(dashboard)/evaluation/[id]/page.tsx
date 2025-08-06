@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { ExportButton } from '@/components/features/dashboard'
+import { useLanguage } from '@/contexts/LanguageContext'
 import type { OKRItem, CompetencyItem } from '@/types'
 
 interface EvaluationDetail {
@@ -31,6 +32,7 @@ export default function EvaluationDetailPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const params = useParams()
+  const { t } = useLanguage()
   const [evaluation, setEvaluation] = useState<EvaluationDetail | null>(null)
   const [loading, setLoading] = useState(true)
 
@@ -165,7 +167,7 @@ export default function EvaluationDetailPage() {
                 format="pdf"
                 className="px-3 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 transition-colors"
               >
-                Export PDF
+{t.dashboard.exportPDF}
               </ExportButton>
             </div>
           </div>

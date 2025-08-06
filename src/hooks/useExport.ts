@@ -7,6 +7,7 @@ import {
   exportDepartmentEvaluations, 
   exportCompanyEvaluations 
 } from '@/lib/actions'
+import { useLanguage } from '@/contexts/LanguageContext'
 
 type ExportFormat = 'pdf' | 'excel'
 
@@ -22,6 +23,7 @@ interface UseExportResult {
 export function useExport(): UseExportResult {
   const [isExporting, setIsExporting] = useState(false)
   const [exportError, setExportError] = useState<string | null>(null)
+  const { language } = useLanguage()
 
   const downloadFile = (data: number[] | Buffer, filename: string, contentType: string) => {
     try {
@@ -75,8 +77,8 @@ export function useExport(): UseExportResult {
     setExportError(null)
     
     try {
-      console.log('Starting export for evaluation:', evaluationId, 'format:', format)
-      const result = await exportEvaluation(evaluationId, format)
+      console.log('Starting export for evaluation:', evaluationId, 'format:', format, 'language:', language)
+      const result = await exportEvaluation(evaluationId, format, language)
       
       console.log('Export result:', {
         success: result.success,
@@ -116,7 +118,7 @@ export function useExport(): UseExportResult {
     setExportError(null)
     
     try {
-      const result = await exportTeamEvaluations(format)
+      const result = await exportTeamEvaluations(format, language)
       
       if (!result.success) {
         setExportError(result.error || 'Export failed')
@@ -139,7 +141,7 @@ export function useExport(): UseExportResult {
     setExportError(null)
     
     try {
-      const result = await exportDepartmentEvaluations(department, format)
+      const result = await exportDepartmentEvaluations(department, format, language)
       
       if (!result.success) {
         setExportError(result.error || 'Export failed')
@@ -162,7 +164,7 @@ export function useExport(): UseExportResult {
     setExportError(null)
     
     try {
-      const result = await exportCompanyEvaluations(format)
+      const result = await exportCompanyEvaluations(format, language)
       
       if (!result.success) {
         setExportError(result.error || 'Export failed')
