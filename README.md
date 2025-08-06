@@ -167,15 +167,27 @@ yarn lint                  # Code linting
 ### CSV Import Format
 ```csv
 name,email,username,role,department,userType,password,employeeId,personID,managerPersonID,managerEmployeeId,companyCode
+Michael Chen,michael.chen@demo.com,,manager,Engineering,office,password123,MGR001,87654321,,,DEMO_001
 John Smith,john@company.com,,employee,Sales,office,password123,EMP001,12345678,87654321,,DEMO_001
-Maria Worker,,maria.worker,employee,Manufacturing,operational,1234,EMP002,87654321,12345678,,DEMO_001
+Maria Worker,,maria.worker,employee,Manufacturing,operational,1234,EMP002,23456789,,MGR001,DEMO_001
 ```
 
-**Enhanced Fields:**
+**Required Fields:**
+- `name`: Full employee name (required)
+- `role`: employee, manager, or hr (required) 
+- `companyCode`: Company identifier (required)
+- Either `email` OR `username` (at least one required)
+- `personID`: National ID/Cédula (required for API import, optional for CLI)
+
+**Manager Assignment (choose one):**
+- `managerPersonID`: Manager's National ID (preferred method)
+- `managerEmployeeId`: Manager's Employee ID (alternative method)
+
+**HRIS Integration Fields:**
 - `employeeId`: Company-assigned ID (EMP001, MGR001) for HRIS integration
-- `personID`: National ID/Cédula for legal identification and manager matching
-- `managerPersonID`: Manager's National ID for hierarchy establishment
-- `managerEmployeeId`: Alternative manager matching via Employee ID
+- `personID`: National ID/Cédula for legal identification and unique identification
+- `department`: Department/team name
+- `userType`: office (default) or operational
 
 ### Server Actions Examples
 ```typescript

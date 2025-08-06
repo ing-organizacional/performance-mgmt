@@ -40,22 +40,23 @@ Create a CSV file with these columns:
 
 ```csv
 name,email,username,role,department,userType,password,employeeId,personID,managerPersonID,managerEmployeeId,companyCode
+Michael Chen,michael.chen@demo.com,,manager,Engineering,office,password123,MGR001,87654321,,,DEMO_001
 John Smith,john@company.com,,employee,Sales,office,password123,EMP001,12345678,87654321,,DEMO_001
-Maria Worker,,maria.worker,employee,Manufacturing,operational,1234,EMP002,87654321,12345678,,DEMO_001
+Maria Worker,,maria.worker,employee,Manufacturing,operational,1234,EMP002,23456789,,MGR001,DEMO_001
 HR Manager,hr1@demo.com,,hr,Human Resources,office,password123,HR001,11111111,,,DEMO_001
 ```
 
 ### Column Definitions:
 - **name** (required): Full name
-- **email**: For office workers
-- **username**: For operational workers (no email)
+- **email**: For office workers (required if no username)
+- **username**: For operational workers (required if no email)
 - **role** (required): employee, manager, hr
 - **department**: Team/department name
 - **userType**: office (default) or operational
 - **password** (required): Initial password
 - **employeeId**: Company-assigned ID (EMP001, MGR001) for HRIS integration
-- **personID**: National ID/Cédula for legal identification
-- **managerPersonID**: Manager's National ID for hierarchy matching
+- **personID**: National ID/Cédula for legal identification (required for API import)
+- **managerPersonID**: Manager's National ID for hierarchy matching (preferred)
 - **managerEmployeeId**: Alternative manager matching via Employee ID
 - **companyCode** (required): Company identifier
 

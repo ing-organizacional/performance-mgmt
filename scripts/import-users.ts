@@ -11,9 +11,12 @@ interface CSVUser {
   department?: string
   userType: 'office' | 'operational'
   password: string
-  managerEmail?: string
-  companyCode: string
   employeeId?: string
+  personID?: string
+  managerPersonID?: string
+  managerEmployeeId?: string
+  managerEmail?: string // Legacy support
+  companyCode: string
 }
 
 // Simple CSV parser function
@@ -102,19 +105,31 @@ export async function importUsersFromCSV(csvPath: string) {
           continue
         }
         
-        // Find manager if specified
+        // Find manager if specified (try new methods first, then legacy)
         let managerId = null
-        if (userData.managerEmail) {
+        if (userData.managerPersonID || userData.managerEmployeeId || userData.managerEmail) {
           const manager = await prisma.user.findFirst({
             where: { 
-              email: userData.managerEmail,
-              companyId: company.id 
+              AND: [
+                { companyId: company.id },
+                { role: { in: ['manager', 'hr'] } }, // Ensure only managers/HR can be assigned as managers
+                {
+                  OR: [
+                    userData.managerPersonID ? { personID: userData.managerPersonID } : {},
+                    userData.managerEmployeeId ? { employeeId: userData.managerEmployeeId } : {},
+                    userData.managerEmail ? { email: userData.managerEmail } : {}
+                  ].filter(condition => Object.keys(condition).length > 0)
+                }
+              ]
             }
           })
           if (manager) {
             managerId = manager.id
           } else {
-            console.log(`⚠️  Manager not found: ${userData.managerEmail} for user ${userData.name}`)
+            const identifier = userData.managerPersonID ? `PersonID: ${userData.managerPersonID}` : 
+                             userData.managerEmployeeId ? `EmployeeID: ${userData.managerEmployeeId}` :
+                             `Email: ${userData.managerEmail}`
+            console.log(`⚠️  Manager not found with ${identifier} for user ${userData.name}`)
           }
         }
         
@@ -129,6 +144,7 @@ export async function importUsersFromCSV(csvPath: string) {
             managerId,
             department: userData.department || null,
             employeeId: userData.employeeId || null,
+            personID: userData.personID || null,
             userType: userData.userType || 'office',
             passwordHash: await bcrypt.hash(userData.password || 'changeme123', 12),
             pinCode: (userData.userType === 'operational') ? (userData.password || '1234') : null,
@@ -163,10 +179,12 @@ if (require.main === module) {
   const csvPath = process.argv[2]
   if (!csvPath) {
     console.log('Usage: yarn tsx scripts/import-users.ts <path-to-csv-file>')
-    console.log('\nExample CSV format:')
+    console.log('\nExample CSV format (NEW):')
+    console.log('name,email,username,role,department,userType,password,employeeId,personID,managerPersonID,managerEmployeeId,companyCode')
+    console.log('John Smith,john.smith@company.com,,employee,Sales,office,password123,EMP001,12345678,87654321,,DEMO_001')
+    console.log('Maria Garcia,,maria.worker,employee,Manufacturing,operational,1234,EMP002,23456789,,MGR001,DEMO_001')
+    console.log('\nLegacy format (still supported):')
     console.log('name,email,username,role,department,userType,password,managerEmail,companyCode,employeeId')
-    console.log('John Smith,john.smith@company.com,,employee,Sales,office,password123,manager@company.com,DEMO_001,EMP001')
-    console.log('Maria Garcia,,maria.worker,employee,Manufacturing,operational,1234,supervisor@company.com,DEMO_001,EMP002')
     process.exit(1)
   }
   
