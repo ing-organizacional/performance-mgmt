@@ -38,6 +38,9 @@ interface EvaluationData {
     name: string
     code: string
   }
+  cycle: {
+    name: string
+  } | null
   periodType: string
   periodDate: string
   evaluationItemsData: EvaluationItem[]
@@ -95,7 +98,7 @@ export async function getCompanyEvaluations(
       companyId,
       ...(periodType && { periodType }),
       ...(periodDate && { periodDate }),
-      status: 'submitted'
+      status: 'completed' // Only include completed evaluations
     },
     include: {
       employee: {
@@ -117,6 +120,11 @@ export async function getCompanyEvaluations(
         select: {
           name: true,
           code: true
+        }
+      },
+      cycle: {
+        select: {
+          name: true
         }
       }
     },
@@ -381,6 +389,295 @@ export function generatePDF(evaluation: EvaluationData, language = 'en'): Buffer
   }
 }
 
+export function generateDepartmentDetailedPDF(evaluations: EvaluationData[], language = 'en', departmentName = 'Department'): Buffer {
+  try {
+    console.log('Starting department detailed PDF generation:', {
+      evaluationCount: evaluations.length,
+      language,
+      departmentName
+    })
+
+    const doc = new jsPDF()
+    const labels = getPDFLabels(language)
+    let yPosition = 20
+
+    // Header
+    doc.setFontSize(20)
+    const title = language === 'es' 
+      ? `Evaluaciones del Departamento: ${departmentName}`
+      : `Department Evaluations: ${departmentName}`
+    doc.text(title, 20, yPosition)
+    yPosition += 15
+
+    // Department Summary Section
+    doc.setFontSize(16)
+    const summaryLabel = language === 'es' ? 'Resumen del Departamento' : 'Department Summary'
+    doc.text(summaryLabel, 20, yPosition)
+    yPosition += 12
+
+    // Basic stats
+    doc.setFontSize(12)
+    doc.text(`${language === 'es' ? 'Total de evaluaciones' : 'Total evaluations'}: ${evaluations.length}`, 20, yPosition)
+    yPosition += 6
+    doc.text(`${labels.generatedOn} ${new Date().toLocaleDateString()}`, 20, yPosition)
+    yPosition += 10
+
+    // Performance Distribution and Averages
+    const ratingCounts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }
+    let totalRated = 0
+    let teamOkrSum = 0
+    let teamCompetencySum = 0
+    let teamOkrCount = 0
+    let teamCompetencyCount = 0
+
+    evaluations.forEach(evaluation => {
+      if (evaluation.overallRating) {
+        ratingCounts[evaluation.overallRating as keyof typeof ratingCounts]++
+        totalRated++
+      }
+
+      // Calculate OKR and Competency averages for the team
+      if (evaluation.evaluationItemsData && evaluation.evaluationItemsData.length > 0) {
+        evaluation.evaluationItemsData.forEach(item => {
+          if (item.rating) {
+            if (item.type === 'okr') {
+              teamOkrSum += item.rating
+              teamOkrCount++
+            } else if (item.type === 'competency') {
+              teamCompetencySum += item.rating
+              teamCompetencyCount++
+            }
+          }
+        })
+      }
+    })
+
+    // Team Averages Section
+    doc.setFontSize(14)
+    const averagesLabel = language === 'es' ? 'Promedios del Equipo' : 'Team Averages'
+    doc.text(averagesLabel, 20, yPosition)
+    yPosition += 8
+
+    doc.setFontSize(12)
+    if (teamOkrCount > 0) {
+      const teamOkrAverage = (teamOkrSum / teamOkrCount).toFixed(1)
+      doc.text(`${language === 'es' ? 'Promedio OKRs' : 'OKR Average'}: ${teamOkrAverage}/5`, 25, yPosition)
+      yPosition += 6
+    }
+    if (teamCompetencyCount > 0) {
+      const teamCompetencyAverage = (teamCompetencySum / teamCompetencyCount).toFixed(1)
+      doc.text(`${language === 'es' ? 'Promedio Competencias' : 'Competency Average'}: ${teamCompetencyAverage}/5`, 25, yPosition)
+      yPosition += 6
+    }
+    if (totalRated > 0) {
+      const overallTeamAverage = evaluations.reduce((sum, evaluation) => sum + (evaluation.overallRating || 0), 0) / totalRated
+      doc.text(`${language === 'es' ? 'Promedio General' : 'Overall Average'}: ${overallTeamAverage.toFixed(1)}/5`, 25, yPosition)
+      yPosition += 10
+    }
+
+    if (totalRated > 0) {
+      doc.setFontSize(14)
+      const distributionLabel = language === 'es' ? 'Distribución de Calificaciones' : 'Rating Distribution'
+      doc.text(distributionLabel, 20, yPosition)
+      yPosition += 8
+
+      doc.setFontSize(12)
+      Object.entries(ratingCounts).forEach(([rating, count]) => {
+        if (count > 0) {
+          const percentage = ((count / totalRated) * 100).toFixed(1)
+          const ratingText = getRatingText(parseInt(rating), language)
+          doc.text(`${rating}/5 - ${ratingText}: ${count} (${percentage}%)`, 25, yPosition)
+          yPosition += 6
+        }
+      })
+      yPosition += 8
+    }
+
+    // Team Composition
+    doc.setFontSize(14)
+    const teamLabel = language === 'es' ? 'Composición del Equipo' : 'Team Composition'
+    doc.text(teamLabel, 20, yPosition)
+    yPosition += 8
+
+    doc.setFontSize(12)
+    const managers = evaluations.filter(e => e.employee.name === e.manager?.name).length
+    const employees = evaluations.length - managers
+    
+    if (managers > 0) {
+      doc.text(`${language === 'es' ? 'Gerentes' : 'Managers'}: ${managers}`, 25, yPosition)
+      yPosition += 6
+    }
+    doc.text(`${language === 'es' ? 'Empleados' : 'Employees'}: ${employees}`, 25, yPosition)
+    yPosition += 15
+
+    // Always add page break after department summary
+    doc.addPage()
+    yPosition = 20
+
+    // Individual Evaluations Section Header
+    doc.setFontSize(16)
+    const individualLabel = language === 'es' ? 'Evaluaciones Individuales' : 'Individual Evaluations'
+    doc.text(individualLabel, 20, yPosition)
+    yPosition += 15
+
+    // Process each evaluation with FULL details
+    evaluations.forEach((evaluation, index) => {
+      // Start each employee on a new page (except the first one)
+      if (index > 0) {
+        doc.addPage()
+        yPosition = 20
+      }
+
+      // Employee header - make it prominent
+      doc.setFontSize(18)
+      doc.text(`${index + 1}. ${evaluation.employee?.name || 'N/A'}`, 20, yPosition)
+      yPosition += 12
+
+      // Employee details
+      doc.setFontSize(12)
+      if (evaluation.employee?.department) {
+        doc.text(`${labels.department}: ${evaluation.employee.department}`, 25, yPosition)
+        yPosition += 6
+      }
+      
+      if (evaluation.employee?.email) {
+        doc.text(`${labels.email}: ${evaluation.employee.email}`, 25, yPosition)
+        yPosition += 6
+      }
+      
+      if (evaluation.manager?.name) {
+        doc.text(`${labels.manager}: ${evaluation.manager.name}`, 25, yPosition)
+        yPosition += 6
+      }
+      
+      doc.text(`${labels.status}: ${evaluation.status?.toUpperCase() || 'N/A'}`, 25, yPosition)
+      yPosition += 8
+
+      // Calculate individual OKR and Competency averages
+      let individualOkrSum = 0
+      let individualCompetencySum = 0
+      let individualOkrCount = 0
+      let individualCompetencyCount = 0
+
+      if (evaluation.evaluationItemsData && evaluation.evaluationItemsData.length > 0) {
+        evaluation.evaluationItemsData.forEach(item => {
+          if (item.rating) {
+            if (item.type === 'okr') {
+              individualOkrSum += item.rating
+              individualOkrCount++
+            } else if (item.type === 'competency') {
+              individualCompetencySum += item.rating
+              individualCompetencyCount++
+            }
+          }
+        })
+      }
+
+      // Individual Averages Section
+      doc.setFontSize(14)
+      const individualAveragesLabel = language === 'es' ? 'Promedios Individuales' : 'Individual Averages'
+      doc.text(individualAveragesLabel, 25, yPosition)
+      yPosition += 8
+
+      doc.setFontSize(12)
+      if (individualOkrCount > 0) {
+        const individualOkrAverage = (individualOkrSum / individualOkrCount).toFixed(1)
+        doc.text(`${language === 'es' ? 'Promedio OKRs' : 'OKR Average'}: ${individualOkrAverage}/5`, 30, yPosition)
+        yPosition += 6
+      }
+      if (individualCompetencyCount > 0) {
+        const individualCompetencyAverage = (individualCompetencySum / individualCompetencyCount).toFixed(1)
+        doc.text(`${language === 'es' ? 'Promedio Competencias' : 'Competency Average'}: ${individualCompetencyAverage}/5`, 30, yPosition)
+        yPosition += 6
+      }
+
+      // Overall Rating - make it prominent
+      if (evaluation.overallRating) {
+        doc.setFontSize(14)
+        const ratingText = `${labels.overallRating}: ${evaluation.overallRating}/5 - ${getRatingText(evaluation.overallRating, language)}`
+        doc.text(ratingText, 25, yPosition)
+        yPosition += 10
+      }
+
+      // Detailed evaluation items
+      if (evaluation.evaluationItemsData && evaluation.evaluationItemsData.length > 0) {
+        doc.setFontSize(14)
+        doc.text(labels.evaluationItems, 25, yPosition)
+        yPosition += 8
+
+        evaluation.evaluationItemsData.forEach((item: EvaluationItem) => {
+          // Check if we need a new page
+          if (yPosition > 250) {
+            doc.addPage()
+            yPosition = 20
+          }
+
+          doc.setFontSize(12)
+          const itemType = item.type === 'okr' ? labels.okr : labels.competency
+          doc.text(`• ${itemType}: ${item.title || 'N/A'}`, 30, yPosition)
+          yPosition += 6
+          
+          if (item.rating) {
+            doc.text(`  ${labels.rating}: ${item.rating}/5 - ${getRatingText(item.rating, language)}`, 32, yPosition)
+            yPosition += 6
+          }
+          
+          if (item.comment && item.comment.trim()) {
+            const commentLines = doc.splitTextToSize(`  ${labels.comment}: ${item.comment.trim()}`, 150)
+            doc.text(commentLines, 32, yPosition)
+            yPosition += (commentLines.length * 6)
+          }
+          yPosition += 4
+        })
+        yPosition += 8
+      }
+
+      // Manager Comments
+      if (evaluation.managerComments) {
+        doc.setFontSize(14)
+        doc.text(labels.managerComments, 25, yPosition)
+        yPosition += 8
+        
+        doc.setFontSize(12)
+        const commentLines = doc.splitTextToSize(evaluation.managerComments, 160)
+        doc.text(commentLines, 25, yPosition)
+        yPosition += (commentLines.length * 6) + 8
+      }
+
+      yPosition += 15 // Extra space between evaluations
+    })
+
+    // Footer
+    const pageCount = doc.getNumberOfPages()
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i)
+      doc.setFontSize(10)
+      doc.text(
+        `${labels.generatedOn} ${new Date().toLocaleDateString()} - ${labels.page} ${i} ${labels.of} ${pageCount}`,
+        20,
+        290
+      )
+    }
+
+    // Generate PDF as a buffer
+    console.log('Generating department detailed PDF output...')
+    const pdfOutput = doc.output('arraybuffer')
+    console.log('Department detailed PDF output generated, size:', pdfOutput.byteLength, 'bytes')
+    
+    if (pdfOutput.byteLength === 0) {
+      throw new Error('Generated PDF is empty (0 bytes)')
+    }
+    
+    const buffer = Buffer.from(pdfOutput)
+    console.log('Department detailed PDF Buffer created, size:', buffer.length, 'bytes')
+    
+    return buffer
+  } catch (error) {
+    console.error('Error in department detailed PDF generation:', error)
+    throw new Error(`Department detailed PDF generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
+  }
+}
+
 export function generateMultiEvaluationPDF(evaluations: EvaluationData[], language = 'en', reportTitle = 'Evaluations Report'): Buffer {
   try {
     console.log('Starting multi-evaluation PDF generation:', {
@@ -399,13 +696,124 @@ export function generateMultiEvaluationPDF(evaluations: EvaluationData[], langua
     doc.text(title, 20, yPosition)
     yPosition += 15
 
-    // Summary Information
+    // Company Summary Section
+    doc.setFontSize(16)
+    const summaryLabel = language === 'es' ? 'Resumen de la Empresa' : 'Company Summary'
+    doc.text(summaryLabel, 20, yPosition)
+    yPosition += 12
+
+    // Basic stats
     doc.setFontSize(12)
-    const summaryLabel = language === 'es' ? 'Resumen' : 'Summary'
-    doc.text(`${summaryLabel}: ${evaluations.length} ${language === 'es' ? 'evaluaciones' : 'evaluations'}`, 20, yPosition)
-    yPosition += 8
+    doc.text(`${language === 'es' ? 'Total de evaluaciones' : 'Total evaluations'}: ${evaluations.length}`, 20, yPosition)
+    yPosition += 6
     doc.text(`${labels.generatedOn} ${new Date().toLocaleDateString()}`, 20, yPosition)
-    yPosition += 20
+    yPosition += 10
+
+    // Performance Distribution and Averages
+    const ratingCounts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }
+    let totalRated = 0
+    let companyOkrSum = 0
+    let companyCompetencySum = 0
+    let companyOkrCount = 0
+    let companyCompetencyCount = 0
+
+    evaluations.forEach(evaluation => {
+      if (evaluation.overallRating) {
+        ratingCounts[evaluation.overallRating as keyof typeof ratingCounts]++
+        totalRated++
+      }
+
+      // Calculate OKR and Competency averages for the company
+      if (evaluation.evaluationItemsData && evaluation.evaluationItemsData.length > 0) {
+        evaluation.evaluationItemsData.forEach(item => {
+          if (item.rating) {
+            if (item.type === 'okr') {
+              companyOkrSum += item.rating
+              companyOkrCount++
+            } else if (item.type === 'competency') {
+              companyCompetencySum += item.rating
+              companyCompetencyCount++
+            }
+          }
+        })
+      }
+    })
+
+    // Company Averages Section
+    doc.setFontSize(14)
+    const averagesLabel = language === 'es' ? 'Promedios de la Empresa' : 'Company Averages'
+    doc.text(averagesLabel, 20, yPosition)
+    yPosition += 8
+
+    doc.setFontSize(12)
+    if (companyOkrCount > 0) {
+      const companyOkrAverage = (companyOkrSum / companyOkrCount).toFixed(1)
+      doc.text(`${language === 'es' ? 'Promedio OKRs' : 'OKR Average'}: ${companyOkrAverage}/5`, 25, yPosition)
+      yPosition += 6
+    }
+    if (companyCompetencyCount > 0) {
+      const companyCompetencyAverage = (companyCompetencySum / companyCompetencyCount).toFixed(1)
+      doc.text(`${language === 'es' ? 'Promedio Competencias' : 'Competency Average'}: ${companyCompetencyAverage}/5`, 25, yPosition)
+      yPosition += 6
+    }
+    if (totalRated > 0) {
+      const overallCompanyAverage = evaluations.reduce((sum, evaluation) => sum + (evaluation.overallRating || 0), 0) / totalRated
+      doc.text(`${language === 'es' ? 'Promedio General' : 'Overall Average'}: ${overallCompanyAverage.toFixed(1)}/5`, 25, yPosition)
+      yPosition += 10
+    }
+
+    // Performance Distribution
+    if (totalRated > 0) {
+      doc.setFontSize(14)
+      const distributionLabel = language === 'es' ? 'Distribución de Calificaciones' : 'Rating Distribution'
+      doc.text(distributionLabel, 20, yPosition)
+      yPosition += 8
+
+      doc.setFontSize(12)
+      Object.entries(ratingCounts).forEach(([rating, count]) => {
+        if (count > 0) {
+          const percentage = ((count / totalRated) * 100).toFixed(1)
+          const ratingText = getRatingText(parseInt(rating), language)
+          doc.text(`${rating}/5 - ${ratingText}: ${count} (${percentage}%)`, 25, yPosition)
+          yPosition += 6
+        }
+      })
+      yPosition += 8
+    }
+
+    // Departments Overview
+    const departmentCounts: Record<string, number> = {}
+    evaluations.forEach(evaluation => {
+      const dept = evaluation.employee.department || (language === 'es' ? 'Sin Departamento' : 'No Department')
+      departmentCounts[dept] = (departmentCounts[dept] || 0) + 1
+    })
+
+    if (Object.keys(departmentCounts).length > 1) {
+      doc.setFontSize(14)
+      const deptLabel = language === 'es' ? 'Distribución por Departamento' : 'Department Distribution'
+      doc.text(deptLabel, 20, yPosition)
+      yPosition += 8
+
+      doc.setFontSize(12)
+      Object.entries(departmentCounts).forEach(([department, count]) => {
+        const percentage = ((count / evaluations.length) * 100).toFixed(1)
+        doc.text(`${department}: ${count} (${percentage}%)`, 25, yPosition)
+        yPosition += 6
+      })
+      yPosition += 10
+    }
+
+    // Add page break before individual evaluations if needed
+    if (yPosition > 200) {
+      doc.addPage()
+      yPosition = 20
+    }
+
+    // Individual Evaluations Section Header
+    doc.setFontSize(16)
+    const individualLabel = language === 'es' ? 'Evaluaciones por Empleado' : 'Employee Evaluations'
+    doc.text(individualLabel, 20, yPosition)
+    yPosition += 15
 
     // Process each evaluation
     evaluations.forEach((evaluation, index) => {
@@ -425,6 +833,38 @@ export function generateMultiEvaluationPDF(evaluations: EvaluationData[], langua
         doc.text(`${labels.department}: ${evaluation.employee.department}`, 25, yPosition)
         yPosition += 6
       }
+
+      // Calculate individual OKR and Competency averages
+      let individualOkrSum = 0
+      let individualCompetencySum = 0
+      let individualOkrCount = 0
+      let individualCompetencyCount = 0
+
+      if (evaluation.evaluationItemsData && evaluation.evaluationItemsData.length > 0) {
+        evaluation.evaluationItemsData.forEach(item => {
+          if (item.rating) {
+            if (item.type === 'okr') {
+              individualOkrSum += item.rating
+              individualOkrCount++
+            } else if (item.type === 'competency') {
+              individualCompetencySum += item.rating
+              individualCompetencyCount++
+            }
+          }
+        })
+      }
+
+      // Display individual averages
+      if (individualOkrCount > 0) {
+        const individualOkrAverage = (individualOkrSum / individualOkrCount).toFixed(1)
+        doc.text(`${language === 'es' ? 'OKRs' : 'OKR Average'}: ${individualOkrAverage}/5`, 25, yPosition)
+        yPosition += 6
+      }
+      if (individualCompetencyCount > 0) {
+        const individualCompetencyAverage = (individualCompetencySum / individualCompetencyCount).toFixed(1)
+        doc.text(`${language === 'es' ? 'Competencias' : 'Competency Average'}: ${individualCompetencyAverage}/5`, 25, yPosition)
+        yPosition += 6
+      }
       
       if (evaluation.overallRating) {
         const ratingText = `${labels.rating}: ${evaluation.overallRating}/5 - ${getRatingText(evaluation.overallRating, language)}`
@@ -433,24 +873,7 @@ export function generateMultiEvaluationPDF(evaluations: EvaluationData[], langua
       }
 
       doc.text(`${labels.status}: ${evaluation.status?.toUpperCase() || 'N/A'}`, 25, yPosition)
-      yPosition += 10
-
-      // Evaluation items summary
-      if (evaluation.evaluationItemsData && evaluation.evaluationItemsData.length > 0) {
-        const okrs = evaluation.evaluationItemsData.filter(item => item.type === 'okr')
-        const competencies = evaluation.evaluationItemsData.filter(item => item.type === 'competency')
-        
-        if (okrs.length > 0) {
-          doc.text(`${labels.okr}s: ${okrs.length}`, 25, yPosition)
-          yPosition += 6
-        }
-        
-        if (competencies.length > 0) {
-          const compLabel = language === 'es' ? 'Competencias' : 'Competencies'
-          doc.text(`${compLabel}: ${competencies.length}`, 25, yPosition)
-          yPosition += 6
-        }
-      }
+      yPosition += 8
 
       yPosition += 10
     })

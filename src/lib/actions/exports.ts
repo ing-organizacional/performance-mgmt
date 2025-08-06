@@ -2,7 +2,7 @@
 
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma-client'
-import { getEvaluationData, getCompanyEvaluations, generatePDF, generateExcel, generateMultiEvaluationPDF } from '@/lib/export'
+import { getEvaluationData, getCompanyEvaluations, generatePDF, generateExcel, generateMultiEvaluationPDF, generateDepartmentDetailedPDF } from '@/lib/export'
 
 interface ExportResult {
   success: boolean
@@ -188,19 +188,32 @@ export async function exportDepartmentEvaluations(department?: string, format: '
 
     // Get department evaluations
     const evaluations = await getCompanyEvaluations(user.companyId)
+    
+    console.log('Department export debug:', {
+      targetDepartment,
+      totalEvaluations: evaluations.length,
+      availableDepartments: [...new Set(evaluations.map(e => e.employee.department))],
+      evaluationStatuses: [...new Set(evaluations.map(e => e.status))],
+      userRole: user.role
+    })
+    
     const departmentEvaluations = evaluations.filter(evaluation => evaluation.employee.department === targetDepartment)
+    
+    console.log('Filtered department evaluations:', {
+      departmentEvaluations: departmentEvaluations.length,
+      employees: departmentEvaluations.map(e => ({ name: e.employee.name, dept: e.employee.department }))
+    })
 
     if (departmentEvaluations.length === 0) {
-      return { success: false, error: `No evaluations found for department: ${targetDepartment}` }
+      return { success: false, error: `No evaluations found for department: ${targetDepartment}. Available departments: ${[...new Set(evaluations.map(e => e.employee.department))].join(', ')}` }
     }
 
-    const companyName = departmentEvaluations[0].company.name.replace(/\s+/g, '_')
     const departmentName = targetDepartment.replace(/\s+/g, '_')
-    const dateSuffix = new Date().toISOString().split('T')[0]
+    const cycleName = departmentEvaluations[0].cycle?.name?.replace(/\s+/g, '_') || 'No_Cycle'
 
     if (format === 'excel') {
       const excelBuffer = generateExcel(departmentEvaluations, language)
-      const filename = `department_evaluations_${companyName}_${departmentName}_${dateSuffix}.xlsx`
+      const filename = `${departmentName}_${cycleName}_Report.xlsx`
       
       return {
         success: true,
@@ -211,9 +224,9 @@ export async function exportDepartmentEvaluations(department?: string, format: '
     }
 
     if (format === 'pdf') {
-      // For PDF export of department evaluations
-      const pdfBuffer = generateMultiEvaluationPDF(departmentEvaluations, language, `Department: ${targetDepartment}`)
-      const filename = `department_evaluations_${companyName}_${departmentName}_${dateSuffix}.pdf`
+      // For PDF export of department evaluations with full individual details
+      const pdfBuffer = generateDepartmentDetailedPDF(departmentEvaluations, language, targetDepartment)
+      const filename = `${departmentName}_${cycleName}_Report.pdf`
       
       return {
         success: true,
