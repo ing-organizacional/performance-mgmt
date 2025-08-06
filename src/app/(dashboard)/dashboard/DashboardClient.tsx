@@ -1,8 +1,9 @@
 'use client'
 
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { signOut } from 'next-auth/react'
-import { ExportButton } from '@/components/features/dashboard'
+import { ExportButton, PDFExportCenter } from '@/components/features/dashboard'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { LanguageSwitcher } from '@/components/layout'
 import { CycleSelector } from '@/components/features/cycles'
@@ -44,6 +45,7 @@ interface PerformanceCycle {
 interface DashboardClientProps {
   userRole: string
   companyId: string
+  companyName: string
   completionStats: CompletionStats
   ratingDistribution: RatingDistribution
   activeCycle: EvaluationCycle | null
@@ -52,6 +54,7 @@ interface DashboardClientProps {
 
 export default function DashboardClient({
   companyId,
+  companyName,
   completionStats,
   ratingDistribution,
   activeCycle,
@@ -59,6 +62,7 @@ export default function DashboardClient({
 }: DashboardClientProps) {
   const router = useRouter()
   const { t } = useLanguage()
+  const [isExportCenterOpen, setIsExportCenterOpen] = useState(false)
 
   const completionPercentage = completionStats.total > 0 
     ? Math.round((completionStats.completed / completionStats.total) * 100)
@@ -241,7 +245,7 @@ export default function DashboardClient({
           className="w-full bg-white rounded-lg border border-gray-200 p-6 shadow-sm hover:shadow-md active:scale-[0.98] transition-all duration-150 text-left touch-manipulation"
         >
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-gray-900">{t.dashboard.ratingDistribution}</h2>
+            <h2 className="text-lg font-semibold text-gray-900">{t.dashboard.generalResults} - {companyName}</h2>
             <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
@@ -343,9 +347,7 @@ export default function DashboardClient({
                 <span className="text-sm font-medium text-gray-700">{t.dashboard.exportAllEvaluations}</span>
               </div>
               <ExportButton
-                companyId={companyId}
-                periodType="quarterly"
-                periodDate="2024-Q1"
+                type="company"
                 format="excel"
                 className="px-3 py-1 bg-blue-600 text-white rounded text-xs font-medium hover:bg-blue-700 transition-colors"
               >
@@ -353,23 +355,20 @@ export default function DashboardClient({
               </ExportButton>
             </div>
 
-            <div className="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
+            <button 
+              onClick={() => setIsExportCenterOpen(true)}
+              className="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+            >
               <div className="flex items-center">
                 <svg className="w-5 h-5 text-green-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
-                <span className="text-sm font-medium text-gray-700">{t.dashboard.generateReports}</span>
+                <span className="text-sm font-medium text-gray-700">{t.dashboard.pdfExportCenter}</span>
               </div>
-              <div className="flex gap-2">
-                <ExportButton
-                  companyId={companyId}
-                  format="excel"
-                  className="px-3 py-1 bg-green-600 text-white rounded text-xs font-medium hover:bg-green-700 transition-colors"
-                >
-                  {t.dashboard.allPeriods}
-                </ExportButton>
-              </div>
-            </div>
+              <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
 
             <button 
               onClick={() => router.push('/users')}
@@ -418,6 +417,13 @@ export default function DashboardClient({
           </span>
         </div>
       </div>
+
+      {/* PDF Export Center Modal */}
+      <PDFExportCenter 
+        isOpen={isExportCenterOpen}
+        onClose={() => setIsExportCenterOpen(false)}
+        companyId={companyId}
+      />
     </div>
   )
 }

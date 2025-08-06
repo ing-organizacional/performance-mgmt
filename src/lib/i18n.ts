@@ -170,6 +170,7 @@ export interface Translations {
     dueWithinDays: string
     viewList: string
     ratingDistribution: string
+    generalResults: string
     outstanding: string
     exceeds: string
     meets: string
@@ -178,6 +179,31 @@ export interface Translations {
     quickActions: string
     exportAllEvaluations: string
     generateReports: string
+    exportPDF: string
+    pdfExportCenter: string
+    selectReportsToExport: string
+    companyOverview: string
+    allEmployeesAllDepartments: string
+    departmentSummary: string
+    departmentBreakdown: string
+    topPerformers: string
+    highestRatedEmployees: string
+    needsAttention: string
+    employeesNeedingSupport: string
+    managerReports: string
+    reportsGroupedByManager: string
+    customSelection: string
+    selectSpecificEmployees: string
+    reportsSelected: string
+    exporting: string
+    exportSelected: string
+    exportError: string
+    evaluationNotFound: string
+    accessDenied: string
+    exportFailed: string
+    noEvaluationsFound: string
+    hrRoleRequired: string
+    managerOrHrRequired: string
     allPeriods: string
     manageUsers: string
     startEvaluating: string
@@ -460,6 +486,7 @@ export const translations: Record<Language, Translations> = {
       dueWithinDays: 'Due within the next 3 days',
       viewList: 'View List',
       ratingDistribution: 'Rating Distribution',
+      generalResults: 'General Results',
       outstanding: 'Outstanding (5)',
       exceeds: 'Exceeds (4)',
       meets: 'Meets (3)',
@@ -468,6 +495,31 @@ export const translations: Record<Language, Translations> = {
       quickActions: 'Quick Actions',
       exportAllEvaluations: 'Export All Evaluations',
       generateReports: 'Generate Reports',
+      exportPDF: 'Export PDF',
+      pdfExportCenter: 'PDF Export Center',
+      selectReportsToExport: 'Select the reports you want to export',
+      companyOverview: 'Company Overview',
+      allEmployeesAllDepartments: 'All employees across all departments',
+      departmentSummary: 'Department Summary',
+      departmentBreakdown: 'Performance breakdown by department',
+      topPerformers: 'Top Performers',
+      highestRatedEmployees: 'Employees with ratings 4-5',
+      needsAttention: 'Needs Attention',
+      employeesNeedingSupport: 'Employees with ratings 1-2',
+      managerReports: 'Manager Reports',
+      reportsGroupedByManager: 'Performance reports grouped by manager',
+      customSelection: 'Custom Selection',
+      selectSpecificEmployees: 'Choose specific employees or departments',
+      reportsSelected: 'reports selected',
+      exporting: 'Exporting...',
+      exportSelected: 'Export Selected',
+      exportError: 'Export Error',
+      evaluationNotFound: 'Evaluation not found or access denied',
+      accessDenied: 'Access denied',
+      exportFailed: 'Export failed',
+      noEvaluationsFound: 'No evaluations found',
+      hrRoleRequired: 'Access denied - HR role required',
+      managerOrHrRequired: 'Access denied - Manager or HR role required',
       allPeriods: 'All Periods',
       manageUsers: 'Manage Users',
       startEvaluating: 'Start Evaluating',
@@ -746,6 +798,7 @@ export const translations: Record<Language, Translations> = {
       dueWithinDays: 'Vencen en los próximos 3 días',
       viewList: 'Ver Lista',
       ratingDistribution: 'Distribución de Calificaciones',
+      generalResults: 'Resultados Generales',
       outstanding: 'Excepcional (5)',
       exceeds: 'Supera (4)',
       meets: 'Cumple (3)',
@@ -754,6 +807,31 @@ export const translations: Record<Language, Translations> = {
       quickActions: 'Acciones Rápidas',
       exportAllEvaluations: 'Exportar Todas las Evaluaciones',
       generateReports: 'Generar Reportes',
+      exportPDF: 'Exportar PDF',
+      pdfExportCenter: 'Centro de Exportación PDF',
+      selectReportsToExport: 'Selecciona los reportes que deseas exportar',
+      companyOverview: 'Resumen de Empresa',
+      allEmployeesAllDepartments: 'Todos los empleados de todos los departamentos',
+      departmentSummary: 'Resumen por Departamento',
+      departmentBreakdown: 'Desglose de desempeño por departamento',
+      topPerformers: 'Mejores Desempeños',
+      highestRatedEmployees: 'Empleados con calificaciones 4-5',
+      needsAttention: 'Requiere Atención',
+      employeesNeedingSupport: 'Empleados con calificaciones 1-2',
+      managerReports: 'Reportes de Jefatura',
+      reportsGroupedByManager: 'Reportes de desempeño agrupados por jefatura',
+      customSelection: 'Selección Personalizada',
+      selectSpecificEmployees: 'Elegir empleados o departamentos específicos',
+      reportsSelected: 'reportes seleccionados',
+      exporting: 'Exportando...',
+      exportSelected: 'Exportar Seleccionados',
+      exportError: 'Error de Exportación',
+      evaluationNotFound: 'Evaluación no encontrada o acceso denegado',
+      accessDenied: 'Acceso denegado',
+      exportFailed: 'Error en la exportación',
+      noEvaluationsFound: 'No se encontraron evaluaciones',
+      hrRoleRequired: 'Acceso denegado - Se requiere rol de RRHH',
+      managerOrHrRequired: 'Acceso denegado - Se requiere rol de Jefatura o RRHH',
       allPeriods: 'Todos los Períodos',
       manageUsers: 'Gestionar Usuarios',
       startEvaluating: 'Comenzar Evaluación',

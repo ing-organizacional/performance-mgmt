@@ -161,6 +161,7 @@ export default function EvaluationDetailPage() {
             <div className="flex items-center gap-3">
               <ExportButton
                 evaluationId={evaluation.id}
+                type="evaluation"
                 format="pdf"
                 className="px-3 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 transition-colors"
               >

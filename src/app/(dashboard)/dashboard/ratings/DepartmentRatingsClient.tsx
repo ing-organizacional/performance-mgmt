@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { LanguageSwitcher } from '@/components/layout'
 import { useLanguage } from '@/contexts/LanguageContext'
+import { useExport } from '@/hooks/useExport'
 
 interface DepartmentRating {
   department: string
@@ -43,6 +44,7 @@ function DepartmentRatingCard({ department }: { department: DepartmentRating }) 
   const { t } = useLanguage()
   const router = useRouter()
   const [showDetails, setShowDetails] = useState(false)
+  const { isExporting, exportDepartment } = useExport()
   
   const getPercentage = (count: number) => 
     department.ratings.total > 0 ? Math.round((count / department.ratings.total) * 100) : 0
@@ -80,9 +82,34 @@ function DepartmentRatingCard({ department }: { department: DepartmentRating }) 
             </span>
           </div>
         </div>
-        <div className="text-right ml-4">
-          <div className="text-3xl font-bold text-gray-900">{completionPercentage}%</div>
-          <div className="text-xs text-gray-500 uppercase tracking-wide font-medium">Complete</div>
+        <div className="flex items-start gap-3 ml-4">
+          {/* Department Export Button */}
+          <button
+            onClick={() => exportDepartment(department.department, 'excel')}
+            disabled={isExporting}
+            className={`flex items-center gap-1 px-2 py-1 text-xs font-medium rounded active:scale-95 transition-all duration-150 touch-manipulation ${
+              isExporting 
+                ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            }`}
+            title={`${t.dashboard.exportPDF} - ${department.department}`}
+          >
+            {isExporting ? (
+              <svg className="animate-spin w-3 h-3" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+              </svg>
+            ) : (
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+            )}
+            <span>Excel</span>
+          </button>
+          <div className="text-right">
+            <div className="text-3xl font-bold text-gray-900">{completionPercentage}%</div>
+            <div className="text-xs text-gray-500 uppercase tracking-wide font-medium">Complete</div>
+          </div>
         </div>
       </div>
 
@@ -262,6 +289,7 @@ function DepartmentRatingCard({ department }: { department: DepartmentRating }) 
 
 export default function DepartmentRatingsClient({ departments }: DepartmentRatingsClientProps) {
   const { t } = useLanguage()
+  const { isExporting, exportCompany, exportError } = useExport()
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -283,7 +311,32 @@ export default function DepartmentRatingsClient({ departments }: DepartmentRatin
                 <p className="text-sm text-gray-500">{departments.length} {t.common.department.toLowerCase()}s</p>
               </div>
             </div>
-            <LanguageSwitcher />
+            <div className="flex items-center gap-3">
+              {/* Context-Aware Export Button - All Departments */}
+              <button
+                onClick={() => exportCompany('excel')}
+                disabled={isExporting}
+                className={`flex items-center gap-2 px-3 py-2 text-white text-sm font-medium rounded-lg active:scale-95 transition-all duration-150 touch-manipulation ${
+                  isExporting 
+                    ? 'bg-gray-400 cursor-not-allowed' 
+                    : 'bg-blue-600 hover:bg-blue-700'
+                }`}
+                title={`Export All Departments - ${t.dashboard.departmentRatings}`}
+              >
+                {isExporting ? (
+                  <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                  </svg>
+                ) : (
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                )}
+                <span>{isExporting ? t.dashboard.exporting : 'Export Excel'}</span>
+              </button>
+              <LanguageSwitcher />
+            </div>
           </div>
         </div>
       </div>
@@ -291,6 +344,29 @@ export default function DepartmentRatingsClient({ departments }: DepartmentRatin
       {/* Main Content */}
       <div className="pt-20 px-4 pb-6">
         <div className="max-w-4xl mx-auto">
+          
+          {/* Export Error Display */}
+          {exportError && (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+              <div className="flex items-center">
+                <svg className="w-5 h-5 text-red-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <div>
+                  <h3 className="text-sm font-medium text-red-800">{t.dashboard.exportError}</h3>
+                  <p className="text-sm text-red-600 mt-1">
+                    {exportError === 'Evaluation not found or access denied' ? t.dashboard.evaluationNotFound :
+                     exportError === 'Export failed' ? t.dashboard.exportFailed :
+                     exportError === 'No evaluations found' ? t.dashboard.noEvaluationsFound :
+                     exportError === 'Access denied - HR role required' ? t.dashboard.hrRoleRequired :
+                     exportError === 'Access denied - Manager or HR role required' ? t.dashboard.managerOrHrRequired :
+                     exportError}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Enhanced Overview with Insights */}
           <div className="bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg p-6 text-white mb-6 shadow-lg">
             <h2 className="text-xl font-bold mb-4">{t.dashboard.performanceInsights}</h2>

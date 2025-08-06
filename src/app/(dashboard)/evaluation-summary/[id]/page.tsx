@@ -60,7 +60,16 @@ async function getEvaluationSummary(evaluationId: string, companyId: string): Pr
   }
 
   // Parse evaluation items from JSON
-  let evaluationItems: any[] = []
+  let evaluationItems: {
+    id: string
+    title: string
+    description: string
+    type: string
+    rating: number | null
+    comment: string
+    level?: string
+    createdBy?: string
+  }[] = []
   try {
     if (evaluation.evaluationItemsData) {
       evaluationItems = JSON.parse(evaluation.evaluationItemsData)

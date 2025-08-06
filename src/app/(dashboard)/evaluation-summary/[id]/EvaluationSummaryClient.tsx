@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { LanguageSwitcher } from '@/components/layout'
 import { useLanguage } from '@/contexts/LanguageContext'
+import { useExport } from '@/hooks/useExport'
 
 interface EvaluationSummary {
   id: string
@@ -38,6 +39,7 @@ interface EvaluationSummaryClientProps {
 
 export default function EvaluationSummaryClient({ evaluation }: EvaluationSummaryClientProps) {
   const { t } = useLanguage()
+  const { isExporting, exportError, exportEvaluationById } = useExport()
 
   const getRatingColor = (rating: number | null) => {
     if (!rating) return 'gray'
@@ -85,10 +87,10 @@ export default function EvaluationSummaryClient({ evaluation }: EvaluationSummar
   const competencies = evaluation.evaluationItems.filter(item => item.type === 'competency')
 
   // Calculate averages
-  const calculateAverage = (items: any[]) => {
+  const calculateAverage = (items: { rating: number | null }[]) => {
     const ratingsWithValues = items.filter(item => item.rating && item.rating > 0)
     if (ratingsWithValues.length === 0) return null
-    const sum = ratingsWithValues.reduce((acc, item) => acc + item.rating, 0)
+    const sum = ratingsWithValues.reduce((acc, item) => acc + (item.rating || 0), 0)
     return Math.round((sum / ratingsWithValues.length) * 10) / 10 // Round to 1 decimal
   }
 
@@ -125,6 +127,28 @@ export default function EvaluationSummaryClient({ evaluation }: EvaluationSummar
       <div className="pt-20 px-4 pb-6">
         <div className="max-w-4xl mx-auto space-y-6">
           
+          {/* Export Error Display */}
+          {exportError && (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+              <div className="flex items-center">
+                <svg className="w-5 h-5 text-red-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <div>
+                  <h3 className="text-sm font-medium text-red-800">{t.dashboard.exportError}</h3>
+                  <p className="text-sm text-red-600 mt-1">
+                    {exportError === 'Evaluation not found or access denied' ? t.dashboard.evaluationNotFound :
+                     exportError === 'Export failed' ? t.dashboard.exportFailed :
+                     exportError === 'No evaluations found' ? t.dashboard.noEvaluationsFound :
+                     exportError === 'Access denied - HR role required' ? t.dashboard.hrRoleRequired :
+                     exportError === 'Access denied - Manager or HR role required' ? t.dashboard.managerOrHrRequired :
+                     exportError}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+          
           {/* Employee & Overall Performance Header */}
           <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
             <div className="flex items-start justify-between mb-6">
@@ -149,15 +173,41 @@ export default function EvaluationSummaryClient({ evaluation }: EvaluationSummar
                 </div>
               </div>
               
-              {/* Status Badge */}
-              <div className={`px-3 py-1 rounded-full text-sm font-medium ${
-                getStatusColor(evaluation.status) === 'green' ? 'bg-green-100 text-green-700' :
-                getStatusColor(evaluation.status) === 'blue' ? 'bg-blue-100 text-blue-700' :
-                getStatusColor(evaluation.status) === 'purple' ? 'bg-purple-100 text-purple-700' :
-                getStatusColor(evaluation.status) === 'yellow' ? 'bg-yellow-100 text-yellow-700' :
-                'bg-gray-100 text-gray-700'
-              }`}>
-                {getStatusLabel(evaluation.status)}
+              <div className="flex items-center gap-3">
+                {/* Context-Aware Export Button */}
+                <button
+                  onClick={() => exportEvaluationById(evaluation.id, 'pdf')}
+                  disabled={isExporting}
+                  className={`flex items-center gap-2 px-3 py-2 text-white text-sm font-medium rounded-lg active:scale-95 transition-all duration-150 touch-manipulation ${
+                    isExporting 
+                      ? 'bg-gray-400 cursor-not-allowed' 
+                      : 'bg-blue-600 hover:bg-blue-700'
+                  }`}
+                  title={t.dashboard.exportPDF}
+                >
+                  {isExporting ? (
+                    <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                    </svg>
+                  ) : (
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                  )}
+                  <span>{isExporting ? t.dashboard.exporting : t.dashboard.exportPDF}</span>
+                </button>
+
+                {/* Status Badge */}
+                <div className={`px-3 py-1 rounded-full text-sm font-medium ${
+                  getStatusColor(evaluation.status) === 'green' ? 'bg-green-100 text-green-700' :
+                  getStatusColor(evaluation.status) === 'blue' ? 'bg-blue-100 text-blue-700' :
+                  getStatusColor(evaluation.status) === 'purple' ? 'bg-purple-100 text-purple-700' :
+                  getStatusColor(evaluation.status) === 'yellow' ? 'bg-yellow-100 text-yellow-700' :
+                  'bg-gray-100 text-gray-700'
+                }`}>
+                  {getStatusLabel(evaluation.status)}
+                </div>
               </div>
             </div>
 
@@ -315,7 +365,7 @@ export default function EvaluationSummaryClient({ evaluation }: EvaluationSummar
               </div>
 
               <div className="space-y-4">
-                {okrs.map((item, index) => (
+                {okrs.map((item) => (
                   <div key={item.id} className="border border-gray-100 rounded-lg p-4">
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex-1">
@@ -366,7 +416,7 @@ export default function EvaluationSummaryClient({ evaluation }: EvaluationSummar
               </div>
 
               <div className="space-y-4">
-                {competencies.map((item, index) => (
+                {competencies.map((item) => (
                   <div key={item.id} className="border border-gray-100 rounded-lg p-4">
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex-1">
@@ -412,7 +462,7 @@ export default function EvaluationSummaryClient({ evaluation }: EvaluationSummar
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
                 <h3 className="text-lg font-medium text-gray-900 mb-2">No Evaluation Items</h3>
-                <p className="text-gray-600">This evaluation doesn't contain any OKRs or competencies yet.</p>
+                <p className="text-gray-600">This evaluation doesn&apos;t contain any OKRs or competencies yet.</p>
               </div>
             </div>
           )}

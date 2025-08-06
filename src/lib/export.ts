@@ -34,6 +34,8 @@ interface ExcelRowData {
 
 interface EvaluationData {
   id: string
+  managerId: string
+  employeeId: string
   employee: {
     name: string
     email: string | null
@@ -144,125 +146,182 @@ export async function getCompanyEvaluations(
   }) as EvaluationData)
 }
 
+function getRatingText(rating: number): string {
+  switch (rating) {
+    case 5: return 'Outstanding'
+    case 4: return 'Exceeds Expectations'
+    case 3: return 'Meets Expectations'  
+    case 2: return 'Below Expectations'
+    case 1: return 'Needs Improvement'
+    default: return 'Not Rated'
+  }
+}
+
 export function generatePDF(evaluation: EvaluationData): Buffer {
-  const doc = new jsPDF()
-  let yPosition = 20
-
-  // Header
-  doc.setFontSize(20)
-  doc.text('Performance Evaluation Report', 20, yPosition)
-  yPosition += 15
-
-  // Company and Period Info
-  doc.setFontSize(12)
-  doc.text(`Company: ${evaluation.company.name}`, 20, yPosition)
-  yPosition += 8
-  doc.text(`Period: ${evaluation.periodType} ${evaluation.periodDate}`, 20, yPosition)
-  yPosition += 8
-  doc.text(`Status: ${evaluation.status.toUpperCase()}`, 20, yPosition)
-  yPosition += 15
-
-  // Employee Information
-  doc.setFontSize(16)
-  doc.text('Employee Information', 20, yPosition)
-  yPosition += 10
-
-  doc.setFontSize(12)
-  doc.text(`Name: ${evaluation.employee.name}`, 20, yPosition)
-  yPosition += 8
-  
-  if (evaluation.employee.email) {
-    doc.text(`Email: ${evaluation.employee.email}`, 20, yPosition)
-    yPosition += 8
-  }
-  
-  if (evaluation.employee.username) {
-    doc.text(`Username: ${evaluation.employee.username}`, 20, yPosition)
-    yPosition += 8
-  }
-  
-  if (evaluation.employee.department) {
-    doc.text(`Department: ${evaluation.employee.department}`, 20, yPosition)
-    yPosition += 8
-  }
-  
-  if (evaluation.employee.employeeId) {
-    doc.text(`Employee ID: ${evaluation.employee.employeeId}`, 20, yPosition)
-    yPosition += 8
-  }
-
-  doc.text(`Manager: ${evaluation.manager.name}`, 20, yPosition)
-  yPosition += 15
-
-  // Overall Rating
-  if (evaluation.overallRating) {
-    doc.setFontSize(16)
-    doc.text('Overall Performance Rating', 20, yPosition)
-    yPosition += 10
-
-    doc.setFontSize(14)
-    const ratingText = getRatingText(evaluation.overallRating)
-    doc.text(`${evaluation.overallRating}/5 - ${ratingText}`, 20, yPosition)
-    yPosition += 15
-  }
-
-  // Evaluation Items Section
-  if (evaluation.evaluationItemsData && evaluation.evaluationItemsData.length > 0) {
-    doc.setFontSize(16)
-    doc.text('Evaluation Items', 20, yPosition)
-    yPosition += 10
-
-    evaluation.evaluationItemsData.forEach((item: EvaluationItem) => {
-      doc.setFontSize(12)
-      const itemType = item.type === 'okr' ? '🎯 OKR' : '⭐ Competency'
-      doc.text(`${itemType}: ${item.title}`, 20, yPosition)
-      yPosition += 6
-      
-      if (item.rating) {
-        doc.text(`Rating: ${item.rating}/5 - ${getRatingText(item.rating)}`, 25, yPosition)
-        yPosition += 6
-      }
-      
-      if (item.comment) {
-        const lines = doc.splitTextToSize(`Comment: ${item.comment}`, 160)
-        doc.text(lines, 25, yPosition)
-        yPosition += (lines.length * 6)
-      }
-      yPosition += 8
+  try {
+    console.log('Starting PDF generation with evaluation:', {
+      id: evaluation.id,
+      employeeName: evaluation.employee?.name,
+      hasEvaluationItems: !!evaluation.evaluationItemsData,
+      itemsCount: evaluation.evaluationItemsData?.length
     })
-    yPosition += 10
-  }
 
-  // Manager Comments
-  if (evaluation.managerComments) {
-    // Check if we need a new page
-    if (yPosition > 250) {
-      doc.addPage()
-      yPosition = 20
-    }
+    const doc = new jsPDF()
+    let yPosition = 20
 
+    // Header
+    doc.setFontSize(20)
+    doc.text('Performance Evaluation Report', 20, yPosition)
+    yPosition += 15
+
+    // Company and Period Info
+    doc.setFontSize(12)
+    doc.text(`Company: ${evaluation.company?.name || 'N/A'}`, 20, yPosition)
+    yPosition += 8
+    doc.text(`Period: ${evaluation.periodType || 'N/A'} ${evaluation.periodDate || ''}`, 20, yPosition)
+    yPosition += 8
+    doc.text(`Status: ${evaluation.status?.toUpperCase() || 'N/A'}`, 20, yPosition)
+    yPosition += 15
+
+    // Employee Information
     doc.setFontSize(16)
-    doc.text('Manager Comments', 20, yPosition)
+    doc.text('Employee Information', 20, yPosition)
     yPosition += 10
 
     doc.setFontSize(12)
-    const lines = doc.splitTextToSize(evaluation.managerComments, 160)
-    doc.text(lines, 20, yPosition)
-  }
+    doc.text(`Name: ${evaluation.employee?.name || 'N/A'}`, 20, yPosition)
+    yPosition += 8
+    
+    if (evaluation.employee?.email) {
+      doc.text(`Email: ${evaluation.employee.email}`, 20, yPosition)
+      yPosition += 8
+    }
+    
+    if (evaluation.employee?.username) {
+      doc.text(`Username: ${evaluation.employee.username}`, 20, yPosition)
+      yPosition += 8
+    }
+    
+    if (evaluation.employee?.department) {
+      doc.text(`Department: ${evaluation.employee.department}`, 20, yPosition)
+      yPosition += 8
+    }
+    
+    if (evaluation.employee?.employeeId) {
+      doc.text(`Employee ID: ${evaluation.employee.employeeId}`, 20, yPosition)
+      yPosition += 8
+    }
 
-  // Footer
-  const pageCount = doc.getNumberOfPages()
-  for (let i = 1; i <= pageCount; i++) {
-    doc.setPage(i)
-    doc.setFontSize(10)
-    doc.text(
-      `Generated on ${new Date().toLocaleDateString()} - Page ${i} of ${pageCount}`,
-      20,
-      290
-    )
-  }
+    doc.text(`Manager: ${evaluation.manager?.name || 'N/A'}`, 20, yPosition)
+    yPosition += 15
 
-  return Buffer.from(doc.output('arraybuffer'))
+    // Overall Rating
+    if (evaluation.overallRating) {
+      doc.setFontSize(16)
+      doc.text('Overall Performance Rating', 20, yPosition)
+      yPosition += 10
+
+      doc.setFontSize(14)
+      const ratingText = getRatingText(evaluation.overallRating)
+      doc.text(`${evaluation.overallRating}/5 - ${ratingText}`, 20, yPosition)
+      yPosition += 15
+    }
+
+    // Evaluation Items Section
+    if (evaluation.evaluationItemsData && evaluation.evaluationItemsData.length > 0) {
+      doc.setFontSize(16)
+      doc.text('Evaluation Items', 20, yPosition)
+      yPosition += 10
+
+      evaluation.evaluationItemsData.forEach((item: EvaluationItem, index: number) => {
+        console.log(`Processing evaluation item ${index + 1}:`, {
+          title: item.title,
+          type: item.type,
+          rating: item.rating,
+          hasComment: !!item.comment
+        })
+        
+        doc.setFontSize(12)
+        const itemType = item.type === 'okr' ? 'OKR' : 'Competency'
+        const titleText = `${itemType}: ${item.title || 'N/A'}`
+        
+        // Check if we need a new page before adding content
+        if (yPosition > 250) {
+          doc.addPage()
+          yPosition = 20
+        }
+        
+        doc.text(titleText, 20, yPosition)
+        yPosition += 6
+        
+        if (item.rating) {
+          const ratingText = `Rating: ${item.rating}/5 - ${getRatingText(item.rating)}`
+          doc.text(ratingText, 25, yPosition)
+          yPosition += 6
+        }
+        
+        if (item.comment && item.comment.trim()) {
+          const commentText = `Comment: ${item.comment.trim()}`
+          const lines = doc.splitTextToSize(commentText, 160)
+          doc.text(lines, 25, yPosition)
+          yPosition += (lines.length * 6)
+        }
+        yPosition += 8
+      })
+      yPosition += 10
+    } else {
+      // Add a note if no evaluation items
+      doc.setFontSize(12)
+      doc.text('No evaluation items available for this evaluation.', 20, yPosition)
+      yPosition += 10
+    }
+
+    // Manager Comments
+    if (evaluation.managerComments) {
+      // Check if we need a new page
+      if (yPosition > 250) {
+        doc.addPage()
+        yPosition = 20
+      }
+
+      doc.setFontSize(16)
+      doc.text('Manager Comments', 20, yPosition)
+      yPosition += 10
+
+      doc.setFontSize(12)
+      const lines = doc.splitTextToSize(evaluation.managerComments, 160)
+      doc.text(lines, 20, yPosition)
+    }
+
+    // Footer
+    const pageCount = doc.getNumberOfPages()
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i)
+      doc.setFontSize(10)
+      doc.text(
+        `Generated on ${new Date().toLocaleDateString()} - Page ${i} of ${pageCount}`,
+        20,
+        290
+      )
+    }
+
+    // Generate PDF as a buffer with enhanced error handling
+    console.log('Generating PDF output...')
+    const pdfOutput = doc.output('arraybuffer')
+    console.log('PDF output generated, size:', pdfOutput.byteLength, 'bytes')
+    
+    if (pdfOutput.byteLength === 0) {
+      throw new Error('Generated PDF is empty (0 bytes)')
+    }
+    
+    const buffer = Buffer.from(pdfOutput)
+    console.log('PDF Buffer created, size:', buffer.length, 'bytes')
+    
+    return buffer
+  } catch (error) {
+    console.error('Error in PDF generation:', error)
+    throw new Error(`PDF generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
+  }
 }
 
 export function generateExcel(evaluations: EvaluationData[]): Buffer {
@@ -316,16 +375,7 @@ export function generateExcel(evaluations: EvaluationData[]): Buffer {
   return Buffer.from(XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' }))
 }
 
-function getRatingText(rating: number): string {
-  switch (rating) {
-    case 1: return 'Needs Improvement'
-    case 2: return 'Below Expectations'
-    case 3: return 'Meets Expectations'
-    case 4: return 'Exceeds Expectations'
-    case 5: return 'Outstanding'
-    default: return 'Not Rated'
-  }
-}
+// Removed duplicate getRatingText function - using the one at line 149
 
 function generateAnalytics(evaluations: EvaluationData[]): AnalyticsData[] {
   const analytics: AnalyticsData[] = []
