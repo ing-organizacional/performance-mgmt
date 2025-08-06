@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { signOut } from 'next-auth/react'
+import Link from 'next/link'
 import { ExportButton, PDFExportCenter } from '@/components/features/dashboard'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { LanguageSwitcher } from '@/components/layout'
@@ -158,33 +159,48 @@ export default function DashboardClient({
 
       {/* Main Content with top padding to account for fixed header */}
       <div className="pt-28 px-4 py-6 space-y-6">
-        {/* Completion Overview */}
-        <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-gray-900">{t.dashboard.completionStatus}</h2>
-            <span className="text-2xl font-bold text-blue-600">{completionPercentage}%</span>
-          </div>
-          
-          <div className="mb-4">
-            <div className="bg-gray-200 rounded-full h-3">
-              <div 
-                className="bg-blue-600 h-3 rounded-full transition-all duration-300"
-                style={{ width: `${completionPercentage}%` }}
-              />
+        {/* Completion Overview - Clickable */}
+        <Link href="/dashboard/pending" className="group">
+          <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm group-hover:shadow-lg group-hover:-translate-y-1 transition-all duration-200">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold text-gray-900 group-hover:text-blue-700 transition-colors">{t.dashboard.completionStatus}</h2>
+              <div className="flex items-center gap-2">
+                <span className="text-2xl font-bold text-blue-600">{completionPercentage}%</span>
+                <svg className="w-4 h-4 text-gray-400 group-hover:text-blue-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </div>
             </div>
-          </div>
+            
+            <div className="mb-4">
+              <div className="bg-gray-200 rounded-full h-3">
+                <div 
+                  className="bg-blue-600 h-3 rounded-full transition-all duration-300"
+                  style={{ width: `${completionPercentage}%` }}
+                />
+              </div>
+            </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-green-600">{completionStats.completed}</div>
-              <div className="text-sm text-gray-600">{t.dashboard.completed}</div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-green-600">{completionStats.completed}</div>
+                <div className="text-sm text-gray-600">{t.dashboard.completed}</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-gray-400">{completionStats.pending}</div>
+                <div className="text-sm text-gray-600">{t.dashboard.remaining}</div>
+              </div>
             </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-gray-400">{completionStats.pending}</div>
-              <div className="text-sm text-gray-600">{t.dashboard.remaining}</div>
-            </div>
+            
+            {completionStats.pending > 0 && (
+              <div className="mt-3 pt-3 border-t border-gray-100">
+                <p className="text-sm text-orange-600 font-medium text-center">
+                  Click para gestionar {completionStats.pending} evaluaciones pendientes
+                </p>
+              </div>
+            )}
           </div>
-        </div>
+        </Link>
 
         {/* Action Items */}
         <div className="space-y-3">

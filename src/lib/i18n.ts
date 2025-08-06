@@ -270,6 +270,10 @@ export interface Translations {
     employeesNeedReview: string
     allEmployees: string
     viewAllEmployees: string
+    pendingEvaluations: string
+    managePendingEvaluations: string
+    employeesWithoutEvaluations: string
+    startEvaluation: string
     scheduleOneOnOnes: string
     // Evaluation summary page
     okrAverage: string
@@ -560,6 +564,10 @@ export const translations: Record<Language, Translations> = {
       employeesNeedReview: 'employees need review',
       allEmployees: 'all employees',
       viewAllEmployees: 'View all employees in this department',
+      pendingEvaluations: 'Pending Evaluations',
+      managePendingEvaluations: 'Manage Pending Evaluations',
+      employeesWithoutEvaluations: 'employees without evaluations',
+      startEvaluation: 'Start Evaluation',
       scheduleOneOnOnes: 'Consider scheduling 1:1 meetings with these employees',
       // Evaluation summary page
       okrAverage: 'OKR Average',
@@ -904,6 +912,10 @@ export const translations: Record<Language, Translations> = {
       employeesNeedReview: 'empleados requieren revisión',
       allEmployees: 'todos los empleados',
       viewAllEmployees: 'Ver todos los empleados de este departamento',
+      pendingEvaluations: 'Evaluaciones Pendientes',
+      managePendingEvaluations: 'Gestionar Evaluaciones Pendientes',
+      employeesWithoutEvaluations: 'empleados sin evaluaciones',
+      startEvaluation: 'Iniciar Evaluación',
       scheduleOneOnOnes: 'Considera programar reuniones individuales con estos empleados',
       // Evaluation summary page
       okrAverage: 'Promedio OKR',
