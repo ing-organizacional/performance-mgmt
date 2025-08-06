@@ -1,10 +1,10 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma-client'
 import { requireHRRole } from '@/lib/auth-middleware'
 
 // GET /api/admin/companies - List all companies
-export async function GET(request: NextRequest) {
-  const authResult = await requireHRRole(request)
+export async function GET() {
+  const authResult = await requireHRRole()
   if (authResult instanceof NextResponse) {
     return authResult
   }

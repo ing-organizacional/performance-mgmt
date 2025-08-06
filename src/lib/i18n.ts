@@ -23,6 +23,8 @@ export interface Translations {
     company: string
     department: string
     manager: string
+    createdBy: string
+    saving: string
   }
   
   // Auth
@@ -109,6 +111,9 @@ export interface Translations {
     newCompetency: string
     create: string
     evaluationDeadline: string
+    departmentLevelAssignments: string
+    departmentDescription: string
+    currentlyAssignedTo: string
   }
 
   // Company Items
@@ -183,6 +188,33 @@ export interface Translations {
     createCycle: string
     creating: string
     companyWideItems: string
+    cycles: string
+    performanceCycles: string
+    cycleManagement: string
+    activeCycle: string
+    closedCycle: string
+    archivedCycle: string
+    evaluationsText: string
+    itemsText: string
+    assessmentsText: string
+    manageCycles: string
+    cycleStatus: string
+    cycleClosedBy: string
+    cycleClosedAt: string
+    reopenCycle: string
+    closeCycle: string
+    archiveCycle: string
+    deleteCycle: string
+    confirmClose: string
+    confirmReopen: string
+    confirmArchive: string
+    confirmDelete: string
+    closeWarning: string
+    reopenWarning: string
+    deleteWarning: string
+    onlyOneActive: string
+    cannotDeleteData: string
+    dateRange: string
   }
   
   // User Management
@@ -255,7 +287,9 @@ export const translations: Record<Language, Translations> = {
       standardized: 'Standardized',
       company: 'Company',
       department: 'Department',
-      manager: 'Manager'
+      manager: 'Manager',
+      createdBy: 'Created by',
+      saving: 'Saving...'
     },
     auth: {
       signIn: 'Sign in',
@@ -333,7 +367,10 @@ export const translations: Record<Language, Translations> = {
       newOKR: 'New OKR',
       newCompetency: 'New Competency',
       create: 'Create',
-      evaluationDeadline: 'Evaluation Deadline (Optional)'
+      evaluationDeadline: 'Evaluation Deadline (Optional)',
+      departmentLevelAssignments: 'Department-Level Assignments',
+      departmentDescription: 'These items are created by managers and applied to employees within specific departments.',
+      currentlyAssignedTo: 'Currently assigned to'
     },
     companyItems: {
       title: 'Company-Wide Items',
@@ -401,7 +438,34 @@ export const translations: Record<Language, Translations> = {
       endDate: 'End Date',
       createCycle: 'Create Cycle',
       creating: 'Creating...',
-      companyWideItems: 'Company-Wide OKRs & Competencies'
+      companyWideItems: 'Company-Wide OKRs & Competencies',
+      cycles: 'Cycles',
+      performanceCycles: 'Performance Cycles',
+      cycleManagement: 'Manage performance review cycles',
+      activeCycle: 'Active',
+      closedCycle: 'Closed',
+      archivedCycle: 'Archived',
+      evaluationsText: 'evaluations',
+      itemsText: 'items',
+      assessmentsText: 'assessments',
+      manageCycles: 'Manage Cycles',
+      cycleStatus: 'Status',
+      cycleClosedBy: 'Closed by',
+      cycleClosedAt: 'on',
+      reopenCycle: 'Reopen cycle',
+      closeCycle: 'Close cycle',
+      archiveCycle: 'Archive cycle',
+      deleteCycle: 'Delete cycle',
+      confirmClose: 'Are you sure you want to close this cycle? This will make all evaluations read-only for managers.',
+      confirmReopen: 'Are you sure you want to reopen this cycle? This will allow managers to edit evaluations again.',
+      confirmArchive: 'Are you sure you want to archive this cycle?',
+      confirmDelete: 'Are you sure you want to delete',
+      closeWarning: 'This will make all evaluations read-only for managers.',
+      reopenWarning: 'This will allow managers to edit evaluations again.',
+      deleteWarning: 'Cycles with data cannot be deleted. Consider archiving instead.',
+      onlyOneActive: 'Only one active cycle is allowed at a time. Please close the current active cycle first.',
+      cannotDeleteData: 'This cycle contains data and cannot be deleted.',
+      dateRange: 'Date Range'
     },
     users: {
       userManagement: 'User Management',
@@ -470,7 +534,9 @@ export const translations: Record<Language, Translations> = {
       standardized: 'Estandarizado',
       company: 'Empresa',
       department: 'Departamento',
-      manager: 'Jefatura'
+      manager: 'Jefatura',
+      createdBy: 'Creado por',
+      saving: 'Guardando...'
     },
     auth: {
       signIn: 'Iniciar sesión',
@@ -548,7 +614,10 @@ export const translations: Record<Language, Translations> = {
       newOKR: 'Nuevo OKR',
       newCompetency: 'Nueva Competencia',
       create: 'Crear',
-      evaluationDeadline: 'Fecha Límite de Evaluación (Opcional)'
+      evaluationDeadline: 'Fecha Límite de Evaluación (Opcional)',
+      departmentLevelAssignments: 'Asignaciones de Nivel Departamental',
+      departmentDescription: 'Estos elementos son creados por gerentes y aplicados a empleados dentro de departamentos específicos.',
+      currentlyAssignedTo: 'Actualmente asignado a'
     },
     companyItems: {
       title: 'Elementos de Toda la Empresa',
@@ -616,7 +685,34 @@ export const translations: Record<Language, Translations> = {
       endDate: 'Fecha de Fin',
       createCycle: 'Crear Ciclo',
       creating: 'Creando...',
-      companyWideItems: 'OKRs y Competencias de Toda la Empresa'
+      companyWideItems: 'OKRs y Competencias de Toda la Empresa',
+      cycles: 'Ciclos',
+      performanceCycles: 'Ciclos de Desempeño',
+      cycleManagement: 'Gestionar ciclos de evaluación de desempeño',
+      activeCycle: 'Activo',
+      closedCycle: 'Cerrado',
+      archivedCycle: 'Archivado',
+      evaluationsText: 'evaluaciones',
+      itemsText: 'elementos',
+      assessmentsText: 'evaluaciones',
+      manageCycles: 'Gestionar Ciclos',
+      cycleStatus: 'Estado',
+      cycleClosedBy: 'Cerrado por',
+      cycleClosedAt: 'el',
+      reopenCycle: 'Reabrir ciclo',
+      closeCycle: 'Cerrar ciclo',
+      archiveCycle: 'Archivar ciclo',
+      deleteCycle: 'Eliminar ciclo',
+      confirmClose: '¿Estás seguro de que quieres cerrar este ciclo? Esto hará que todas las evaluaciones sean de solo lectura para las jefaturas.',
+      confirmReopen: '¿Estás seguro de que quieres reabrir este ciclo? Esto permitirá que las jefaturas editen las evaluaciones nuevamente.',
+      confirmArchive: '¿Estás seguro de que quieres archivar este ciclo?',
+      confirmDelete: '¿Estás seguro de que quieres eliminar',
+      closeWarning: 'Esto hará que todas las evaluaciones sean de solo lectura para las jefaturas.',
+      reopenWarning: 'Esto permitirá que las jefaturas editen las evaluaciones nuevamente.',
+      deleteWarning: 'Los ciclos con datos no pueden ser eliminados. Considera archivarlos en su lugar.',
+      onlyOneActive: 'Solo se permite un ciclo activo a la vez. Por favor cierra el ciclo activo actual primero.',
+      cannotDeleteData: 'Este ciclo contiene datos y no puede ser eliminado.',
+      dateRange: 'Rango de Fechas'
     },
     users: {
       userManagement: 'Gestión de Usuarios',

@@ -1,7 +1,8 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useTransition } from 'react'
 import { useLanguage } from '@/contexts/LanguageContext'
+import { updateCycleStatus } from '@/app/admin/cycles/actions'
 
 interface PerformanceCycle {
   id: string
@@ -9,8 +10,9 @@ interface PerformanceCycle {
   status: string
   startDate: string
   endDate: string
-  closedBy?: string
-  closedAt?: string
+  createdBy: string
+  closedBy?: string | null
+  closedAt?: string | null
   _count: {
     evaluations: number
     evaluationItems: number
@@ -21,16 +23,22 @@ interface PerformanceCycle {
 interface CycleSelectorProps {
   onCycleSelect?: (cycle: PerformanceCycle | null) => void
   showCreateButton?: boolean
+  initialCycles?: PerformanceCycle[]
+  selectedCycleId?: string | null
 }
 
-export default function CycleSelector({ onCycleSelect, showCreateButton = false }: CycleSelectorProps) {
+export default function CycleSelector({ 
+  onCycleSelect, 
+  showCreateButton = false,
+  initialCycles = [],
+  selectedCycleId = null
+}: CycleSelectorProps) {
   const { t } = useLanguage()
-  const [cycles, setCycles] = useState<PerformanceCycle[]>([])
+  const [cycles, setCycles] = useState<PerformanceCycle[]>(initialCycles)
   const [selectedCycle, setSelectedCycle] = useState<PerformanceCycle | null>(null)
-  const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [showActions, setShowActions] = useState(false)
-  const [actionLoading, setActionLoading] = useState(false)
+  const [isPending, startTransition] = useTransition()
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [createForm, setCreateForm] = useState({
     name: '',
@@ -38,33 +46,25 @@ export default function CycleSelector({ onCycleSelect, showCreateButton = false 
     endDate: ''
   })
 
-  const fetchCycles = useCallback(async () => {
-    try {
-      const response = await fetch('/api/admin/cycles')
-      if (response.ok) {
-        const data = await response.json()
-        setCycles(data.cycles || [])
-        
-        // Auto-select the active cycle
-        const activeCycle = data.cycles?.find((cycle: PerformanceCycle) => cycle.status === 'active')
-        if (activeCycle) {
-          setSelectedCycle(activeCycle)
-          onCycleSelect?.(activeCycle)
-        }
-      } else {
-        setError('Failed to load performance cycles')
-      }
-    } catch (err) {
-      setError('Error loading cycles')
-      console.error('Error fetching cycles:', err)
-    } finally {
-      setLoading(false)
-    }
-  }, [])
-
+  // Initialize from server data
   useEffect(() => {
-    fetchCycles()
-  }, [fetchCycles])
+    setCycles(initialCycles)
+    
+    // Auto-select the cycle based on selectedCycleId or find active cycle
+    if (selectedCycleId) {
+      const cycle = initialCycles.find(c => c.id === selectedCycleId)
+      if (cycle) {
+        setSelectedCycle(cycle)
+        onCycleSelect?.(cycle)
+      }
+    } else {
+      const activeCycle = initialCycles.find(cycle => cycle.status === 'active')
+      if (activeCycle) {
+        setSelectedCycle(activeCycle)
+        onCycleSelect?.(activeCycle)
+      }
+    }
+  }, [initialCycles, selectedCycleId, onCycleSelect])
 
   const handleCycleChange = (cycleId: string) => {
     const cycle = cycles.find(c => c.id === cycleId) || null
@@ -83,71 +83,61 @@ export default function CycleSelector({ onCycleSelect, showCreateButton = false 
   }
 
   const handleCloseCycle = async () => {
-    if (!selectedCycle || actionLoading) return
+    if (!selectedCycle || isPending) return
 
     const confirmMessage = `Are you sure you want to close "${selectedCycle.name}"? This will make all evaluations and items read-only for managers.`
     if (!confirm(confirmMessage)) return
 
-    setActionLoading(true)
-    try {
-      const response = await fetch(`/api/admin/cycles/${selectedCycle.id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          status: 'closed'
-        })
-      })
-
-      if (response.ok) {
-        await fetchCycles() // Refresh the cycles list
-        setShowActions(false)
-        alert('Performance cycle closed successfully!')
+    startTransition(async () => {
+      const result = await updateCycleStatus(selectedCycle.id, 'closed')
+      
+      if (!result.success) {
+        setError(result.message || 'Failed to close cycle')
       } else {
-        const errorData = await response.json()
-        alert(`Failed to close cycle: ${errorData.error || 'Unknown error'}`)
+        // Update local state
+        const updatedCycles = cycles.map(cycle => 
+          cycle.id === selectedCycle.id 
+            ? { ...cycle, status: 'closed' }
+            : cycle
+        )
+        setCycles(updatedCycles)
+        
+        const updatedSelectedCycle = { ...selectedCycle, status: 'closed' }
+        setSelectedCycle(updatedSelectedCycle)
+        onCycleSelect?.(updatedSelectedCycle)
+        
+        setShowActions(false)
       }
-    } catch (error) {
-      console.error('Error closing cycle:', error)
-      alert('Error closing cycle. Please try again.')
-    } finally {
-      setActionLoading(false)
-    }
+    })
   }
 
   const handleReopenCycle = async () => {
-    if (!selectedCycle || actionLoading) return
+    if (!selectedCycle || isPending) return
 
     const confirmMessage = `Are you sure you want to reopen "${selectedCycle.name}"? This will allow managers to edit evaluations again.`
     if (!confirm(confirmMessage)) return
 
-    setActionLoading(true)
-    try {
-      const response = await fetch(`/api/admin/cycles/${selectedCycle.id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          status: 'active'
-        })
-      })
-
-      if (response.ok) {
-        await fetchCycles() // Refresh the cycles list
-        setShowActions(false)
-        alert('Performance cycle reopened successfully!')
+    startTransition(async () => {
+      const result = await updateCycleStatus(selectedCycle.id, 'active')
+      
+      if (!result.success) {
+        setError(result.message || 'Failed to reopen cycle')
       } else {
-        const errorData = await response.json()
-        alert(`Failed to reopen cycle: ${errorData.error || 'Unknown error'}`)
+        // Update local state
+        const updatedCycles = cycles.map(cycle => 
+          cycle.id === selectedCycle.id 
+            ? { ...cycle, status: 'active' }
+            : cycle
+        )
+        setCycles(updatedCycles)
+        
+        const updatedSelectedCycle = { ...selectedCycle, status: 'active' }
+        setSelectedCycle(updatedSelectedCycle)
+        onCycleSelect?.(updatedSelectedCycle)
+        
+        setShowActions(false)
       }
-    } catch (error) {
-      console.error('Error reopening cycle:', error)
-      alert('Error reopening cycle. Please try again.')
-    } finally {
-      setActionLoading(false)
-    }
+    })
   }
 
   const handleCreateCycle = () => {
@@ -156,39 +146,26 @@ export default function CycleSelector({ onCycleSelect, showCreateButton = false 
 
   const handleModalSubmit = async () => {
     if (!createForm.name.trim() || !createForm.startDate || !createForm.endDate) {
-      alert('Please fill in all fields')
+      setError('Please fill in all fields')
       return
     }
 
-    setActionLoading(true)
-    try {
-      const response = await fetch('/api/admin/cycles', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name: createForm.name.trim(),
-          startDate: createForm.startDate,
-          endDate: createForm.endDate
-        })
+    startTransition(async () => {
+      const { createCycle } = await import('@/app/dashboard/actions')
+      const result = await createCycle({
+        name: createForm.name.trim(),
+        startDate: createForm.startDate,
+        endDate: createForm.endDate
       })
 
-      if (response.ok) {
-        await fetchCycles() // Refresh the cycles list
+      if (!result.success) {
+        setError(result.error || 'Failed to create cycle')
+      } else {
         setShowCreateModal(false)
         setCreateForm({ name: '', startDate: '', endDate: '' })
-        alert('Performance cycle created successfully!')
-      } else {
-        const errorData = await response.json()
-        alert(`Failed to create cycle: ${errorData.error || 'Unknown error'}`)
+        // Note: Page will auto-refresh due to revalidatePath in server action
       }
-    } catch (error) {
-      console.error('Error creating cycle:', error)
-      alert('Error creating cycle. Please try again.')
-    } finally {
-      setActionLoading(false)
-    }
+    })
   }
 
   const handleModalCancel = () => {
@@ -196,13 +173,6 @@ export default function CycleSelector({ onCycleSelect, showCreateButton = false 
     setCreateForm({ name: '', startDate: '', endDate: '' })
   }
 
-  if (loading) {
-    return (
-      <div className="flex items-center space-x-2">
-        <div className="text-xs text-gray-500">Loading cycles...</div>
-      </div>
-    )
-  }
 
   if (error) {
     return (
@@ -239,9 +209,9 @@ export default function CycleSelector({ onCycleSelect, showCreateButton = false 
             onClick={() => setShowActions(!showActions)}
             className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded hover:bg-gray-200 transition-colors"
             title="Cycle actions"
-            disabled={actionLoading}
+            disabled={isPending}
           >
-            {actionLoading ? '...' : '⚙️'}
+            {isPending ? '...' : '⚙️'}
           </button>
 
           {showActions && (
@@ -251,7 +221,7 @@ export default function CycleSelector({ onCycleSelect, showCreateButton = false 
                   <button
                     onClick={handleCloseCycle}
                     className="w-full text-left px-3 py-2 text-xs text-red-600 hover:bg-red-50 transition-colors"
-                    disabled={actionLoading}
+                    disabled={isPending}
                   >
                     🔒 Close Cycle
                   </button>
@@ -260,7 +230,7 @@ export default function CycleSelector({ onCycleSelect, showCreateButton = false 
                   <button
                     onClick={handleReopenCycle}
                     className="w-full text-left px-3 py-2 text-xs text-green-600 hover:bg-green-50 transition-colors"
-                    disabled={actionLoading}
+                    disabled={isPending}
                   >
                     🔓 Reopen Cycle
                   </button>
@@ -282,9 +252,9 @@ export default function CycleSelector({ onCycleSelect, showCreateButton = false 
           onClick={handleCreateCycle}
           className="text-xs bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700 transition-colors"
           title="Create new performance cycle"
-          disabled={actionLoading}
+          disabled={isPending}
         >
-          {actionLoading ? '...' : `+ ${t.dashboard.newCycle}`}
+          {isPending ? '...' : `+ ${t.dashboard.newCycle}`}
         </button>
       )}
 
@@ -307,7 +277,7 @@ export default function CycleSelector({ onCycleSelect, showCreateButton = false 
                 <button
                   onClick={handleModalCancel}
                   className="p-2 -mr-2 text-gray-400 hover:text-gray-600"
-                  disabled={actionLoading}
+                  disabled={isPending}
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -361,16 +331,16 @@ export default function CycleSelector({ onCycleSelect, showCreateButton = false 
               <button
                 onClick={handleModalCancel}
                 className="px-3 py-2 text-xs font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 active:scale-95 transition-all duration-150 touch-manipulation"
-                disabled={actionLoading}
+                disabled={isPending}
               >
                 {t.common.cancel}
               </button>
               <button
                 onClick={handleModalSubmit}
                 className="px-3 py-2 text-xs font-medium bg-blue-600 text-white rounded-lg hover:bg-blue-700 active:scale-95 transition-all duration-150 touch-manipulation"
-                disabled={actionLoading}
+                disabled={isPending}
               >
-                {actionLoading ? t.dashboard.creating : t.dashboard.createCycle}
+                {isPending ? t.dashboard.creating : t.dashboard.createCycle}
               </button>
             </div>
           </div>

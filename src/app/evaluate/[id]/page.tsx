@@ -44,6 +44,7 @@ export default function EvaluatePage() {
   const [employeeName, setEmployeeName] = useState('')
   const [editingItemId, setEditingItemId] = useState<string | null>(null)
   const [editingItemData, setEditingItemData] = useState<{ title: string; description: string } | null>(null)
+  const [isCompletedEvaluation, setIsCompletedEvaluation] = useState(false)
   
   // Ref for focusing on comment textarea
   const commentTextareaRef = useRef<HTMLTextAreaElement>(null)
@@ -88,7 +89,8 @@ export default function EvaluatePage() {
           
           // Check if employee has existing evaluation
           const latestEval = employee.evaluationsReceived?.[0]
-          if (latestEval && (latestEval.status === 'submitted' || latestEval.status === 'approved' || latestEval.status === 'draft')) {
+          if (latestEval && (latestEval.status === 'submitted' || latestEval.status === 'approved' || latestEval.status === 'draft' || latestEval.status === 'completed')) {
+            setIsCompletedEvaluation(latestEval.status === 'completed')
             await loadExistingEvaluation(latestEval.id)
           }
         }
@@ -127,7 +129,11 @@ export default function EvaluatePage() {
             title: savedItems[index]?.title || item.title,
             description: savedItems[index]?.description || item.description,
             rating: savedItems[index]?.rating || null,
-            comment: savedItems[index]?.comment || ''
+            comment: savedItems[index]?.comment || '',
+            // Preserve deadline information from the original item
+            evaluationDeadline: item.evaluationDeadline,
+            deadlineSetBy: item.deadlineSetBy,
+            deadlineSetByRole: item.deadlineSetByRole
           })))
         }
         
@@ -363,7 +369,14 @@ export default function EvaluatePage() {
                            `👤 ${t.common.manager}`}
                         </span>
                       )}
-                      {currentItem.evaluationDeadline && (
+                      {isCompletedEvaluation ? (
+                        <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md border text-xs font-medium bg-green-50 border-green-200 text-green-700">
+                          <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                          </svg>
+                          <span className="font-semibold">{t.evaluations.completed}</span>
+                        </div>
+                      ) : currentItem.evaluationDeadline && (
                         <DeadlineDisplay 
                           deadline={currentItem.evaluationDeadline} 
                           showIcon={true}
@@ -494,11 +507,14 @@ export default function EvaluatePage() {
                     {[1, 2, 3, 4, 5].map((star) => (
                       <button
                         key={star}
-                        onClick={() => handleRating(star)}
+                        onClick={isCompletedEvaluation ? undefined : () => handleRating(star)}
+                        disabled={isCompletedEvaluation}
                         className={`flex items-center justify-center p-3 min-h-[44px] min-w-[44px] rounded-lg transition-colors duration-150 touch-manipulation ${
                           currentItem.rating && currentItem.rating >= star
                             ? 'text-yellow-500 bg-yellow-100'
-                            : 'text-gray-300 hover:text-yellow-400 hover:bg-yellow-50 active:bg-yellow-100'
+                            : isCompletedEvaluation 
+                              ? 'text-gray-300 cursor-not-allowed'
+                              : 'text-gray-300 hover:text-yellow-400 hover:bg-yellow-50 active:bg-yellow-100'
                         }`}
                       >
                         <svg className="w-10 h-10" fill="currentColor" viewBox="0 0 20 20">
@@ -540,15 +556,18 @@ export default function EvaluatePage() {
                   <textarea
                     ref={commentTextareaRef}
                     value={currentItem.comment}
-                    onChange={(e) => {
+                    onChange={isCompletedEvaluation ? undefined : (e) => {
                       const updatedItems = evaluationItems.map(item => 
                         item.id === currentItem.id ? { ...item, comment: e.target.value } : item
                       )
                       setEvaluationItems(updatedItems)
                     }}
-                    placeholder={t.evaluations.commentPlaceholder}
+                    placeholder={isCompletedEvaluation ? "" : t.evaluations.commentPlaceholder}
+                    readOnly={isCompletedEvaluation}
                     className={`w-full px-4 py-3 border-2 rounded-xl shadow-sm transition-all duration-200 resize-none text-gray-900 ${
-                      (currentItem?.comment.trim().length || 0) >= MIN_COMMENT_LENGTH
+                      isCompletedEvaluation 
+                        ? 'bg-gray-50 border-gray-300 cursor-not-allowed'
+                        : (currentItem?.comment.trim().length || 0) >= MIN_COMMENT_LENGTH
                         ? 'border-green-300 focus:border-green-500 focus:ring-green-200'
                         : 'border-red-300 focus:border-red-500 focus:ring-red-200'
                     } focus:ring-4`}
@@ -584,11 +603,14 @@ export default function EvaluatePage() {
                 {[1, 2, 3, 4, 5].map((star) => (
                   <button
                     key={star}
-                    onClick={() => handleRating(star)}
+                    onClick={isCompletedEvaluation ? undefined : () => handleRating(star)}
+                    disabled={isCompletedEvaluation}
                     className={`flex items-center justify-center p-3 min-h-[44px] min-w-[44px] rounded-lg transition-colors duration-150 touch-manipulation ${
                       overallRating && overallRating >= star
                         ? 'text-yellow-500 bg-yellow-100'
-                        : 'text-gray-300 hover:text-yellow-400 hover:bg-yellow-50 active:bg-yellow-100'
+                        : isCompletedEvaluation
+                          ? 'text-gray-300 cursor-not-allowed'
+                          : 'text-gray-300 hover:text-yellow-400 hover:bg-yellow-50 active:bg-yellow-100'
                     }`}
                   >
                     <svg className="w-10 h-10" fill="currentColor" viewBox="0 0 20 20">
@@ -618,9 +640,12 @@ export default function EvaluatePage() {
               </label>
               <textarea
                 value={overallComment}
-                onChange={(e) => setOverallComment(e.target.value)}
-                placeholder="Provide comprehensive overall feedback..."
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-gray-900"
+                onChange={isCompletedEvaluation ? undefined : (e) => setOverallComment(e.target.value)}
+                placeholder={isCompletedEvaluation ? "" : "Provide comprehensive overall feedback..."}
+                readOnly={isCompletedEvaluation}
+                className={`w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-gray-900 ${
+                  isCompletedEvaluation ? 'bg-gray-50 cursor-not-allowed' : ''
+                }`}
                 rows={6}
               />
             </div>

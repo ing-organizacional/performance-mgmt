@@ -26,7 +26,7 @@ interface ImportResults {
 
 // POST /api/admin/import - Import users from CSV file
 export async function POST(request: NextRequest) {
-  const authResult = await requireHRRole(request)
+  const authResult = await requireHRRole()
   if (authResult instanceof NextResponse) {
     return authResult
   }

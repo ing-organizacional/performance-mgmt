@@ -2,12 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
-  experimental: {
-    serverActions: {
-      bodySizeLimit: '2mb',
-    },
-  },
-  output: 'standalone',
+  // output: 'standalone', // Commented out for development - uncomment for Docker deployment
   // Ensure SQLite works in production
   webpack: (config: { externals: Array<Record<string, string>> }) => {
     config.externals.push({

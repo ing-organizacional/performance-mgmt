@@ -304,7 +304,8 @@ export async function seedDatabase() {
       name: `${currentYear} Annual Review`,
       startDate: new Date(`${currentYear}-01-01`),
       endDate: new Date(`${currentYear}-12-31`),
-      status: 'active'
+      status: 'active',
+      createdBy: hrAdmin.id
     }
   })
 

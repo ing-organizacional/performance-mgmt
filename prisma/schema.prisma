@@ -61,6 +61,7 @@ model User {
   employeeAssignments          EvaluationItemAssignment[] @relation("EmployeeAssignments")
   managerAssignments           EvaluationItemAssignment[] @relation("AssignedByManager")
   auditLogs                    AuditLog[]
+  createdCycles                PerformanceCycle[]         @relation("CycleCreatedBy")
   closedCycles                 PerformanceCycle[]         @relation("CycleClosedBy")
   partialAssessmentsAsEmployee PartialAssessment[]        @relation("PartialAssessmentEmployee")
   partialAssessmentsAsAssessor PartialAssessment[]        @relation("PartialAssessmentAssessor")
@@ -174,10 +175,12 @@ model PerformanceCycle {
   startDate DateTime
   endDate   DateTime
   status    String    @default("active") // "active" | "closed" | "archived"
+  createdBy String // HR user ID who created it
   closedBy  String? // HR user ID who closed it
   closedAt  DateTime?
 
   company            Company             @relation(fields: [companyId], references: [id])
+  createdByUser      User                @relation("CycleCreatedBy", fields: [createdBy], references: [id])
   closedByUser       User?               @relation("CycleClosedBy", fields: [closedBy], references: [id])
   evaluations        Evaluation[]
   evaluationItems    EvaluationItem[]

@@ -4,6 +4,7 @@ import { authenticateUser } from '@/lib/auth'
 import type { NextAuthConfig } from 'next-auth'
 
 export const config = {
+  trustHost: true, // Allow localhost and other development hosts
   providers: [
     Credentials({
       credentials: {
