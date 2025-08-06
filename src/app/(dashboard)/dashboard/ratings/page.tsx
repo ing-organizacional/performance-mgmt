@@ -37,7 +37,7 @@ async function getDepartmentRatings(companyId: string) {
   const evaluations = await prisma.evaluation.findMany({
     where: {
       companyId,
-      status: { in: ['completed', 'submitted', 'approved'] }
+      status: 'completed'
     },
     select: {
       id: true,
