@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useTransition } from 'react'
 import { useLanguage } from '@/contexts/LanguageContext'
-import { updateCycleStatus } from '@/app/dashboard/actions'
+import { updateCycleStatus } from '@/app/admin/cycles/actions'
 
 interface PerformanceCycle {
   id: string
@@ -92,7 +92,7 @@ export default function CycleSelector({
       const result = await updateCycleStatus(selectedCycle.id, 'closed')
       
       if (!result.success) {
-        setError(result.error || 'Failed to close cycle')
+        setError(result.message || 'Failed to close cycle')
       } else {
         // Update local state
         const updatedCycles = cycles.map(cycle => 
@@ -121,7 +121,7 @@ export default function CycleSelector({
       const result = await updateCycleStatus(selectedCycle.id, 'active')
       
       if (!result.success) {
-        setError(result.error || 'Failed to reopen cycle')
+        setError(result.message || 'Failed to reopen cycle')
       } else {
         // Update local state
         const updatedCycles = cycles.map(cycle => 

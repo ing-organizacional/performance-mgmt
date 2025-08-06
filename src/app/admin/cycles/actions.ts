@@ -107,25 +107,37 @@ export async function createCycle(formData: FormData) {
   }
 }
 
-export async function updateCycleStatus(cycleId: string, formData: FormData) {
+export async function updateCycleStatus(cycleId: string, statusOrFormData: 'active' | 'closed' | FormData) {
   try {
     const currentUser = await requireHRAccess()
 
-    const rawData = {
-      status: formData.get('status')
+    // Handle both direct status and FormData inputs for flexibility
+    let status: string
+    if (typeof statusOrFormData === 'string') {
+      status = statusOrFormData
+    } else {
+      const rawData = {
+        status: statusOrFormData.get('status')
+      }
+      const result = updateCycleSchema.safeParse(rawData)
+      
+      if (!result.success) {
+        return {
+          success: false,
+          errors: result.error.flatten().fieldErrors,
+          message: 'Invalid status provided'
+        }
+      }
+      status = result.data.status
     }
 
-    const result = updateCycleSchema.safeParse(rawData)
-    
-    if (!result.success) {
+    // Validate the status value
+    if (!['active', 'closed', 'archived'].includes(status)) {
       return {
         success: false,
-        errors: result.error.flatten().fieldErrors,
         message: 'Invalid status provided'
       }
     }
-
-    const { status } = result.data
 
     // Verify cycle exists and belongs to company
     const cycle = await prisma.performanceCycle.findFirst({
