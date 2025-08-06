@@ -25,6 +25,7 @@ export interface Translations {
     manager: string
     createdBy: string
     saving: string
+    of: string
   }
   
   // Auth
@@ -215,6 +216,44 @@ export interface Translations {
     onlyOneActive: string
     cannotDeleteData: string
     dateRange: string
+    // Department ratings page
+    departmentRatings: string
+    performanceInsights: string
+    totalEvaluations: string
+    completeDepartments: string
+    departmentsNeedAttention: string
+    swipeForDetails: string
+    noManager: string
+    notAssigned: string
+    employees: string
+    evaluated: string
+    pending: string
+    performanceDistribution: string
+    evaluations: string
+    outstandingShort: string
+    exceedsShort: string
+    meetsShort: string
+    belowShort: string
+    needsImprovementShort: string
+    needAttention: string
+    noCompletedEvaluations: string
+    evaluationsWillAppear: string
+    noDepartmentsFound: string
+    addEmployeesWithDepartments: string
+    employeesNeedReview: string
+    scheduleOneOnOnes: string
+    // Evaluation summary page
+    okrAverage: string
+    competencyAverage: string
+    totalAverage: string
+    objectives: string
+    skills: string
+    items: string
+    managerComments: string
+    feedback: string
+    companyLevel: string
+    departmentLevel: string
+    managerLevel: string
   }
   
   // User Management
@@ -289,7 +328,8 @@ export const translations: Record<Language, Translations> = {
       department: 'Department',
       manager: 'Manager',
       createdBy: 'Created by',
-      saving: 'Saving...'
+      saving: 'Saving...',
+      of: 'of'
     },
     auth: {
       signIn: 'Sign in',
@@ -437,6 +477,44 @@ export const translations: Record<Language, Translations> = {
       startDate: 'Start Date',
       endDate: 'End Date',
       createCycle: 'Create Cycle',
+      // Department ratings page
+      departmentRatings: 'Department Ratings',
+      performanceInsights: 'Performance Insights',
+      totalEvaluations: 'Total Evaluations',
+      completeDepartments: 'Complete Departments',
+      departmentsNeedAttention: 'departments need attention',
+      swipeForDetails: 'Swipe down for details →',
+      noManager: 'No Manager',
+      notAssigned: 'Not assigned',
+      employees: 'Employees',
+      evaluated: 'Evaluated',
+      pending: 'Pending',
+      performanceDistribution: 'Performance Distribution',
+      evaluations: 'evaluations',
+      outstandingShort: 'Outstanding',
+      exceedsShort: 'Exceeds',
+      meetsShort: 'Meets',
+      belowShort: 'Below',
+      needsImprovementShort: 'Need Attention',
+      needAttention: 'need attention',
+      noCompletedEvaluations: 'No completed evaluations yet',
+      evaluationsWillAppear: 'Evaluations will appear here once submitted',
+      noDepartmentsFound: 'No Departments Found',
+      addEmployeesWithDepartments: 'Add employees with departments to see rating distributions',
+      employeesNeedReview: 'employees need review',
+      scheduleOneOnOnes: 'Consider scheduling 1:1 meetings with these employees',
+      // Evaluation summary page
+      okrAverage: 'OKR Average',
+      competencyAverage: 'Competency Average',
+      totalAverage: 'Total Average',
+      objectives: 'objectives',
+      skills: 'skills',
+      items: 'items',
+      managerComments: 'Manager Comments',
+      feedback: 'Feedback',
+      companyLevel: 'Company',
+      departmentLevel: 'Department',
+      managerLevel: 'Manager',
       creating: 'Creating...',
       companyWideItems: 'Company-Wide OKRs & Competencies',
       cycles: 'Cycles',
@@ -536,7 +614,8 @@ export const translations: Record<Language, Translations> = {
       department: 'Departamento',
       manager: 'Jefatura',
       createdBy: 'Creado por',
-      saving: 'Guardando...'
+      saving: 'Guardando...',
+      of: 'de'
     },
     auth: {
       signIn: 'Iniciar sesión',
@@ -712,7 +791,45 @@ export const translations: Record<Language, Translations> = {
       deleteWarning: 'Los ciclos con datos no pueden ser eliminados. Considera archivarlos en su lugar.',
       onlyOneActive: 'Solo se permite un ciclo activo a la vez. Por favor cierra el ciclo activo actual primero.',
       cannotDeleteData: 'Este ciclo contiene datos y no puede ser eliminado.',
-      dateRange: 'Rango de Fechas'
+      dateRange: 'Rango de Fechas',
+      // Department ratings page  
+      departmentRatings: 'Calificaciones por Departamento',
+      performanceInsights: 'Análisis de Desempeño',
+      totalEvaluations: 'Evaluaciones Totales',
+      completeDepartments: 'Departamentos Completos',
+      departmentsNeedAttention: 'departamentos necesitan atención',
+      swipeForDetails: 'Desliza para ver detalles →',
+      noManager: 'Sin Jefatura',
+      notAssigned: 'No asignado',
+      employees: 'Empleados',
+      evaluated: 'Evaluados',
+      pending: 'Pendientes',
+      performanceDistribution: 'Distribución de Desempeño',
+      evaluations: 'evaluaciones',
+      outstandingShort: 'Excepcional',
+      exceedsShort: 'Supera',
+      meetsShort: 'Cumple',
+      belowShort: 'Por Debajo',
+      needsImprovementShort: 'Requiere Atención',
+      needAttention: 'necesitan atención',
+      noCompletedEvaluations: 'Sin evaluaciones completadas aún',
+      evaluationsWillAppear: 'Las evaluaciones aparecerán aquí una vez enviadas',
+      noDepartmentsFound: 'No se Encontraron Departamentos',
+      addEmployeesWithDepartments: 'Agrega empleados con departamentos para ver las distribuciones de calificación',
+      employeesNeedReview: 'empleados requieren revisión',
+      scheduleOneOnOnes: 'Considera programar reuniones individuales con estos empleados',
+      // Evaluation summary page
+      okrAverage: 'Promedio OKR',
+      competencyAverage: 'Promedio Competencias',
+      totalAverage: 'Promedio Total',
+      objectives: 'objetivos',
+      skills: 'habilidades',
+      items: 'elementos',
+      managerComments: 'Comentarios de Jefatura',
+      feedback: 'Retroalimentación',
+      companyLevel: 'Empresa',
+      departmentLevel: 'Departamento',
+      managerLevel: 'Jefatura'
     },
     users: {
       userManagement: 'Gestión de Usuarios',
