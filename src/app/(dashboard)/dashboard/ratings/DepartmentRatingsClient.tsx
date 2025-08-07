@@ -78,11 +78,11 @@ function DepartmentRatingCard({ department }: { department: DepartmentRating }) 
   }
 
   return (
-    <div className={`rounded-lg border border-gray-200 border-l-4 p-6 shadow-sm ${statusStyling[status]}`}>
+    <div className={`rounded-lg border border-gray-200 border-l-4 p-4 shadow-sm ${statusStyling[status]}`}>
       {/* Enhanced Department Header with Visual Hierarchy */}
-      <div className="flex items-start justify-between mb-4">
+      <div className="flex items-start justify-between mb-3">
         <div className="flex-1">
-          <h3 className="text-xl font-bold text-gray-900 mb-1">{department.department}</h3>
+          <h3 className="text-lg font-bold text-gray-900 mb-1">{department.department}</h3>
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-blue-500"></div>
             <span className="text-sm font-medium text-gray-700">
@@ -115,24 +115,24 @@ function DepartmentRatingCard({ department }: { department: DepartmentRating }) 
             <span>PDF</span>
           </button>
           <div className="text-right">
-            <div className="text-3xl font-bold text-gray-900">{completionPercentage}%</div>
+            <div className="text-2xl font-bold text-gray-900">{completionPercentage}%</div>
             <div className="text-xs text-gray-500 uppercase tracking-wide font-medium">{t.dashboard.complete}</div>
           </div>
         </div>
       </div>
 
       {/* Compact Metrics Grid */}
-      <div className="grid grid-cols-3 gap-3 mb-6">
-        <div className="bg-white/80 rounded-lg p-3 text-center border border-gray-100">
-          <div className="text-lg font-bold text-gray-900">{department.employees.total}</div>
+      <div className="grid grid-cols-3 gap-2 mb-4">
+        <div className="bg-white/80 rounded-lg p-2 text-center border border-gray-100">
+          <div className="text-base font-bold text-gray-900">{department.employees.total}</div>
           <div className="text-xs text-gray-600 font-medium">{t.dashboard.employees}</div>
         </div>
-        <div className="bg-green-50 rounded-lg p-3 text-center border border-green-100">
-          <div className="text-lg font-bold text-green-600">{department.employees.evaluated}</div>
+        <div className="bg-green-50 rounded-lg p-2 text-center border border-green-100">
+          <div className="text-base font-bold text-green-600">{department.employees.evaluated}</div>
           <div className="text-xs text-gray-600 font-medium">{t.dashboard.evaluated}</div>
         </div>
-        <div className="bg-orange-50 rounded-lg p-3 text-center border border-orange-100">
-          <div className="text-lg font-bold text-orange-600">{department.employees.pending}</div>
+        <div className="bg-orange-50 rounded-lg p-2 text-center border border-orange-100">
+          <div className="text-base font-bold text-orange-600">{department.employees.pending}</div>
           <div className="text-xs text-gray-600 font-medium">{t.dashboard.pending}</div>
         </div>
       </div>
@@ -146,7 +146,7 @@ function DepartmentRatingCard({ department }: { department: DepartmentRating }) 
           </div>
           
           {/* Single comprehensive stacked progress bar */}
-          <div className="w-full bg-gray-200 rounded-full h-4 flex overflow-hidden shadow-inner">
+          <div className="w-full bg-gray-200 rounded-full h-3 flex overflow-hidden shadow-inner">
             {department.ratings.outstanding > 0 && (
               <div 
                 className="bg-green-500 h-full first:rounded-l-full" 
@@ -211,7 +211,10 @@ function DepartmentRatingCard({ department }: { department: DepartmentRating }) 
                 className="flex items-center justify-between w-full text-left hover:bg-gray-50 rounded-lg p-2 -m-2 transition-colors"
               >
                 <span className="text-sm font-medium text-blue-600">
-                  {department.allEmployees.length} {t.dashboard.allEmployees}
+                  {t.dashboard.viewCompletedEvaluations ? 
+                    t.dashboard.viewCompletedEvaluations.replace('{count}', department.allEmployees.length.toString()) :
+                    `Ver las ${department.allEmployees.length} evaluaciones completas`
+                  }
                 </span>
                 <svg 
                   className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${showDetails ? 'rotate-180' : ''}`}
@@ -224,7 +227,7 @@ function DepartmentRatingCard({ department }: { department: DepartmentRating }) 
               </button>
               
               {showDetails && (
-                <div className="mt-3 space-y-2 animate-in slide-in-from-top-1 duration-200">
+                <div className="mt-2 space-y-1 animate-in slide-in-from-top-1 duration-200">
                   {department.allEmployees
                     .sort((a, b) => {
                       // Managers first, then by rating (best first for full list)
@@ -236,7 +239,7 @@ function DepartmentRatingCard({ department }: { department: DepartmentRating }) 
                     <button
                       key={employee.id}
                       onClick={() => router.push(`/evaluation-summary/${employee.evaluationId}`)}
-                      className={`w-full flex items-center justify-between p-3 rounded-lg border transition-all duration-150 hover:shadow-md active:scale-[0.98] touch-manipulation ${
+                      className={`w-full flex items-center justify-between p-2 rounded border transition-all duration-150 hover:shadow-sm active:scale-[0.98] touch-manipulation ${
                         employee.rating === 5 
                           ? 'bg-green-50 border-green-100 hover:bg-green-100' 
                           : employee.rating === 4
@@ -248,27 +251,27 @@ function DepartmentRatingCard({ department }: { department: DepartmentRating }) 
                           : 'bg-red-50 border-red-100 hover:bg-red-100'
                       }`}
                     >
-                      <div className="flex-1 text-left">
-                        <div className="flex items-center gap-2">
-                          <span className="font-medium text-gray-900">{employee.name}</span>
+                      <div className="flex-1 text-left min-w-0">
+                        <div className="flex items-center gap-1">
+                          <span className="text-sm font-medium text-gray-900 truncate">{employee.name}</span>
                           {employee.isManager && (
-                            <div className="flex items-center gap-1 px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full text-xs font-medium">
-                              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div className="flex items-center gap-1 px-1.5 py-0.5 bg-purple-100 text-purple-700 rounded-full text-xs font-medium flex-shrink-0">
+                              <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
                               </svg>
                               <span>{t.common.manager}</span>
                             </div>
                           )}
                         </div>
-                        <div className="text-xs text-gray-500 mt-1">
+                        <div className="text-xs text-gray-500">
                           {employee.rating === 5 ? t.dashboard.outstandingShort : 
                            employee.rating === 4 ? t.dashboard.exceedsShort :
                            employee.rating === 3 ? t.dashboard.meetsShort :
                            employee.rating === 2 ? t.dashboard.belowShort : t.dashboard.needsImprovementShort}
                         </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <div className={`flex items-center gap-1 px-2 py-1 rounded text-xs font-medium ${
+                      <div className="flex items-center gap-1.5 flex-shrink-0">
+                        <div className={`flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-medium ${
                           employee.rating === 5 
                             ? 'bg-green-100 text-green-700' 
                             : employee.rating === 4
@@ -281,7 +284,7 @@ function DepartmentRatingCard({ department }: { department: DepartmentRating }) 
                         }`}>
                           <span>{employee.rating}/5</span>
                         </div>
-                        <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                         </svg>
                       </div>
@@ -290,11 +293,11 @@ function DepartmentRatingCard({ department }: { department: DepartmentRating }) 
                   
                   {/* Critical employees hint */}
                   {department.criticalEmployees.length > 0 && (
-                    <div className="text-xs text-orange-600 text-center pt-2 border-t border-gray-100 flex items-center justify-center gap-1">
-                      <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                    <div className="text-xs text-orange-600 text-center pt-1 border-t border-gray-100 flex items-center justify-center gap-1">
+                      <svg className="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
                       </svg>
-                      {department.criticalEmployees.length} {t.dashboard.employeesNeedReview} - {t.dashboard.scheduleOneOnOnes}
+                      {department.criticalEmployees.length} {t.dashboard.employeesNeedReview}
                     </div>
                   )}
                 </div>

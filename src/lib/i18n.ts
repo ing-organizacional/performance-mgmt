@@ -349,6 +349,7 @@ export interface Translations {
     noManagerAssigned: string
     viewResults: string
     scheduleOneOnOnes: string
+    viewCompletedEvaluations: string
     // Evaluation summary page
     okrAverage: string
     competencyAverage: string
@@ -800,6 +801,7 @@ export const translations: Record<Language, Translations> = {
       noManagerAssigned: 'No manager assigned',
       viewResults: 'View Results',
       scheduleOneOnOnes: 'Consider scheduling 1:1 meetings with these employees',
+      viewCompletedEvaluations: 'View the {count} completed evaluations',
       // Evaluation summary page
       okrAverage: 'OKR Average',
       competencyAverage: 'Competency Average',
@@ -1329,6 +1331,7 @@ export const translations: Record<Language, Translations> = {
       noManagerAssigned: 'Sin jefatura asignada',
       viewResults: 'Ver Resultados',
       scheduleOneOnOnes: 'Considera programar reuniones individuales con estos empleados',
+      viewCompletedEvaluations: 'Ver las {count} evaluaciones completas',
       // Evaluation summary page
       okrAverage: 'Promedio OKR',
       competencyAverage: 'Promedio Competencias',
