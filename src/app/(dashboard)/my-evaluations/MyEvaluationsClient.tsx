@@ -4,10 +4,6 @@ import { useRouter } from 'next/navigation'
 import { signOut } from 'next-auth/react'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { LanguageSwitcher } from '@/components/layout'
-import { approveEvaluation } from '@/lib/actions/evaluations'
-import { useToast } from '@/hooks/useToast'
-import { ToastContainer } from '@/components/ui'
-import { useState } from 'react'
 import type { EvaluationCycle } from '@/types'
 
 interface Evaluation {
@@ -29,8 +25,6 @@ interface MyEvaluationsClientProps {
 export default function MyEvaluationsClient({ evaluations, userName, activeCycle, userRole }: MyEvaluationsClientProps) {
   const router = useRouter()
   const { t } = useLanguage()
-  const { toasts, error, success, removeToast } = useToast()
-  const [approvingId, setApprovingId] = useState<string | null>(null)
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -44,7 +38,7 @@ export default function MyEvaluationsClient({ evaluations, userName, activeCycle
   const getStatusText = (status: string) => {
     switch (status) {
       case 'draft': return t.status.draft
-      case 'submitted': return 'Awaiting Your Approval'
+      case 'submitted': return t.nav.awaitingYourApproval
       case 'completed': return t.status.completed
       default: return status.charAt(0).toUpperCase() + status.slice(1)
     }
@@ -124,14 +118,10 @@ export default function MyEvaluationsClient({ evaluations, userName, activeCycle
         </div>
       </div>
 
-      {/* Gray background section for visual contrast */}
-      <div className="bg-gray-50 px-4 pt-3 pb-2">
-        <div className="h-1"></div>
-      </div>
-
-      <div className="px-4 py-6">
+      {/* Main Content */}
+      <div className="px-4 py-6 space-y-6">
         {/* Current Status */}
-        <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm mb-6">
+        <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold text-gray-900">{t.nav.currentPeriod}</h2>
             <span className={`px-3 py-1 rounded-full text-sm font-medium ${
@@ -147,64 +137,125 @@ export default function MyEvaluationsClient({ evaluations, userName, activeCycle
             </span>
           </div>
           
-          {evaluations.length > 0 ? (
-            <div className="text-center py-8">
-              <div className="text-6xl mb-4">🎯</div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
-                {t.nav.evaluationComplete}
-              </h3>
-              <p className="text-gray-600 mb-4">
-                {t.nav.latestPerformanceEvaluation}
-              </p>
-              <div className="flex items-center justify-center mb-2">
-                {getRatingStars(evaluations[0]?.overallRating)}
-                <span className="ml-2 text-sm font-medium text-gray-700">
-                  {evaluations[0]?.overallRating === 1 && t.ratings.needsImprovement}
-                  {evaluations[0]?.overallRating === 2 && t.ratings.belowExpectations}
-                  {evaluations[0]?.overallRating === 3 && t.ratings.meetsExpectations}
-                  {evaluations[0]?.overallRating === 4 && t.ratings.exceedsExpectations}
-                  {evaluations[0]?.overallRating === 5 && t.ratings.outstanding}
-                </span>
+          {(() => {
+            if (evaluations.length === 0) {
+              return (
+                <div className="text-center py-8">
+                  <div className="text-6xl mb-4">📋</div>
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">
+                    {t.nav.noEvaluationsYet}
+                  </h3>
+                  <p className="text-gray-600">
+                    {t.nav.noPerformanceEvaluations}
+                  </p>
+                </div>
+              )
+            }
+
+            // Prioritize evaluations by user relevance:
+            // 1. Completed (show latest achievement first)
+            // 2. Submitted (requires user action)  
+            // 3. Draft (work in progress - lowest priority)
+            const completedEvaluation = evaluations.find(e => e.status === 'completed')
+            const submittedEvaluation = evaluations.find(e => e.status === 'submitted')
+            const latestEvaluation = completedEvaluation || submittedEvaluation || evaluations[0]
+            
+            // Show different content based on the prioritized evaluation status
+            if (latestEvaluation.status === 'completed') {
+              return (
+                <div className="text-center py-8">
+                  <div className="text-6xl mb-4">🎯</div>
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">
+                    {t.nav.evaluationComplete}
+                  </h3>
+                  <p className="text-gray-600 mb-4">
+                    {t.nav.latestPerformanceEvaluation}
+                  </p>
+                  <div className="flex items-center justify-center mb-2">
+                    {getRatingStars(latestEvaluation.overallRating)}
+                    <span className="ml-2 text-sm font-medium text-gray-700">
+                      {latestEvaluation.overallRating === 1 && t.ratings.needsImprovement}
+                      {latestEvaluation.overallRating === 2 && t.ratings.belowExpectations}
+                      {latestEvaluation.overallRating === 3 && t.ratings.meetsExpectations}
+                      {latestEvaluation.overallRating === 4 && t.ratings.exceedsExpectations}
+                      {latestEvaluation.overallRating === 5 && t.ratings.outstanding}
+                    </span>
+                  </div>
+                  <p className="text-sm text-gray-500">
+                    {t.nav.reviewedBy} {latestEvaluation.managerName}
+                  </p>
+                </div>
+              )
+            }
+            
+            if (latestEvaluation.status === 'submitted') {
+              return (
+                <div className="text-center py-8">
+                  <div className="text-6xl mb-4">⏳</div>
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">
+                    {t.nav.awaitingYourApproval}
+                  </h3>
+                  <p className="text-gray-600 mb-4">
+                    {t.nav.managerSubmittedEvaluation}
+                  </p>
+                  <p className="text-sm text-gray-500">
+                    {t.nav.reviewedBy} {latestEvaluation.managerName}
+                  </p>
+                </div>
+              )
+            }
+            
+            if (latestEvaluation.status === 'draft') {
+              return (
+                <div className="text-center py-8">
+                  <div className="text-6xl mb-4">📝</div>
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">
+                    {t.nav.evaluationInProgress}
+                  </h3>
+                  <p className="text-gray-600 mb-4">
+                    {t.nav.managerPreparingEvaluation}
+                  </p>
+                  <p className="text-sm text-gray-500">
+                    {t.common.manager}: {latestEvaluation.managerName}
+                  </p>
+                </div>
+              )
+            }
+            
+            // Fallback
+            return (
+              <div className="text-center py-8">
+                <div className="text-6xl mb-4">📋</div>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                  {t.nav.noEvaluationsYet}
+                </h3>
+                <p className="text-gray-600">
+                  {t.nav.noPerformanceEvaluations}
+                </p>
               </div>
-              <p className="text-sm text-gray-500">
-                {t.nav.reviewedBy} {evaluations[0]?.managerName}
-              </p>
-            </div>
-          ) : (
-            <div className="text-center py-8">
-              <div className="text-6xl mb-4">📋</div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
-                {t.nav.noEvaluationsYet}
-              </h3>
-              <p className="text-gray-600">
-                {t.nav.noPerformanceEvaluations}
-              </p>
-            </div>
-          )}
+            )
+          })()}
         </div>
 
         {/* Evaluation History */}
-        {evaluations.length > 0 && (
+        {evaluations.filter(e => e.status !== 'draft').length > 0 && (
           <div className="bg-white rounded-lg border border-gray-200 shadow-sm">
             <div className="px-6 py-4 border-b border-gray-200">
               <h2 className="text-lg font-semibold text-gray-900">{t.nav.evaluationHistory}</h2>
             </div>
             
             <div className="divide-y divide-gray-200">
-              {evaluations.map((evaluation) => (
+              {evaluations.filter(e => e.status !== 'draft').map((evaluation) => (
               <div key={evaluation.id} className="px-6 py-4 hover:bg-gray-50 transition-colors">
                 <div className="flex items-center justify-between">
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between">
+                    <div className="mb-2">
                       <h3 className="text-base font-medium text-gray-900">
                         {evaluation.period}
                       </h3>
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(evaluation.status)}`}>
-                        {getStatusText(evaluation.status)}
-                      </span>
                     </div>
                     
-                    <div className="mt-2 flex items-center justify-between">
+                    <div className="mt-2 flex items-center">
                       <div className="flex items-center">
                         {getRatingStars(evaluation.overallRating)}
                         {evaluation.overallRating && (
@@ -213,45 +264,28 @@ export default function MyEvaluationsClient({ evaluations, userName, activeCycle
                           </span>
                         )}
                       </div>
-                      {evaluation.submittedAt && (
-                        <span className="text-sm text-gray-500">
-                          {new Date(evaluation.submittedAt).toLocaleDateString()}
-                        </span>
-                      )}
                     </div>
                     
                     <p className="text-sm text-gray-500 mt-1">
-                      {t.nav.reviewedBy} {evaluation.managerName}
+                      {t.nav.evaluatedBy
+                        .replace('{manager}', evaluation.managerName)
+                        .replace('{date}', evaluation.submittedAt ? new Date(evaluation.submittedAt).toLocaleDateString() : '')
+                      }
                     </p>
                   </div>
                   
-                  <div className="ml-4 flex flex-col space-y-2">
+                  <div className="ml-4 flex items-center gap-2">
+                    {evaluation.status === 'submitted' && (
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(evaluation.status)}`}>
+                        {getStatusText(evaluation.status)}
+                      </span>
+                    )}
                     <button 
                       onClick={() => router.push(`/evaluation-summary/${evaluation.id}`)}
-                      className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+                      className="px-3 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded-lg hover:bg-blue-200 transition-colors"
                     >
                       {t.nav.viewDetails}
                     </button>
-                    {evaluation.status === 'submitted' && (
-                      <button
-                        onClick={async () => {
-                          setApprovingId(evaluation.id)
-                          const result = await approveEvaluation(evaluation.id)
-                          if (result.success) {
-                            success('Evaluation approved successfully!')
-                            // Refresh the page to show updated status
-                            window.location.reload()
-                          } else {
-                            error(result.error || 'Failed to approve evaluation')
-                          }
-                          setApprovingId(null)
-                        }}
-                        disabled={approvingId === evaluation.id}
-                        className="px-3 py-1 bg-green-600 text-white text-sm font-medium rounded hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
-                      >
-                        {approvingId === evaluation.id ? 'Approving...' : 'Approve'}
-                      </button>
-                    )}
                   </div>
                 </div>
               </div>
@@ -261,32 +295,36 @@ export default function MyEvaluationsClient({ evaluations, userName, activeCycle
         )}
 
         {/* Performance Summary */}
-        {evaluations.length > 0 && (
-        <div className="mt-6 bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
+        {evaluations.filter(e => e.status === 'completed').length > 0 && (
+        <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">{t.nav.performanceSummary}</h2>
           
           <div className="grid grid-cols-2 gap-4">
             <div className="text-center">
               <div className="text-2xl font-bold text-blue-600">
-                {evaluations.length > 0 
-                  ? (evaluations.reduce((sum, evaluation) => sum + (evaluation.overallRating || 0), 0) / evaluations.length).toFixed(1)
-                  : '—'
-                }
+                {(() => {
+                  const completedEvaluations = evaluations.filter(e => e.status === 'completed' && e.overallRating)
+                  return completedEvaluations.length > 0 
+                    ? (completedEvaluations.reduce((sum, evaluation) => sum + (evaluation.overallRating || 0), 0) / completedEvaluations.length).toFixed(1)
+                    : '—'
+                })()}
               </div>
               <div className="text-sm text-gray-600">{t.nav.averageRating}</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-green-600">{evaluations.length}</div>
+              <div className="text-2xl font-bold text-green-600">{evaluations.filter(e => e.status === 'completed').length}</div>
               <div className="text-sm text-gray-600">{t.nav.completedReviews}</div>
             </div>
           </div>
           
           <div className="mt-4 pt-4 border-t border-gray-200">
             <p className="text-sm text-gray-600 text-center">
-              {evaluations.length > 0 
-                ? getPerformanceSummaryText(evaluations.reduce((sum, evaluation) => sum + (evaluation.overallRating || 0), 0) / evaluations.length)
-                : t.nav.noPerformanceEvaluations
-              }
+              {(() => {
+                const completedEvaluations = evaluations.filter(e => e.status === 'completed' && e.overallRating)
+                return completedEvaluations.length > 0 
+                  ? getPerformanceSummaryText(completedEvaluations.reduce((sum, evaluation) => sum + (evaluation.overallRating || 0), 0) / completedEvaluations.length)
+                  : t.nav.noPerformanceEvaluations
+              })()}
             </p>
           </div>
         </div>
@@ -294,7 +332,7 @@ export default function MyEvaluationsClient({ evaluations, userName, activeCycle
         
         {/* Show notification for evaluations awaiting approval */}
         {evaluations.filter(e => e.status === 'submitted').length > 0 && (
-          <div className="mt-6 bg-yellow-50 border-l-4 border-yellow-400 p-4">
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
             <div className="flex">
               <div className="flex-shrink-0">
                 <svg className="h-5 w-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
@@ -310,9 +348,6 @@ export default function MyEvaluationsClient({ evaluations, userName, activeCycle
           </div>
         )}
       </div>
-      
-      {/* Toast Container */}
-      <ToastContainer toasts={toasts} onRemoveToast={removeToast} />
     </div>
   )
 }

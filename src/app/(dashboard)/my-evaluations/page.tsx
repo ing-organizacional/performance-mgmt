@@ -32,7 +32,7 @@ async function getMyEvaluations(userId: string, companyId: string): Promise<Eval
       employeeId: userId,
       companyId: companyId,
       status: {
-        in: ['submitted', 'completed']
+        in: ['draft', 'submitted', 'completed']
       }
     },
     include: {

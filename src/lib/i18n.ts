@@ -48,6 +48,7 @@ export interface Translations {
     manager: string
     createdBy: string
     saving: string
+    approving: string
     of: string
     employees: string
     departments: string
@@ -98,11 +99,17 @@ export interface Translations {
     evaluationComplete: string
     latestPerformanceEvaluation: string
     reviewedBy: string
+    evaluatedOn: string
+    evaluatedBy: string
     noEvaluationsYet: string
     noPerformanceEvaluations: string
     evaluationHistory: string
     viewDetails: string
     performanceSummary: string
+    awaitingYourApproval: string
+    evaluationInProgress: string
+    managerPreparingEvaluation: string
+    managerSubmittedEvaluation: string
     averageRating: string
     completedReviews: string
     consistentlyExceeding: string
@@ -126,6 +133,7 @@ export interface Translations {
     submitForApproval: string
     submitting: string
     evaluationSubmittedSuccess: string
+    evaluationApprovedSuccess: string
     awaitingEmployeeApproval: string
     evaluationCompleted: string
     unlocking: string
@@ -560,6 +568,7 @@ export const translations: Record<Language, Translations> = {
       manager: 'Manager',
       createdBy: 'Created by',
       saving: 'Saving...',
+      approving: 'Approving...',
       of: 'of',
       employees: 'employees',
       departments: 'departments',
@@ -606,11 +615,17 @@ export const translations: Record<Language, Translations> = {
       evaluationComplete: 'Evaluation Complete!',
       latestPerformanceEvaluation: 'Your latest performance evaluation has been submitted and approved.',
       reviewedBy: 'Reviewed by',
+      evaluatedOn: 'Evaluated on',
+      evaluatedBy: 'Evaluated by {manager} on {date}',
       noEvaluationsYet: 'No Evaluations Yet',
       noPerformanceEvaluations: 'You don\'t have any performance evaluations yet. Check back later.',
       evaluationHistory: 'Evaluation History',
       viewDetails: 'View Details',
       performanceSummary: 'Performance Summary',
+      awaitingYourApproval: 'Awaiting Your Approval',
+      evaluationInProgress: 'Evaluation In Progress',
+      managerPreparingEvaluation: 'Your performance evaluation is currently being prepared by your manager.',
+      managerSubmittedEvaluation: 'Your manager has submitted your evaluation. Please review and approve it.',
       averageRating: 'Average Rating',
       completedReviews: 'Completed Reviews',
       consistentlyExceeding: '🏆 Consistently exceeding expectations in performance reviews',
@@ -632,6 +647,7 @@ export const translations: Record<Language, Translations> = {
       submitForApproval: 'Submit for Employee Approval',
       submitting: 'Submitting...',
       evaluationSubmittedSuccess: 'Evaluation submitted for employee approval',
+      evaluationApprovedSuccess: 'Evaluation approved successfully!',
       awaitingEmployeeApproval: 'Awaiting Employee Approval',
       evaluationCompleted: 'Evaluation Completed',
       unlocking: 'Unlocking...',
@@ -1054,6 +1070,7 @@ export const translations: Record<Language, Translations> = {
       manager: 'Jefatura',
       createdBy: 'Creado por',
       saving: 'Guardando...',
+      approving: 'Aprobando...',
       of: 'de',
       employees: 'empleados',
       departments: 'departamentos',
@@ -1100,11 +1117,17 @@ export const translations: Record<Language, Translations> = {
       evaluationComplete: '¡Evaluación Completada!',
       latestPerformanceEvaluation: 'Tu última evaluación de desempeño ha sido enviada y aprobada.',
       reviewedBy: 'Revisado por',
+      evaluatedOn: 'Evaluado el',
+      evaluatedBy: 'Evaluado por {manager} el {date}',
       noEvaluationsYet: 'Aún No Hay Evaluaciones',
       noPerformanceEvaluations: 'Aún no tienes ninguna evaluación de desempeño. Vuelve a revisar más tarde.',
       evaluationHistory: 'Historial de Evaluaciones',
       viewDetails: 'Ver Detalles',
       performanceSummary: 'Resumen de Desempeño',
+      awaitingYourApproval: 'Esperando Tu Aprobación',
+      evaluationInProgress: 'Evaluación en Progreso',
+      managerPreparingEvaluation: 'Tu evaluación de desempeño está siendo preparada por tu jefatura.',
+      managerSubmittedEvaluation: 'Tu jefatura ha enviado tu evaluación. Por favor revísala y apruébala.',
       averageRating: 'Calificación Promedio',
       completedReviews: 'Revisiones Completadas',
       consistentlyExceeding: '🏆 Consistentemente superando expectativas en las evaluaciones de desempeño',
@@ -1126,6 +1149,7 @@ export const translations: Record<Language, Translations> = {
       submitForApproval: 'Enviar para Aprobación del Empleado',
       submitting: 'Enviando...',
       evaluationSubmittedSuccess: 'Evaluación enviada para aprobación del empleado',
+      evaluationApprovedSuccess: '¡Evaluación aprobada exitosamente!',
       awaitingEmployeeApproval: 'Esperando Aprobación del Empleado',
       evaluationCompleted: 'Evaluación Completada',
       unlocking: 'Desbloqueando...',

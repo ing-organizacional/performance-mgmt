@@ -132,5 +132,5 @@ export default async function EvaluationSummaryPage({ params }: PageProps) {
     redirect(userRole === 'employee' ? '/my-evaluations' : '/dashboard')
   }
 
-  return <EvaluationSummaryClient evaluation={evaluation} userRole={userRole} />
+  return <EvaluationSummaryClient evaluation={evaluation} userRole={userRole} currentUserId={session.user.id} />
 }

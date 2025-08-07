@@ -5,7 +5,9 @@ import { useRouter } from 'next/navigation'
 import { LanguageSwitcher } from '@/components/layout'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { useExport } from '@/hooks/useExport'
-import { unlockEvaluation } from '@/lib/actions/evaluations'
+import { unlockEvaluation, approveEvaluation } from '@/lib/actions/evaluations'
+import { useToast } from '@/hooks/useToast'
+import { ToastContainer } from '@/components/ui'
 
 interface EvaluationSummary {
   id: string
@@ -38,15 +40,38 @@ interface EvaluationSummary {
 interface EvaluationSummaryClientProps {
   evaluation: EvaluationSummary
   userRole: string
+  currentUserId: string
 }
 
-export default function EvaluationSummaryClient({ evaluation, userRole }: EvaluationSummaryClientProps) {
+export default function EvaluationSummaryClient({ evaluation, userRole, currentUserId }: EvaluationSummaryClientProps) {
   const { t } = useLanguage()
   const router = useRouter()
   const { isExporting, exportError, exportEvaluationById } = useExport()
+  const { toasts, error, success, removeToast } = useToast()
   const [isUnlocking, setIsUnlocking] = useState(false)
   const [unlockError, setUnlockError] = useState<string | null>(null)
+  const [isApproving, setIsApproving] = useState(false)
 
+
+  const handleApproveEvaluation = async () => {
+    if (!evaluation.id) return
+    
+    setIsApproving(true)
+    try {
+      const result = await approveEvaluation(evaluation.id)
+      if (result.success) {
+        success(t.evaluations.evaluationApprovedSuccess)
+        // Refresh the page to show updated status
+        window.location.reload()
+      } else {
+        error(result.error || 'Failed to approve evaluation')
+      }
+    } catch (err) {
+      error('Failed to approve evaluation')
+    } finally {
+      setIsApproving(false)
+    }
+  }
 
   const handleUnlockEvaluation = async () => {
     if (!evaluation.id) return
@@ -239,6 +264,32 @@ export default function EvaluationSummaryClient({ evaluation, userRole }: Evalua
                       </svg>
                     )}
                     <span>{isUnlocking ? 'Unlocking...' : 'Unlock'}</span>
+                  </button>
+                )}
+
+                {/* Employee Approve Button - Only for the employee viewing their own submitted evaluation */}
+                {evaluation.status === 'submitted' && currentUserId === evaluation.employee.id && (
+                  <button
+                    onClick={handleApproveEvaluation}
+                    disabled={isApproving}
+                    className={`flex items-center space-x-2 px-4 py-2.5 text-white text-sm font-medium rounded-lg active:scale-95 transition-all duration-150 touch-manipulation whitespace-nowrap shadow-md ${
+                      isApproving 
+                        ? 'bg-gray-400 cursor-not-allowed' 
+                        : 'bg-green-600 hover:bg-green-700 hover:shadow-lg'
+                    }`}
+                    title="Approve this evaluation"
+                  >
+                    {isApproving ? (
+                      <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                      </svg>
+                    ) : (
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                    )}
+                    <span>{isApproving ? t.common.approving : t.common.approve}</span>
                   </button>
                 )}
 
@@ -535,6 +586,9 @@ export default function EvaluationSummaryClient({ evaluation, userRole }: Evalua
           )}
         </div>
       </div>
+      
+      {/* Toast Container */}
+      <ToastContainer toasts={toasts} onRemoveToast={removeToast} />
     </div>
   )
 }
