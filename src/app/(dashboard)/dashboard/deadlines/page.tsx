@@ -94,6 +94,8 @@ async function getManagerEvaluationData(companyId: string) {
     }
     
     // Parse the evaluation items data to see which items are completed
+    if (!evaluation.evaluationItemsData) return
+    
     try {
       const evaluationData = JSON.parse(evaluation.evaluationItemsData)
       if (Array.isArray(evaluationData)) {
