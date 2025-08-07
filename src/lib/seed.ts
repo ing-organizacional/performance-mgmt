@@ -503,8 +503,8 @@ export async function seedDatabase() {
       where: {
         employeeId_periodType_periodDate: {
           employeeId: scenario.employee.id,
-          periodType: 'quarterly',
-          periodDate: `${currentYear}-Q1`
+          periodType: 'yearly',
+          periodDate: currentYear.toString()
         }
       },
       update: {},
@@ -513,8 +513,8 @@ export async function seedDatabase() {
         managerId: scenario.employee.manager.id,
         companyId: company.id,
         cycleId: defaultCycle.id,
-        periodType: 'quarterly',
-        periodDate: `${currentYear}-Q1`,
+        periodType: 'yearly',
+        periodDate: currentYear.toString(),
         status: scenario.status,
         overallRating: scenario.overallRating,
         managerComments: scenario.managerComments,
@@ -541,8 +541,8 @@ export async function seedDatabase() {
         where: {
           employeeId_periodType_periodDate: {
             employeeId: hrEmployees[0].id,
-            periodType: 'quarterly', 
-            periodDate: `${currentYear}-Q1`
+            periodType: 'yearly',
+            periodDate: currentYear.toString()
           }
         },
         update: {},
@@ -551,8 +551,8 @@ export async function seedDatabase() {
           managerId: hrManager.id,
           companyId: company.id,
           cycleId: defaultCycle.id,
-          periodType: 'quarterly',
-          periodDate: `${currentYear}-Q1`,
+          periodType: 'yearly',
+          periodDate: currentYear.toString(),
           status: 'completed',
           overallRating: 4,
           managerComments: `Great performance in ${hrManager.department} department.`,

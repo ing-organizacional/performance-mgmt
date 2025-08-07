@@ -112,8 +112,8 @@ export async function POST(request: NextRequest) {
       evaluationItems, 
       overallRating, 
       overallComment,
-      periodType = 'quarterly',
-      periodDate = '2024-Q1',
+      periodType,
+      periodDate,
       cycleId,
       isAutoSave = false
     } = body
@@ -127,8 +127,10 @@ export async function POST(request: NextRequest) {
 
     // Get the cycle to use (either provided or find active cycle)
     let targetCycleId = cycleId
+    let activeCycle = null
+    
     if (!targetCycleId) {
-      const activeCycle = await prisma.performanceCycle.findFirst({
+      activeCycle = await prisma.performanceCycle.findFirst({
         where: {
           companyId,
           status: 'active'
@@ -138,6 +140,41 @@ export async function POST(request: NextRequest) {
         }
       })
       targetCycleId = activeCycle?.id ?? undefined
+    } else {
+      // If cycleId was provided, fetch the cycle details
+      activeCycle = await prisma.performanceCycle.findFirst({
+        where: {
+          id: targetCycleId,
+          companyId
+        }
+      })
+    }
+    
+    // Derive period values from active cycle or use provided values or defaults
+    let derivedPeriodType = periodType || 'yearly'
+    let derivedPeriodDate = periodDate || new Date().getFullYear().toString()
+    
+    if (activeCycle) {
+      // Extract period info from cycle name
+      const cycleName = activeCycle.name.toLowerCase()
+      if (cycleName.includes('annual') || cycleName.includes('yearly') || cycleName.includes('year')) {
+        derivedPeriodType = periodType || 'yearly'
+        // Extract year from cycle name or use current year
+        const yearMatch = activeCycle.name.match(/\b(20\d{2})\b/)
+        derivedPeriodDate = periodDate || (yearMatch ? yearMatch[1] : new Date().getFullYear().toString())
+      } else if (cycleName.includes('quarter') || cycleName.includes('q1') || cycleName.includes('q2') || cycleName.includes('q3') || cycleName.includes('q4')) {
+        derivedPeriodType = periodType || 'quarterly'
+        // Extract quarter info from cycle name
+        const quarterMatch = activeCycle.name.match(/\b(20\d{2}[-\s]?Q[1-4]|\bQ[1-4][-\s]?20\d{2})\b/i)
+        if (quarterMatch) {
+          derivedPeriodDate = periodDate || quarterMatch[1].replace(/\s/g, '-').toUpperCase()
+        } else {
+          // Fallback: determine quarter from current date
+          const currentDate = new Date()
+          const quarter = Math.ceil((currentDate.getMonth() + 1) / 3)
+          derivedPeriodDate = periodDate || `${currentDate.getFullYear()}-Q${quarter}`
+        }
+      }
     }
 
     // Validate cycle permissions
@@ -162,8 +199,8 @@ export async function POST(request: NextRequest) {
       where: {
         employeeId_periodType_periodDate: {
           employeeId,
-          periodType,
-          periodDate
+          periodType: derivedPeriodType,
+          periodDate: derivedPeriodDate
         }
       }
     })
@@ -193,8 +230,8 @@ export async function POST(request: NextRequest) {
           managerId: userId,
           companyId,
           cycleId: targetCycleId === null ? undefined : targetCycleId,
-          periodType,
-          periodDate,
+          periodType: derivedPeriodType,
+          periodDate: derivedPeriodDate,
           evaluationItemsData: JSON.stringify(evaluationItems),
           overallRating,
           managerComments: overallComment,

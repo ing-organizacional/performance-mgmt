@@ -404,6 +404,10 @@ export interface Translations {
     noDeadline: string
     allEvaluationItems: string
     itemsWithDeadlines: string
+    daysRemaining: string
+    dayRemaining: string
+    dayOverdue: string
+    dueToday: string
     managersWithIssues: string
     employeesBehind: string
     overdueItems: string
@@ -869,6 +873,10 @@ export const translations: Record<Language, Translations> = {
       noDeadline: 'No deadline',
       allEvaluationItems: 'All Evaluation Items',
       itemsWithDeadlines: 'items with deadlines',
+      daysRemaining: 'days remaining',
+      dayRemaining: 'day remaining',
+      dayOverdue: 'day overdue',
+      dueToday: 'Due today',
       companyWideItems: 'Company-Wide Items',
       managersWithIssues: 'Managers with Issues',
       employeesBehind: 'Employees Behind',
@@ -1412,6 +1420,10 @@ export const translations: Record<Language, Translations> = {
       noDeadline: 'Sin fecha límite',
       allEvaluationItems: 'Todos los Elementos de Evaluación',
       itemsWithDeadlines: 'elementos con fechas límite',
+      daysRemaining: 'días restantes',
+      dayRemaining: 'día restante',
+      dayOverdue: 'día vencido',
+      dueToday: 'Vence hoy',
       managersWithIssues: 'Jefaturas con Problemas',
       employeesBehind: 'Empleados Atrasados', 
       overdueItems: 'Elementos Vencidos',

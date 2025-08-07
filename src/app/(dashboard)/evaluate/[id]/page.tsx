@@ -314,9 +314,8 @@ export default function EvaluatePage() {
           comment: item.comment
         })),
         overallRating,
-        overallComment,
-        periodType: 'quarterly',
-        periodDate: '2024-Q1'
+        overallComment
+        // periodType and periodDate will be derived from active cycle on server
       })
       
       if (result.success && result.evaluationId && !evaluationId) {

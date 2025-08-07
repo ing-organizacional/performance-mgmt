@@ -152,16 +152,61 @@ export default function MyEvaluationsClient({ evaluations, userName, activeCycle
               )
             }
 
-            // Prioritize evaluations by user relevance:
+            // Find evaluations that match the current active cycle
+            const getCurrentCycleEvaluations = () => {
+              if (!activeCycle) return evaluations
+              
+              // Derive expected period type and date from active cycle
+              const cycleName = activeCycle.name.toLowerCase()
+              let expectedPeriodType = 'yearly'
+              let expectedPeriodDate = new Date().getFullYear().toString()
+              
+              if (cycleName.includes('annual') || cycleName.includes('yearly') || cycleName.includes('year')) {
+                expectedPeriodType = 'yearly'
+                const yearMatch = activeCycle.name.match(/\b(20\d{2})\b/)
+                expectedPeriodDate = yearMatch ? yearMatch[1] : new Date().getFullYear().toString()
+              } else if (cycleName.includes('quarter') || cycleName.includes('q1') || cycleName.includes('q2') || cycleName.includes('q3') || cycleName.includes('q4')) {
+                expectedPeriodType = 'quarterly'
+                const quarterMatch = activeCycle.name.match(/\b(20\d{2}[-\s]?Q[1-4]|\bQ[1-4][-\s]?20\d{2})\b/i)
+                if (quarterMatch) {
+                  expectedPeriodDate = quarterMatch[1].replace(/\s/g, '-').toUpperCase()
+                } else {
+                  const currentDate = new Date()
+                  const quarter = Math.ceil((currentDate.getMonth() + 1) / 3)
+                  expectedPeriodDate = `${currentDate.getFullYear()}-Q${quarter}`
+                }
+              }
+              
+              return evaluations.filter(e => 
+                e.period === `${expectedPeriodDate} ${expectedPeriodType}`
+              )
+            }
+            
+            const currentCycleEvaluations = getCurrentCycleEvaluations()
+            
+            // Prioritize current cycle evaluations by user relevance:
             // 1. Completed (show latest achievement first)
             // 2. Submitted (requires user action)  
             // 3. Draft (work in progress - lowest priority)
-            const completedEvaluation = evaluations.find(e => e.status === 'completed')
-            const submittedEvaluation = evaluations.find(e => e.status === 'submitted')
-            const latestEvaluation = completedEvaluation || submittedEvaluation || evaluations[0]
+            const completedEvaluation = currentCycleEvaluations.find(e => e.status === 'completed')
+            const submittedEvaluation = currentCycleEvaluations.find(e => e.status === 'submitted')
+            const latestEvaluation = completedEvaluation || submittedEvaluation || currentCycleEvaluations[0]
             
             // Show different content based on the prioritized evaluation status
-            if (latestEvaluation.status === 'completed') {
+            if (!latestEvaluation) {
+              // No evaluation for current cycle
+              return (
+                <div className="text-center py-8">
+                  <div className="text-6xl mb-4">📋</div>
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">
+                    {t.nav.noEvaluationsYet}
+                  </h3>
+                  <p className="text-gray-600">
+                    {t.nav.noPerformanceEvaluations}
+                  </p>
+                </div>
+              )
+            } else if (latestEvaluation.status === 'completed') {
               return (
                 <div className="text-center py-8">
                   <div className="text-6xl mb-4">🎯</div>

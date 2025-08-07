@@ -514,12 +514,50 @@ export async function autosaveEvaluation(formData: {
       evaluationItems, 
       overallRating, 
       overallComment,
-      periodType = 'quarterly',
-      periodDate = '2024-Q1'
+      periodType,
+      periodDate
     } = formData
 
     if (!employeeId || !evaluationItems) {
       return { success: false, error: 'Missing required fields' }
+    }
+
+    // Get active cycle to derive period values
+    const activeCycle = await prisma.performanceCycle.findFirst({
+      where: {
+        companyId: session.user.companyId,
+        status: 'active'
+      },
+      orderBy: {
+        createdAt: 'desc'
+      }
+    })
+    
+    // Derive period values from active cycle or use provided values or defaults
+    let derivedPeriodType = periodType || 'yearly'
+    let derivedPeriodDate = periodDate || new Date().getFullYear().toString()
+    
+    if (activeCycle) {
+      // Extract period info from cycle name
+      const cycleName = activeCycle.name.toLowerCase()
+      if (cycleName.includes('annual') || cycleName.includes('yearly') || cycleName.includes('year')) {
+        derivedPeriodType = periodType || 'yearly'
+        // Extract year from cycle name or use current year
+        const yearMatch = activeCycle.name.match(/\b(20\d{2})\b/)
+        derivedPeriodDate = periodDate || (yearMatch ? yearMatch[1] : new Date().getFullYear().toString())
+      } else if (cycleName.includes('quarter') || cycleName.includes('q1') || cycleName.includes('q2') || cycleName.includes('q3') || cycleName.includes('q4')) {
+        derivedPeriodType = periodType || 'quarterly'
+        // Extract quarter info from cycle name
+        const quarterMatch = activeCycle.name.match(/\b(20\d{2}[-\s]?Q[1-4]|\bQ[1-4][-\s]?20\d{2})\b/i)
+        if (quarterMatch) {
+          derivedPeriodDate = periodDate || quarterMatch[1].replace(/\s/g, '-').toUpperCase()
+        } else {
+          // Fallback: determine quarter from current date
+          const currentDate = new Date()
+          const quarter = Math.ceil((currentDate.getMonth() + 1) / 3)
+          derivedPeriodDate = periodDate || `${currentDate.getFullYear()}-Q${quarter}`
+        }
+      }
     }
 
     // Check if evaluation already exists for this period
@@ -527,8 +565,8 @@ export async function autosaveEvaluation(formData: {
       where: {
         employeeId,
         managerId: userId,
-        periodType,
-        periodDate,
+        periodType: derivedPeriodType,
+        periodDate: derivedPeriodDate,
         companyId
       }
     })
@@ -552,8 +590,8 @@ export async function autosaveEvaluation(formData: {
           employeeId,
           managerId: userId,
           companyId,
-          periodType,
-          periodDate,
+          periodType: derivedPeriodType,
+          periodDate: derivedPeriodDate,
           evaluationItemsData: JSON.stringify(evaluationItems),
           overallRating,
           managerComments: overallComment,

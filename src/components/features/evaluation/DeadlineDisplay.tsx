@@ -5,6 +5,7 @@ import {
   getDeadlineStatusText, 
   getDeadlineStyleClasses 
 } from '@/lib/deadline-utils'
+import { useLanguage } from '@/contexts/LanguageContext'
 import { Clock, AlertTriangle, CheckCircle } from 'lucide-react'
 
 interface DeadlineDisplayProps {
@@ -22,12 +23,14 @@ export default function DeadlineDisplay({
   className = '',
   compact = false 
 }: DeadlineDisplayProps) {
+  const { t } = useLanguage()
+  
   if (!deadline) return null
 
   const deadlineInfo = calculateDeadlineInfo(deadline)
   if (!deadlineInfo) return null
 
-  const statusText = getDeadlineStatusText(deadlineInfo)
+  const statusText = getDeadlineStatusText(deadlineInfo, t)
   const styleClasses = getDeadlineStyleClasses(deadlineInfo.urgencyLevel)
   
   const IconComponent = deadlineInfo.isOverdue 
@@ -79,12 +82,14 @@ export function CompactDeadlineDisplay({ deadline, className = '' }: { deadline:
  * Badge version for use in cards and headers
  */
 export function DeadlineBadge({ deadline, className = '' }: { deadline: string | null, className?: string }) {
+  const { t } = useLanguage()
+  
   if (!deadline) return null
 
   const deadlineInfo = calculateDeadlineInfo(deadline)
   if (!deadlineInfo) return null
 
-  const statusText = getDeadlineStatusText(deadlineInfo)
+  const statusText = getDeadlineStatusText(deadlineInfo, t)
   const styleClasses = getDeadlineStyleClasses(deadlineInfo.urgencyLevel)
 
   return (
