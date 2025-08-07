@@ -70,6 +70,26 @@ Visit http://localhost:3000 and use demo credentials:
 - **Thumb-friendly**: Minimum 44px touch targets
 - **Universal access**: Works for HR, managers, and employees
 
+### Evaluation Workflow (Three-Status System)
+**Ridiculously Simple Flow:**
+1. **`draft`** → Manager creates and works on evaluation (default status)
+2. **`submitted`** → Manager completes ALL items (rating + comment) and submits for employee approval
+   - Evaluation becomes **locked** from manager edits
+   - Employee can view evaluation and approve it
+3. **`completed`** → Employee approves the evaluation (final status)
+
+**Key Rules:**
+- **Manager Accountability**: Cannot leave evaluations in `draft` forever (HR dashboard tracks overdue)
+- **Employee Agency**: 3-day approval window, but stays `submitted` indefinitely if not approved (vacation flexibility)
+- **Error Handling**: HR can "unlock" submitted evaluations back to `draft` if manager needs to fix errors
+- **Completion Validation**: All OKR/competency items must have rating (1-5) AND comment before submission allowed
+- **No Rejection Flow**: If employee doesn't approve, evaluation stays `submitted` - keeps it simple
+
+**HR Dashboard Oversight:**
+- **Overdue Drafts**: Shows `draft` evaluations past manager deadline
+- **Pending Approvals**: Shows `submitted` evaluations awaiting employee action  
+- **Overdue Approvals**: Shows `submitted` evaluations > 3 days for HR visibility
+
 ### HR Team Management (NEW!)
 - **Dual-role support**: HR users can both manage teams and access admin functions
 - **Team evaluations**: HR managers have their own direct reports to evaluate
@@ -114,6 +134,7 @@ Evaluation {
   id, employeeId, managerId, companyId, cycleId?,
   evaluationItemsData, overallRating,
   status, periodType, periodDate
+  -- status: "draft" | "submitted" | "completed"
 }
 
 -- Structured Evaluation Items: Individual OKR/Competency definitions
@@ -211,7 +232,13 @@ const updatedUser = await updateUser("user-id", {
 await deleteUser("user-id")
 ```
 
-### Available REST APIs
+### Implementation Architecture
+**Server Actions (Preferred):**
+- Evaluation workflow uses Next.js Server Actions for form submissions
+- Better type safety and progressive enhancement
+- Located in `/src/lib/actions/` directory
+
+**Available REST APIs (Legacy/Integration):**
 ```bash
 # Import users from CSV
 curl -X POST http://localhost:3000/api/admin/import \

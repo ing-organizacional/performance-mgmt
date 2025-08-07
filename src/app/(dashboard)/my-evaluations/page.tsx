@@ -24,10 +24,16 @@ async function getActiveCycle(companyId: string): Promise<EvaluationCycle | null
   return cycle as EvaluationCycle | null
 }
 
-async function getMyEvaluations(userId: string): Promise<Evaluation[]> {
+async function getMyEvaluations(userId: string, companyId: string): Promise<Evaluation[]> {
+  console.log('Fetching evaluations for userId:', userId, 'companyId:', companyId)
+  
   const evaluations = await prisma.evaluation.findMany({
     where: {
-      employeeId: userId
+      employeeId: userId,
+      companyId: companyId,
+      status: {
+        in: ['submitted', 'approved']
+      }
     },
     include: {
       manager: {
@@ -41,6 +47,11 @@ async function getMyEvaluations(userId: string): Promise<Evaluation[]> {
       createdAt: 'desc'
     }
   })
+
+  console.log('Found evaluations:', evaluations.length)
+  if (evaluations.length > 0) {
+    console.log('Evaluation statuses:', evaluations.map(e => e.status))
+  }
 
   // Transform the data to match the expected format
   return evaluations.map(evaluation => ({
@@ -66,9 +77,11 @@ export default async function MyEvaluationsPage() {
   }
 
   const userRole = session.user.role
+  
+  console.log('My Evaluations Page - User:', session.user.email, 'ID:', session.user.id, 'Role:', userRole)
 
   // Fetch evaluations and active cycle from database
-  const evaluations = await getMyEvaluations(session.user.id)
+  const evaluations = await getMyEvaluations(session.user.id, companyId)
   const activeCycle = await getActiveCycle(companyId)
 
   return (

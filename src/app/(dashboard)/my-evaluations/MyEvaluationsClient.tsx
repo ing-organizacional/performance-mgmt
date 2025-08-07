@@ -46,6 +46,14 @@ export default function MyEvaluationsClient({ evaluations, userName, activeCycle
     }
   }
 
+  const getPerformanceSummaryText = (averageRating: number) => {
+    if (averageRating >= 4.5) return t.nav.performanceOutstanding    // 4.5-5: Outstanding
+    if (averageRating >= 3.5) return t.nav.performanceExceeding      // 3.5-4.4: Exceeding 
+    if (averageRating >= 2.5) return t.nav.performanceMeeting        // 2.5-3.4: Meeting
+    if (averageRating >= 1.5) return t.nav.performanceImproving      // 1.5-2.4: Improving
+    return t.nav.performanceNeedsWork                                // 1-1.4: Needs Work
+  }
+
   const getRatingStars = (rating: number | null) => {
     if (!rating) return <span className="text-gray-400">{t.ratings.notRated}</span>
     
@@ -251,7 +259,10 @@ export default function MyEvaluationsClient({ evaluations, userName, activeCycle
           
           <div className="mt-4 pt-4 border-t border-gray-200">
             <p className="text-sm text-gray-600 text-center">
-              {t.nav.consistentlyExceeding}
+              {evaluations.length > 0 
+                ? getPerformanceSummaryText(evaluations.reduce((sum, evaluation) => sum + (evaluation.overallRating || 0), 0) / evaluations.length)
+                : t.nav.noPerformanceEvaluations
+              }
             </p>
           </div>
         </div>

@@ -102,6 +102,11 @@ export interface Translations {
     averageRating: string
     completedReviews: string
     consistentlyExceeding: string
+    performanceOutstanding: string
+    performanceExceeding: string
+    performanceMeeting: string
+    performanceImproving: string
+    performanceNeedsWork: string
   }
   
   // Evaluations
@@ -582,7 +587,12 @@ export const translations: Record<Language, Translations> = {
       performanceSummary: 'Performance Summary',
       averageRating: 'Average Rating',
       completedReviews: 'Completed Reviews',
-      consistentlyExceeding: '🏆 Consistently exceeding expectations in performance reviews'
+      consistentlyExceeding: '🏆 Consistently exceeding expectations in performance reviews',
+      performanceOutstanding: 'Outstanding performance across all evaluations',
+      performanceExceeding: 'Consistently exceeding expectations in performance reviews',
+      performanceMeeting: 'Solid performance meeting expectations consistently',
+      performanceImproving: 'Showing improvement in recent performance reviews',
+      performanceNeedsWork: 'Focus areas identified for performance improvement'
     },
     evaluations: {
       evaluation: 'Evaluation',
@@ -1049,7 +1059,12 @@ export const translations: Record<Language, Translations> = {
       performanceSummary: 'Resumen de Desempeño',
       averageRating: 'Calificación Promedio',
       completedReviews: 'Revisiones Completadas',
-      consistentlyExceeding: '🏆 Consistentemente superando expectativas en las evaluaciones de desempeño'
+      consistentlyExceeding: '🏆 Consistentemente superando expectativas en las evaluaciones de desempeño',
+      performanceOutstanding: 'Rendimiento excepcional en todas las evaluaciones',
+      performanceExceeding: 'Consistentemente superando expectativas en las evaluaciones de desempeño',
+      performanceMeeting: 'Rendimiento sólido cumpliendo expectativas consistentemente',
+      performanceImproving: 'Mostrando mejora en las evaluaciones de desempeño recientes',
+      performanceNeedsWork: 'Áreas de enfoque identificadas para mejora del desempeño'
     },
     evaluations: {
       evaluation: 'Evaluación',
