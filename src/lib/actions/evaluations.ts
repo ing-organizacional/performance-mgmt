@@ -331,7 +331,7 @@ export async function getTeamData() {
             managerId: userId
           },
           orderBy: {
-            createdAt: 'desc'
+            updatedAt: 'desc'
           },
           take: 1,
           select: {
