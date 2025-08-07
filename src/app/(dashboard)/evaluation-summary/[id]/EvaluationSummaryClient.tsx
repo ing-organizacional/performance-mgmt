@@ -269,7 +269,6 @@ export default function EvaluationSummaryClient({ evaluation, userRole }: Evalua
                 {/* Status Badge */}
                 <div className={`px-3 py-1 rounded-full text-sm font-medium ${
                   getStatusColor(evaluation.status) === 'green' ? 'bg-green-100 text-green-700' :
-                  getStatusColor(evaluation.status) === 'blue' ? 'bg-blue-100 text-blue-700' :
                   getStatusColor(evaluation.status) === 'purple' ? 'bg-purple-100 text-purple-700' :
                   getStatusColor(evaluation.status) === 'yellow' ? 'bg-yellow-100 text-yellow-700' :
                   'bg-gray-100 text-gray-700'

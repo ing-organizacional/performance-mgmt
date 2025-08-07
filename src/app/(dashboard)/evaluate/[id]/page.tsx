@@ -139,6 +139,19 @@ export default function EvaluatePage() {
     fetchEvaluationData()
   }, [session, status, router, fetchEvaluationData])
 
+  // Refresh data when component comes into focus (user navigates back)
+  useEffect(() => {
+    const handleFocus = () => {
+      // Refetch data when user returns to this page
+      if (!loading) {
+        fetchEvaluationData()
+      }
+    }
+
+    window.addEventListener('focus', handleFocus)
+    return () => window.removeEventListener('focus', handleFocus)
+  }, [fetchEvaluationData, loading])
+
   // Reset current step when evaluation items change (new employee)
   useEffect(() => {
     if (evaluationItems.length > 0) {
@@ -323,11 +336,16 @@ export default function EvaluatePage() {
       
       if (result.success) {
         hapticFeedback.success()
-        success('Evaluation submitted for employee approval')
         setEvaluationStatus('submitted')
+        
+        // Show success toast with a short delay for better UX
+        setTimeout(() => {
+          success(t.evaluations.evaluationSubmittedSuccess)
+        }, 500)
+        
         setTimeout(() => {
           router.push('/evaluations')
-        }, 2000)
+        }, 3000)
       } else {
         error(result.error || 'Failed to submit evaluation')
       }
@@ -348,7 +366,7 @@ export default function EvaluatePage() {
       
       if (result.success) {
         hapticFeedback.success()
-        success('Evaluation unlocked and returned to draft')
+        success(t.evaluations.evaluationUnlocked)
         setEvaluationStatus('draft')
         // Refresh the evaluation data
         await fetchEvaluationData()
@@ -495,7 +513,7 @@ export default function EvaluatePage() {
               {evaluationStatus === 'submitted' && (
                 <div className="flex items-center gap-2">
                   <span className="px-3 py-1 bg-yellow-100 text-yellow-700 text-xs font-medium rounded-full">
-                    Awaiting Employee Approval
+                    {t.evaluations.awaitingEmployeeApproval}
                   </span>
                   {session?.user?.role === 'hr' && (
                     <button
@@ -506,7 +524,7 @@ export default function EvaluatePage() {
                       <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z" />
                       </svg>
-                      {submitting ? 'Unlocking...' : 'Unlock'}
+                      {submitting ? t.evaluations.unlocking : t.evaluations.unlock}
                     </button>
                   )}
                 </div>
@@ -514,7 +532,7 @@ export default function EvaluatePage() {
               
               {evaluationStatus === 'completed' && (
                 <span className="px-3 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full">
-                  Evaluation Completed
+                  {t.evaluations.evaluationCompleted}
                 </span>
               )}
             </div>

@@ -125,6 +125,12 @@ export interface Translations {
     submitEvaluation: string
     submitForApproval: string
     submitting: string
+    evaluationSubmittedSuccess: string
+    awaitingEmployeeApproval: string
+    evaluationCompleted: string
+    unlocking: string
+    unlock: string
+    evaluationUnlocked: string
     progress: string
     of: string
     itemsCompleted: string
@@ -362,7 +368,6 @@ export interface Translations {
     companyLevel: string
     departmentLevel: string
     managerLevel: string
-    searchEmployees: string
     searchDepartments: string
     allDepartments: string
     allStatus: string
@@ -626,6 +631,12 @@ export const translations: Record<Language, Translations> = {
       submitEvaluation: 'Submit Evaluation',
       submitForApproval: 'Submit for Employee Approval',
       submitting: 'Submitting...',
+      evaluationSubmittedSuccess: 'Evaluation submitted for employee approval',
+      awaitingEmployeeApproval: 'Awaiting Employee Approval',
+      evaluationCompleted: 'Evaluation Completed',
+      unlocking: 'Unlocking...',
+      unlock: 'Unlock',
+      evaluationUnlocked: 'Evaluation unlocked and returned to draft',
       progress: 'Progress',
       of: 'of',
       itemsCompleted: 'items completed',
@@ -814,7 +825,6 @@ export const translations: Record<Language, Translations> = {
       companyLevel: 'Company',
       departmentLevel: 'Department',
       managerLevel: 'Manager',
-      searchEmployees: 'Search employees...',
       searchDepartments: 'Search departments...',
       allDepartments: 'All Departments',
       allStatus: 'All Status',
@@ -1115,6 +1125,12 @@ export const translations: Record<Language, Translations> = {
       submitEvaluation: 'Enviar Evaluación',
       submitForApproval: 'Enviar para Aprobación del Empleado',
       submitting: 'Enviando...',
+      evaluationSubmittedSuccess: 'Evaluación enviada para aprobación del empleado',
+      awaitingEmployeeApproval: 'Esperando Aprobación del Empleado',
+      evaluationCompleted: 'Evaluación Completada',
+      unlocking: 'Desbloqueando...',
+      unlock: 'Desbloquear',
+      evaluationUnlocked: 'Evaluación desbloqueada y devuelta a borrador',
       progress: 'Progreso',
       of: 'de',
       itemsCompleted: 'elementos completados',
@@ -1344,7 +1360,6 @@ export const translations: Record<Language, Translations> = {
       companyLevel: 'Empresa',
       departmentLevel: 'Departamento',
       managerLevel: 'Jefatura',
-      searchEmployees: 'Buscar empleados...',
       searchDepartments: 'Buscar departamentos...',
       allDepartments: 'Todos los Departamentos',
       allStatus: 'Todos los Estados',
