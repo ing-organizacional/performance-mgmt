@@ -19,9 +19,10 @@ interface MyEvaluationsClientProps {
   evaluations: Evaluation[]
   userName: string
   activeCycle: EvaluationCycle | null
+  userRole: string
 }
 
-export default function MyEvaluationsClient({ evaluations, userName, activeCycle }: MyEvaluationsClientProps) {
+export default function MyEvaluationsClient({ evaluations, userName, activeCycle, userRole }: MyEvaluationsClientProps) {
   const router = useRouter()
   const { t } = useLanguage()
 
@@ -72,14 +73,17 @@ export default function MyEvaluationsClient({ evaluations, userName, activeCycle
           {/* Title Section */}
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-3 min-w-0 flex-1">
-              <button
-                onClick={() => router.back()}
-                className="p-2 -ml-2 text-gray-600 hover:text-gray-900"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                </svg>
-              </button>
+              {/* Back button only visible for HR and managers, not employees */}
+              {userRole !== 'employee' && (
+                <button
+                  onClick={() => router.back()}
+                  className="p-2 -ml-2 text-gray-600 hover:text-gray-900"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  </svg>
+                </button>
+              )}
               <div className="min-w-0 flex-1">
                 <h1 className="text-lg font-semibold text-gray-900 truncate">{t.nav.myEvaluations}</h1>
                 <p className="text-xs text-gray-500 truncate">

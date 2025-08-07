@@ -65,6 +65,8 @@ export default async function MyEvaluationsPage() {
     redirect('/login')
   }
 
+  const userRole = session.user.role
+
   // Fetch evaluations and active cycle from database
   const evaluations = await getMyEvaluations(session.user.id)
   const activeCycle = await getActiveCycle(companyId)
@@ -74,6 +76,7 @@ export default async function MyEvaluationsPage() {
       evaluations={evaluations}
       userName={session.user.name || ''}
       activeCycle={activeCycle}
+      userRole={userRole}
     />
   )
 }
