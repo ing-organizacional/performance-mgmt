@@ -35,6 +35,9 @@ export interface Translations {
     deselectAll: string
     noEmployeesFound: string
     noDepartmentsFound: string
+    allDepartments: string
+    hide: string
+    show: string
   }
   
   // Auth
@@ -257,7 +260,6 @@ export interface Translations {
     onlyOneActive: string
     cannotDeleteData: string
     dateRange: string
-    quickActions: string
     exportAllPDF: string
     exportAllExcel: string
     clearAll: string
@@ -322,8 +324,6 @@ export interface Translations {
     performanceCycleArchived: string
     performanceCycleRestricted: string
     // Deadlines page
-    evaluationDeadlines: string
-    deadlineManagementOverview: string
     all: string
     overdue: string
     high: string
@@ -332,22 +332,29 @@ export interface Translations {
     highPriority: string
     mediumPriority: string
     lowPriority: string
-    switchToListView: string
-    switchToGroupView: string
-    noDeadlinesFound: string
-    noDeadlinesFoundDesc: string
     department: string
     manager: string
-    employees: string
     dueThisWeek: string
     createdBy: string
     deadlineSetBy: string
     noDeadline: string
     allEvaluationItems: string
     itemsWithDeadlines: string
-    noItemsFound: string
-    noItemsFoundDesc: string
-    companyWideItems: string
+    managersWithIssues: string
+    employeesBehind: string
+    overdueItems: string
+    managerEvaluationAccountability: string
+    managersWithEmployeesOverdue: string
+    allEmployeesWithOverdueEvaluations: string
+    employeesBehindOnEvaluations: string
+    noManagerIssuesFound: string
+    allEmployeesUpToDate: string
+    noOverdueEvaluations: string
+    employeesBehindEvaluations: string
+    overdueItemsCount: string
+    daysOverdue: string
+    switchToEmployeeList: string
+    switchToManagerGroups: string
   }
   
   // User Management
@@ -744,7 +751,6 @@ export const translations: Record<Language, Translations> = {
       noDeadlinesFoundDesc: 'No evaluation deadlines match the current filter.',
       department: 'Department',
       manager: 'Manager',
-      employees: 'employees',
       dueThisWeek: 'due this week',
       createdBy: 'Created by',
       deadlineSetBy: 'Deadline set by',
@@ -801,7 +807,6 @@ export const translations: Record<Language, Translations> = {
       onlyOneActive: 'Only one active cycle is allowed at a time. Please close the current active cycle first.',
       cannotDeleteData: 'This cycle contains data and cannot be deleted.',
       dateRange: 'Date Range',
-      quickActions: 'Quick Actions',
       exportAllPDF: 'Export All as PDF',
       exportAllExcel: 'Export All as Excel',
       clearAll: 'Clear All'
@@ -1121,7 +1126,8 @@ export const translations: Record<Language, Translations> = {
       endDate: 'Fecha de Fin',
       createCycle: 'Crear Ciclo',
       creating: 'Creando...',
-      companyWideItems: 'OKRs y Competencias de Toda la Empresa',
+      companyWideOKRsCompetencies: 'OKRs y Competencias de Toda la Empresa',
+      companyWideItems: 'Elementos de Toda la Empresa',
       cycles: 'Ciclos',
       performanceCycles: 'Ciclos de Desempeño',
       cycleManagement: 'Gestionar ciclos de evaluación de desempeño',
@@ -1152,7 +1158,6 @@ export const translations: Record<Language, Translations> = {
       onlyOneActive: 'Solo se permite un ciclo activo a la vez. Por favor cierra el ciclo activo actual primero.',
       cannotDeleteData: 'Este ciclo contiene datos y no puede ser eliminado.',
       dateRange: 'Rango de Fechas',
-      quickActions: 'Acciones Rápidas',
       exportAllPDF: 'Exportar Todo como PDF',
       exportAllExcel: 'Exportar Todo como Excel',
       clearAll: 'Limpiar Todo',
@@ -1233,7 +1238,6 @@ export const translations: Record<Language, Translations> = {
       noDeadlinesFoundDesc: 'No hay fechas límite que coincidan con el filtro actual.',
       department: 'Departamento',
       manager: 'Jefatura',
-      employees: 'empleados',
       dueThisWeek: 'vencen esta semana',
       createdBy: 'Creado por',
       deadlineSetBy: 'Fecha límite establecida por',
@@ -1242,7 +1246,6 @@ export const translations: Record<Language, Translations> = {
       itemsWithDeadlines: 'elementos con fechas límite',
       noItemsFound: 'No se Encontraron Elementos',
       noItemsFoundDesc: 'No hay elementos de evaluación que coincidan con el filtro actual.',
-      companyWideItems: 'Elementos de Toda la Empresa',
       managersWithIssues: 'Jefaturas con Problemas',
       employeesBehind: 'Empleados Atrasados', 
       overdueItems: 'Elementos Vencidos',

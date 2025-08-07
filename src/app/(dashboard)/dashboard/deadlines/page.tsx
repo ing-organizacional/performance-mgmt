@@ -97,13 +97,13 @@ async function getManagerEvaluationData(companyId: string) {
     try {
       const evaluationData = JSON.parse(evaluation.evaluationItemsData)
       if (Array.isArray(evaluationData)) {
-        evaluationData.forEach((item: any) => {
+        evaluationData.forEach((item: { id: string; rating?: number }) => {
           if (item.rating && item.rating > 0) {
             completedItemsByEmployee.get(evaluation.employeeId)?.add(item.id)
           }
         })
       }
-    } catch (error) {
+    } catch {
       // Skip invalid JSON data
     }
   })

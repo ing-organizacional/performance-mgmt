@@ -4,12 +4,7 @@ import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { LanguageSwitcher } from '@/components/layout'
-import { DeadlineDisplay, CompactDeadlineDisplay } from '@/components/features/evaluation'
-import { 
-  sortByDeadlineUrgency, 
-  filterByUrgency 
-} from '@/lib/deadline-utils'
-import { Filter, Calendar, Users, AlertTriangle, Clock, ChevronDown } from 'lucide-react'
+import { Filter, Users, ChevronDown } from 'lucide-react'
 
 interface EmployeeEvaluationStatus {
   employeeId: string
