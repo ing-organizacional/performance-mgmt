@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState, useCallback } from 'react'
+import { useLanguage } from '@/contexts/LanguageContext'
 
 interface CycleStatusBannerProps {
   cycleId?: string | null
@@ -17,6 +18,7 @@ interface CycleStatus {
 }
 
 export default function CycleStatusBanner({ cycleId, userRole, className = '' }: CycleStatusBannerProps) {
+  const { t } = useLanguage()
   const [cycle, setCycle] = useState<CycleStatus | null>(null)
   const [loading, setLoading] = useState(false)
 
@@ -76,13 +78,13 @@ export default function CycleStatusBanner({ cycleId, userRole, className = '' }:
     switch (cycle.status) {
       case 'closed':
         if (userRole === 'hr') {
-          return `Performance cycle "${cycle.name}" is closed. You can still make partial assessments, but managers cannot edit evaluations.`
+          return `${cycle.name} ${t.dashboard.performanceCycleClosedHR}`
         }
-        return `Performance cycle "${cycle.name}" is closed. All evaluations are now read-only.`
+        return `${cycle.name} ${t.dashboard.performanceCycleClosedManager}`
       case 'archived':
-        return `Performance cycle "${cycle.name}" is archived. All data is read-only for historical reference.`
+        return `${cycle.name} ${t.dashboard.performanceCycleArchived}`
       default:
-        return `Performance cycle "${cycle.name}" has restricted access.`
+        return `${cycle.name} ${t.dashboard.performanceCycleRestricted}`
     }
   }
 
@@ -94,14 +96,17 @@ export default function CycleStatusBanner({ cycleId, userRole, className = '' }:
         </span>
         <div className="flex-1 min-w-0">
           <p className="text-xs font-medium">
-            Cycle Status: {cycle.status.toUpperCase()}
+            {t.dashboard.cycleStatus}: {cycle.status === 'active' ? t.dashboard.active :
+             cycle.status === 'closed' ? t.dashboard.closed :
+             cycle.status === 'archived' ? t.dashboard.archived :
+             (cycle.status as string).toUpperCase()}
           </p>
           <p className="text-xs mt-1">
             {getBannerMessage()}
           </p>
           {cycle.closedAt && (
             <p className="text-xs mt-1 opacity-75">
-              Closed on {new Date(cycle.closedAt).toLocaleDateString()}
+              {t.dashboard.closedOn} {new Date(cycle.closedAt).toLocaleDateString()}
             </p>
           )}
         </div>

@@ -15,6 +15,12 @@ interface CompletionStats {
 
 
 async function getDashboardData(companyId: string) {
+  // Get company information
+  const company = await prisma.company.findUnique({
+    where: { id: companyId },
+    select: { name: true }
+  })
+
   // Get all performance cycles for company
   const allCycles = await prisma.performanceCycle.findMany({
     where: {
@@ -152,6 +158,7 @@ async function getDashboardData(companyId: string) {
   }))
 
   return {
+    company,
     completionStats,
     ratingDistribution: ratingCounts,
     activeCycle: activeCycle as EvaluationCycle | null,
@@ -177,12 +184,13 @@ export default async function DashboardPage() {
   }
 
   // Fetch dashboard data directly from database
-  const { completionStats, ratingDistribution, activeCycle, allCycles } = await getDashboardData(companyId)
+  const { company, completionStats, ratingDistribution, activeCycle, allCycles } = await getDashboardData(companyId)
 
   return (
     <DashboardClient 
       userRole={userRole}
       companyId={companyId}
+      companyName={company?.name || 'Company'}
       completionStats={completionStats}
       ratingDistribution={ratingDistribution}
       activeCycle={activeCycle}

@@ -34,9 +34,9 @@ Performance Management System - A mobile-first web application for managing empl
 - `/src/lib/seed.ts` - Database seeding with HR test accounts and default cycle
 - `/src/lib/cycle-permissions.ts` - Performance cycle permission validation
 - `/src/lib/deadline-utils.ts` - Deadline calculation and urgency management utilities
-- `/src/components/CycleSelector.tsx` - Cycle management UI component
-- `/src/components/CycleStatusBanner.tsx` - Read-only status indicator
-- `/src/components/DeadlineDisplay.tsx` - Deadline visualization components
+- `/src/components/features/cycles/CycleSelector.tsx` - Cycle management UI component
+- `/src/components/features/cycles/CycleStatusBanner.tsx` - Read-only status indicator
+- `/src/components/features/evaluation/DeadlineDisplay.tsx` - Deadline visualization components
 
 **Key API Endpoints (14 implemented):**
 - **Authentication**:
@@ -51,13 +51,13 @@ Performance Management System - A mobile-first web application for managing empl
   - `/api/partial-assessments` - Granular performance tracking (POST)
 - **Manager Functions**:
   - `/api/manager/team` - Team data for managers and HR (GET)
+  - `/api/manager/team-assignments` - Team assignment management (GET)
 - **Admin Functions**:
   - `/api/admin/companies` - Company management (GET)
   - `/api/admin/import` - CSV user import with enhanced field support (POST)
   - `/api/admin/reset-database` - Development database reset (POST)
-- **Export Functions**:
-  - `/api/export/company/[companyId]` - Company-wide data export (GET)
-  - `/api/export/evaluation/[id]` - Individual evaluation export (GET)
+- **Manager Functions**:
+  - `/api/manager/team-assignments` - Team assignment management (GET)
 - **Utility**:
   - `/api/health` - System health check (GET)
 
@@ -350,7 +350,7 @@ src/components/
 - Maintain consistent styling with Tailwind
 - Proper TypeScript interfaces for all data
 
-## Security Audit Findings (Updated 2024-08-06)
+## Security Audit Findings (Updated 2025-08-06)
 
 **FIXED Security Issues:**
 - ✅ All TypeScript compilation errors resolved (evaluation-service.ts, user-service.ts)
@@ -376,7 +376,7 @@ src/components/
 - `/api/admin/companies` - Company management (GET) - **Implemented**
 - `/api/admin/import` - CSV import functionality (POST) - **Implemented**  
 - `/api/admin/reset-database` - Database reset (POST) - **Implemented**
-- *Missing*: `/api/admin/users` and `/api/admin/users/[id]` endpoints mentioned in docs but not implemented
+- **Note**: User management is handled via Server Actions in `/src/lib/actions/users.ts`, not REST API endpoints
 
 **Security Best Practices Implemented:**
 - ✅ bcryptjs password hashing (salt rounds: 12)
@@ -394,7 +394,7 @@ src/components/
 - Add HTTPS/SSL certificates for deployment
 - Set up automated security scanning
 
-## Recent Updates (2024-08-05)
+## Recent Updates (2025-08-05 - 2025-08-07)
 
 **Major Changes:**
 1. **Unified Evaluation System**: Combined OKRs and Competencies into single `evaluationItemsData` field
@@ -466,7 +466,7 @@ src/components/
 ## GitHub Repository
 
 **Repository:** https://github.com/ing-organizacional/performance-mgmt
-**Branch:** main
+**Branch:** dashboard-enhancements (currently active development branch)
 **Status:** Production-ready (with security fixes)
 
 **Commit Patterns:**
@@ -692,12 +692,12 @@ model EvaluationItem {
 
 **Core Utilities:**
 - `/src/lib/deadline-utils.ts` - Deadline calculation and urgency classification
-- `/src/components/DeadlineDisplay.tsx` - Reusable deadline visualization components
+- `/src/components/features/evaluation/DeadlineDisplay.tsx` - Reusable deadline visualization components
 
 **API Enhancements:**
 - `/api/evaluation-items` - Added deadline parameter support with validation
-- `/api/evaluation-items/all` - Returns deadline data for HR oversight
 - `/api/evaluation-items/[id]` - Deadline editing with role-based permissions
+- **Note**: HR oversight data is integrated into existing endpoints, no separate `/api/evaluation-items/all` endpoint
 
 **UI Integration:**
 - `/src/app/evaluate/[id]/page.tsx` - Shows deadline on evaluation cards
@@ -730,13 +730,50 @@ if (userRole === 'manager') {
 
 This deadline system provides enterprise-grade evaluation timeline management while maintaining the application's core simplicity principle.
 
-## Current System Architecture & Capabilities (2024-08-06)
+## Implementation Status & Verification (2025-08-07)
+
+**Verified API Endpoints (14 Total):**
+- ✅ `/api/auth/[...nextauth]` - NextAuth v5 routes
+- ✅ `/api/auth/update-last-login` - Login tracking  
+- ✅ `/api/health` - Health check
+- ✅ `/api/evaluations` - Evaluation management
+- ✅ `/api/evaluations/[id]` - Individual evaluations
+- ✅ `/api/evaluation-items` - OKR/competency items
+- ✅ `/api/evaluation-items/[id]` - Individual items
+- ✅ `/api/evaluation-items/assign` - Assignment management
+- ✅ `/api/manager/team` - Team data access
+- ✅ `/api/manager/team-assignments` - Team assignments
+- ✅ `/api/partial-assessments` - Partial evaluation tracking
+- ✅ `/api/admin/companies` - Company management
+- ✅ `/api/admin/import` - CSV import
+- ✅ `/api/admin/reset-database` - Database reset (dev only)
+
+**Verified Component Structure:**
+```
+src/components/
+├── features/
+│   ├── cycles/                    # CycleSelector.tsx, CycleStatusBanner.tsx
+│   ├── dashboard/                 # export-button.tsx, PDFExportCenter.tsx, DepartmentSelector.tsx, EmployeeSelector.tsx
+│   └── evaluation/                # DeadlineDisplay.tsx
+├── forms/                         # UserForm.tsx
+├── layout/                        # LanguageSwitcher.tsx
+├── providers/                     # auth-provider.tsx  
+└── ui/                           # ConfirmDialog.tsx, LoadingSpinner.tsx, Toast.tsx, ToastContainer.tsx
+```
+
+**Server Actions Implementation:**
+- ✅ User management via `/src/lib/actions/users.ts`
+- ✅ Cycle management via `/src/lib/actions/cycles.ts`
+- ✅ Evaluation operations via `/src/lib/actions/evaluations.ts`
+- ✅ Export functionality via `/src/lib/actions/exports.ts` and `/src/lib/actions/export.ts`
+
+## Current System Architecture & Capabilities (2025-08-07)
 
 **Production-Ready Status:**
 - ✅ **Build**: Clean TypeScript compilation, optimized bundle (99.7kB shared JS)
 - ✅ **Database**: 8-table relational schema with complete audit trails
 - ✅ **Authentication**: NextAuth v5 with mixed workforce support (email + PIN)
-- ✅ **API**: 16 implemented endpoints with proper data validation
+- ✅ **API**: 14 implemented endpoints with proper data validation
 - ✅ **UI/UX**: Mobile-first responsive design with bilingual support
 - ✅ **Performance**: SQLite handles 4K employees across 27 companies efficiently
 
@@ -761,8 +798,13 @@ This deadline system provides enterprise-grade evaluation timeline management wh
 - **Mobile First**: Touch-friendly interfaces, gesture support, responsive design
 - **Developer Experience**: YARN package management, hot reload, comprehensive linting
 
-**Recent Critical Fixes (2024-08-06):**
+**Recent Critical Fixes (2025-08-06 - 2025-08-07):**
 - ✅ **TypeScript Compilation**: Resolved all build errors with proper type casting
 - ✅ **Service Layer**: Fixed evaluation-service.ts and user-service.ts type compatibility
 - ✅ **Production Build**: Clean compilation with optimized static generation (26 pages)
 - ✅ **Code Quality**: Zero ESLint warnings, proper error boundaries
+- ✅ **User Management Enhancement**: Comprehensive UI improvements with i18n support, additional user fields (personID, userType, loginMethod, shift, PIN support)
+- ✅ **Dashboard Components**: Added DepartmentSelector and EmployeeSelector for better data filtering
+- ✅ **Turbopack Integration**: Enhanced development experience with faster builds (`yarn dev --turbo`)
+- ✅ **Export System Refactoring**: Better organization and maintainability
+- ✅ **Documentation Update**: Corrected outdated information and component paths

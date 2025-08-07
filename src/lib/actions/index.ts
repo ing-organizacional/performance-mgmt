@@ -23,3 +23,15 @@ export {
   createEvaluationItem,
   updateEvaluationItem
 } from './evaluations'
+
+// Export actions with role-based permissions
+export {
+  exportEvaluation,
+  exportTeamEvaluations,
+  exportDepartmentEvaluations,
+  exportCompanyEvaluations,
+  exportSelectedEmployees,
+  exportTopPerformers,
+  exportNeedsAttention,
+  exportSelectedDepartments
+} from './exports'

@@ -1,8 +1,10 @@
 'use client'
 
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { signOut } from 'next-auth/react'
-import { ExportButton } from '@/components/features/dashboard'
+import Link from 'next/link'
+import { ExportButton, PDFExportCenter } from '@/components/features/dashboard'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { LanguageSwitcher } from '@/components/layout'
 import { CycleSelector } from '@/components/features/cycles'
@@ -44,6 +46,7 @@ interface PerformanceCycle {
 interface DashboardClientProps {
   userRole: string
   companyId: string
+  companyName: string
   completionStats: CompletionStats
   ratingDistribution: RatingDistribution
   activeCycle: EvaluationCycle | null
@@ -52,6 +55,7 @@ interface DashboardClientProps {
 
 export default function DashboardClient({
   companyId,
+  companyName,
   completionStats,
   ratingDistribution,
   activeCycle,
@@ -59,6 +63,7 @@ export default function DashboardClient({
 }: DashboardClientProps) {
   const router = useRouter()
   const { t } = useLanguage()
+  const [isExportCenterOpen, setIsExportCenterOpen] = useState(false)
 
   const completionPercentage = completionStats.total > 0 
     ? Math.round((completionStats.completed / completionStats.total) * 100)
@@ -83,7 +88,10 @@ export default function DashboardClient({
                     activeCycle.status === 'closed' ? 'text-red-600 bg-red-100' :
                     'text-gray-600 bg-gray-100'
                   }`}>
-                    {activeCycle.status.toUpperCase()}
+                    {activeCycle.status === 'active' ? t.dashboard.active :
+                     activeCycle.status === 'closed' ? t.dashboard.closed :
+                     activeCycle.status === 'archived' ? t.dashboard.archived :
+                     (activeCycle.status as string).toUpperCase()}
                   </span>
                 )}
               </div>
@@ -107,7 +115,7 @@ export default function DashboardClient({
                 className="flex items-center justify-center space-x-1 px-2 py-2 bg-blue-600 text-white text-xs font-medium rounded-lg hover:bg-blue-700 active:scale-95 transition-all duration-150 touch-manipulation whitespace-nowrap tracking-tighter leading-none"
               >
                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 5 15 0z" />
                 </svg>
                 <span>{t.nav.employeeEvaluations}</span>
               </button>
@@ -154,33 +162,48 @@ export default function DashboardClient({
 
       {/* Main Content with top padding to account for fixed header */}
       <div className="pt-28 px-4 py-6 space-y-6">
-        {/* Completion Overview */}
-        <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-gray-900">{t.dashboard.completionStatus}</h2>
-            <span className="text-2xl font-bold text-blue-600">{completionPercentage}%</span>
-          </div>
-          
-          <div className="mb-4">
-            <div className="bg-gray-200 rounded-full h-3">
-              <div 
-                className="bg-blue-600 h-3 rounded-full transition-all duration-300"
-                style={{ width: `${completionPercentage}%` }}
-              />
+        {/* Completion Overview - Clickable */}
+        <Link href="/dashboard/pending" className="group">
+          <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm group-hover:shadow-lg group-hover:-translate-y-1 transition-all duration-200">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold text-gray-900 group-hover:text-blue-700 transition-colors">{t.dashboard.completionStatus}</h2>
+              <div className="flex items-center gap-2">
+                <span className="text-2xl font-bold text-blue-600">{completionPercentage}%</span>
+                <svg className="w-4 h-4 text-gray-400 group-hover:text-blue-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </div>
             </div>
-          </div>
+            
+            <div className="mb-4">
+              <div className="bg-gray-200 rounded-full h-3">
+                <div 
+                  className="bg-blue-600 h-3 rounded-full transition-all duration-300"
+                  style={{ width: `${completionPercentage}%` }}
+                />
+              </div>
+            </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-green-600">{completionStats.completed}</div>
-              <div className="text-sm text-gray-600">{t.dashboard.completed}</div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-green-600">{completionStats.completed}</div>
+                <div className="text-sm text-gray-600">{t.dashboard.completed}</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-gray-400">{completionStats.pending}</div>
+                <div className="text-sm text-gray-600">{t.dashboard.remaining}</div>
+              </div>
             </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-gray-400">{completionStats.pending}</div>
-              <div className="text-sm text-gray-600">{t.dashboard.remaining}</div>
-            </div>
+            
+            {completionStats.pending > 0 && (
+              <div className="mt-3 pt-3 border-t border-gray-100">
+                <p className="text-sm text-orange-600 font-medium text-center">
+                  Click para gestionar {completionStats.pending} evaluaciones pendientes
+                </p>
+              </div>
+            )}
           </div>
-        </div>
+        </Link>
 
         {/* Action Items */}
         <div className="space-y-3">
@@ -235,9 +258,17 @@ export default function DashboardClient({
           )}
         </div>
 
-        {/* Rating Distribution */}
-        <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">{t.dashboard.ratingDistribution}</h2>
+        {/* Rating Distribution - Clickable */}
+        <button 
+          onClick={() => router.push('/dashboard/ratings')}
+          className="w-full bg-white rounded-lg border border-gray-200 p-6 shadow-sm hover:shadow-md active:scale-[0.98] transition-all duration-150 text-left touch-manipulation"
+        >
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold text-gray-900">{t.dashboard.generalResults} - {companyName}</h2>
+            <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </div>
           
           <div className="space-y-3">
             <div className="flex items-center justify-between">
@@ -320,7 +351,7 @@ export default function DashboardClient({
               </div>
             </div>
           </div>
-        </div>
+        </button>
 
         {/* Quick Actions */}
         <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
@@ -335,9 +366,7 @@ export default function DashboardClient({
                 <span className="text-sm font-medium text-gray-700">{t.dashboard.exportAllEvaluations}</span>
               </div>
               <ExportButton
-                companyId={companyId}
-                periodType="quarterly"
-                periodDate="2024-Q1"
+                type="company"
                 format="excel"
                 className="px-3 py-1 bg-blue-600 text-white rounded text-xs font-medium hover:bg-blue-700 transition-colors"
               >
@@ -345,23 +374,20 @@ export default function DashboardClient({
               </ExportButton>
             </div>
 
-            <div className="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
+            <button 
+              onClick={() => setIsExportCenterOpen(true)}
+              className="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+            >
               <div className="flex items-center">
                 <svg className="w-5 h-5 text-green-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
-                <span className="text-sm font-medium text-gray-700">{t.dashboard.generateReports}</span>
+                <span className="text-sm font-medium text-gray-700">{t.dashboard.pdfExportCenter}</span>
               </div>
-              <div className="flex gap-2">
-                <ExportButton
-                  companyId={companyId}
-                  format="excel"
-                  className="px-3 py-1 bg-green-600 text-white rounded text-xs font-medium hover:bg-green-700 transition-colors"
-                >
-                  {t.dashboard.allPeriods}
-                </ExportButton>
-              </div>
-            </div>
+              <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
 
             <button 
               onClick={() => router.push('/users')}
@@ -410,6 +436,13 @@ export default function DashboardClient({
           </span>
         </div>
       </div>
+
+      {/* PDF Export Center Modal */}
+      <PDFExportCenter 
+        isOpen={isExportCenterOpen}
+        onClose={() => setIsExportCenterOpen(false)}
+        companyId={companyId}
+      />
     </div>
   )
 }

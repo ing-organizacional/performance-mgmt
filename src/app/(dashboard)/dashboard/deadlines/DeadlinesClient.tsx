@@ -4,99 +4,90 @@ import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { LanguageSwitcher } from '@/components/layout'
-import { DeadlineDisplay, CompactDeadlineDisplay } from '@/components/features/evaluation'
-import { 
-  sortByDeadlineUrgency, 
-  filterByUrgency 
-} from '@/lib/deadline-utils'
-import { Filter, Calendar, Users, AlertTriangle, Clock } from 'lucide-react'
+import { Filter, Users, ChevronDown } from 'lucide-react'
 
-interface EvaluationItemWithDeadline {
+interface EmployeeEvaluationStatus {
+  employeeId: string
+  employeeName: string
+  department: string | null
+  overdueItems: OverdueItem[]
+  totalOverdueCount: number
+}
+
+interface OverdueItem {
   id: string
   title: string
-  description: string
   type: 'okr' | 'competency'
   level: 'company' | 'department' | 'manager'
-  createdBy: string
-  creatorRole: string
   evaluationDeadline: string | null
-  deadlineSetBy: string | null
-  deadlineSetByRole: string | null
-  assignedTo?: string | null
-  // For grouping
-  department?: string
-  managerName?: string
-  employeeCount?: number
+  daysOverdue: number
 }
 
-interface DeadlineGroup {
-  id: string
-  name: string
-  type: 'department' | 'manager'
-  items: EvaluationItemWithDeadline[]
-  totalEmployees: number
-  overdue: number
-  dueThisWeek: number
+interface ManagerGroup {
+  managerId: string
+  managerName: string
+  department: string | null
+  employees: EmployeeEvaluationStatus[]
+  totalOverdueEmployees: number
+  totalOverdueItems: number
 }
-
-type UrgencyFilter = 'all' | 'overdue' | 'high' | 'medium' | 'low'
 
 interface DeadlinesClientProps {
-  evaluationItems: EvaluationItemWithDeadline[]
-  deadlineGroups: DeadlineGroup[]
+  managerGroups: ManagerGroup[]
+  totalOverdueEmployees: number
+  totalOverdueItems: number
 }
 
 export default function DeadlinesClient({ 
-  evaluationItems: initialItems, 
-  deadlineGroups: initialGroups 
+  managerGroups,
+  totalOverdueEmployees,
+  totalOverdueItems
 }: DeadlinesClientProps) {
   const router = useRouter()
-  const { } = useLanguage()
+  const { t } = useLanguage()
   
-  const [urgencyFilter, setUrgencyFilter] = useState<UrgencyFilter>('all')
-  const [viewMode, setViewMode] = useState<'groups' | 'list'>('groups')
+  const [viewMode, setViewMode] = useState<'managers' | 'list'>('list')
+  const [expandedEmployees, setExpandedEmployees] = useState<Set<string>>(new Set())
 
-  // Filter items by urgency
-  const filteredItems = urgencyFilter === 'all' 
-    ? initialItems 
-    : filterByUrgency(initialItems, urgencyFilter)
+  // For list view, flatten all employees from all managers
+  const allOverdueEmployees = managerGroups.flatMap(group => 
+    group.employees.map(emp => ({
+      ...emp,
+      managerName: group.managerName,
+      managerId: group.managerId
+    }))
+  )
 
-  // Filter groups by urgency
-  const filteredGroups = initialGroups.map(group => ({
-    ...group,
-    items: urgencyFilter === 'all' 
-      ? group.items 
-      : filterByUrgency(group.items, urgencyFilter)
-  })).filter(group => group.items.length > 0)
+  // Sort employees by total overdue count (highest first)
+  const sortedEmployees = allOverdueEmployees.sort((a, b) => b.totalOverdueCount - a.totalOverdueCount)
 
-  // Calculate urgency counts for all items
-  const urgencyCounts = {
-    all: initialItems.length,
-    overdue: filterByUrgency(initialItems, 'overdue').length,
-    high: filterByUrgency(initialItems, 'high').length,
-    medium: filterByUrgency(initialItems, 'medium').length,
-    low: filterByUrgency(initialItems, 'low').length
+  // Calculate summary statistics
+  const stats = {
+    totalManagers: managerGroups.length,
+    totalOverdueEmployees,
+    totalOverdueItems
   }
 
-  const getUrgencyColor = (urgency: UrgencyFilter) => {
-    switch (urgency) {
-      case 'overdue': return 'text-red-600 bg-red-100'
-      case 'high': return 'text-orange-600 bg-orange-100'
-      case 'medium': return 'text-yellow-600 bg-yellow-100'
-      case 'low': return 'text-green-600 bg-green-100'
-      default: return 'text-gray-600 bg-gray-100'
-    }
+  const getOverdueColor = (daysOverdue: number) => {
+    if (daysOverdue > 7) return 'text-red-600 bg-red-100'
+    if (daysOverdue > 3) return 'text-orange-600 bg-orange-100'
+    if (daysOverdue > 1) return 'text-yellow-600 bg-yellow-100'
+    return 'text-red-600 bg-red-100'
   }
 
-  const getUrgencyIcon = (urgency: UrgencyFilter) => {
-    switch (urgency) {
-      case 'overdue': return <AlertTriangle className="w-4 h-4" />
-      case 'high': return <Clock className="w-4 h-4" />
-      case 'medium': return <Calendar className="w-4 h-4" />
-      case 'low': return <Calendar className="w-4 h-4" />
-      default: return <Filter className="w-4 h-4" />
-    }
+  const toggleEmployeeExpansion = (employeeId: string) => {
+    setExpandedEmployees(prev => {
+      const newSet = new Set(prev)
+      if (newSet.has(employeeId)) {
+        newSet.delete(employeeId)
+      } else {
+        newSet.add(employeeId)
+      }
+      return newSet
+    })
   }
+
+  const isEmployeeExpanded = (employeeId: string) => expandedEmployees.has(employeeId)
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -115,46 +106,28 @@ export default function DeadlinesClient({
                 </svg>
               </button>
               <div className="min-w-0 flex-1">
-                <h1 className="text-lg font-semibold text-gray-900 truncate">Evaluation Deadlines</h1>
-                <p className="text-xs text-gray-500">HR Deadline Management Overview</p>
+                <h1 className="text-lg font-semibold text-gray-900 truncate">{t.dashboard.managerEvaluationAccountability}</h1>
+                <p className="text-xs text-gray-500">{t.dashboard.managersWithEmployeesOverdue}</p>
               </div>
             </div>
             <LanguageSwitcher />
           </div>
           
-          {/* Filter Controls */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 overflow-x-auto pb-1">
-              {(['all', 'overdue', 'high', 'medium', 'low'] as UrgencyFilter[]).map((urgency) => (
-                <button
-                  key={urgency}
-                  onClick={() => setUrgencyFilter(urgency)}
-                  className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${
-                    urgencyFilter === urgency 
-                      ? getUrgencyColor(urgency)
-                      : 'text-gray-600 bg-gray-100 hover:bg-gray-200'
-                  }`}
-                >
-                  {getUrgencyIcon(urgency)}
-                  <span className="capitalize">{urgency}</span>
-                  <span className="text-xs opacity-75">({urgencyCounts[urgency]})</span>
-                </button>
-              ))}
-            </div>
-            
-            <div className="flex items-center gap-2 ml-4">
-              <button
-                onClick={() => setViewMode(viewMode === 'groups' ? 'list' : 'groups')}
-                className={`p-2 rounded-lg transition-colors ${
-                  viewMode === 'groups' 
-                    ? 'bg-blue-100 text-blue-600' 
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                }`}
-                title={viewMode === 'groups' ? 'Switch to List View' : 'Switch to Group View'}
-              >
-                {viewMode === 'groups' ? <Users className="w-4 h-4" /> : <Filter className="w-4 h-4" />}
-              </button>
-            </div>
+          {/* View Toggle */}
+          <div className="flex items-center justify-center">
+            <button
+              onClick={() => setViewMode(viewMode === 'managers' ? 'list' : 'managers')}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
+                viewMode === 'managers' 
+                  ? 'bg-blue-100 text-blue-600 hover:bg-blue-200' 
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
+            >
+              {viewMode === 'managers' ? <Users className="w-4 h-4" /> : <Filter className="w-4 h-4" />}
+              <span className="text-sm font-medium">
+                {viewMode === 'managers' ? t.dashboard.switchToEmployeeList : t.dashboard.switchToManagerGroups}
+              </span>
+            </button>
           </div>
         </div>
       </div>
@@ -162,165 +135,223 @@ export default function DeadlinesClient({
       {/* Content */}
       <div className="px-4 py-6 space-y-6">
         {/* Statistics Overview */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div className="grid grid-cols-3 gap-4">
           <div className="bg-white rounded-lg border border-gray-200 p-4 text-center">
-            <div className="text-2xl font-bold text-red-600">{urgencyCounts.overdue}</div>
-            <div className="text-xs text-gray-600">Overdue</div>
+            <div className="text-2xl font-bold text-blue-600">{stats.totalManagers}</div>
+            <div className="text-xs text-gray-600">{t.dashboard.managersWithIssues}</div>
           </div>
           <div className="bg-white rounded-lg border border-gray-200 p-4 text-center">
-            <div className="text-2xl font-bold text-orange-600">{urgencyCounts.high}</div>
-            <div className="text-xs text-gray-600">High Priority</div>
+            <div className="text-2xl font-bold text-red-600">{stats.totalOverdueEmployees}</div>
+            <div className="text-xs text-gray-600">{t.dashboard.employeesBehind}</div>
           </div>
           <div className="bg-white rounded-lg border border-gray-200 p-4 text-center">
-            <div className="text-2xl font-bold text-yellow-600">{urgencyCounts.medium}</div>
-            <div className="text-xs text-gray-600">Medium Priority</div>
-          </div>
-          <div className="bg-white rounded-lg border border-gray-200 p-4 text-center">
-            <div className="text-2xl font-bold text-green-600">{urgencyCounts.low}</div>
-            <div className="text-xs text-gray-600">Low Priority</div>
+            <div className="text-2xl font-bold text-orange-600">{stats.totalOverdueItems}</div>
+            <div className="text-xs text-gray-600">{t.dashboard.overdueItems}</div>
           </div>
         </div>
 
         {/* Main Content */}
-        {viewMode === 'groups' ? (
-          /* Grouped View */
+        {viewMode === 'managers' ? (
+          /* Manager Groups View */
           <div className="space-y-6">
-            {filteredGroups.length === 0 ? (
+            {managerGroups.length === 0 ? (
               <div className="bg-white rounded-lg border border-gray-200 p-8 text-center">
                 <div className="text-gray-400 mb-2">
-                  <Calendar className="w-12 h-12 mx-auto" />
+                  <Users className="w-12 h-12 mx-auto" />
                 </div>
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No Deadlines Found</h3>
-                <p className="text-gray-600">No evaluation deadlines match the current filter.</p>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">{t.dashboard.noManagerIssuesFound}</h3>
+                <p className="text-gray-600">{t.dashboard.allEmployeesUpToDate}</p>
               </div>
             ) : (
-              filteredGroups.map((group) => (
-                <div key={group.id} className="bg-white rounded-lg border border-gray-200 shadow-sm">
+              managerGroups.map((manager) => (
+                <div key={manager.managerId} className="bg-white rounded-lg border border-gray-200 shadow-sm">
                   <div className="px-6 py-4 border-b border-gray-200">
                     <div className="flex items-center justify-between">
                       <div>
-                        <h2 className="text-lg font-semibold text-gray-900">{group.name}</h2>
+                        <h2 className="text-lg font-semibold text-gray-900">{manager.managerName}</h2>
                         <p className="text-sm text-gray-600">
-                          {group.type === 'department' ? 'Department' : 'Manager'} • {group.totalEmployees} employees
+                          {t.dashboard.manager} • {manager.department || t.dashboard.department} 
                         </p>
                       </div>
                       <div className="flex items-center gap-4 text-xs">
-                        {group.overdue > 0 && (
-                          <span className="text-red-600 font-medium">
-                            {group.overdue} overdue
-                          </span>
-                        )}
-                        {group.dueThisWeek > 0 && (
-                          <span className="text-orange-600 font-medium">
-                            {group.dueThisWeek} due this week
-                          </span>
-                        )}
+                        <span className="text-red-600 font-medium">
+                          {manager.totalOverdueEmployees} {t.dashboard.employeesBehindEvaluations}
+                        </span>
+                        <span className="text-orange-600 font-medium">
+                          {manager.totalOverdueItems} {t.dashboard.overdueItemsCount}
+                        </span>
                       </div>
                     </div>
                   </div>
                   
                   <div className="divide-y divide-gray-200">
-                    {group.items.map((item) => (
-                      <div key={item.id} className="px-6 py-4">
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-1">
-                              <h3 className="text-sm font-medium text-gray-900 truncate">
-                                {item.title}
-                              </h3>
-                              <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                                item.type === 'okr' ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800'
-                              }`}>
-                                {item.type.toUpperCase()}
-                              </span>
-                              <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                                item.level === 'company' ? 'bg-green-100 text-green-800' :
-                                item.level === 'department' ? 'bg-yellow-100 text-yellow-800' :
-                                'bg-gray-100 text-gray-800'
-                              }`}>
-                                {item.level}
+                    {manager.employees.map((employee) => {
+                      const isExpanded = isEmployeeExpanded(employee.employeeId)
+                      
+                      return (
+                        <div key={employee.employeeId} className="px-6 py-4">
+                          {/* Clickable employee header */}
+                          <div 
+                            className="flex items-center justify-between cursor-pointer hover:bg-gray-50 -mx-6 px-6 py-3 rounded-lg transition-colors"
+                            onClick={() => toggleEmployeeExpansion(employee.employeeId)}
+                          >
+                            <div className="flex items-center gap-3">
+                              <ChevronDown 
+                                className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${
+                                  isExpanded ? 'rotate-180' : ''
+                                }`} 
+                              />
+                              <div>
+                                <h3 className="text-base font-semibold text-gray-900">
+                                  {employee.employeeName}
+                                </h3>
+                                {employee.department && (
+                                  <div className="text-sm text-gray-600 mt-1">
+                                    {employee.department}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <span className="px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
+                                {employee.totalOverdueCount} {t.dashboard.overdue.toLowerCase()}
                               </span>
                             </div>
-                            <p className="text-xs text-gray-600 mb-2">{item.description}</p>
-                            <div className="flex items-center gap-4 text-xs text-gray-500">
-                              <span>Created by {item.createdBy} ({item.creatorRole})</span>
-                              {item.deadlineSetBy && (
-                                <span>Deadline set by {item.deadlineSetBy}</span>
-                              )}
+                          </div>
+                          
+                          {/* Expandable overdue items */}
+                          {isExpanded && (
+                            <div className="mt-4 pl-7">
+                              <div className="space-y-2">
+                                {employee.overdueItems.map((item) => (
+                                  <div key={item.id} className="bg-gray-50 rounded-lg p-3">
+                                    <div className="flex items-start justify-between">
+                                      <div className="flex-1 min-w-0">
+                                        <div className="flex items-center gap-2 mb-1">
+                                          <span className={`w-2 h-2 rounded-full ${
+                                            item.type === 'okr' ? 'bg-blue-500' : 'bg-purple-500'
+                                          }`} />
+                                          <span className="text-sm font-medium text-gray-900 truncate">
+                                            {item.title}
+                                          </span>
+                                        </div>
+                                        <div className="flex items-center gap-2 text-xs text-gray-600">
+                                          <span className="capitalize">{item.type}</span>
+                                          <span>•</span>
+                                          <span className="capitalize">{item.level} level</span>
+                                        </div>
+                                      </div>
+                                      <div className="ml-3 flex-shrink-0">
+                                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${getOverdueColor(item.daysOverdue)}`}>
+                                          {item.daysOverdue} {t.dashboard.daysOverdue}
+                                        </span>
+                                      </div>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
                             </div>
-                          </div>
-                          <div className="ml-4 flex-shrink-0">
-                            {item.evaluationDeadline ? (
-                              <CompactDeadlineDisplay deadline={item.evaluationDeadline} />
-                            ) : (
-                              <span className="text-xs text-gray-400">No deadline</span>
-                            )}
-                          </div>
+                          )}
                         </div>
-                      </div>
-                    ))}
+                      )
+                    })}
                   </div>
                 </div>
               ))
             )}
           </div>
         ) : (
-          /* List View */
+          /* Employee List View */
           <div className="bg-white rounded-lg border border-gray-200 shadow-sm">
             <div className="px-6 py-4 border-b border-gray-200">
-              <h2 className="text-lg font-semibold text-gray-900">All Evaluation Items</h2>
-              <p className="text-sm text-gray-600">{filteredItems.length} items with deadlines</p>
+              <h2 className="text-lg font-semibold text-gray-900">{t.dashboard.allEmployeesWithOverdueEvaluations}</h2>
+              <p className="text-sm text-gray-600">{sortedEmployees.length} {t.dashboard.employeesBehindOnEvaluations}</p>
             </div>
             
-            {filteredItems.length === 0 ? (
+            {sortedEmployees.length === 0 ? (
               <div className="p-8 text-center">
                 <div className="text-gray-400 mb-2">
-                  <Calendar className="w-12 h-12 mx-auto" />
+                  <Users className="w-12 h-12 mx-auto" />
                 </div>
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No Items Found</h3>
-                <p className="text-gray-600">No evaluation items match the current filter.</p>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">{t.dashboard.noOverdueEvaluations}</h3>
+                <p className="text-gray-600">{t.dashboard.allEmployeesUpToDate}</p>
               </div>
             ) : (
               <div className="divide-y divide-gray-200">
-                {sortByDeadlineUrgency(filteredItems).map((item) => (
-                  <div key={item.id} className="px-6 py-4">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
-                          <h3 className="text-sm font-medium text-gray-900 truncate">
-                            {item.title}
-                          </h3>
-                          <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                            item.type === 'okr' ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800'
-                          }`}>
-                            {item.type.toUpperCase()}
-                          </span>
-                          <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                            item.level === 'company' ? 'bg-green-100 text-green-800' :
-                            item.level === 'department' ? 'bg-yellow-100 text-yellow-800' :
-                            'bg-gray-100 text-gray-800'
-                          }`}>
-                            {item.level}
+                {sortedEmployees.map((employee) => {
+                  const isExpanded = isEmployeeExpanded(employee.employeeId)
+                  
+                  return (
+                    <div key={employee.employeeId} className="px-6 py-4">
+                      {/* Clickable employee header */}
+                      <div 
+                        className="flex items-center justify-between cursor-pointer hover:bg-gray-50 -mx-6 px-6 py-3 rounded-lg transition-colors"
+                        onClick={() => toggleEmployeeExpansion(employee.employeeId)}
+                      >
+                        <div className="flex items-center gap-3">
+                          <ChevronDown 
+                            className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${
+                              isExpanded ? 'rotate-180' : ''
+                            }`} 
+                          />
+                          <div>
+                            <h3 className="text-lg font-semibold text-gray-900">
+                              {employee.employeeName}
+                            </h3>
+                            <div className="flex items-center gap-2 text-sm text-gray-600 mt-1">
+                              <span>{t.dashboard.manager}: {employee.managerName}</span>
+                              {employee.department && (
+                                <>
+                                  <span>•</span>
+                                  <span>{employee.department}</span>
+                                </>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
+                            {employee.totalOverdueCount} {t.dashboard.overdueItemsCount}
                           </span>
                         </div>
-                        <p className="text-xs text-gray-600 mb-2">{item.description}</p>
-                        <div className="flex items-center gap-4 text-xs text-gray-500">
-                          <span>Created by {item.createdBy} ({item.creatorRole})</span>
-                          {item.deadlineSetBy && (
-                            <span>Deadline set by {item.deadlineSetBy}</span>
-                          )}
+                      </div>
+                      
+                      {/* Expandable overdue items */}
+                      {isExpanded && (
+                        <div className="mt-4 pl-7">
+                          <div className="space-y-2">
+                            {employee.overdueItems.map((item) => (
+                              <div key={item.id} className="bg-gray-50 rounded-lg p-3">
+                                <div className="flex items-start justify-between">
+                                  <div className="flex-1 min-w-0">
+                                    <div className="flex items-center gap-2 mb-1">
+                                      <span className={`w-2 h-2 rounded-full ${
+                                        item.type === 'okr' ? 'bg-blue-500' : 'bg-purple-500'
+                                      }`} />
+                                      <span className="text-sm font-medium text-gray-900 truncate">
+                                        {item.title}
+                                      </span>
+                                    </div>
+                                    <div className="flex items-center gap-2 text-xs text-gray-600">
+                                      <span className="capitalize">{item.type}</span>
+                                      <span>•</span>
+                                      <span className="capitalize">{item.level} level</span>
+                                    </div>
+                                  </div>
+                                  <div className="ml-3 flex-shrink-0">
+                                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${getOverdueColor(item.daysOverdue)}`}>
+                                      {item.daysOverdue} {t.dashboard.daysOverdue}
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
                         </div>
-                      </div>
-                      <div className="ml-4 flex-shrink-0">
-                        {item.evaluationDeadline ? (
-                          <DeadlineDisplay deadline={item.evaluationDeadline} compact={true} />
-                        ) : (
-                          <span className="text-xs text-gray-400">No deadline</span>
-                        )}
-                      </div>
+                      )}
                     </div>
-                  </div>
-                ))}
+                  )
+                })}
               </div>
             )}
           </div>
