@@ -14,11 +14,12 @@ interface EvaluationRequestBody {
     rating: number | null
     comment: string
   }>
-  overallRating: number
+  overallRating?: number
   overallComment?: string
   periodType?: string
   periodDate?: string
   cycleId?: string
+  isAutoSave?: boolean
 }
 
 // GET /api/evaluations - Get evaluations for the logged-in user
@@ -97,11 +98,11 @@ export async function POST(request: NextRequest) {
     const userRole = sessionUser.role
     const companyId = sessionUser.companyId
 
-    // Only managers can create evaluations
-    if (userRole !== 'manager') {
+    // Only managers and HR can create evaluations
+    if (userRole !== 'manager' && userRole !== 'hr') {
       return NextResponse.json({ 
         success: false, 
-        error: 'Access denied - Manager role required' 
+        error: 'Access denied - Manager or HR role required' 
       }, { status: 403 })
     }
 
@@ -113,10 +114,11 @@ export async function POST(request: NextRequest) {
       overallComment,
       periodType = 'quarterly',
       periodDate = '2024-Q1',
-      cycleId
+      cycleId,
+      isAutoSave = false
     } = body
 
-    if (!employeeId || !evaluationItems || !overallRating) {
+    if (!employeeId || !evaluationItems) {
       return NextResponse.json({ 
         success: false, 
         error: 'Missing required fields' 
@@ -166,6 +168,9 @@ export async function POST(request: NextRequest) {
       }
     })
 
+    // Determine status based on whether this is an auto-save or manual submission
+    const status = isAutoSave ? 'draft' : 'submitted'
+    
     let evaluation
     if (existingEvaluation) {
       // Update existing evaluation
@@ -175,7 +180,8 @@ export async function POST(request: NextRequest) {
           evaluationItemsData: JSON.stringify(evaluationItems),
           overallRating,
           managerComments: overallComment,
-          status: 'submitted',
+          // Only update status if it's not already submitted/completed
+          ...(existingEvaluation.status === 'draft' && { status }),
           cycleId: targetCycleId === null ? undefined : targetCycleId
         }
       })
@@ -192,7 +198,7 @@ export async function POST(request: NextRequest) {
           evaluationItemsData: JSON.stringify(evaluationItems),
           overallRating,
           managerComments: overallComment,
-          status: 'submitted'
+          status
         }
       })
     }

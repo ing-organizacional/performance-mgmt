@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { LanguageSwitcher } from '@/components/layout'
+import { SearchFilterBar } from '@/components/ui'
 import { useLanguage } from '@/contexts/LanguageContext'
 
 interface PendingEmployee {
@@ -30,7 +31,7 @@ export default function PendingEvaluationsClient({
 }: PendingEvaluationsClientProps) {
   const { t } = useLanguage()
   const router = useRouter()
-  const [showCompleted, setShowCompleted] = useState(false)
+  const [searchTerm, setSearchTerm] = useState('')
   const [filterDepartment, setFilterDepartment] = useState<string>('all')
 
   // Get departments that have pending evaluations only
@@ -40,15 +41,27 @@ export default function PendingEvaluationsClient({
       .filter(Boolean))
   ).sort()
 
-  // Filter pending employees by department
-  const filteredPendingEmployees = filterDepartment === 'all' 
-    ? pendingEmployees 
-    : pendingEmployees.filter(emp => emp.department === filterDepartment)
+  // Filter pending employees by department and search term
+  const filteredPendingEmployees = pendingEmployees.filter(emp => {
+    const matchesSearch = emp.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      emp.department?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      emp.manager?.name.toLowerCase().includes(searchTerm.toLowerCase())
+    
+    const matchesDepartment = filterDepartment === 'all' || emp.department === filterDepartment
+    
+    return matchesSearch && matchesDepartment
+  })
 
-  // Filter completed employees by department  
-  const filteredCompletedEmployees = filterDepartment === 'all'
-    ? completedEmployees
-    : completedEmployees.filter(emp => emp.department === filterDepartment)
+  // Filter completed employees by department and search term
+  const filteredCompletedEmployees = completedEmployees.filter(emp => {
+    const matchesSearch = emp.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      emp.department?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      emp.manager?.name.toLowerCase().includes(searchTerm.toLowerCase())
+    
+    const matchesDepartment = filterDepartment === 'all' || emp.department === filterDepartment
+    
+    return matchesSearch && matchesDepartment
+  })
 
 
   return (
@@ -78,6 +91,21 @@ export default function PendingEvaluationsClient({
           </div>
         </div>
       </div>
+
+      <SearchFilterBar
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
+        searchPlaceholder={t.dashboard.searchEmployees || "Search employees..."}
+        filterValue={filterDepartment}
+        setFilterValue={setFilterDepartment}
+        filterOptions={[
+          { value: 'all', label: t.common.allDepartments || `All ${t.common.departments}` },
+          ...departments.map(dept => ({
+            value: dept || 'Unassigned',
+            label: dept || t.common.unassigned
+          }))
+        ]}
+      />
 
       {/* Main Content */}
       <div className="px-4 py-6">
@@ -123,35 +151,6 @@ export default function PendingEvaluationsClient({
             </div>
           </div>
 
-          {/* Filters */}
-          <div className="bg-white rounded-lg border border-gray-200 p-4 mb-6 shadow-sm">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <select 
-                  value={filterDepartment}
-                  onChange={(e) => setFilterDepartment(e.target.value)}
-                  className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                >
-                  <option value="all">{t.common.allDepartments || `All ${t.common.departments}`}</option>
-                  {departments.map(dept => (
-                    <option key={dept} value={dept || 'Unassigned'}>{dept || t.common.unassigned}</option>
-                  ))}
-                </select>
-              </div>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => setShowCompleted(!showCompleted)}
-                  className={`px-3 py-2 text-xs font-medium rounded-lg transition-colors ${
-                    showCompleted 
-                      ? 'bg-green-100 text-green-700' 
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                >
-                  {showCompleted ? t.common.hide : t.common.show} {t.dashboard.completed} ({completedEmployees.length})
-                </button>
-              </div>
-            </div>
-          </div>
 
           {/* Pending Evaluations */}
           <div className="space-y-6">
@@ -173,39 +172,39 @@ export default function PendingEvaluationsClient({
                   </div>
                 </div>
               ) : (
-                <div className="space-y-4">
+                <div className="space-y-3">
                   {filteredPendingEmployees.map(employee => (
-                    <div key={employee.id} className="rounded-lg border border-gray-200 border-l-4 border-l-orange-500 bg-orange-50 p-6 shadow-sm">
+                    <div key={employee.id} className="rounded-lg border border-gray-200 border-l-4 border-l-orange-500 bg-orange-50 p-4 shadow-sm">
                       <div className="flex items-center justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            <h4 className="text-lg font-semibold text-gray-900">{employee.name}</h4>
-                            <span className="px-2 py-1 bg-white text-gray-600 rounded-full text-xs font-medium border">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <h4 className="text-sm font-semibold text-gray-900 truncate">{employee.name}</h4>
+                            <span className="px-2 py-0.5 bg-white text-gray-600 rounded-full text-xs font-medium border shrink-0">
                               {employee.department || t.common.unassigned}
                             </span>
                             {employee.role === 'manager' && (
-                              <span className="px-2 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-medium">
+                              <span className="px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full text-xs font-medium shrink-0">
                                 {t.common.manager}
                               </span>
                             )}
                           </div>
-                          <div className="text-sm text-gray-600">
+                          <div className="text-xs text-gray-600">
                             {employee.manager ? (
-                              <div className="flex items-center gap-2">
-                                <div className="w-2 h-2 rounded-full bg-blue-500"></div>
-                                <span>{t.common.manager}: {employee.manager.name}</span>
+                              <div className="flex items-center gap-1">
+                                <div className="w-1.5 h-1.5 rounded-full bg-blue-500 shrink-0"></div>
+                                <span className="truncate">{t.common.manager}: {employee.manager.name}</span>
                               </div>
                             ) : (
-                              <div className="flex items-center gap-2">
-                                <div className="w-2 h-2 rounded-full bg-orange-500"></div>
-                                <span className="text-orange-600">{t.dashboard.noManagerAssigned || `No ${t.common.manager.toLowerCase()} assigned`}</span>
+                              <div className="flex items-center gap-1">
+                                <div className="w-1.5 h-1.5 rounded-full bg-orange-500 shrink-0"></div>
+                                <span className="text-orange-600 truncate">{t.dashboard.noManagerAssigned || `No ${t.common.manager.toLowerCase()} assigned`}</span>
                               </div>
                             )}
                           </div>
                         </div>
                         <button
                           onClick={() => router.push(`/evaluate/${employee.id}`)}
-                          className="px-3 py-2 bg-blue-600 text-white text-xs font-medium rounded-lg hover:bg-blue-700 active:scale-95 transition-all duration-150 touch-manipulation"
+                          className="px-3 py-2 bg-blue-100 text-blue-700 text-xs font-medium rounded-lg hover:bg-blue-200 active:scale-95 transition-all duration-150 touch-manipulation shrink-0 ml-3"
                         >
                           {t.dashboard.startEvaluation}
                         </button>
@@ -216,58 +215,6 @@ export default function PendingEvaluationsClient({
               )}
             </div>
 
-            {/* Completed Evaluations (Collapsible) */}
-            {showCompleted && filteredCompletedEmployees.length > 0 && (
-              <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-lg font-semibold text-gray-900">
-                    {t.dashboard.completed} ({filteredCompletedEmployees.length})
-                  </h2>
-                </div>
-
-                <div className="space-y-4">
-                  {filteredCompletedEmployees.map(employee => (
-                    <div key={employee.id} className="rounded-lg border border-gray-200 border-l-4 border-l-green-500 bg-green-50 p-6 shadow-sm">
-                      <div className="flex items-center justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            <h4 className="text-lg font-semibold text-gray-900">{employee.name}</h4>
-                            <span className="px-2 py-1 bg-white text-gray-600 rounded-full text-xs font-medium border">
-                              {employee.department || t.common.unassigned}
-                            </span>
-                            {employee.role === 'manager' && (
-                              <span className="px-2 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-medium">
-                                {t.common.manager}
-                              </span>
-                            )}
-                            <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium flex items-center gap-1">
-                              <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                              </svg>
-                              {t.status.completed}
-                            </span>
-                          </div>
-                          <div className="text-sm text-gray-600">
-                            <div className="flex items-center gap-2">
-                              <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                              <span>{t.common.manager}: {employee.manager?.name || t.common.unassigned}</span>
-                            </div>
-                          </div>
-                        </div>
-                        {employee.evaluationId && (
-                          <Link
-                            href={`/evaluation-summary/${employee.evaluationId}`}
-                            className="px-3 py-2 bg-gray-100 text-gray-700 text-xs font-medium rounded-lg hover:bg-gray-200 active:scale-95 transition-all duration-150 touch-manipulation"
-                          >
-                            {t.dashboard.viewResults || 'View Results'}
-                          </Link>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
           </div>
         </div>
       </div>

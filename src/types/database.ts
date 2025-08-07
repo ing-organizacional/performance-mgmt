@@ -44,7 +44,7 @@ export interface Evaluation {
   evaluationItemsData: string | null
   overallRating: number | null
   managerComments: string | null
-  status: 'draft' | 'submitted' | 'approved'
+  status: 'draft' | 'submitted' | 'completed'
   createdAt: Date
   updatedAt: Date
 }

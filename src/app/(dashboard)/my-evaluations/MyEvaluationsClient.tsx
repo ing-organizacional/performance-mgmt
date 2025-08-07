@@ -4,12 +4,16 @@ import { useRouter } from 'next/navigation'
 import { signOut } from 'next-auth/react'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { LanguageSwitcher } from '@/components/layout'
+import { approveEvaluation } from '@/lib/actions/evaluations'
+import { useToast } from '@/hooks/useToast'
+import { ToastContainer } from '@/components/ui'
+import { useState } from 'react'
 import type { EvaluationCycle } from '@/types'
 
 interface Evaluation {
   id: string
   period: string
-  status: 'draft' | 'submitted' | 'approved' | 'completed'
+  status: 'draft' | 'submitted' | 'completed'
   overallRating: number | null
   submittedAt: string | null
   managerName: string
@@ -25,12 +29,13 @@ interface MyEvaluationsClientProps {
 export default function MyEvaluationsClient({ evaluations, userName, activeCycle, userRole }: MyEvaluationsClientProps) {
   const router = useRouter()
   const { t } = useLanguage()
+  const { toasts, error, success, removeToast } = useToast()
+  const [approvingId, setApprovingId] = useState<string | null>(null)
 
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'draft': return 'bg-gray-100 text-gray-800'
       case 'submitted': return 'bg-yellow-100 text-yellow-800'
-      case 'approved': return 'bg-green-100 text-green-800'
       case 'completed': return 'bg-green-100 text-green-800'
       default: return 'bg-gray-100 text-gray-800'
     }
@@ -39,8 +44,7 @@ export default function MyEvaluationsClient({ evaluations, userName, activeCycle
   const getStatusText = (status: string) => {
     switch (status) {
       case 'draft': return t.status.draft
-      case 'submitted': return t.status.submitted
-      case 'approved': return t.status.approved
+      case 'submitted': return 'Awaiting Your Approval'
       case 'completed': return t.status.completed
       default: return status.charAt(0).toUpperCase() + status.slice(1)
     }
@@ -221,13 +225,33 @@ export default function MyEvaluationsClient({ evaluations, userName, activeCycle
                     </p>
                   </div>
                   
-                  <div className="ml-4">
+                  <div className="ml-4 flex flex-col space-y-2">
                     <button 
                       onClick={() => router.push(`/evaluation-summary/${evaluation.id}`)}
                       className="text-blue-600 hover:text-blue-700 text-sm font-medium"
                     >
                       {t.nav.viewDetails}
                     </button>
+                    {evaluation.status === 'submitted' && (
+                      <button
+                        onClick={async () => {
+                          setApprovingId(evaluation.id)
+                          const result = await approveEvaluation(evaluation.id)
+                          if (result.success) {
+                            success('Evaluation approved successfully!')
+                            // Refresh the page to show updated status
+                            window.location.reload()
+                          } else {
+                            error(result.error || 'Failed to approve evaluation')
+                          }
+                          setApprovingId(null)
+                        }}
+                        disabled={approvingId === evaluation.id}
+                        className="px-3 py-1 bg-green-600 text-white text-sm font-medium rounded hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+                      >
+                        {approvingId === evaluation.id ? 'Approving...' : 'Approve'}
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>
@@ -267,7 +291,28 @@ export default function MyEvaluationsClient({ evaluations, userName, activeCycle
           </div>
         </div>
         )}
+        
+        {/* Show notification for evaluations awaiting approval */}
+        {evaluations.filter(e => e.status === 'submitted').length > 0 && (
+          <div className="mt-6 bg-yellow-50 border-l-4 border-yellow-400 p-4">
+            <div className="flex">
+              <div className="flex-shrink-0">
+                <svg className="h-5 w-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div className="ml-3">
+                <p className="text-sm text-yellow-700">
+                  You have <span className="font-medium">{evaluations.filter(e => e.status === 'submitted').length}</span> evaluation(s) awaiting your approval.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
+      
+      {/* Toast Container */}
+      <ToastContainer toasts={toasts} onRemoveToast={removeToast} />
     </div>
   )
 }

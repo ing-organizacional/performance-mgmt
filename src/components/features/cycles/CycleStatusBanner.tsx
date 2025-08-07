@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { useLanguage } from '@/contexts/LanguageContext'
+import { getCycle } from '@/lib/actions/cycles'
 
 interface CycleStatusBannerProps {
   cycleId?: string | null
@@ -13,8 +14,8 @@ interface CycleStatus {
   id: string
   name: string
   status: string
-  closedBy?: string
-  closedAt?: string
+  closedBy?: string | null
+  closedAt?: string | null
 }
 
 export default function CycleStatusBanner({ cycleId, userRole, className = '' }: CycleStatusBannerProps) {
@@ -27,10 +28,11 @@ export default function CycleStatusBanner({ cycleId, userRole, className = '' }:
 
     setLoading(true)
     try {
-      const response = await fetch(`/api/admin/cycles/${cycleId}`)
-      if (response.ok) {
-        const data = await response.json()
-        setCycle(data.cycle)
+      const result = await getCycle(cycleId)
+      if (result.success && result.cycle) {
+        setCycle(result.cycle)
+      } else {
+        console.error('Error fetching cycle status:', result.error)
       }
     } catch (error) {
       console.error('Error fetching cycle status:', error)

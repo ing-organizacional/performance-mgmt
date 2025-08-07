@@ -61,6 +61,10 @@ export interface Translations {
     allDepartments: string
     hide: string
     show: string
+    view: string
+    approve: string
+    recall: string
+    unlock: string
   }
   
   // Auth
@@ -119,6 +123,11 @@ export interface Translations {
     overallRating: string
     overallComments: string
     submitEvaluation: string
+    submitForApproval: string
+    submitting: string
+    progress: string
+    of: string
+    itemsCompleted: string
     okr: string
     competency: string
     ratePerformance: string
@@ -224,7 +233,6 @@ export interface Translations {
     below: string
     needsImprovement: string
     quickActions: string
-    exportAllEvaluations: string
     generateReports: string
     exportPDF: string
     pdfExportCenter: string
@@ -263,6 +271,12 @@ export interface Translations {
     endDate: string
     createCycle: string
     creating: string
+    overdueDrafts: string
+    pendingApprovals: string
+    daysPending: string
+    submittedBy: string
+    overdue3Days: string
+    viewAll: string
     companyWideItems: string
     cycles: string
     performanceCycles: string
@@ -328,6 +342,8 @@ export interface Translations {
     managePendingEvaluations: string
     employeesWithoutEvaluations: string
     startEvaluation: string
+    searchEmployees: string
+    searchEmployeesManagers: string
     allEvaluationsCompleted: string
     excellentWork: string
     noManagerAssigned: string
@@ -550,7 +566,11 @@ export const translations: Record<Language, Translations> = {
       noDepartmentsFound: 'No departments found',
       allDepartments: 'All Departments',
       hide: 'Hide',
-      show: 'Show'
+      show: 'Show',
+      view: 'View',
+      approve: 'Approve',
+      recall: 'Recall',
+      unlock: 'Unlock'
     },
     auth: {
       signIn: 'Sign in',
@@ -603,6 +623,11 @@ export const translations: Record<Language, Translations> = {
       overallRating: 'Overall Rating',
       overallComments: 'Overall Comments',
       submitEvaluation: 'Submit Evaluation',
+      submitForApproval: 'Submit for Employee Approval',
+      submitting: 'Submitting...',
+      progress: 'Progress',
+      of: 'of',
+      itemsCompleted: 'items completed',
       okr: 'OKR',
       competency: 'Competency',
       ratePerformance: 'Rate Performance',
@@ -700,7 +725,6 @@ export const translations: Record<Language, Translations> = {
       below: 'Below (2)',
       needsImprovement: 'Needs Improvement (1)',
       quickActions: 'Quick Actions',
-      exportAllEvaluations: 'Export All Evaluations',
       generateReports: 'Generate Reports',
       exportPDF: 'Export PDF',
       pdfExportCenter: 'Report Downloads',
@@ -769,6 +793,8 @@ export const translations: Record<Language, Translations> = {
       managePendingEvaluations: 'Manage Pending Evaluations',
       employeesWithoutEvaluations: 'employees without evaluations',
       startEvaluation: 'Start Evaluation',
+      searchEmployees: 'Search employees...',
+      searchEmployeesManagers: 'Search employees, managers...',
       allEvaluationsCompleted: 'All evaluations completed!',
       excellentWork: 'Excellent work! All employees have been evaluated.',
       noManagerAssigned: 'No manager assigned',
@@ -819,19 +845,25 @@ export const translations: Record<Language, Translations> = {
       managersWithIssues: 'Managers with Issues',
       employeesBehind: 'Employees Behind',
       overdueItems: 'Overdue Items', 
-      managerEvaluationAccountability: 'Manager Evaluation Accountability',
-      managersWithEmployeesOverdue: 'Managers with employees who have overdue evaluations',
-      allEmployeesWithOverdueEvaluations: 'All Employees with Overdue Evaluations',
-      employeesBehindOnEvaluations: 'employees behind on evaluations',
+      managerEvaluationAccountability: 'Employees with Overdue OKRs or Competencies',
+      managersWithEmployeesOverdue: 'Employees with overdue OKRs or competencies',
+      allEmployeesWithOverdueEvaluations: 'All Employees with Overdue OKRs or Competencies',
+      employeesBehindOnEvaluations: 'employees with overdue OKRs or competencies',
       noManagerIssuesFound: 'No Manager Issues Found',
       allEmployeesUpToDate: 'All employees are up to date with their evaluations.',
       noOverdueEvaluations: 'No Overdue Evaluations',
       employeesBehindEvaluations: 'employees behind',
       overdueItemsCount: 'overdue items',
       daysOverdue: 'days overdue',
-      switchToEmployeeList: 'Switch to Employee List',
-      switchToManagerGroups: 'Switch to Manager Groups',
+      switchToEmployeeList: 'Complete List',
+      switchToManagerGroups: 'Group by Manager',
       creating: 'Creating...',
+      overdueDrafts: 'Overdue Draft Evaluations',
+      pendingApprovals: 'Pending Employee Approvals',
+      daysPending: 'days ago',
+      submittedBy: 'Submitted by',
+      overdue3Days: '>3 days',
+      viewAll: 'View all',
       cycles: 'Cycles',
       performanceCycles: 'Performance Cycles',
       cycleManagement: 'Manage performance review cycles',
@@ -1022,7 +1054,11 @@ export const translations: Record<Language, Translations> = {
       noDepartmentsFound: 'No se encontraron departamentos',
       allDepartments: 'Todos los Departamentos',
       hide: 'Ocultar',
-      show: 'Mostrar'
+      show: 'Mostrar',
+      view: 'Ver',
+      approve: 'Aprobar',
+      recall: 'Recuperar',
+      unlock: 'Desbloquear'
     },
     auth: {
       signIn: 'Iniciar sesión',
@@ -1075,6 +1111,11 @@ export const translations: Record<Language, Translations> = {
       overallRating: 'Calificación General',
       overallComments: 'Comentarios Generales',
       submitEvaluation: 'Enviar Evaluación',
+      submitForApproval: 'Enviar para Aprobación del Empleado',
+      submitting: 'Enviando...',
+      progress: 'Progreso',
+      of: 'de',
+      itemsCompleted: 'elementos completados',
       okr: 'OKR',
       competency: 'Competencia',
       ratePerformance: 'Calificar Desempeño',
@@ -1172,7 +1213,6 @@ export const translations: Record<Language, Translations> = {
       below: 'Por Debajo (2)',
       needsImprovement: 'Necesita Mejorar (1)',
       quickActions: 'Acciones Rápidas',
-      exportAllEvaluations: 'Exportar Todas las Evaluaciones',
       generateReports: 'Generar Reportes',
       exportPDF: 'Exportar PDF',
       pdfExportCenter: 'Descarga de reportes',
@@ -1211,6 +1251,12 @@ export const translations: Record<Language, Translations> = {
       endDate: 'Fecha de Fin',
       createCycle: 'Crear Ciclo',
       creating: 'Creando...',
+      overdueDrafts: 'Borradores de Evaluación Vencidos',
+      pendingApprovals: 'Aprobaciones de Empleados Pendientes',
+      daysPending: 'días atrás',
+      submittedBy: 'Enviado por',
+      overdue3Days: '>3 días',
+      viewAll: 'Ver todo',
       companyWideItems: 'Elementos de Toda la Empresa',
       cycles: 'Ciclos',
       performanceCycles: 'Ciclos de Desempeño',
@@ -1276,6 +1322,8 @@ export const translations: Record<Language, Translations> = {
       managePendingEvaluations: 'Gestionar Evaluaciones Pendientes',
       employeesWithoutEvaluations: 'empleados sin evaluaciones',
       startEvaluation: 'Iniciar Evaluación',
+      searchEmployees: 'Buscar empleados...',
+      searchEmployeesManagers: 'Buscar empleados, jefes...',
       allEvaluationsCompleted: '¡Todas las evaluaciones completadas!',
       excellentWork: '¡Excelente trabajo! Todos los empleados han sido evaluados.',
       noManagerAssigned: 'Sin jefatura asignada',
@@ -1325,18 +1373,18 @@ export const translations: Record<Language, Translations> = {
       managersWithIssues: 'Jefaturas con Problemas',
       employeesBehind: 'Empleados Atrasados', 
       overdueItems: 'Elementos Vencidos',
-      managerEvaluationAccountability: 'Responsabilidad de Evaluaciones de Jefaturas',
-      managersWithEmployeesOverdue: 'Jefaturas con empleados que tienen evaluaciones vencidas',
-      allEmployeesWithOverdueEvaluations: 'Todos los Empleados con Evaluaciones Vencidas',
-      employeesBehindOnEvaluations: 'empleados atrasados en evaluaciones',
+      managerEvaluationAccountability: 'Colaboradores con OKRs o Competencias Vencidas',
+      managersWithEmployeesOverdue: 'Colaboradores con OKRs o competencias vencidas',
+      allEmployeesWithOverdueEvaluations: 'Todos los Colaboradores con OKRs o Competencias Vencidas',
+      employeesBehindOnEvaluations: 'colaboradores con OKRs o competencias vencidas',
       noManagerIssuesFound: 'No se Encontraron Problemas de Jefatura',
       allEmployeesUpToDate: 'Todos los empleados están al día con sus evaluaciones.',
       noOverdueEvaluations: 'Sin Evaluaciones Vencidas',
       employeesBehindEvaluations: 'empleados atrasados',
       overdueItemsCount: 'elementos vencidos',
       daysOverdue: 'días vencidos',
-      switchToEmployeeList: 'Cambiar a Lista de Empleados',
-      switchToManagerGroups: 'Cambiar a Grupos de Jefatura'
+      switchToEmployeeList: 'Lista Completa',
+      switchToManagerGroups: 'Agrupar por Jefatura'
     },
     users: {
       userManagement: 'Gestión de usuarios',

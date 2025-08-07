@@ -269,6 +269,59 @@ export async function deleteCycle(cycleId: string) {
   }
 }
 
+export async function getCycle(cycleId: string) {
+  try {
+    const session = await auth()
+    if (!session?.user?.id) {
+      return { success: false, error: 'Unauthorized' }
+    }
+
+    const userRole = session.user.role
+    const companyId = session.user.companyId
+
+    // Managers and HR can access cycle info
+    if (userRole !== 'manager' && userRole !== 'hr') {
+      return { success: false, error: 'Access denied - Manager or HR role required' }
+    }
+
+    const cycle = await prisma.performanceCycle.findFirst({
+      where: {
+        id: cycleId,
+        companyId
+      },
+      include: {
+        closedByUser: {
+          select: {
+            name: true,
+            email: true
+          }
+        }
+      }
+    })
+
+    if (!cycle) {
+      return { success: false, error: 'Cycle not found' }
+    }
+
+    return { 
+      success: true, 
+      cycle: {
+        id: cycle.id,
+        name: cycle.name,
+        status: cycle.status,
+        startDate: cycle.startDate.toISOString(),
+        endDate: cycle.endDate.toISOString(),
+        closedBy: cycle.closedByUser?.name || null,
+        closedAt: cycle.closedAt?.toISOString() || null
+      }
+    }
+
+  } catch (error) {
+    console.error('Error fetching cycle:', error)
+    return { success: false, error: 'Failed to fetch cycle' }
+  }
+}
+
 // Wrapper function for backward compatibility with dashboard components
 export async function createCycleFromObject(data: {
   name: string

@@ -808,3 +808,88 @@ src/components/
 - ✅ **Turbopack Integration**: Enhanced development experience with faster builds (`yarn dev --turbo`)
 - ✅ **Export System Refactoring**: Better organization and maintainability
 - ✅ **Documentation Update**: Corrected outdated information and component paths
+- ✅ **Three-Status Workflow Implementation (2025-08-07)**: Complete evaluation workflow system
+
+## Three-Status Evaluation Workflow (IMPLEMENTED 2025-08-07)
+
+### 🎯 RIDICULOUSLY SIMPLE Workflow: `draft` → `submitted` → `completed`
+
+**Core Philosophy**: One-way flow with HR exception handling only
+
+### Status Transitions
+1. **draft → submitted**: Manager completes ALL items (rating + comment) and submits
+2. **submitted → completed**: Employee approves the evaluation  
+3. **submitted → draft**: ONLY HR can unlock for error correction (NO manager recall)
+
+### Role Permissions
+- **draft**: Manager can edit, Employee no access, HR can view
+- **submitted**: Manager read-only (NO RECALL), Employee can approve, HR can unlock
+- **completed**: Everyone read-only (permanent)
+
+### ✅ Implementation Complete
+
+#### Manager Interface Features
+- **Auto-save**: 2-second delay after changes (non-blocking, asynchronous)
+- **Progress Indicator**: "X of Y items completed" real-time updates
+- **Submit Button**: Disabled until ALL items have rating AND comment
+- **Locked After Submit**: Cannot edit or recall (must contact HR)
+- **Visual Status**: Shows "Awaiting Employee Approval"
+- **No Manual Save**: Single submit button only (auto-save handles drafts)
+
+#### Employee Interface Features  
+- **My Evaluations Page**: Universal access for all roles
+- **Approval Notification**: Yellow banner "You have X evaluation(s) awaiting your approval"
+- **One-Click Approve**: Simple approve button (no reject option)
+- **Status Display**: "Awaiting Your Approval" for submitted evaluations
+- **View Only**: Can view but not edit completed evaluations
+
+#### HR Dashboard Sections
+- **Overdue Drafts**: Shows drafts >7 days old with manager info
+- **Pending Approvals**: Submitted evaluations with age indicators
+- **Overdue Warnings**: Red highlights for approvals >3 days
+- **Unlock Feature**: HR-exclusive ability to return submitted → draft
+- **Quick Actions**: Direct links to view evaluations
+
+### Server Actions in `/src/lib/actions/evaluations.ts`
+```typescript
+submitEvaluation(evaluationId) // Manager submits for approval
+approveEvaluation(evaluationId) // Employee approves
+unlockEvaluation(evaluationId) // HR unlocks (HR only)
+// NO recallEvaluation - managers cannot recall!
+```
+
+### Key Implementation Details
+- **Validation**: All items must have rating (1-5) AND comment (min 100 chars)
+- **Auto-save**: Asynchronous, triggers on rating/comment changes
+- **Audit Trail**: All status changes logged with userId and timestamp
+- **TypeScript**: Clean compilation, proper type safety
+- **Bilingual**: Full English/Spanish support for all new features
+
+### Testing Guide
+See `/EMPLOYEE_DIRECTORY.md` for comprehensive testing scenarios including:
+- Complete evaluation flow (Ron Weasley - no current evaluation)
+- Error correction via HR unlock
+- Overdue scenarios (Draco Malfoy - overdue draft)
+- Pending approvals (employee2@demo.com, employee3@demo.com)
+
+### Common Pitfalls
+1. **No Recall Button**: Managers CANNOT recall - only HR can unlock
+2. **ALL Items Required**: Every item needs rating AND comment
+3. **No Reject Option**: Employees can only approve (keeps it simple)
+4. **Auto-save Delay**: 2 seconds, not instant
+5. **One-Way Flow**: No backward navigation except HR unlock
+
+### Database Status
+- All 'approved' status migrated to 'completed'
+- AuditLog tracks all workflow transitions
+- Test data includes all status scenarios
+
+### Files Modified
+- `/src/lib/actions/evaluations.ts` - Server actions for workflow
+- `/src/app/(dashboard)/evaluate/[id]/page.tsx` - Manager UI with auto-save
+- `/src/app/(dashboard)/my-evaluations/MyEvaluationsClient.tsx` - Employee approval
+- `/src/app/(dashboard)/dashboard/page.tsx` - HR dashboard sections
+- `/src/lib/i18n.ts` - Bilingual workflow terminology
+- `/src/types/database.ts` - TypeScript interfaces updated
+
+**Implementation validated**: TypeScript clean, workflow tested, "ridiculously simple" maintained

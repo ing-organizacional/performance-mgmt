@@ -1,179 +1,227 @@
-# InterContinental San José - Employee Directory
-
-**Generated on:** 8/5/2025
-**Total Employees:** 28
-**Company:** InterContinental San José
-
-## 🔐 Key Login Credentials
-
-All users have the password: **password123**
-
-| Role | Name | Email | Department |
-|------|------|-------|------------|
-| 👑 HR Admin | Professor Dumbledore | `dumbledore@intercontinental.com` | Administration |
-| 👔 Manager | Tony Stark | `tony.stark@intercontinental.com` | Finance |
-| 👔 Manager | Gordon Ramsay | `gordon.ramsay@intercontinental.com` | Food&Beverage |
-| 👔 Manager | Hermione Granger | `hermione.granger@intercontinental.com` | HR |
-| 👔 Manager | Nick Fury | `nick.fury@intercontinental.com` | HR |
-| 👔 Manager | Tyrion Lannister | `tyrion.lannister@intercontinental.com` | Rooms |
+# Employee Directory - DEMO S.A.
+**Updated:** 2025-08-07  
+**Company:** DEMO S.A.  
+**Total Employees:** 40  
+**Universal Password:** `a`
 
 ---
 
-## 👑 HR Administration
+## 🔑 Quick Access Accounts
 
-### Professor Dumbledore
-- **Email:** `dumbledore@intercontinental.com`
-- **Employee ID:** HR001
-- **Department:** Administration
-- **Reports:** 0 direct reports
-- **Evaluation Status:** ❌ None
-
-## 👔 Department Managers
-
-### Finance Department
-
-#### Tony Stark - Finance Manager
-- **Email:** `tony.stark@intercontinental.com`
-- **Employee ID:** FIN001
-- **Reports to:** No manager
-- **Direct Reports:** 5
-- **Evaluation Status:** ✅ completed (2/5)
-- **Team Members:**
-  - Bruce Wayne (bruce.wayne@intercontinental.com)
-  - Clark Kent (clark.kent@intercontinental.com)
-  - Diana Prince (diana.prince@intercontinental.com)
-  - Barry Allen (barry.allen@intercontinental.com)
-  - Arthur Curry (arthur.curry@intercontinental.com)
-
-### HR Department
-
-#### Hermione Granger - HR Manager
-- **Email:** `hermione.granger@intercontinental.com`
-- **Employee ID:** HR002
-- **Reports to:** No manager
-- **Direct Reports:** 6
-- **Evaluation Status:** ✅ completed (5/5)
-- **Team Members:**
-  - Nick Fury (nick.fury@intercontinental.com)
-  - Luna Lovegood (luna.lovegood@intercontinental.com)
-  - Neville Longbottom (neville.longbottom@intercontinental.com)
-  - Ginny Weasley (ginny.weasley@intercontinental.com)
-  - Draco Malfoy (draco.malfoy@intercontinental.com)
-  - Ron Weasley (ron.weasley@intercontinental.com)
-
-#### Nick Fury - HR Manager
-- **Email:** `nick.fury@intercontinental.com`
-- **Employee ID:** HR003
-- **Reports to:** Hermione Granger
-- **Direct Reports:** 2
-- **Evaluation Status:** ✅ completed (1/5)
-- **Team Members:**
-  - Natasha Romanoff (natasha.romanoff@intercontinental.com)
-  - Steve Rogers (steve.rogers@intercontinental.com)
-
-### Food&Beverage Department
-
-#### Gordon Ramsay - Food&Beverage Manager
-- **Email:** `gordon.ramsay@intercontinental.com`
-- **Employee ID:** FB001
-- **Reports to:** No manager
-- **Direct Reports:** 5
-- **Evaluation Status:** ✅ completed (2/5)
-- **Team Members:**
-  - Jamie Oliver (jamie.oliver@intercontinental.com)
-  - Julia Child (julia.child@intercontinental.com)
-  - Anthony Bourdain (anthony.bourdain@intercontinental.com)
-  - Martha Stewart (martha.stewart@intercontinental.com)
-  - Bobby Flay (bobby.flay@intercontinental.com)
-
-### Rooms Department
-
-#### Tyrion Lannister - Rooms Manager
-- **Email:** `tyrion.lannister@intercontinental.com`
-- **Employee ID:** RM001
-- **Reports to:** No manager
-- **Direct Reports:** 5
-- **Evaluation Status:** ✅ completed (1/5)
-- **Team Members:**
-  - Jon Snow (jon.snow@intercontinental.com)
-  - Daenerys Targaryen (daenerys.targaryen@intercontinental.com)
-  - Arya Stark (arya.stark@intercontinental.com)
-  - Sansa Stark (sansa.stark@intercontinental.com)
-  - Cersei Lannister (cersei.lannister@intercontinental.com)
-
-## 👥 Employees by Department
-
-### Finance Department (5 employees)
-
-| Name | Email | Manager | Evaluation Status | Rating |
-|------|-------|---------|-------------------|--------|
-| Arthur Curry | `arthur.curry@intercontinental.com` | Tony Stark | ✅ completed | 2/5 |
-| Barry Allen | `barry.allen@intercontinental.com` | Tony Stark | ✅ completed | 2/5 |
-| Bruce Wayne | `bruce.wayne@intercontinental.com` | Tony Stark | ✅ completed | 1/5 |
-| Clark Kent | `clark.kent@intercontinental.com` | Tony Stark | ✅ completed | 2/5 |
-| Diana Prince | `diana.prince@intercontinental.com` | Tony Stark | ✅ completed | 4/5 |
-
-### HR Department (7 employees)
-
-| Name | Email | Manager | Evaluation Status | Rating |
-|------|-------|---------|-------------------|--------|
-| Draco Malfoy | `draco.malfoy@intercontinental.com` | Hermione Granger | ⏳ draft | N/A |
-| Ginny Weasley | `ginny.weasley@intercontinental.com` | Hermione Granger | ✅ completed | 3/5 |
-| Luna Lovegood | `luna.lovegood@intercontinental.com` | Hermione Granger | ✅ completed | 1/5 |
-| Natasha Romanoff | `natasha.romanoff@intercontinental.com` | Nick Fury | ✅ completed | 1/5 |
-| Neville Longbottom | `neville.longbottom@intercontinental.com` | Hermione Granger | ✅ completed | 1/5 |
-| Ron Weasley | `ron.weasley@intercontinental.com` | Hermione Granger | ❌ None | N/A |
-| Steve Rogers | `steve.rogers@intercontinental.com` | Nick Fury | ✅ completed | 4/5 |
-
-### Food&Beverage Department (5 employees)
-
-| Name | Email | Manager | Evaluation Status | Rating |
-|------|-------|---------|-------------------|--------|
-| Anthony Bourdain | `anthony.bourdain@intercontinental.com` | Gordon Ramsay | ✅ completed | 1/5 |
-| Bobby Flay | `bobby.flay@intercontinental.com` | Gordon Ramsay | ✅ completed | 1/5 |
-| Jamie Oliver | `jamie.oliver@intercontinental.com` | Gordon Ramsay | ✅ completed | 5/5 |
-| Julia Child | `julia.child@intercontinental.com` | Gordon Ramsay | ✅ completed | 2/5 |
-| Martha Stewart | `martha.stewart@intercontinental.com` | Gordon Ramsay | ✅ completed | 1/5 |
-
-### Rooms Department (5 employees)
-
-| Name | Email | Manager | Evaluation Status | Rating |
-|------|-------|---------|-------------------|--------|
-| Arya Stark | `arya.stark@intercontinental.com` | Tyrion Lannister | ✅ completed | 4/5 |
-| Cersei Lannister | `cersei.lannister@intercontinental.com` | Tyrion Lannister | ✅ completed | 5/5 |
-| Daenerys Targaryen | `daenerys.targaryen@intercontinental.com` | Tyrion Lannister | ✅ completed | 1/5 |
-| Jon Snow | `jon.snow@intercontinental.com` | Tyrion Lannister | ✅ completed | 1/5 |
-| Sansa Stark | `sansa.stark@intercontinental.com` | Tyrion Lannister | ✅ completed | 4/5 |
-
-## 📊 Statistics
-
-### Evaluation Status
-- **Total Employees:** 28
-- **Completed Evaluations:** 25 ✅
-- **Draft Evaluations:** 1 ⏳
-- **No Evaluations:** 2 ❌
-- **Completion Rate:** 89%
-
-### Rating Distribution (25 rated evaluations)
-- **1/5 ⭐:** 11 employees (44%)
-- **2/5 ⭐⭐:** 6 employees (24%)
-- **3/5 ⭐⭐⭐:** 1 employees (4%)
-- **4/5 ⭐⭐⭐⭐:** 4 employees (16%)
-- **5/5 ⭐⭐⭐⭐⭐:** 3 employees (12%)
-- **Average Rating:** 2.3/5
-
-### 🚨 Dashboard Testing Cases
-- **No Evaluation:** Ron Weasley (perfect for testing missing evaluation alerts)
-- **Incomplete Evaluation:** Draco Malfoy (draft status, no ratings - testing incomplete evaluation flows)
-- **Low Performers:** 17 employees with ratings ≤ 2/5
-- **High Performers:** 7 employees with ratings ≥ 4/5
-
-### Department Breakdown
-- **Finance:** 6 total (1 managers, 5 employees)
-- **HR:** 9 total (2 managers, 7 employees)
-- **Food&Beverage:** 6 total (1 managers, 5 employees)
-- **Rooms:** 6 total (1 managers, 5 employees)
+| Role | Email | Department | Purpose |
+|------|-------|------------|---------|
+| **HR Admin** | miranda.priestly@demo.com | HR | Super user - full system access |
+| **Manager** | gordon.ramsay@demo.com | Food & Beverage | Manager with 11 direct reports |
+| **Employee** | monica.geller@demo.com | Food & Beverage | Regular employee |
 
 ---
 
-*Document generated automatically from database on 2025-08-05T21:46:44.891Z*
+## 📊 Department Overview
+
+### HR Department (3 employees)
+**Manager:** Miranda Priestly (HR Director - Super User)
+- miranda.priestly@demo.com - **HR Role** (manages entire company)
+- pam.beesly@demo.com - Employee
+- toby.flenderson@demo.com - Employee
+
+### Rooms Department (10 employees)
+**Manager:** Basil Fawlty
+- basil.fawlty@demo.com - Manager
+- polly.sherman@demo.com - Employee
+- manuel.garcia@demo.com - Employee
+- lorelai.gilmore@demo.com - Employee
+- michel.gerard@demo.com - Employee
+- sookie.stjames@demo.com - Employee
+- lane.kim@demo.com - Employee
+- kirk.gleason@demo.com - Employee
+- caesar.augustus@demo.com - Employee
+- jackson.belleville@demo.com - Employee
+
+### Food & Beverage Department (12 employees)
+**Manager:** Gordon Ramsay
+- gordon.ramsay@demo.com - Manager
+- monica.geller@demo.com - Employee
+- sanji.vinsmoke@demo.com - Employee
+- bob.belcher@demo.com - Employee
+- linda.belcher@demo.com - Employee
+- tina.belcher@demo.com - Employee
+- spongebob.squarepants@demo.com - Employee
+- squidward.tentacles@demo.com - Employee
+- patrick.star@demo.com - Employee
+- remy.linguini@demo.com - Employee
+- colette.tatou@demo.com - Employee
+- auguste.gusteau@demo.com - Employee
+
+### Finance Department (7 employees)
+**Manager:** Ben Wyatt
+- ben.wyatt@demo.com - Manager
+- angela.martin@demo.com - Employee
+- oscar.martinez@demo.com - Employee
+- kevin.malone@demo.com - Employee
+- cyril.figgis@demo.com - Employee
+- ted.mosby@demo.com - Employee
+- barney.stinson@demo.com - Employee
+
+### Maintenance Department (8 employees)
+**Manager:** Mike Ehrmantraut
+- mike.ehrmantraut@demo.com - Manager
+- janitor.glenn@demo.com - Employee
+- carl.reed@demo.com - Employee
+- scruffy.scruffington@demo.com - Employee
+- charlie.kelly@demo.com - Employee
+- frank.reynolds@demo.com - Employee
+- argus.filch@demo.com - Employee
+- willie.macdougal@demo.com - Employee
+
+---
+
+## 📋 Evaluation Items Structure
+
+### Company-Wide (All Employees)
+1. **Customer Excellence** (Competency)
+2. **Increase Guest Satisfaction to 95%** (OKR) - *Overdue*
+3. **Revenue Growth 20%** (OKR)
+
+### Department-Specific
+- **HR:** Strategic HR Leadership (Competency)
+- **Finance:** 
+  - Reduce Operating Costs by 15% (OKR) - *Overdue*
+  - Implement Real-time Financial Reporting (OKR)
+- **Maintenance:**
+  - Zero Critical Equipment Downtime (OKR) - *Overdue*
+  - Energy Efficiency Improvement 25% (OKR)
+
+### Individual (F&B Only)
+Each F&B employee has one unique manager-assigned OKR:
+- Master Wine Pairing Program
+- Reduce Food Waste 30%
+- Launch Vegan Menu Line
+- Improve Kitchen Efficiency 20%
+- Social Media Food Photography
+- Local Sourcing Initiative
+- Breakfast Service Excellence
+- Cocktail Innovation Program
+- Staff Training Excellence
+- Special Events Catering
+- Health & Safety Compliance
+- Customer Allergy Management
+
+---
+
+## 🧪 Quick Test Guide
+
+### Test 1: HR Admin Overview
+1. **Login:** miranda.priestly@demo.com / a
+2. **Navigate to:** Dashboard
+3. **Verify:**
+   - Can see all 40 employees
+   - Can access any evaluation
+   - Can unlock submitted evaluations
+   - See overdue items in dashboard
+
+### Test 2: Manager Evaluation Flow
+1. **Login:** gordon.ramsay@demo.com / a
+2. **Navigate to:** Employee Evaluations
+3. **Select:** Any F&B employee without evaluation
+4. **Test:**
+   - Rate items (1-5 stars)
+   - Add comments (min 100 characters)
+   - Watch auto-save indicator
+   - Submit when all complete
+
+### Test 3: Employee Experience
+1. **Login:** monica.geller@demo.com / a
+2. **Navigate to:** My Evaluations
+3. **Verify:**
+   - Can view evaluation if exists
+   - Can approve if status is "submitted"
+   - Cannot edit evaluations
+
+### Test 4: Evaluation Status Flow
+- **Draft:** Manager editing (auto-saves every 2 seconds)
+- **Submitted:** Awaiting employee approval (locked)
+- **Completed:** Employee approved (permanently locked)
+
+### Test 5: Three-Status Workflow
+1. **Manager creates evaluation** → Draft (can edit)
+2. **Manager submits** → Submitted (locked, awaiting approval)
+3. **Employee approves** → Completed (permanent)
+4. **Only HR can unlock** submitted evaluations back to draft
+
+---
+
+## 📈 Current Data Status
+
+### Evaluations
+- **Total:** 37 (HR department excluded)
+- **Completed:** ~33% (12 evaluations)
+- **Draft:** ~67% (25 evaluations)
+- **Ratings Distribution:** Mix of poor (1-2), normal (3), good (4), excellent (5)
+
+### Deadlines
+- **Overdue:** Several items 3-10 days overdue
+- **Upcoming:** Items due in next 60 days
+- **Mixed:** Company, department, and individual deadlines
+
+---
+
+## ⚡ Quick Commands
+
+```bash
+# View data in browser
+yarn db:studio
+
+# Reset with comprehensive data
+yarn db:reset:comprehensive
+
+# Start development server
+yarn dev
+```
+
+---
+
+## 🎯 Testing Checklist
+
+### Basic Functionality
+- [ ] Login with any account (password: a)
+- [ ] Navigate between departments
+- [ ] View employee list
+
+### Manager Features
+- [ ] Create new evaluation
+- [ ] Auto-save works (2-second delay)
+- [ ] Progress indicator updates
+- [ ] Submit button enables when complete
+- [ ] Cannot recall after submission
+
+### Employee Features
+- [ ] View submitted evaluations
+- [ ] Approve evaluations
+- [ ] Cannot edit evaluations
+
+### HR Features
+- [ ] Access all evaluations
+- [ ] See overdue items
+- [ ] Unlock submitted evaluations
+- [ ] View completion statistics
+
+### Workflow Rules
+- [ ] Draft → Submitted (one-way)
+- [ ] Submitted → Completed (employee approval)
+- [ ] Submitted → Draft (HR unlock only)
+- [ ] No manager recall option
+
+---
+
+## 📝 Notes
+
+- **Performance Cycle:** 2025 Annual Review (Active)
+- **All passwords:** Single letter `a`
+- **HR employees:** Have no evaluations (as requested)
+- **F&B employees:** Each has unique individual OKR
+- **Deadlines:** Mix of overdue and future dates
+- **Characters:** From popular movies/TV shows for easy recognition
+
+---
+
+*Database seeded with comprehensive test data for three-status workflow testing*

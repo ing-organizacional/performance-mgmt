@@ -7,7 +7,7 @@ import type { EvaluationCycle } from '@/types'
 interface Evaluation {
   id: string
   period: string
-  status: 'draft' | 'submitted' | 'approved' | 'completed'
+  status: 'draft' | 'submitted' | 'completed'
   overallRating: number | null
   submittedAt: string | null
   managerName: string
@@ -32,7 +32,7 @@ async function getMyEvaluations(userId: string, companyId: string): Promise<Eval
       employeeId: userId,
       companyId: companyId,
       status: {
-        in: ['submitted', 'approved']
+        in: ['submitted', 'completed']
       }
     },
     include: {
@@ -57,7 +57,7 @@ async function getMyEvaluations(userId: string, companyId: string): Promise<Eval
   return evaluations.map(evaluation => ({
     id: evaluation.id,
     period: `${evaluation.periodDate} ${evaluation.periodType}`,
-    status: evaluation.status as 'draft' | 'submitted' | 'approved' | 'completed',
+    status: evaluation.status as 'draft' | 'submitted' | 'completed',
     overallRating: evaluation.overallRating,
     submittedAt: evaluation.createdAt.toISOString(),
     managerName: evaluation.manager.name

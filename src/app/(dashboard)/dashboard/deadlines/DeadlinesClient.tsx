@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { LanguageSwitcher } from '@/components/layout'
+import { SearchFilterBar } from '@/components/ui'
 import { Filter, Users, ChevronDown } from 'lucide-react'
 
 interface EmployeeEvaluationStatus {
@@ -47,7 +48,16 @@ export default function DeadlinesClient({
   const { t } = useLanguage()
   
   const [viewMode, setViewMode] = useState<'managers' | 'list'>('list')
+  const [searchTerm, setSearchTerm] = useState('')
+  const [filterDepartment, setFilterDepartment] = useState<string>('all')
   const [expandedEmployees, setExpandedEmployees] = useState<Set<string>>(new Set())
+
+  // Get all unique departments
+  const departments = Array.from(
+    new Set(managerGroups
+      .flatMap(group => group.employees.map(emp => emp.department))
+      .filter(Boolean))
+  ).sort()
 
   // For list view, flatten all employees from all managers
   const allOverdueEmployees = managerGroups.flatMap(group => 
@@ -58,8 +68,34 @@ export default function DeadlinesClient({
     }))
   )
 
-  // Sort employees by total overdue count (highest first)
-  const sortedEmployees = allOverdueEmployees.sort((a, b) => b.totalOverdueCount - a.totalOverdueCount)
+  // Filter and sort employees
+  const filteredAndSortedEmployees = allOverdueEmployees
+    .filter(emp => {
+      const matchesSearch = emp.employeeName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        emp.department?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        emp.managerName.toLowerCase().includes(searchTerm.toLowerCase())
+      
+      const matchesDepartment = filterDepartment === 'all' || emp.department === filterDepartment
+      
+      return matchesSearch && matchesDepartment
+    })
+    .sort((a, b) => b.totalOverdueCount - a.totalOverdueCount)
+
+  // Filter manager groups for manager view
+  const filteredManagerGroups = managerGroups
+    .map(group => ({
+      ...group,
+      employees: group.employees.filter(emp => {
+        const matchesSearch = emp.employeeName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          emp.department?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          group.managerName.toLowerCase().includes(searchTerm.toLowerCase())
+        
+        const matchesDepartment = filterDepartment === 'all' || emp.department === filterDepartment
+        
+        return matchesSearch && matchesDepartment
+      })
+    }))
+    .filter(group => group.employees.length > 0)
 
   // Calculate summary statistics
   const stats = {
@@ -113,24 +149,37 @@ export default function DeadlinesClient({
             <LanguageSwitcher />
           </div>
           
-          {/* View Toggle */}
-          <div className="flex items-center justify-center">
-            <button
-              onClick={() => setViewMode(viewMode === 'managers' ? 'list' : 'managers')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
-                viewMode === 'managers' 
-                  ? 'bg-blue-100 text-blue-600 hover:bg-blue-200' 
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-              }`}
-            >
-              {viewMode === 'managers' ? <Users className="w-4 h-4" /> : <Filter className="w-4 h-4" />}
-              <span className="text-sm font-medium">
-                {viewMode === 'managers' ? t.dashboard.switchToEmployeeList : t.dashboard.switchToManagerGroups}
-              </span>
-            </button>
-          </div>
         </div>
       </div>
+
+      <SearchFilterBar
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
+        searchPlaceholder={t.dashboard.searchEmployeesManagers || "Search employees, managers..."}
+        filterValue={filterDepartment}
+        setFilterValue={setFilterDepartment}
+        filterOptions={[
+          { value: 'all', label: t.common.allDepartments || `All ${t.common.departments}` },
+          ...departments.map(dept => ({
+            value: dept || 'Unassigned',
+            label: dept || t.common.unassigned
+          }))
+        ]}
+      >
+        <button
+          onClick={() => setViewMode(viewMode === 'managers' ? 'list' : 'managers')}
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
+            viewMode === 'managers' 
+              ? 'bg-blue-100 text-blue-600 hover:bg-blue-200' 
+              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+          }`}
+        >
+          {viewMode === 'managers' ? <Users className="w-4 h-4" /> : <Filter className="w-4 h-4" />}
+          <span className="text-sm font-medium">
+            {viewMode === 'managers' ? t.dashboard.switchToEmployeeList : t.dashboard.switchToManagerGroups}
+          </span>
+        </button>
+      </SearchFilterBar>
 
       {/* Content */}
       <div className="px-4 py-6 space-y-6">
@@ -154,7 +203,7 @@ export default function DeadlinesClient({
         {viewMode === 'managers' ? (
           /* Manager Groups View */
           <div className="space-y-6">
-            {managerGroups.length === 0 ? (
+            {filteredManagerGroups.length === 0 ? (
               <div className="bg-white rounded-lg border border-gray-200 p-8 text-center">
                 <div className="text-gray-400 mb-2">
                   <Users className="w-12 h-12 mx-auto" />
@@ -163,7 +212,7 @@ export default function DeadlinesClient({
                 <p className="text-gray-600">{t.dashboard.allEmployeesUpToDate}</p>
               </div>
             ) : (
-              managerGroups.map((manager) => (
+              filteredManagerGroups.map((manager) => (
                 <div key={manager.managerId} className="bg-white rounded-lg border border-gray-200 shadow-sm">
                   <div className="px-6 py-4 border-b border-gray-200">
                     <div className="flex items-center justify-between">
@@ -189,31 +238,31 @@ export default function DeadlinesClient({
                       const isExpanded = isEmployeeExpanded(employee.employeeId)
                       
                       return (
-                        <div key={employee.employeeId} className="px-6 py-4">
+                        <div key={employee.employeeId} className="px-4 py-3">
                           {/* Clickable employee header */}
                           <div 
-                            className="flex items-center justify-between cursor-pointer hover:bg-gray-50 -mx-6 px-6 py-3 rounded-lg transition-colors"
+                            className="flex items-center justify-between cursor-pointer hover:bg-gray-50 -mx-4 px-4 py-2 rounded-lg transition-colors"
                             onClick={() => toggleEmployeeExpansion(employee.employeeId)}
                           >
-                            <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-2">
                               <ChevronDown 
-                                className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${
+                                className={`w-3 h-3 text-gray-400 transition-transform duration-200 ${
                                   isExpanded ? 'rotate-180' : ''
                                 }`} 
                               />
                               <div>
-                                <h3 className="text-base font-semibold text-gray-900">
+                                <h3 className="text-sm font-semibold text-gray-900">
                                   {employee.employeeName}
                                 </h3>
                                 {employee.department && (
-                                  <div className="text-sm text-gray-600 mt-1">
+                                  <div className="text-xs text-gray-600">
                                     {employee.department}
                                   </div>
                                 )}
                               </div>
                             </div>
                             <div className="flex items-center gap-2">
-                              <span className="px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
+                              <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
                                 {employee.totalOverdueCount} {t.dashboard.overdue.toLowerCase()}
                               </span>
                             </div>
@@ -221,29 +270,29 @@ export default function DeadlinesClient({
                           
                           {/* Expandable overdue items */}
                           {isExpanded && (
-                            <div className="mt-4 pl-7">
+                            <div className="mt-3 pl-5">
                               <div className="space-y-2">
                                 {employee.overdueItems.map((item) => (
-                                  <div key={item.id} className="bg-gray-50 rounded-lg p-3">
+                                  <div key={item.id} className="bg-gray-50 rounded-lg p-2">
                                     <div className="flex items-start justify-between">
                                       <div className="flex-1 min-w-0">
-                                        <div className="flex items-center gap-2 mb-1">
-                                          <span className={`w-2 h-2 rounded-full ${
+                                        <div className="flex items-center gap-1.5 mb-1">
+                                          <span className={`w-1.5 h-1.5 rounded-full ${
                                             item.type === 'okr' ? 'bg-blue-500' : 'bg-purple-500'
                                           }`} />
-                                          <span className="text-sm font-medium text-gray-900 truncate">
+                                          <span className="text-xs font-medium text-gray-900 truncate">
                                             {item.title}
                                           </span>
                                         </div>
-                                        <div className="flex items-center gap-2 text-xs text-gray-600">
+                                        <div className="flex items-center gap-1 text-xs text-gray-600">
                                           <span className="capitalize">{item.type}</span>
                                           <span>•</span>
-                                          <span className="capitalize">{item.level} level</span>
+                                          <span className="capitalize">{item.level}</span>
                                         </div>
                                       </div>
-                                      <div className="ml-3 flex-shrink-0">
-                                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${getOverdueColor(item.daysOverdue)}`}>
-                                          {item.daysOverdue} {t.dashboard.daysOverdue}
+                                      <div className="ml-2 flex-shrink-0">
+                                        <span className={`px-1.5 py-0.5 rounded text-xs font-medium ${getOverdueColor(item.daysOverdue)}`}>
+                                          {item.daysOverdue}d
                                         </span>
                                       </div>
                                     </div>
@@ -265,10 +314,10 @@ export default function DeadlinesClient({
           <div className="bg-white rounded-lg border border-gray-200 shadow-sm">
             <div className="px-6 py-4 border-b border-gray-200">
               <h2 className="text-lg font-semibold text-gray-900">{t.dashboard.allEmployeesWithOverdueEvaluations}</h2>
-              <p className="text-sm text-gray-600">{sortedEmployees.length} {t.dashboard.employeesBehindOnEvaluations}</p>
+              <p className="text-sm text-gray-600">{filteredAndSortedEmployees.length} {t.dashboard.employeesBehindOnEvaluations}</p>
             </div>
             
-            {sortedEmployees.length === 0 ? (
+            {filteredAndSortedEmployees.length === 0 ? (
               <div className="p-8 text-center">
                 <div className="text-gray-400 mb-2">
                   <Users className="w-12 h-12 mx-auto" />
@@ -278,27 +327,27 @@ export default function DeadlinesClient({
               </div>
             ) : (
               <div className="divide-y divide-gray-200">
-                {sortedEmployees.map((employee) => {
+                {filteredAndSortedEmployees.map((employee) => {
                   const isExpanded = isEmployeeExpanded(employee.employeeId)
                   
                   return (
-                    <div key={employee.employeeId} className="px-6 py-4">
+                    <div key={employee.employeeId} className="px-4 py-3">
                       {/* Clickable employee header */}
                       <div 
-                        className="flex items-center justify-between cursor-pointer hover:bg-gray-50 -mx-6 px-6 py-3 rounded-lg transition-colors"
+                        className="flex items-center justify-between cursor-pointer hover:bg-gray-50 -mx-4 px-4 py-2 rounded-lg transition-colors"
                         onClick={() => toggleEmployeeExpansion(employee.employeeId)}
                       >
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-2">
                           <ChevronDown 
-                            className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${
+                            className={`w-3 h-3 text-gray-400 transition-transform duration-200 ${
                               isExpanded ? 'rotate-180' : ''
                             }`} 
                           />
                           <div>
-                            <h3 className="text-lg font-semibold text-gray-900">
+                            <h3 className="text-sm font-semibold text-gray-900">
                               {employee.employeeName}
                             </h3>
-                            <div className="flex items-center gap-2 text-sm text-gray-600 mt-1">
+                            <div className="flex items-center gap-2 text-xs text-gray-600">
                               <span>{t.dashboard.manager}: {employee.managerName}</span>
                               {employee.department && (
                                 <>
@@ -310,37 +359,37 @@ export default function DeadlinesClient({
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
-                          <span className="px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
-                            {employee.totalOverdueCount} {t.dashboard.overdueItemsCount}
+                          <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                            {employee.totalOverdueCount} items
                           </span>
                         </div>
                       </div>
                       
                       {/* Expandable overdue items */}
                       {isExpanded && (
-                        <div className="mt-4 pl-7">
+                        <div className="mt-3 pl-5">
                           <div className="space-y-2">
                             {employee.overdueItems.map((item) => (
-                              <div key={item.id} className="bg-gray-50 rounded-lg p-3">
+                              <div key={item.id} className="bg-gray-50 rounded-lg p-2">
                                 <div className="flex items-start justify-between">
                                   <div className="flex-1 min-w-0">
-                                    <div className="flex items-center gap-2 mb-1">
-                                      <span className={`w-2 h-2 rounded-full ${
+                                    <div className="flex items-center gap-1.5 mb-1">
+                                      <span className={`w-1.5 h-1.5 rounded-full ${
                                         item.type === 'okr' ? 'bg-blue-500' : 'bg-purple-500'
                                       }`} />
-                                      <span className="text-sm font-medium text-gray-900 truncate">
+                                      <span className="text-xs font-medium text-gray-900 truncate">
                                         {item.title}
                                       </span>
                                     </div>
-                                    <div className="flex items-center gap-2 text-xs text-gray-600">
+                                    <div className="flex items-center gap-1 text-xs text-gray-600">
                                       <span className="capitalize">{item.type}</span>
                                       <span>•</span>
-                                      <span className="capitalize">{item.level} level</span>
+                                      <span className="capitalize">{item.level}</span>
                                     </div>
                                   </div>
-                                  <div className="ml-3 flex-shrink-0">
-                                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${getOverdueColor(item.daysOverdue)}`}>
-                                      {item.daysOverdue} {t.dashboard.daysOverdue}
+                                  <div className="ml-2 flex-shrink-0">
+                                    <span className={`px-1.5 py-0.5 rounded text-xs font-medium ${getOverdueColor(item.daysOverdue)}`}>
+                                      {item.daysOverdue}d
                                     </span>
                                   </div>
                                 </div>

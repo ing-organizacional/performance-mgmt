@@ -328,7 +328,7 @@ export default function DepartmentRatingsClient({ departments }: DepartmentRatin
             <div className="flex items-center">
               <Link
                 href="/dashboard"
-                className="flex items-center justify-center w-10 h-10 rounded-lg bg-gray-100 hover:bg-gray-200 active:scale-95 transition-all duration-150 mr-3 touch-manipulation"
+                className="flex items-center justify-center w-10 h-10 rounded-lg hover:bg-gray-100 active:scale-95 transition-all duration-150 mr-3 touch-manipulation"
               >
                 <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -344,20 +344,20 @@ export default function DepartmentRatingsClient({ departments }: DepartmentRatin
               <button
                 onClick={() => exportCompany('pdf')}
                 disabled={isExporting}
-                className={`flex items-center gap-2 px-3 py-2 text-white text-sm font-medium rounded-lg active:scale-95 transition-all duration-150 touch-manipulation ${
+                className={`flex items-center space-x-1 px-2 py-2 text-blue-700 text-xs font-medium rounded-lg active:scale-95 transition-all duration-150 touch-manipulation whitespace-nowrap tracking-tighter leading-none ${
                   isExporting 
-                    ? 'bg-gray-400 cursor-not-allowed' 
-                    : 'bg-blue-600 hover:bg-blue-700'
+                    ? 'bg-gray-400 text-white cursor-not-allowed' 
+                    : 'bg-blue-100 hover:bg-blue-200'
                 }`}
                 title={`Export All Departments - ${t.dashboard.departmentRatings}`}
               >
                 {isExporting ? (
-                  <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+                  <svg className="animate-spin w-3.5 h-3.5" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                     <path className="opacity-75" fill="currentColor" d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 714 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                   </svg>
                 ) : (
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
                 )}

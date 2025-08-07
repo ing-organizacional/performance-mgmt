@@ -10,6 +10,7 @@ import { ToastContainer } from '@/components/ui'
 import { DeadlineDisplay } from '@/components/features/evaluation'
 import { useToast } from '@/hooks/useToast'
 import { hapticFeedback } from '@/utils/haptics'
+import { submitEvaluation, autosaveEvaluation, getEvaluation, getTeamData, getEvaluationItems, unlockEvaluation } from '@/lib/actions/evaluations'
 
 interface EvaluationItem {
   id: string
@@ -28,12 +29,15 @@ interface EvaluationItem {
 
 // These will be populated with translated content in the component
 
+// Minimum comment length (approximately 2-3 sentences - around 100 characters minimum)
+const MIN_COMMENT_LENGTH = 100
+
 export default function EvaluatePage() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const params = useParams()
   const { t } = useLanguage()
-  const { toasts, error, removeToast } = useToast()
+  const { toasts, error, success, removeToast } = useToast()
   const [currentStep, setCurrentStep] = useState(0)
   const [evaluationItems, setEvaluationItems] = useState<EvaluationItem[]>([])
   const [overallRating, setOverallRating] = useState<number | null>(null)
@@ -45,9 +49,30 @@ export default function EvaluatePage() {
   const [editingItemId, setEditingItemId] = useState<string | null>(null)
   const [editingItemData, setEditingItemData] = useState<{ title: string; description: string } | null>(null)
   const [isCompletedEvaluation, setIsCompletedEvaluation] = useState(false)
+  const [evaluationId, setEvaluationId] = useState<string | null>(null)
+  const [evaluationStatus, setEvaluationStatus] = useState<'draft' | 'submitted' | 'completed'>('draft')
+  const [autoSaving, setAutoSaving] = useState(false)
+  const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   
   // Ref for focusing on comment textarea
   const commentTextareaRef = useRef<HTMLTextAreaElement>(null)
+  
+  // Calculate progress
+  const calculateProgress = () => {
+    let completedCount = 0
+    evaluationItems.forEach(item => {
+      if (item.rating && item.comment && item.comment.trim().length >= MIN_COMMENT_LENGTH) {
+        completedCount++
+      }
+    })
+    if (overallRating && overallComment && overallComment.trim().length >= MIN_COMMENT_LENGTH) {
+      completedCount++
+    }
+    return { completed: completedCount, total: evaluationItems.length + 1 }
+  }
+  
+  const progress = calculateProgress()
+  const isAllComplete = progress.completed === progress.total
 
   const totalSteps = evaluationItems.length + 1 // +1 for overall rating
   const currentItem = currentStep < evaluationItems.length 
@@ -56,9 +81,6 @@ export default function EvaluatePage() {
 
   const isOverall = currentStep >= evaluationItems.length
   const isOKR = currentItem?.type === 'okr'
-  
-  // Minimum comment length (approximately 2-3 sentences - around 100 characters minimum)
-  const MIN_COMMENT_LENGTH = 100
   
   // Check if current item has valid rating and comment
   const isCurrentItemValid = () => {
@@ -73,24 +95,24 @@ export default function EvaluatePage() {
   const fetchEvaluationData = useCallback(async () => {
     try {
       // Fetch evaluation items for this specific employee
-      const itemsResponse = await fetch(`/api/evaluation-items?employeeId=${params.id}`)
-      if (itemsResponse.ok) {
-        const itemsData = await itemsResponse.json()
-        setEvaluationItems(itemsData.items || [])
+      const itemsResult = await getEvaluationItems(params.id as string)
+      if (itemsResult.success) {
+        setEvaluationItems(itemsResult.items || [])
       }
 
       // Fetch employee data
-      const employeeResponse = await fetch('/api/manager/team')
-      if (employeeResponse.ok) {
-        const employeeData = await employeeResponse.json()
-        const employee = employeeData.employees?.find((emp: { id: string }) => emp.id === params.id)
+      const teamResult = await getTeamData()
+      if (teamResult.success) {
+        const employee = teamResult.employees?.find((emp: { id: string }) => emp.id === params.id)
         if (employee) {
           setEmployeeName(employee.name)
           
           // Check if employee has existing evaluation
           const latestEval = employee.evaluationsReceived?.[0]
-          if (latestEval && (latestEval.status === 'submitted' || latestEval.status === 'approved' || latestEval.status === 'draft' || latestEval.status === 'completed')) {
+          if (latestEval && (latestEval.status === 'submitted' || latestEval.status === 'draft' || latestEval.status === 'completed')) {
             setIsCompletedEvaluation(latestEval.status === 'completed')
+            setEvaluationId(latestEval.id)
+            setEvaluationStatus(latestEval.status)
             await loadExistingEvaluation(latestEval.id)
           }
         }
@@ -110,31 +132,44 @@ export default function EvaluatePage() {
       return
     }
 
+    // Reset current step when switching employees
+    setCurrentStep(0)
+    
     // Fetch evaluation items and employee data
     fetchEvaluationData()
   }, [session, status, router, fetchEvaluationData])
 
+  // Reset current step when evaluation items change (new employee)
+  useEffect(() => {
+    if (evaluationItems.length > 0) {
+      setCurrentStep(0)
+    }
+  }, [params.id])
+
   const loadExistingEvaluation = async (evaluationId: string) => {
     try {
-      const response = await fetch(`/api/evaluations/${evaluationId}`)
-      if (response.ok) {
-        const data = await response.json()
-        const evaluation = data.data
+      const result = await getEvaluation(evaluationId)
+      if (result.success && result.data) {
+        const evaluation = result.data
         
         // Parse and load existing evaluation items data
         if (evaluation.evaluationItemsData) {
           const savedItems = JSON.parse(evaluation.evaluationItemsData)
-          setEvaluationItems(prevItems => prevItems.map((item, index) => ({
-            ...item,
-            title: savedItems[index]?.title || item.title,
-            description: savedItems[index]?.description || item.description,
-            rating: savedItems[index]?.rating || null,
-            comment: savedItems[index]?.comment || '',
-            // Preserve deadline information from the original item
-            evaluationDeadline: item.evaluationDeadline,
-            deadlineSetBy: item.deadlineSetBy,
-            deadlineSetByRole: item.deadlineSetByRole
-          })))
+          setEvaluationItems(prevItems => prevItems.map(item => {
+            // Find the corresponding saved item by ID
+            const savedItem = savedItems.find((saved: { id: string; rating?: number; comment?: string }) => saved.id === item.id)
+            return {
+              ...item,
+              title: savedItem?.title || item.title,
+              description: savedItem?.description || item.description,
+              rating: savedItem?.rating || null,
+              comment: savedItem?.comment || '',
+              // Preserve deadline information from the original item
+              evaluationDeadline: item.evaluationDeadline,
+              deadlineSetBy: item.deadlineSetBy,
+              deadlineSetByRole: item.deadlineSetByRole
+            }
+          }))
         }
         
         // Load overall rating and comments
@@ -144,6 +179,8 @@ export default function EvaluatePage() {
         if (evaluation.managerComments) {
           setOverallComment(evaluation.managerComments)
         }
+      } else {
+        console.error('Failed to load evaluation:', result.error)
       }
     } catch (error) {
       console.error('Error loading existing evaluation:', error)
@@ -204,9 +241,130 @@ export default function EvaluatePage() {
     setTimeout(() => {
       commentTextareaRef.current?.focus()
     }, 100)
+    
+    // Trigger auto-save
+    triggerAutoSave()
+  }
+  
+  const handleCommentChange = (comment: string) => {
+    if (currentItem) {
+      const updatedItems = evaluationItems.map(item => 
+        item.id === currentItem.id ? { ...item, comment } : item
+      )
+      setEvaluationItems(updatedItems)
+    } else if (isOverall) {
+      setOverallComment(comment)
+    }
+    
+    // Trigger auto-save
+    triggerAutoSave()
+  }
+  
+  // Auto-save functionality
+  const triggerAutoSave = () => {
+    // Clear existing timeout
+    if (autoSaveTimeoutRef.current) {
+      clearTimeout(autoSaveTimeoutRef.current)
+    }
+    
+    // Set new timeout for auto-save (2 seconds delay)
+    autoSaveTimeoutRef.current = setTimeout(() => {
+      autoSaveEvaluationAction()
+    }, 2000)
+  }
+  
+  const autoSaveEvaluationAction = async () => {
+    if (evaluationStatus !== 'draft') return // Only auto-save drafts
+    
+    try {
+      setAutoSaving(true)
+      const result = await autosaveEvaluation({
+        employeeId: params.id as string,
+        evaluationItems: evaluationItems.map(item => ({
+          id: item.id,
+          title: item.title,
+          description: item.description,
+          type: item.type as 'okr' | 'competency',
+          rating: item.rating,
+          comment: item.comment
+        })),
+        overallRating,
+        overallComment,
+        periodType: 'quarterly',
+        periodDate: '2024-Q1'
+      })
+      
+      if (result.success && result.evaluationId && !evaluationId) {
+        setEvaluationId(result.evaluationId)
+      }
+      
+      if (!result.success) {
+        console.error('Auto-save failed:', result.error)
+      }
+    } catch (err) {
+      console.error('Auto-save failed:', err)
+    } finally {
+      setAutoSaving(false)
+    }
+  }
+  
+  // Submit evaluation for approval
+  const handleSubmitForApproval = async () => {
+    if (!evaluationId || !isAllComplete) return
+    
+    try {
+      setSubmitting(true)
+      
+      // First save the latest data
+      await autoSaveEvaluationAction()
+      
+      // Then submit for approval
+      const result = await submitEvaluation(evaluationId)
+      
+      if (result.success) {
+        hapticFeedback.success()
+        success('Evaluation submitted for employee approval')
+        setEvaluationStatus('submitted')
+        setTimeout(() => {
+          router.push('/evaluations')
+        }, 2000)
+      } else {
+        error(result.error || 'Failed to submit evaluation')
+      }
+    } catch (err) {
+      error('Failed to submit evaluation')
+    } finally {
+      setSubmitting(false)
+    }
   }
 
-  const handleNext = async () => {
+  // Unlock evaluation (HR only)
+  const handleUnlockEvaluation = async () => {
+    if (!evaluationId) return
+    
+    try {
+      setSubmitting(true)
+      const result = await unlockEvaluation(evaluationId)
+      
+      if (result.success) {
+        hapticFeedback.success()
+        success('Evaluation unlocked and returned to draft')
+        setEvaluationStatus('draft')
+        // Refresh the evaluation data
+        await fetchEvaluationData()
+        router.refresh()
+      } else {
+        error(result.error || 'Failed to unlock evaluation')
+      }
+    } catch (err) {
+      error('Failed to unlock evaluation')
+    } finally {
+      setSubmitting(false)
+    }
+  }
+  
+
+  const handleNext = () => {
     if (currentStep < totalSteps - 1) {
       setCurrentStep(currentStep + 1)
       
@@ -223,42 +381,6 @@ export default function EvaluatePage() {
           window.scrollTo({ top: 0, behavior: 'smooth' })
         }
       }, 100)
-    } else {
-      // Submit evaluation
-      try {
-        setSubmitting(true)
-        const response = await fetch('/api/evaluations', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            employeeId: params.id,
-            evaluationItems,
-            overallRating,
-            overallComment,
-            periodType: 'quarterly',
-            periodDate: '2024-Q1'
-          }),
-        })
-
-        if (response.ok) {
-          // Success haptic feedback
-          hapticFeedback.success()
-          setShowSuccess(true)
-          // Redirect after showing success message
-          setTimeout(() => {
-            router.push('/evaluations')
-          }, 2000)
-        } else {
-          const errorData = await response.json()
-          error(`Error: ${errorData.error}`)
-          setSubmitting(false)
-        }
-      } catch {
-        error('Failed to submit evaluation')
-        setSubmitting(false)
-      }
     }
   }
 
@@ -330,13 +452,71 @@ export default function EvaluatePage() {
             <div className="w-9" />
           </div>
           
-          {/* Progress Bar */}
-          <div className="mt-4">
+          {/* Progress Indicator and Submit Button */}
+          <div className="mt-4 space-y-3">
+            {/* Progress Bar */}
             <div className="bg-gray-200 rounded-full h-2">
               <div 
                 className="bg-blue-600 h-2 rounded-full transition-all duration-300"
                 style={{ width: `${((currentStep + 1) / totalSteps) * 100}%` }}
               />
+            </div>
+            
+            {/* Progress Text and Submit Button */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <span className="text-sm font-medium text-gray-700">
+                  {t.evaluations.progress}: {progress.completed} {t.evaluations.of} {progress.total} {t.evaluations.itemsCompleted}
+                </span>
+                {autoSaving && (
+                  <span className="text-xs text-gray-500 flex items-center">
+                    <svg className="animate-spin h-3 w-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    Auto-saving...
+                  </span>
+                )}
+              </div>
+              
+              {evaluationStatus === 'draft' && (
+                <button
+                  onClick={handleSubmitForApproval}
+                  disabled={!isAllComplete || submitting}
+                  className={`px-3 py-2 text-xs font-medium rounded-lg active:scale-95 transition-all duration-150 touch-manipulation ${
+                    isAllComplete
+                      ? 'bg-green-100 text-green-700 hover:bg-green-200'
+                      : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                  }`}
+                >
+                  {submitting ? t.evaluations.submitting : t.evaluations.submitForApproval}
+                </button>
+              )}
+              
+              {evaluationStatus === 'submitted' && (
+                <div className="flex items-center gap-2">
+                  <span className="px-3 py-1 bg-yellow-100 text-yellow-700 text-xs font-medium rounded-full">
+                    Awaiting Employee Approval
+                  </span>
+                  {session?.user?.role === 'hr' && (
+                    <button
+                      onClick={handleUnlockEvaluation}
+                      disabled={submitting}
+                      className="px-3 py-1.5 bg-orange-600 text-white text-xs font-medium rounded-lg hover:bg-orange-700 active:scale-95 transition-all flex items-center gap-1"
+                    >
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z" />
+                      </svg>
+                      {submitting ? 'Unlocking...' : 'Unlock'}
+                    </button>
+                  )}
+                </div>
+              )}
+              
+              {evaluationStatus === 'completed' && (
+                <span className="px-3 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full">
+                  Evaluation Completed
+                </span>
+              )}
             </div>
           </div>
         </div>
@@ -344,7 +524,17 @@ export default function EvaluatePage() {
 
       {/* Content */}
       <div className="flex flex-col h-[calc(100vh-140px)]">
-        {!isOverall && currentItem && (
+        {evaluationItems.length === 0 && !loading && (
+          <div className="flex-1 flex items-center justify-center">
+            <div className="text-center">
+              <div className="text-6xl mb-4">📋</div>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">No Evaluation Items</h3>
+              <p className="text-gray-600">There are no evaluation items assigned to this employee.</p>
+            </div>
+          </div>
+        )}
+        
+        {!isOverall && currentItem && evaluationItems.length > 0 && (
           <>
             {/* Fixed OKR/Competency Card */}
             <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-lg mx-4 mb-4 flex-shrink-0">
@@ -556,12 +746,7 @@ export default function EvaluatePage() {
                   <textarea
                     ref={commentTextareaRef}
                     value={currentItem.comment}
-                    onChange={isCompletedEvaluation ? undefined : (e) => {
-                      const updatedItems = evaluationItems.map(item => 
-                        item.id === currentItem.id ? { ...item, comment: e.target.value } : item
-                      )
-                      setEvaluationItems(updatedItems)
-                    }}
+                    onChange={isCompletedEvaluation ? undefined : (e) => handleCommentChange(e.target.value)}
                     placeholder={isCompletedEvaluation ? "" : t.evaluations.commentPlaceholder}
                     readOnly={isCompletedEvaluation}
                     className={`w-full px-4 py-3 border-2 rounded-xl shadow-sm transition-all duration-200 resize-none text-gray-900 ${
@@ -579,7 +764,7 @@ export default function EvaluatePage() {
           </>
         )}
 
-        {isOverall && (
+        {isOverall && evaluationItems.length > 0 && (
           <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
             <div className="mb-6">
               <div className="flex items-center mb-2">
@@ -640,7 +825,7 @@ export default function EvaluatePage() {
               </label>
               <textarea
                 value={overallComment}
-                onChange={isCompletedEvaluation ? undefined : (e) => setOverallComment(e.target.value)}
+                onChange={isCompletedEvaluation ? undefined : (e) => handleCommentChange(e.target.value)}
                 placeholder={isCompletedEvaluation ? "" : "Provide comprehensive overall feedback..."}
                 readOnly={isCompletedEvaluation}
                 className={`w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-gray-900 ${
@@ -664,13 +849,15 @@ export default function EvaluatePage() {
               {t.common.previous}
             </button>
           )}
-          <button
-            onClick={handleNext}
-            disabled={!isCurrentItemValid() || submitting}
-            className="flex-1 py-4 px-6 min-h-[50px] bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 active:scale-95 active:bg-blue-800 disabled:bg-gray-300 disabled:cursor-not-allowed disabled:active:scale-100 transition-all duration-150 touch-manipulation"
-          >
-            {submitting ? 'Submitting...' : (currentStep === totalSteps - 1 ? t.evaluations.submitEvaluation : t.common.next)}
-          </button>
+          {currentStep < totalSteps - 1 && (
+            <button
+              onClick={handleNext}
+              disabled={!isCurrentItemValid()}
+              className="flex-1 py-4 px-6 min-h-[50px] bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 active:scale-95 active:bg-blue-800 disabled:bg-gray-300 disabled:cursor-not-allowed disabled:active:scale-100 transition-all duration-150 touch-manipulation"
+            >
+              {t.common.next}
+            </button>
+          )}
         </div>
       </div>
 
