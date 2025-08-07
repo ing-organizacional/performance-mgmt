@@ -9,6 +9,7 @@ import { ToastContainer } from '@/components/ui'
 import { ConfirmDialog } from '@/components/ui'
 import { useToast } from '@/hooks/useToast'
 import { useConfirm } from '@/hooks/useConfirm'
+import { exportUsersToExcel } from '@/lib/actions/export'
 
 export default function AdvancedAdminPage() {
   const { data: session, status } = useSession()
@@ -19,6 +20,7 @@ export default function AdvancedAdminPage() {
   const [uploading, setUploading] = useState(false)
   const [resetting, setResetting] = useState(false)
   const [resetConfirmText, setResetConfirmText] = useState('')
+  const [exporting, setExporting] = useState(false)
 
   useEffect(() => {
     if (status === 'loading') return
@@ -109,6 +111,42 @@ export default function AdvancedAdminPage() {
     }
   }
 
+  const handleExportUsers = async () => {
+    setExporting(true)
+    try {
+      const result = await exportUsersToExcel()
+
+      if (result.success && result.data) {
+        // Convert base64 to blob and download
+        const binaryString = atob(result.data)
+        const bytes = new Uint8Array(binaryString.length)
+        for (let i = 0; i < binaryString.length; i++) {
+          bytes[i] = binaryString.charCodeAt(i)
+        }
+        const blob = new Blob([bytes], { 
+          type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' 
+        })
+        
+        const url = window.URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = result.filename
+        document.body.appendChild(a)
+        a.click()
+        document.body.removeChild(a)
+        window.URL.revokeObjectURL(url)
+        
+        success(t.users.exportSuccess)
+      } else {
+        error(result.message || t.users.exportFailed)
+      }
+    } catch {
+      error(t.users.exportFailed)
+    } finally {
+      setExporting(false)
+    }
+  }
+
   if (status === 'loading') {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -119,8 +157,8 @@ export default function AdvancedAdminPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Fixed Header */}
-      <div className="fixed top-0 left-0 right-0 z-50 bg-white shadow-sm border-b border-gray-200">
+      {/* Header */}
+      <div className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-20">
         <div className="px-4 py-3">
           {/* Title Section */}
           <div className="flex items-center justify-between mb-3">
@@ -147,20 +185,19 @@ export default function AdvancedAdminPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
               </svg>
             </button>
-          </div>
-          
-          {/* Language Switcher */}
-          <div className="flex justify-end">
             <LanguageSwitcher />
           </div>
         </div>
       </div>
 
-      {/* Main Content with top padding to account for fixed header */}
-      <div className="pt-28 px-4 py-6 space-y-6">
+      {/* Content */}
+      <div className="px-4 py-6 space-y-6">
         {/* CSV Upload Section */}
-        <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">{t.users.importUsersCSV}</h2>
+        <div className="bg-white rounded-lg border border-gray-200 shadow-sm">
+          <div className="px-6 py-4 border-b border-gray-200">
+            <h2 className="text-lg font-semibold text-gray-900">{t.users.importUsersCSV}</h2>
+          </div>
+          <div className="px-6 py-4">
           <div className="space-y-4">
             <div>
               <label htmlFor="csvFile" className="block text-sm font-medium text-gray-700 mb-2">
@@ -214,34 +251,66 @@ export default function AdvancedAdminPage() {
               </div>
             </div>
           </div>
+          </div>
         </div>
 
-        {/* Prisma Studio Option */}
-        <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">{t.users.databaseManagement}</h2>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">
-                {t.users.advancedOperations}
-              </p>
+        {/* Database Management Section */}
+        <div className="bg-white rounded-lg border border-gray-200 shadow-sm">
+          <div className="px-6 py-4 border-b border-gray-200">
+            <h2 className="text-lg font-semibold text-gray-900">{t.users.databaseManagement}</h2>
+          </div>
+          <div className="px-6 py-4">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600">
+                    {t.users.advancedOperations}
+                  </p>
+                </div>
+                <button
+                  onClick={() => window.open('http://localhost:5555', '_blank')}
+                  className="px-3 py-2 bg-purple-600 text-white rounded-lg text-xs font-medium hover:bg-purple-700 active:scale-95 transition-all duration-150 touch-manipulation"
+                >
+                  {t.users.openPrismaStudio}
+                </button>
+              </div>
+              
+              {/* Export Users Section */}
+              <div className="border-t border-gray-200 pt-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-sm font-semibold text-gray-900">{t.users.exportUsers}</h3>
+                    <p className="text-xs text-gray-600">
+                      {t.users.exportUsersDescription}
+                    </p>
+                  </div>
+                  <button
+                    onClick={handleExportUsers}
+                    disabled={exporting}
+                    className="flex items-center gap-2 px-3 py-2 bg-green-600 text-white rounded-lg text-xs font-medium hover:bg-green-700 active:scale-95 transition-all duration-150 touch-manipulation disabled:opacity-50"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    {exporting ? t.users.exporting : t.users.exportExcel}
+                  </button>
+                </div>
+              </div>
             </div>
-            <button
-              onClick={() => window.open('http://localhost:5555', '_blank')}
-              className="px-4 py-2 bg-purple-600 text-white rounded-md text-sm font-medium hover:bg-purple-700 transition-colors"
-            >
-              {t.users.openPrismaStudio}
-            </button>
           </div>
         </div>
 
         {/* Database Reset Section - Danger Zone */}
-        <div className="bg-red-50 rounded-lg border border-red-200 p-6 shadow-sm">
-          <div className="flex items-center space-x-2 mb-4">
-            <svg className="w-6 h-6 text-red-600" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-            </svg>
-            <h2 className="text-lg font-semibold text-red-900">{t.users.dangerZone}</h2>
+        <div className="bg-red-50 rounded-lg border border-red-200 shadow-sm">
+          <div className="px-6 py-4 border-b border-red-200">
+            <div className="flex items-center space-x-2">
+              <svg className="w-5 h-5 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+              </svg>
+              <h2 className="text-lg font-semibold text-red-900">{t.users.dangerZone}</h2>
+            </div>
           </div>
+          <div className="px-6 py-4">
           
           <div className="space-y-4">
             <div className="bg-white rounded-lg border border-red-300 p-4">
@@ -273,12 +342,13 @@ export default function AdvancedAdminPage() {
                 <button
                   onClick={handleDatabaseReset}
                   disabled={resetting || resetConfirmText !== 'RESET'}
-                  className="w-full px-4 py-3 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+                  className="w-full px-4 py-3 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 disabled:bg-gray-300 disabled:cursor-not-allowed active:scale-95 transition-all duration-150 touch-manipulation"
                 >
                   {resetting ? t.common.loading : t.users.resetDatabaseButton}
                 </button>
               </div>
             </div>
+          </div>
           </div>
         </div>
       </div>

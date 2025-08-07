@@ -26,6 +26,15 @@ export interface Translations {
     createdBy: string
     saving: string
     of: string
+    employees: string
+    departments: string
+    found: string
+    selected: string
+    unassigned: string
+    selectAll: string
+    deselectAll: string
+    noEmployeesFound: string
+    noDepartmentsFound: string
   }
   
   // Auth
@@ -182,7 +191,9 @@ export interface Translations {
     generateReports: string
     exportPDF: string
     pdfExportCenter: string
+    exportCenter: string
     selectReportsToExport: string
+    selectReportsAndFormats: string
     companyOverview: string
     allEmployeesAllDepartments: string
     departmentSummary: string
@@ -222,6 +233,9 @@ export interface Translations {
     activeCycle: string
     closedCycle: string
     archivedCycle: string
+    active: string
+    closed: string
+    archived: string
     evaluationsText: string
     itemsText: string
     assessmentsText: string
@@ -243,6 +257,10 @@ export interface Translations {
     onlyOneActive: string
     cannotDeleteData: string
     dateRange: string
+    quickActions: string
+    exportAllPDF: string
+    exportAllExcel: string
+    clearAll: string
     // Department ratings page
     departmentRatings: string
     performanceInsights: string
@@ -274,6 +292,10 @@ export interface Translations {
     managePendingEvaluations: string
     employeesWithoutEvaluations: string
     startEvaluation: string
+    allEvaluationsCompleted: string
+    excellentWork: string
+    noManagerAssigned: string
+    viewResults: string
     scheduleOneOnOnes: string
     // Evaluation summary page
     okrAverage: string
@@ -287,6 +309,45 @@ export interface Translations {
     companyLevel: string
     departmentLevel: string
     managerLevel: string
+    searchEmployees: string
+    searchDepartments: string
+    allDepartments: string
+    allStatus: string
+    hasEvaluation: string
+    noEvaluation: string
+    partial: string
+    closedOn: string
+    performanceCycleClosedHR: string
+    performanceCycleClosedManager: string
+    performanceCycleArchived: string
+    performanceCycleRestricted: string
+    // Deadlines page
+    evaluationDeadlines: string
+    deadlineManagementOverview: string
+    all: string
+    overdue: string
+    high: string
+    medium: string
+    low: string
+    highPriority: string
+    mediumPriority: string
+    lowPriority: string
+    switchToListView: string
+    switchToGroupView: string
+    noDeadlinesFound: string
+    noDeadlinesFoundDesc: string
+    department: string
+    manager: string
+    employees: string
+    dueThisWeek: string
+    createdBy: string
+    deadlineSetBy: string
+    noDeadline: string
+    allEvaluationItems: string
+    itemsWithDeadlines: string
+    noItemsFound: string
+    noItemsFoundDesc: string
+    companyWideItems: string
   }
   
   // User Management
@@ -334,6 +395,61 @@ export interface Translations {
     resetSuccess: string
     resetFailed: string
     addUser: string
+    editUser: string
+    deleteUser: string
+    exportUsers: string
+    exportUsersDescription: string
+    exportExcel: string
+    exporting: string
+    exportSuccess: string
+    exportFailed: string
+    // Form labels
+    name: string
+    email: string
+    username: string
+    role: string
+    company: string
+    employeeId: string
+    personID: string
+    userType: string
+    loginMethod: string
+    shift: string
+    activeUser: string
+    password: string
+    newPassword: string
+    pinCode: string
+    requiresPinOnly: string
+    officeWorker: string
+    operationalWorker: string
+    selectRole: string
+    selectCompany: string
+    noManager: string
+    createUser: string
+    updateUser: string
+    leaveEmptyToKeep: string
+    fourDigitPin: string
+    // Delete confirmation
+    deleteConfirmMessage: string
+    actionCannotBeUndone: string
+    deleting: string
+    // Interface text
+    manageUsersDescription: string
+    clearSearch: string
+    usersCount: string
+    reportsTo: string
+    reports: string
+    evaluations: string
+    editUserTitle: string
+    deleteUserTitle: string
+    // Form placeholders
+    enterPassword: string
+    namePlaceholder: string
+    emailPlaceholder: string
+    usernamePlaceholder: string
+    departmentPlaceholder: string
+    employeeIdPlaceholder: string
+    personIdPlaceholder: string
+    shiftPlaceholder: string
   }
 }
 
@@ -362,7 +478,19 @@ export const translations: Record<Language, Translations> = {
       manager: 'Manager',
       createdBy: 'Created by',
       saving: 'Saving...',
-      of: 'of'
+      of: 'of',
+      employees: 'employees',
+      departments: 'departments',
+      found: 'found',
+      selected: 'selected',
+      unassigned: 'Unassigned',
+      selectAll: 'Select All',
+      deselectAll: 'Deselect All',
+      noEmployeesFound: 'No employees found',
+      noDepartmentsFound: 'No departments found',
+      allDepartments: 'All Departments',
+      hide: 'Hide',
+      show: 'Show'
     },
     auth: {
       signIn: 'Sign in',
@@ -504,8 +632,10 @@ export const translations: Record<Language, Translations> = {
       exportAllEvaluations: 'Export All Evaluations',
       generateReports: 'Generate Reports',
       exportPDF: 'Export PDF',
-      pdfExportCenter: 'PDF Export Center',
+      pdfExportCenter: 'Report Downloads',
+      exportCenter: 'Export Center',
       selectReportsToExport: 'Select the reports you want to export',
+      selectReportsAndFormats: 'Choose reports and formats to export',
       companyOverview: 'Company Overview',
       allEmployeesAllDepartments: 'All employees across all departments',
       departmentSummary: 'Department Summary',
@@ -568,6 +698,10 @@ export const translations: Record<Language, Translations> = {
       managePendingEvaluations: 'Manage Pending Evaluations',
       employeesWithoutEvaluations: 'employees without evaluations',
       startEvaluation: 'Start Evaluation',
+      allEvaluationsCompleted: 'All evaluations completed!',
+      excellentWork: 'Excellent work! All employees have been evaluated.',
+      noManagerAssigned: 'No manager assigned',
+      viewResults: 'View Results',
       scheduleOneOnOnes: 'Consider scheduling 1:1 meetings with these employees',
       // Evaluation summary page
       okrAverage: 'OKR Average',
@@ -581,14 +715,71 @@ export const translations: Record<Language, Translations> = {
       companyLevel: 'Company',
       departmentLevel: 'Department',
       managerLevel: 'Manager',
+      searchEmployees: 'Search employees...',
+      searchDepartments: 'Search departments...',
+      allDepartments: 'All Departments',
+      allStatus: 'All Status',
+      hasEvaluation: 'Has Evaluation',
+      noEvaluation: 'No Evaluation',
+      partial: 'Partial',
+      closedOn: 'Closed on',
+      performanceCycleClosedHR: 'is closed. You can still make partial assessments, but managers cannot edit evaluations.',
+      performanceCycleClosedManager: 'is closed. All evaluations are now read-only.',
+      performanceCycleArchived: 'is archived. All data is read-only for historical reference.',
+      performanceCycleRestricted: 'has restricted access.',
+      // Deadlines page
+      evaluationDeadlines: 'Evaluation Deadlines',
+      deadlineManagementOverview: 'HR Deadline Management Overview',
+      all: 'All',
+      overdue: 'Overdue',
+      high: 'High',
+      medium: 'Medium',
+      low: 'Low',
+      highPriority: 'High Priority',
+      mediumPriority: 'Medium Priority',
+      lowPriority: 'Low Priority',
+      switchToListView: 'Switch to List View',
+      switchToGroupView: 'Switch to Group View',
+      noDeadlinesFound: 'No Deadlines Found',
+      noDeadlinesFoundDesc: 'No evaluation deadlines match the current filter.',
+      department: 'Department',
+      manager: 'Manager',
+      employees: 'employees',
+      dueThisWeek: 'due this week',
+      createdBy: 'Created by',
+      deadlineSetBy: 'Deadline set by',
+      noDeadline: 'No deadline',
+      allEvaluationItems: 'All Evaluation Items',
+      itemsWithDeadlines: 'items with deadlines',
+      noItemsFound: 'No Items Found',
+      noItemsFoundDesc: 'No evaluation items match the current filter.',
+      companyWideItems: 'Company-Wide Items',
+      managersWithIssues: 'Managers with Issues',
+      employeesBehind: 'Employees Behind',
+      overdueItems: 'Overdue Items', 
+      managerEvaluationAccountability: 'Manager Evaluation Accountability',
+      managersWithEmployeesOverdue: 'Managers with employees who have overdue evaluations',
+      allEmployeesWithOverdueEvaluations: 'All Employees with Overdue Evaluations',
+      employeesBehindOnEvaluations: 'employees behind on evaluations',
+      noManagerIssuesFound: 'No Manager Issues Found',
+      allEmployeesUpToDate: 'All employees are up to date with their evaluations.',
+      noOverdueEvaluations: 'No Overdue Evaluations',
+      employeesBehindEvaluations: 'employees behind',
+      overdueItemsCount: 'overdue items',
+      daysOverdue: 'days overdue',
+      switchToEmployeeList: 'Switch to Employee List',
+      switchToManagerGroups: 'Switch to Manager Groups',
       creating: 'Creating...',
-      companyWideItems: 'Company-Wide OKRs & Competencies',
+      companyWideOKRsCompetencies: 'Company-Wide OKRs & Competencies',
       cycles: 'Cycles',
       performanceCycles: 'Performance Cycles',
       cycleManagement: 'Manage performance review cycles',
       activeCycle: 'Active',
       closedCycle: 'Closed',
       archivedCycle: 'Archived',
+      active: 'ACTIVE',
+      closed: 'CLOSED',
+      archived: 'ARCHIVED',
       evaluationsText: 'evaluations',
       itemsText: 'items',
       assessmentsText: 'assessments',
@@ -609,7 +800,11 @@ export const translations: Record<Language, Translations> = {
       deleteWarning: 'Cycles with data cannot be deleted. Consider archiving instead.',
       onlyOneActive: 'Only one active cycle is allowed at a time. Please close the current active cycle first.',
       cannotDeleteData: 'This cycle contains data and cannot be deleted.',
-      dateRange: 'Date Range'
+      dateRange: 'Date Range',
+      quickActions: 'Quick Actions',
+      exportAllPDF: 'Export All as PDF',
+      exportAllExcel: 'Export All as Excel',
+      clearAll: 'Clear All'
     },
     users: {
       userManagement: 'User Management',
@@ -654,7 +849,62 @@ export const translations: Record<Language, Translations> = {
       resetDatabaseButton: 'Reset Everything',
       resetSuccess: 'Database reset successfully',
       resetFailed: 'Database reset failed',
-      addUser: 'Add User'
+      addUser: 'Add User',
+      editUser: 'Edit User',
+      deleteUser: 'Delete User',
+      exportUsers: 'Export All Users',
+      exportUsersDescription: 'Download complete user information as Excel file',
+      exportExcel: 'Export Excel',
+      exporting: 'Exporting...',
+      exportSuccess: 'Users exported successfully',
+      exportFailed: 'Export failed',
+      // Form labels
+      name: 'Name',
+      email: 'Email',
+      username: 'Username',
+      role: 'Role',
+      company: 'Company',
+      employeeId: 'Employee ID',
+      personID: 'National ID (Person ID)',
+      userType: 'User Type',
+      loginMethod: 'Login Method',
+      shift: 'Shift',
+      activeUser: 'Active User',
+      password: 'Password',
+      newPassword: 'New Password (leave empty to keep current)',
+      pinCode: 'PIN Code (4 digits)',
+      requiresPinOnly: 'Requires PIN Only (no password)',
+      officeWorker: 'Office Worker',
+      operationalWorker: 'Operational Worker',
+      selectRole: 'Select Role',
+      selectCompany: 'Select Company',
+      noManager: 'No Manager',
+      createUser: 'Create User',
+      updateUser: 'Update User',
+      leaveEmptyToKeep: 'leave empty to keep current',
+      fourDigitPin: '4-digit PIN',
+      // Delete confirmation
+      deleteConfirmMessage: 'Are you sure you want to delete',
+      actionCannotBeUndone: 'This action cannot be undone.',
+      deleting: 'Deleting...',
+      // Interface text
+      manageUsersDescription: 'Manage company users and permissions',
+      clearSearch: 'Clear search',
+      usersCount: 'Users',
+      reportsTo: 'Reports to:',
+      reports: 'reports',
+      evaluations: 'evaluations',
+      editUserTitle: 'Edit user',
+      deleteUserTitle: 'Delete user',
+      // Form placeholders
+      enterPassword: 'Enter password',
+      namePlaceholder: 'John Smith',
+      emailPlaceholder: 'john@company.com',
+      usernamePlaceholder: 'john.smith',
+      departmentPlaceholder: 'Operations, Sales, HR...',
+      employeeIdPlaceholder: 'EMP001, MGR002...',
+      personIdPlaceholder: 'Cédula, DNI, National ID...',
+      shiftPlaceholder: 'Morning, Night, Rotating...'
     }
   },
   es: {
@@ -681,7 +931,19 @@ export const translations: Record<Language, Translations> = {
       manager: 'Jefatura',
       createdBy: 'Creado por',
       saving: 'Guardando...',
-      of: 'de'
+      of: 'de',
+      employees: 'empleados',
+      departments: 'departamentos',
+      found: 'encontrados',
+      selected: 'seleccionados',
+      unassigned: 'Sin Asignar',
+      selectAll: 'Seleccionar Todo',
+      deselectAll: 'Deseleccionar Todo',
+      noEmployeesFound: 'No se encontraron empleados',
+      noDepartmentsFound: 'No se encontraron departamentos',
+      allDepartments: 'Todos los Departamentos',
+      hide: 'Ocultar',
+      show: 'Mostrar'
     },
     auth: {
       signIn: 'Iniciar sesión',
@@ -823,8 +1085,10 @@ export const translations: Record<Language, Translations> = {
       exportAllEvaluations: 'Exportar Todas las Evaluaciones',
       generateReports: 'Generar Reportes',
       exportPDF: 'Exportar PDF',
-      pdfExportCenter: 'Centro de Exportación PDF',
+      pdfExportCenter: 'Descarga de reportes',
+      exportCenter: 'Centro de Exportación',
       selectReportsToExport: 'Selecciona los reportes que deseas exportar',
+      selectReportsAndFormats: 'Elige reportes y formatos para exportar',
       companyOverview: 'Resumen de Empresa',
       allEmployeesAllDepartments: 'Todos los empleados de todos los departamentos',
       departmentSummary: 'Resumen por Departamento',
@@ -864,6 +1128,9 @@ export const translations: Record<Language, Translations> = {
       activeCycle: 'Activo',
       closedCycle: 'Cerrado',
       archivedCycle: 'Archivado',
+      active: 'ACTIVO',
+      closed: 'CERRADO',
+      archived: 'ARCHIVADO',
       evaluationsText: 'evaluaciones',
       itemsText: 'elementos',
       assessmentsText: 'evaluaciones',
@@ -885,6 +1152,10 @@ export const translations: Record<Language, Translations> = {
       onlyOneActive: 'Solo se permite un ciclo activo a la vez. Por favor cierra el ciclo activo actual primero.',
       cannotDeleteData: 'Este ciclo contiene datos y no puede ser eliminado.',
       dateRange: 'Rango de Fechas',
+      quickActions: 'Acciones Rápidas',
+      exportAllPDF: 'Exportar Todo como PDF',
+      exportAllExcel: 'Exportar Todo como Excel',
+      clearAll: 'Limpiar Todo',
       // Department ratings page  
       departmentRatings: 'Calificaciones por Departamento',
       performanceInsights: 'Análisis de Desempeño',
@@ -916,6 +1187,10 @@ export const translations: Record<Language, Translations> = {
       managePendingEvaluations: 'Gestionar Evaluaciones Pendientes',
       employeesWithoutEvaluations: 'empleados sin evaluaciones',
       startEvaluation: 'Iniciar Evaluación',
+      allEvaluationsCompleted: '¡Todas las evaluaciones completadas!',
+      excellentWork: '¡Excelente trabajo! Todos los empleados han sido evaluados.',
+      noManagerAssigned: 'Sin jefatura asignada',
+      viewResults: 'Ver Resultados',
       scheduleOneOnOnes: 'Considera programar reuniones individuales con estos empleados',
       // Evaluation summary page
       okrAverage: 'Promedio OKR',
@@ -928,10 +1203,64 @@ export const translations: Record<Language, Translations> = {
       feedback: 'Retroalimentación',
       companyLevel: 'Empresa',
       departmentLevel: 'Departamento',
-      managerLevel: 'Jefatura'
+      managerLevel: 'Jefatura',
+      searchEmployees: 'Buscar empleados...',
+      searchDepartments: 'Buscar departamentos...',
+      allDepartments: 'Todos los Departamentos',
+      allStatus: 'Todos los Estados',
+      hasEvaluation: 'Tiene Evaluación',
+      noEvaluation: 'Sin Evaluación',
+      partial: 'Parcial',
+      closedOn: 'Cerrado el',
+      performanceCycleClosedHR: 'está cerrado. Aún puedes hacer evaluaciones parciales, pero los managers no pueden editar evaluaciones.',
+      performanceCycleClosedManager: 'está cerrado. Todas las evaluaciones son ahora de solo lectura.',
+      performanceCycleArchived: 'está archivado. Todos los datos son de solo lectura para referencia histórica.',
+      performanceCycleRestricted: 'tiene acceso restringido.',
+      // Deadlines page
+      evaluationDeadlines: 'Fechas Límite de Evaluación',
+      deadlineManagementOverview: 'Gestión de Fechas Límite de RRHH',
+      all: 'Todos',
+      overdue: 'Vencidos',
+      high: 'Alto',
+      medium: 'Medio',
+      low: 'Bajo',
+      highPriority: 'Prioridad Alta',
+      mediumPriority: 'Prioridad Media',
+      lowPriority: 'Prioridad Baja',
+      switchToListView: 'Cambiar a Vista de Lista',
+      switchToGroupView: 'Cambiar a Vista de Grupos',
+      noDeadlinesFound: 'No se Encontraron Fechas Límite',
+      noDeadlinesFoundDesc: 'No hay fechas límite que coincidan con el filtro actual.',
+      department: 'Departamento',
+      manager: 'Jefatura',
+      employees: 'empleados',
+      dueThisWeek: 'vencen esta semana',
+      createdBy: 'Creado por',
+      deadlineSetBy: 'Fecha límite establecida por',
+      noDeadline: 'Sin fecha límite',
+      allEvaluationItems: 'Todos los Elementos de Evaluación',
+      itemsWithDeadlines: 'elementos con fechas límite',
+      noItemsFound: 'No se Encontraron Elementos',
+      noItemsFoundDesc: 'No hay elementos de evaluación que coincidan con el filtro actual.',
+      companyWideItems: 'Elementos de Toda la Empresa',
+      managersWithIssues: 'Jefaturas con Problemas',
+      employeesBehind: 'Empleados Atrasados', 
+      overdueItems: 'Elementos Vencidos',
+      managerEvaluationAccountability: 'Responsabilidad de Evaluaciones de Jefaturas',
+      managersWithEmployeesOverdue: 'Jefaturas con empleados que tienen evaluaciones vencidas',
+      allEmployeesWithOverdueEvaluations: 'Todos los Empleados con Evaluaciones Vencidas',
+      employeesBehindOnEvaluations: 'empleados atrasados en evaluaciones',
+      noManagerIssuesFound: 'No se Encontraron Problemas de Jefatura',
+      allEmployeesUpToDate: 'Todos los empleados están al día con sus evaluaciones.',
+      noOverdueEvaluations: 'Sin Evaluaciones Vencidas',
+      employeesBehindEvaluations: 'empleados atrasados',
+      overdueItemsCount: 'elementos vencidos',
+      daysOverdue: 'días vencidos',
+      switchToEmployeeList: 'Cambiar a Lista de Empleados',
+      switchToManagerGroups: 'Cambiar a Grupos de Jefatura'
     },
     users: {
-      userManagement: 'Gestión de Usuarios',
+      userManagement: 'Gestión de usuarios',
       totalUsers: 'usuarios en total',
       importUsersCSV: 'Importar Usuarios desde CSV',
       uploadCSVFile: 'Subir Archivo CSV',
@@ -973,7 +1302,62 @@ export const translations: Record<Language, Translations> = {
       resetDatabaseButton: 'Resetear Todo',
       resetSuccess: 'Base de datos reseteada exitosamente',
       resetFailed: 'Error al resetear la base de datos',
-      addUser: 'Agregar Usuario'
+      addUser: 'Agregar Usuario',
+      editUser: 'Editar Usuario',
+      deleteUser: 'Eliminar Usuario',
+      exportUsers: 'Exportar Todos los Usuarios',
+      exportUsersDescription: 'Descargar información completa de usuarios como archivo Excel',
+      exportExcel: 'Exportar Excel',
+      exporting: 'Exportando...',
+      exportSuccess: 'Usuarios exportados exitosamente',
+      exportFailed: 'Error en la exportación',
+      // Form labels
+      name: 'Nombre',
+      email: 'Correo Electrónico',
+      username: 'Usuario',
+      role: 'Rol',
+      company: 'Empresa',
+      employeeId: 'ID de Empleado',
+      personID: 'Cédula Nacional (ID Persona)',
+      userType: 'Tipo de Usuario',
+      loginMethod: 'Método de Acceso',
+      shift: 'Turno',
+      activeUser: 'Usuario Activo',
+      password: 'Contraseña',
+      newPassword: 'Nueva Contraseña (dejar vacío para mantener actual)',
+      pinCode: 'Código PIN (4 dígitos)',
+      requiresPinOnly: 'Requiere Solo PIN (sin contraseña)',
+      officeWorker: 'Trabajador de Oficina',
+      operationalWorker: 'Trabajador Operativo',
+      selectRole: 'Seleccionar Rol',
+      selectCompany: 'Seleccionar Empresa',
+      noManager: 'Sin Jefatura',
+      createUser: 'Crear Usuario',
+      updateUser: 'Actualizar Usuario',
+      leaveEmptyToKeep: 'dejar vacío para mantener actual',
+      fourDigitPin: 'PIN de 4 dígitos',
+      // Delete confirmation
+      deleteConfirmMessage: '¿Estás seguro de que quieres eliminar a',
+      actionCannotBeUndone: 'Esta acción no se puede deshacer.',
+      deleting: 'Eliminando...',
+      // Interface text
+      manageUsersDescription: 'Gestionar usuarios y permisos de la empresa',
+      clearSearch: 'Limpiar búsqueda',
+      usersCount: 'Usuarios',
+      reportsTo: 'Reporta a:',
+      reports: 'reportes',
+      evaluations: 'evaluaciones',
+      editUserTitle: 'Editar usuario',
+      deleteUserTitle: 'Eliminar usuario',
+      // Form placeholders
+      enterPassword: 'Ingrese contraseña',
+      namePlaceholder: 'Juan Pérez',
+      emailPlaceholder: 'juan@empresa.com',
+      usernamePlaceholder: 'juan.perez',
+      departmentPlaceholder: 'Operaciones, Ventas, RRHH...',
+      employeeIdPlaceholder: 'EMP001, MGR002...',
+      personIdPlaceholder: 'Cédula, DNI, ID Nacional...',
+      shiftPlaceholder: 'Mañana, Noche, Rotativo...'
     }
   }
 }

@@ -5,7 +5,11 @@ import {
   exportEvaluation, 
   exportTeamEvaluations, 
   exportDepartmentEvaluations, 
-  exportCompanyEvaluations 
+  exportCompanyEvaluations,
+  exportSelectedEmployees,
+  exportTopPerformers,
+  exportNeedsAttention,
+  exportSelectedDepartments
 } from '@/lib/actions'
 import { useLanguage } from '@/contexts/LanguageContext'
 
@@ -18,6 +22,10 @@ interface UseExportResult {
   exportTeam: (format?: ExportFormat) => Promise<void>
   exportDepartment: (department?: string, format?: ExportFormat) => Promise<void>
   exportCompany: (format?: ExportFormat) => Promise<void>
+  exportSelected: (employeeIds: string[], format?: ExportFormat) => Promise<void>
+  exportTopPerformers: (format?: ExportFormat) => Promise<void>
+  exportNeedsAttention: (format?: ExportFormat) => Promise<void>
+  exportSelectedDepartments: (departmentNames: string[], format?: ExportFormat) => Promise<void>
 }
 
 export function useExport(): UseExportResult {
@@ -182,12 +190,108 @@ export function useExport(): UseExportResult {
     }
   }
 
+  const exportSelected = async (employeeIds: string[], format: ExportFormat = 'excel') => {
+    setIsExporting(true)
+    setExportError(null)
+    
+    try {
+      const result = await exportSelectedEmployees(employeeIds, format, language)
+      
+      if (!result.success) {
+        setExportError(result.error || 'Export failed')
+        return
+      }
+
+      if (result.data && result.filename && result.contentType) {
+        downloadFile(result.data, result.filename, result.contentType)
+      }
+    } catch (error) {
+      console.error('Export error:', error)
+      setExportError('Export failed')
+    } finally {
+      setIsExporting(false)
+    }
+  }
+
+  const exportTopPerformers_ = async (format: ExportFormat = 'excel') => {
+    setIsExporting(true)
+    setExportError(null)
+    
+    try {
+      const result = await exportTopPerformers(format, language)
+      
+      if (!result.success) {
+        setExportError(result.error || 'Export failed')
+        return
+      }
+
+      if (result.data && result.filename && result.contentType) {
+        downloadFile(result.data, result.filename, result.contentType)
+      }
+    } catch (error) {
+      console.error('Export error:', error)
+      setExportError('Export failed')
+    } finally {
+      setIsExporting(false)
+    }
+  }
+
+  const exportNeedsAttention_ = async (format: ExportFormat = 'excel') => {
+    setIsExporting(true)
+    setExportError(null)
+    
+    try {
+      const result = await exportNeedsAttention(format, language)
+      
+      if (!result.success) {
+        setExportError(result.error || 'Export failed')
+        return
+      }
+
+      if (result.data && result.filename && result.contentType) {
+        downloadFile(result.data, result.filename, result.contentType)
+      }
+    } catch (error) {
+      console.error('Export error:', error)
+      setExportError('Export failed')
+    } finally {
+      setIsExporting(false)
+    }
+  }
+
+  const exportSelectedDepartments_ = async (departmentNames: string[], format: ExportFormat = 'excel') => {
+    setIsExporting(true)
+    setExportError(null)
+    
+    try {
+      const result = await exportSelectedDepartments(departmentNames, format, language)
+      
+      if (!result.success) {
+        setExportError(result.error || 'Export failed')
+        return
+      }
+
+      if (result.data && result.filename && result.contentType) {
+        downloadFile(result.data, result.filename, result.contentType)
+      }
+    } catch (error) {
+      console.error('Export error:', error)
+      setExportError('Export failed')
+    } finally {
+      setIsExporting(false)
+    }
+  }
+
   return {
     isExporting,
     exportError,
     exportEvaluationById,
     exportTeam,
     exportDepartment,
-    exportCompany
+    exportCompany,
+    exportSelected,
+    exportTopPerformers: exportTopPerformers_,
+    exportNeedsAttention: exportNeedsAttention_,
+    exportSelectedDepartments: exportSelectedDepartments_
   }
 }

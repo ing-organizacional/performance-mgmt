@@ -88,7 +88,10 @@ export default function DashboardClient({
                     activeCycle.status === 'closed' ? 'text-red-600 bg-red-100' :
                     'text-gray-600 bg-gray-100'
                   }`}>
-                    {activeCycle.status.toUpperCase()}
+                    {activeCycle.status === 'active' ? t.dashboard.active :
+                     activeCycle.status === 'closed' ? t.dashboard.closed :
+                     activeCycle.status === 'archived' ? t.dashboard.archived :
+                     (activeCycle.status as string).toUpperCase()}
                   </span>
                 )}
               </div>
@@ -112,7 +115,7 @@ export default function DashboardClient({
                 className="flex items-center justify-center space-x-1 px-2 py-2 bg-blue-600 text-white text-xs font-medium rounded-lg hover:bg-blue-700 active:scale-95 transition-all duration-150 touch-manipulation whitespace-nowrap tracking-tighter leading-none"
               >
                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 5 15 0z" />
                 </svg>
                 <span>{t.nav.employeeEvaluations}</span>
               </button>

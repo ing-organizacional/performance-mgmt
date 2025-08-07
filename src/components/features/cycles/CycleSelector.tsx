@@ -187,18 +187,18 @@ export default function CycleSelector({
       <select
         value={selectedCycle?.id || ''}
         onChange={(e) => handleCycleChange(e.target.value)}
-        className="text-xs bg-white border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-1 focus:ring-blue-500"
+        className="text-xs font-semibold text-gray-900 bg-white border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-1 focus:ring-blue-500"
       >
-        <option value="">Select Cycle</option>
+        <option value="" className="text-gray-500">Select Cycle</option>
         {cycles.map((cycle) => (
-          <option key={cycle.id} value={cycle.id}>
+          <option key={cycle.id} value={cycle.id} className="text-gray-900 font-medium">
             {getStatusIcon(cycle.status)} {cycle.name} ({cycle.status})
           </option>
         ))}
       </select>
 
       {selectedCycle && (
-        <span className="text-xs text-gray-500">
+        <span className="text-xs font-medium text-gray-700">
           {selectedCycle._count.evaluations} evals
         </span>
       )}
@@ -207,7 +207,7 @@ export default function CycleSelector({
         <div className="relative">
           <button
             onClick={() => setShowActions(!showActions)}
-            className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded hover:bg-gray-200 transition-colors"
+            className="text-xs font-medium bg-gray-100 text-gray-700 px-2 py-1 rounded hover:bg-gray-200 transition-colors"
             title="Cycle actions"
             disabled={isPending}
           >
@@ -220,7 +220,7 @@ export default function CycleSelector({
                 {selectedCycle.status === 'active' && (
                   <button
                     onClick={handleCloseCycle}
-                    className="w-full text-left px-3 py-2 text-xs text-red-600 hover:bg-red-50 transition-colors"
+                    className="w-full text-left px-3 py-2 text-xs font-medium text-red-700 hover:bg-red-50 transition-colors"
                     disabled={isPending}
                   >
                     🔒 Close Cycle
@@ -229,7 +229,7 @@ export default function CycleSelector({
                 {selectedCycle.status === 'closed' && (
                   <button
                     onClick={handleReopenCycle}
-                    className="w-full text-left px-3 py-2 text-xs text-green-600 hover:bg-green-50 transition-colors"
+                    className="w-full text-left px-3 py-2 text-xs font-medium text-green-700 hover:bg-green-50 transition-colors"
                     disabled={isPending}
                   >
                     🔓 Reopen Cycle
@@ -237,7 +237,7 @@ export default function CycleSelector({
                 )}
                 <button
                   onClick={() => setShowActions(false)}
-                  className="w-full text-left px-3 py-2 text-xs text-gray-500 hover:bg-gray-50 transition-colors border-t"
+                  className="w-full text-left px-3 py-2 text-xs font-medium text-gray-700 hover:bg-gray-50 transition-colors border-t"
                 >
                   Cancel
                 </button>

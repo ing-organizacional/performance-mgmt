@@ -29,5 +29,9 @@ export {
   exportEvaluation,
   exportTeamEvaluations,
   exportDepartmentEvaluations,
-  exportCompanyEvaluations
+  exportCompanyEvaluations,
+  exportSelectedEmployees,
+  exportTopPerformers,
+  exportNeedsAttention,
+  exportSelectedDepartments
 } from './exports'

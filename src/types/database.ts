@@ -25,6 +25,7 @@ export interface User {
   loginMethod: string
   requiresPinOnly: boolean
   employeeId: string | null
+  personID: string | null
   department: string | null
   shift: string | null
   lastLogin: Date | null
