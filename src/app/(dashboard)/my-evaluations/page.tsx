@@ -2,6 +2,7 @@ import { auth } from '@/auth'
 import { redirect } from 'next/navigation'
 import { prisma } from '@/lib/prisma-client'
 import MyEvaluationsClient from './MyEvaluationsClient'
+import type { EvaluationCycle } from '@/types'
 
 interface Evaluation {
   id: string
@@ -10,6 +11,17 @@ interface Evaluation {
   overallRating: number | null
   submittedAt: string | null
   managerName: string
+}
+
+async function getActiveCycle(companyId: string): Promise<EvaluationCycle | null> {
+  const cycle = await prisma.performanceCycle.findFirst({
+    where: {
+      companyId,
+      status: 'active'
+    }
+  })
+  
+  return cycle as EvaluationCycle | null
 }
 
 async function getMyEvaluations(userId: string): Promise<Evaluation[]> {
@@ -48,13 +60,20 @@ export default async function MyEvaluationsPage() {
     redirect('/login')
   }
 
-  // Fetch evaluations directly from database
+  const companyId = session.user.companyId
+  if (!companyId) {
+    redirect('/login')
+  }
+
+  // Fetch evaluations and active cycle from database
   const evaluations = await getMyEvaluations(session.user.id)
+  const activeCycle = await getActiveCycle(companyId)
 
   return (
     <MyEvaluationsClient 
       evaluations={evaluations}
       userName={session.user.name || ''}
+      activeCycle={activeCycle}
     />
   )
 }

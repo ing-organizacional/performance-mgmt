@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 import { signOut } from 'next-auth/react'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { LanguageSwitcher } from '@/components/layout'
+import type { EvaluationCycle } from '@/types'
 
 interface Evaluation {
   id: string
@@ -17,9 +18,10 @@ interface Evaluation {
 interface MyEvaluationsClientProps {
   evaluations: Evaluation[]
   userName: string
+  activeCycle: EvaluationCycle | null
 }
 
-export default function MyEvaluationsClient({ evaluations, userName }: MyEvaluationsClientProps) {
+export default function MyEvaluationsClient({ evaluations, userName, activeCycle }: MyEvaluationsClientProps) {
   const router = useRouter()
   const { t } = useLanguage()
 
@@ -116,8 +118,16 @@ export default function MyEvaluationsClient({ evaluations, userName }: MyEvaluat
         <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm mb-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold text-gray-900">{t.nav.currentPeriod}</h2>
-            <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
-              Q1 2024
+            <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+              activeCycle 
+                ? activeCycle.status === 'active' 
+                  ? 'bg-green-100 text-green-800' 
+                  : activeCycle.status === 'closed'
+                  ? 'bg-red-100 text-red-800'
+                  : 'bg-gray-100 text-gray-800'
+                : 'bg-gray-100 text-gray-800'
+            }`}>
+              {activeCycle ? activeCycle.name : 'No active cycle'}
             </span>
           </div>
           
