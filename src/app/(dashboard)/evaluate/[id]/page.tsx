@@ -2,7 +2,7 @@
 
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
-import { useEffect, useState, useRef, useCallback } from 'react'
+import { useEffect, useState, useRef, useCallback, useMemo } from 'react'
 import { useParams } from 'next/navigation'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { LanguageSwitcher } from '@/components/layout'
@@ -56,6 +56,12 @@ export default function EvaluatePage() {
   
   // Ref for focusing on comment textarea
   const commentTextareaRef = useRef<HTMLTextAreaElement>(null)
+  
+  // Check if evaluation is locked (submitted or completed)
+  const isEvaluationLocked = useMemo(() => 
+    evaluationStatus === 'submitted' || evaluationStatus === 'completed', 
+    [evaluationStatus]
+  )
   
   // Calculate progress
   const calculateProgress = () => {
@@ -238,6 +244,9 @@ export default function EvaluatePage() {
   }
 
   const handleRating = (rating: number) => {
+    // Prevent editing if evaluation is not in draft status
+    if (evaluationStatus !== 'draft') return
+    
     // Add haptic feedback for rating selection
     hapticFeedback.light()
     
@@ -260,6 +269,9 @@ export default function EvaluatePage() {
   }
   
   const handleCommentChange = (comment: string) => {
+    // Prevent editing if evaluation is not in draft status
+    if (evaluationStatus !== 'draft') return
+    
     if (currentItem) {
       const updatedItems = evaluationItems.map(item => 
         item.id === currentItem.id ? { ...item, comment } : item
@@ -708,19 +720,24 @@ export default function EvaluatePage() {
                 <div className="bg-gray-50 rounded-xl p-6" data-rating-section>
                   <div className="text-center mb-3">
                     <p className="text-lg font-bold text-gray-800 mb-1">{t.evaluations.ratePerformance}</p>
-                    <p className="text-sm text-gray-600">{t.evaluations.tapToRate}</p>
+                    <p className="text-sm text-gray-600">
+                      {isEvaluationLocked ? 
+                        (evaluationStatus === 'submitted' ? t.evaluations.awaitingEmployeeApproval : t.evaluations.evaluationCompleted) :
+                        t.evaluations.tapToRate
+                      }
+                    </p>
                   </div>
                   
                   <div className="flex gap-2 justify-center mb-1 px-4">
                     {[1, 2, 3, 4, 5].map((star) => (
                       <button
                         key={star}
-                        onClick={isCompletedEvaluation ? undefined : () => handleRating(star)}
-                        disabled={isCompletedEvaluation}
+                        onClick={isEvaluationLocked ? undefined : () => handleRating(star)}
+                        disabled={isEvaluationLocked}
                         className={`flex items-center justify-center p-3 min-h-[44px] min-w-[44px] rounded-lg transition-colors duration-150 touch-manipulation ${
                           currentItem.rating && currentItem.rating >= star
                             ? 'text-yellow-500 bg-yellow-100'
-                            : isCompletedEvaluation 
+                            : isEvaluationLocked 
                               ? 'text-gray-300 cursor-not-allowed'
                               : 'text-gray-300 hover:text-yellow-400 hover:bg-yellow-50 active:bg-yellow-100'
                         }`}
@@ -764,11 +781,11 @@ export default function EvaluatePage() {
                   <textarea
                     ref={commentTextareaRef}
                     value={currentItem.comment}
-                    onChange={isCompletedEvaluation ? undefined : (e) => handleCommentChange(e.target.value)}
-                    placeholder={isCompletedEvaluation ? "" : t.evaluations.commentPlaceholder}
-                    readOnly={isCompletedEvaluation}
+                    onChange={isEvaluationLocked ? undefined : (e) => handleCommentChange(e.target.value)}
+                    placeholder={isEvaluationLocked ? "" : t.evaluations.commentPlaceholder}
+                    readOnly={isEvaluationLocked}
                     className={`w-full px-4 py-3 border-2 rounded-xl shadow-sm transition-all duration-200 resize-none text-gray-900 ${
-                      isCompletedEvaluation 
+                      isEvaluationLocked 
                         ? 'bg-gray-50 border-gray-300 cursor-not-allowed'
                         : (currentItem?.comment.trim().length || 0) >= MIN_COMMENT_LENGTH
                         ? 'border-green-300 focus:border-green-500 focus:ring-green-200'
@@ -806,12 +823,12 @@ export default function EvaluatePage() {
                 {[1, 2, 3, 4, 5].map((star) => (
                   <button
                     key={star}
-                    onClick={isCompletedEvaluation ? undefined : () => handleRating(star)}
-                    disabled={isCompletedEvaluation}
+                    onClick={isEvaluationLocked ? undefined : () => handleRating(star)}
+                    disabled={isEvaluationLocked}
                     className={`flex items-center justify-center p-3 min-h-[44px] min-w-[44px] rounded-lg transition-colors duration-150 touch-manipulation ${
                       overallRating && overallRating >= star
                         ? 'text-yellow-500 bg-yellow-100'
-                        : isCompletedEvaluation
+                        : isEvaluationLocked
                           ? 'text-gray-300 cursor-not-allowed'
                           : 'text-gray-300 hover:text-yellow-400 hover:bg-yellow-50 active:bg-yellow-100'
                     }`}
@@ -843,11 +860,11 @@ export default function EvaluatePage() {
               </label>
               <textarea
                 value={overallComment}
-                onChange={isCompletedEvaluation ? undefined : (e) => handleCommentChange(e.target.value)}
-                placeholder={isCompletedEvaluation ? "" : "Provide comprehensive overall feedback..."}
-                readOnly={isCompletedEvaluation}
+                onChange={isEvaluationLocked ? undefined : (e) => handleCommentChange(e.target.value)}
+                placeholder={isEvaluationLocked ? "" : "Provide comprehensive overall feedback..."}
+                readOnly={isEvaluationLocked}
                 className={`w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-gray-900 ${
-                  isCompletedEvaluation ? 'bg-gray-50 cursor-not-allowed' : ''
+                  isEvaluationLocked ? 'bg-gray-50 cursor-not-allowed' : ''
                 }`}
                 rows={6}
               />
