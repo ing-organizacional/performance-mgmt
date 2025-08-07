@@ -339,7 +339,7 @@ export default function CompanyItemsClient({ initialItems }: CompanyItemsClientP
                   className="flex items-center space-x-2 px-4 py-2 bg-gray-200 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-300 transition-colors"
                 >
                   <span>✕</span>
-                  <span>{t.common.cancelButton}</span>
+                  <span>{t.common.cancel}</span>
                 </button>
               </div>
             </div>
@@ -428,14 +428,14 @@ export default function CompanyItemsClient({ initialItems }: CompanyItemsClientP
                       className="flex items-center space-x-2 px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-colors"
                     >
                       <span>✓</span>
-                      <span>{t.common.saveButton}</span>
+                      <span>{t.common.save}</span>
                     </button>
                     <button
                       onClick={handleCancel}
                       className="flex items-center space-x-2 px-4 py-2 bg-gray-200 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-300 transition-colors"
                     >
                       <span>✕</span>
-                      <span>{t.common.cancelButton}</span>
+                      <span>{t.common.cancel}</span>
                     </button>
                   </div>
                 </div>
@@ -481,7 +481,7 @@ export default function CompanyItemsClient({ initialItems }: CompanyItemsClientP
                         className="flex items-center space-x-1 px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 active:scale-95 transition-all duration-150"
                       >
                         <span>✏️</span>
-                        <span>{t.common.editButton}</span>
+                        <span>{t.common.edit}</span>
                       </button>
                     </div>
                   </div>
@@ -568,7 +568,7 @@ export default function CompanyItemsClient({ initialItems }: CompanyItemsClientP
                   onClick={cancelToggleActive}
                   className="flex-1 px-4 py-3 min-h-[44px] bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 active:scale-95 transition-all duration-150 touch-manipulation"
                 >
-                  {t.common.cancelButton}
+                  {t.common.cancel}
                 </button>
                 <button
                   onClick={confirmToggleActive}

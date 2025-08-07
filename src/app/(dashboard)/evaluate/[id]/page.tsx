@@ -374,7 +374,7 @@ export default function EvaluatePage() {
                           <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                           </svg>
-                          <span className="font-semibold">{t.evaluations.completed}</span>
+                          <span className="font-semibold">{t.status.completed}</span>
                         </div>
                       ) : currentItem.evaluationDeadline && (
                         <DeadlineDisplay 
@@ -423,7 +423,7 @@ export default function EvaluatePage() {
                       {editingItemId === currentItem.id ? '✕' : '✏️'}
                     </span>
                     <span>
-                      {editingItemId === currentItem.id ? t.common.cancelButton : t.common.editButton}
+                      {editingItemId === currentItem.id ? t.common.cancel : t.common.edit}
                     </span>
                   </button>
                 )}
@@ -467,7 +467,7 @@ export default function EvaluatePage() {
                       className="group flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold text-sm rounded-xl hover:from-green-600 hover:to-green-700 transition-all duration-300 transform hover:scale-105 shadow-sm shadow-green-200"
                     >
                       <span className="text-lg group-hover:scale-110 transition-transform duration-200">✓</span>
-                      <span>{t.common.saveButton}</span>
+                      <span>{t.common.save}</span>
                     </button>
                   </div>
                 </div>
@@ -525,11 +525,11 @@ export default function EvaluatePage() {
                   </div>
                   {currentItem.rating && (
                     <p className="text-center text-lg font-semibold text-gray-800 mt-3">
-                      {currentItem.rating === 1 && t.evaluations.needsImprovement}
-                      {currentItem.rating === 2 && t.evaluations.belowExpectations}
-                      {currentItem.rating === 3 && t.evaluations.meetsExpectations}
-                      {currentItem.rating === 4 && t.evaluations.exceedsExpectations}
-                      {currentItem.rating === 5 && t.evaluations.outstanding}
+                      {currentItem.rating === 1 && t.ratings.needsImprovement}
+                      {currentItem.rating === 2 && t.ratings.belowExpectations}
+                      {currentItem.rating === 3 && t.ratings.meetsExpectations}
+                      {currentItem.rating === 4 && t.ratings.exceedsExpectations}
+                      {currentItem.rating === 5 && t.ratings.outstanding}
                     </p>
                   )}
                 </div>
@@ -621,11 +621,11 @@ export default function EvaluatePage() {
               </div>
               {overallRating && (
                 <p className="text-center text-sm text-gray-600 mt-2">
-                  {overallRating === 1 && t.evaluations.needsImprovement}
-                  {overallRating === 2 && t.evaluations.belowExpectations}
-                  {overallRating === 3 && t.evaluations.meetsExpectations}
-                  {overallRating === 4 && t.evaluations.exceedsExpectations}
-                  {overallRating === 5 && t.evaluations.outstanding}
+                  {overallRating === 1 && t.ratings.needsImprovement}
+                  {overallRating === 2 && t.ratings.belowExpectations}
+                  {overallRating === 3 && t.ratings.meetsExpectations}
+                  {overallRating === 4 && t.ratings.exceedsExpectations}
+                  {overallRating === 5 && t.ratings.outstanding}
                 </p>
               )}
             </div>

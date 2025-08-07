@@ -1,6 +1,32 @@
 export type Language = 'en' | 'es'
 
 export interface Translations {
+  // Shared Status Terms
+  status: {
+    active: string
+    inactive: string
+    completed: string
+    pending: string
+    draft: string
+    submitted: string
+    approved: string
+    inProgress: string
+    notStarted: string
+    overdue: string
+    archived: string
+    closed: string
+  }
+
+  // Shared Performance Ratings
+  ratings: {
+    outstanding: string
+    exceedsExpectations: string
+    meetsExpectations: string
+    belowExpectations: string
+    needsImprovement: string
+    notRated: string
+  }
+
   // Common
   common: {
     loading: string
@@ -16,9 +42,6 @@ export interface Translations {
     back: string
     yes: string
     no: string
-    editButton: string
-    cancelButton: string
-    saveButton: string
     standardized: string
     company: string
     department: string
@@ -65,6 +88,20 @@ export interface Translations {
     selectEmployee: string
     employees: string
     assignments: string
+    welcomeBack: string
+    performanceHistory: string
+    currentPeriod: string
+    evaluationComplete: string
+    latestPerformanceEvaluation: string
+    reviewedBy: string
+    noEvaluationsYet: string
+    noPerformanceEvaluations: string
+    evaluationHistory: string
+    viewDetails: string
+    performanceSummary: string
+    averageRating: string
+    completedReviews: string
+    consistentlyExceeding: string
   }
   
   // Evaluations
@@ -83,17 +120,9 @@ export interface Translations {
     optionalComment: string
     provideFeedback: string
     addSpecificFeedback: string
-    needsImprovement: string
-    belowExpectations: string
-    meetsExpectations: string
-    exceedsExpectations: string
-    outstanding: string
     teamSummary: string
     pendingReviews: string
     teamAverage: string
-    completed: string
-    inProgress: string
-    notStarted: string
     evaluationSubmitted: string
     evaluationSubmittedDesc: string
     redirecting: string
@@ -462,6 +491,28 @@ export interface Translations {
 
 export const translations: Record<Language, Translations> = {
   en: {
+    status: {
+      active: 'Active',
+      inactive: 'Inactive',
+      completed: 'Completed',
+      pending: 'Pending',
+      draft: 'Draft',
+      submitted: 'Submitted',
+      approved: 'Approved',
+      inProgress: 'In Progress',
+      notStarted: 'Not Started',
+      overdue: 'Overdue',
+      archived: 'Archived',
+      closed: 'Closed'
+    },
+    ratings: {
+      outstanding: 'Outstanding',
+      exceedsExpectations: 'Exceeds Expectations',
+      meetsExpectations: 'Meets Expectations',
+      belowExpectations: 'Below Expectations',
+      needsImprovement: 'Needs Improvement',
+      notRated: 'Not rated'
+    },
     common: {
       loading: 'Loading...',
       save: 'Save',
@@ -476,9 +527,6 @@ export const translations: Record<Language, Translations> = {
       back: 'Back',
       yes: 'Yes',
       no: 'No',
-      editButton: 'Edit',
-      cancelButton: 'Cancel',
-      saveButton: 'Save',
       standardized: 'Standardized',
       company: 'Company',
       department: 'Department',
@@ -520,7 +568,21 @@ export const translations: Record<Language, Translations> = {
       myEvaluations: 'My Evaluations',
       selectEmployee: 'Select an employee to evaluate',
       employees: 'employees',
-      assignments: 'Assignments'
+      assignments: 'Assignments',
+      welcomeBack: 'Welcome back',
+      performanceHistory: 'Performance History',
+      currentPeriod: 'Current Period',
+      evaluationComplete: 'Evaluation Complete!',
+      latestPerformanceEvaluation: 'Your latest performance evaluation has been submitted and approved.',
+      reviewedBy: 'Reviewed by',
+      noEvaluationsYet: 'No Evaluations Yet',
+      noPerformanceEvaluations: 'You don\'t have any performance evaluations yet. Check back later.',
+      evaluationHistory: 'Evaluation History',
+      viewDetails: 'View Details',
+      performanceSummary: 'Performance Summary',
+      averageRating: 'Average Rating',
+      completedReviews: 'Completed Reviews',
+      consistentlyExceeding: '🏆 Consistently exceeding expectations in performance reviews'
     },
     evaluations: {
       evaluation: 'Evaluation',
@@ -537,17 +599,9 @@ export const translations: Record<Language, Translations> = {
       optionalComment: 'Optional Comment',
       provideFeedback: 'Provide an overall assessment of the employee\'s performance',
       addSpecificFeedback: 'Add specific feedback or examples...',
-      needsImprovement: 'Needs Improvement',
-      belowExpectations: 'Below Expectations',
-      meetsExpectations: 'Meets Expectations',
-      exceedsExpectations: 'Exceeds Expectations',
-      outstanding: 'Outstanding',
       teamSummary: 'Team Summary',
       pendingReviews: 'Pending Reviews',
       teamAverage: 'Team Average',
-      completed: 'Completed',
-      inProgress: 'In Progress',
-      notStarted: 'Not Started',
       evaluationSubmitted: 'Evaluation Submitted Successfully!',
       evaluationSubmittedDesc: 'The performance evaluation for {name} has been saved and submitted. You\'ll be redirected back to the team overview.',
       redirecting: 'Redirecting...',
@@ -904,6 +958,28 @@ export const translations: Record<Language, Translations> = {
     }
   },
   es: {
+    status: {
+      active: 'Activo',
+      inactive: 'Inactivo',
+      completed: 'Completado',
+      pending: 'Pendiente',
+      draft: 'Borrador',
+      submitted: 'Enviado',
+      approved: 'Aprobado',
+      inProgress: 'En Progreso',
+      notStarted: 'Sin Iniciar',
+      overdue: 'Vencido',
+      archived: 'Archivado',
+      closed: 'Cerrado'
+    },
+    ratings: {
+      outstanding: 'Excepcional',
+      exceedsExpectations: 'Supera las Expectativas',
+      meetsExpectations: 'Cumple las Expectativas',
+      belowExpectations: 'Por Debajo de las Expectativas',
+      needsImprovement: 'Necesita Mejorar',
+      notRated: 'Sin calificar'
+    },
     common: {
       loading: 'Cargando...',
       save: 'Guardar',
@@ -918,9 +994,6 @@ export const translations: Record<Language, Translations> = {
       back: 'Atrás',
       yes: 'Sí',
       no: 'No',
-      editButton: 'Editar',
-      cancelButton: 'Cancelar',
-      saveButton: 'Guardar',
       standardized: 'Estandarizado',
       company: 'Empresa',
       department: 'Departamento',
@@ -962,7 +1035,21 @@ export const translations: Record<Language, Translations> = {
       myEvaluations: 'Mis Evaluaciones',
       selectEmployee: 'Selecciona un empleado para evaluar',
       employees: 'empleados',
-      assignments: 'Asignaciones'
+      assignments: 'Asignaciones',
+      welcomeBack: 'Bienvenido de vuelta',
+      performanceHistory: 'Historial de Desempeño',
+      currentPeriod: 'Período Actual',
+      evaluationComplete: '¡Evaluación Completada!',
+      latestPerformanceEvaluation: 'Tu última evaluación de desempeño ha sido enviada y aprobada.',
+      reviewedBy: 'Revisado por',
+      noEvaluationsYet: 'Aún No Hay Evaluaciones',
+      noPerformanceEvaluations: 'Aún no tienes ninguna evaluación de desempeño. Vuelve a revisar más tarde.',
+      evaluationHistory: 'Historial de Evaluaciones',
+      viewDetails: 'Ver Detalles',
+      performanceSummary: 'Resumen de Desempeño',
+      averageRating: 'Calificación Promedio',
+      completedReviews: 'Revisiones Completadas',
+      consistentlyExceeding: '🏆 Consistentemente superando expectativas en las evaluaciones de desempeño'
     },
     evaluations: {
       evaluation: 'Evaluación',
@@ -979,17 +1066,9 @@ export const translations: Record<Language, Translations> = {
       optionalComment: 'Comentario Opcional',
       provideFeedback: 'Proporciona una evaluación general del desempeño del empleado',
       addSpecificFeedback: 'Añade comentarios específicos o ejemplos...',
-      needsImprovement: 'Necesita Mejorar',
-      belowExpectations: 'Por Debajo de las Expectativas',
-      meetsExpectations: 'Cumple las Expectativas',
-      exceedsExpectations: 'Supera las Expectativas',
-      outstanding: 'Excepcional',
       teamSummary: 'Resumen del Equipo',
       pendingReviews: 'Revisiones Pendientes',
       teamAverage: 'Promedio del Equipo',
-      completed: 'Completado',
-      inProgress: 'En Progreso',
-      notStarted: 'Sin Iniciar',
       evaluationSubmitted: '¡Evaluación Enviada Exitosamente!',
       evaluationSubmittedDesc: 'La evaluación de desempeño de {name} ha sido guardada y enviada. Serás redirigido de vuelta al resumen del equipo.',
       redirecting: 'Redirigiendo...',

@@ -51,13 +51,13 @@ export default function EvaluationSummaryClient({ evaluation }: EvaluationSummar
   }
 
   const getRatingLabel = (rating: number | null) => {
-    if (!rating) return t.evaluations.notStarted
+    if (!rating) return t.status.notStarted
     switch (rating) {
-      case 5: return t.evaluations.outstanding
-      case 4: return t.evaluations.exceedsExpectations
-      case 3: return t.evaluations.meetsExpectations
-      case 2: return t.evaluations.belowExpectations
-      case 1: return t.evaluations.needsImprovement
+      case 5: return t.ratings.outstanding
+      case 4: return t.ratings.exceedsExpectations
+      case 3: return t.ratings.meetsExpectations
+      case 2: return t.ratings.belowExpectations
+      case 1: return t.ratings.needsImprovement
       default: return `${rating}/5`
     }
   }
@@ -74,10 +74,10 @@ export default function EvaluationSummaryClient({ evaluation }: EvaluationSummar
 
   const getStatusLabel = (status: string) => {
     switch (status) {
-      case 'completed': return t.evaluations.completed
-      case 'submitted': return 'Submitted'
-      case 'approved': return 'Approved'
-      case 'draft': return t.evaluations.inProgress
+      case 'completed': return t.status.completed
+      case 'submitted': return t.status.submitted
+      case 'approved': return t.status.approved
+      case 'draft': return t.status.draft
       default: return status
     }
   }

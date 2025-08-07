@@ -135,11 +135,11 @@ export default function EvaluationsClient({
         {employees.map((employee) => {
           const getEvaluationStatus = () => {
             const latestEval = employee.evaluationsReceived[0]
-            if (!latestEval) return { status: 'empty', icon: '⭕', color: 'text-gray-500', label: t.evaluations.notStarted }
+            if (!latestEval) return { status: 'empty', icon: '⭕', color: 'text-gray-500', label: t.status.notStarted }
             if (latestEval.status === 'submitted' || latestEval.status === 'approved' || latestEval.status === 'completed') {
-              return { status: 'completed', icon: '✅', color: 'text-green-600', label: t.evaluations.completed }
+              return { status: 'completed', icon: '✅', color: 'text-green-600', label: t.status.completed }
             }
-            return { status: 'inprogress', icon: '🔄', color: 'text-yellow-600', label: t.evaluations.inProgress }
+            return { status: 'inprogress', icon: '🔄', color: 'text-yellow-600', label: t.status.inProgress }
           }
           
           const statusInfo = getEvaluationStatus()

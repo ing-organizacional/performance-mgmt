@@ -33,8 +33,18 @@ export default function MyEvaluationsClient({ evaluations, userName }: MyEvaluat
     }
   }
 
+  const getStatusText = (status: string) => {
+    switch (status) {
+      case 'draft': return t.status.draft
+      case 'submitted': return t.status.submitted
+      case 'approved': return t.status.approved
+      case 'completed': return t.status.completed
+      default: return status.charAt(0).toUpperCase() + status.slice(1)
+    }
+  }
+
   const getRatingStars = (rating: number | null) => {
-    if (!rating) return <span className="text-gray-400">Not rated</span>
+    if (!rating) return <span className="text-gray-400">{t.ratings.notRated}</span>
     
     return (
       <div className="flex">
@@ -71,7 +81,7 @@ export default function MyEvaluationsClient({ evaluations, userName }: MyEvaluat
               <div className="min-w-0 flex-1">
                 <h1 className="text-lg font-semibold text-gray-900 truncate">{t.nav.myEvaluations}</h1>
                 <p className="text-xs text-gray-500 truncate">
-                  Welcome back, {userName}
+                  {t.nav.welcomeBack}, {userName}
                 </p>
               </div>
             </div>
@@ -89,7 +99,7 @@ export default function MyEvaluationsClient({ evaluations, userName }: MyEvaluat
           {/* Actions Section */}
           <div className="flex items-center justify-between">
             <div className="opacity-50 pointer-events-none">
-              <span className="text-xs text-gray-500">Performance History</span>
+              <span className="text-xs text-gray-500">{t.nav.performanceHistory}</span>
             </div>
             <LanguageSwitcher />
           </div>
@@ -105,7 +115,7 @@ export default function MyEvaluationsClient({ evaluations, userName }: MyEvaluat
         {/* Current Status */}
         <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm mb-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-gray-900">Current Period</h2>
+            <h2 className="text-lg font-semibold text-gray-900">{t.nav.currentPeriod}</h2>
             <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
               Q1 2024
             </span>
@@ -115,33 +125,33 @@ export default function MyEvaluationsClient({ evaluations, userName }: MyEvaluat
             <div className="text-center py-8">
               <div className="text-6xl mb-4">🎯</div>
               <h3 className="text-lg font-medium text-gray-900 mb-2">
-                Evaluation Complete!
+                {t.nav.evaluationComplete}
               </h3>
               <p className="text-gray-600 mb-4">
-                Your latest performance evaluation has been submitted and approved.
+                {t.nav.latestPerformanceEvaluation}
               </p>
               <div className="flex items-center justify-center mb-2">
                 {getRatingStars(evaluations[0]?.overallRating)}
                 <span className="ml-2 text-sm font-medium text-gray-700">
-                  {evaluations[0]?.overallRating === 1 && 'Needs Improvement'}
-                  {evaluations[0]?.overallRating === 2 && 'Below Expectations'}
-                  {evaluations[0]?.overallRating === 3 && 'Meets Expectations'}
-                  {evaluations[0]?.overallRating === 4 && 'Exceeds Expectations'}
-                  {evaluations[0]?.overallRating === 5 && 'Outstanding'}
+                  {evaluations[0]?.overallRating === 1 && t.ratings.needsImprovement}
+                  {evaluations[0]?.overallRating === 2 && t.ratings.belowExpectations}
+                  {evaluations[0]?.overallRating === 3 && t.ratings.meetsExpectations}
+                  {evaluations[0]?.overallRating === 4 && t.ratings.exceedsExpectations}
+                  {evaluations[0]?.overallRating === 5 && t.ratings.outstanding}
                 </span>
               </div>
               <p className="text-sm text-gray-500">
-                Reviewed by {evaluations[0]?.managerName}
+                {t.nav.reviewedBy} {evaluations[0]?.managerName}
               </p>
             </div>
           ) : (
             <div className="text-center py-8">
               <div className="text-6xl mb-4">📋</div>
               <h3 className="text-lg font-medium text-gray-900 mb-2">
-                No Evaluations Yet
+                {t.nav.noEvaluationsYet}
               </h3>
               <p className="text-gray-600">
-                You don&apos;t have any performance evaluations yet. Check back later.
+                {t.nav.noPerformanceEvaluations}
               </p>
             </div>
           )}
@@ -151,7 +161,7 @@ export default function MyEvaluationsClient({ evaluations, userName }: MyEvaluat
         {evaluations.length > 0 && (
           <div className="bg-white rounded-lg border border-gray-200 shadow-sm">
             <div className="px-6 py-4 border-b border-gray-200">
-              <h2 className="text-lg font-semibold text-gray-900">Evaluation History</h2>
+              <h2 className="text-lg font-semibold text-gray-900">{t.nav.evaluationHistory}</h2>
             </div>
             
             <div className="divide-y divide-gray-200">
@@ -164,7 +174,7 @@ export default function MyEvaluationsClient({ evaluations, userName }: MyEvaluat
                         {evaluation.period}
                       </h3>
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(evaluation.status)}`}>
-                        {evaluation.status.charAt(0).toUpperCase() + evaluation.status.slice(1)}
+                        {getStatusText(evaluation.status)}
                       </span>
                     </div>
                     
@@ -185,13 +195,13 @@ export default function MyEvaluationsClient({ evaluations, userName }: MyEvaluat
                     </div>
                     
                     <p className="text-sm text-gray-500 mt-1">
-                      Reviewed by {evaluation.managerName}
+                      {t.nav.reviewedBy} {evaluation.managerName}
                     </p>
                   </div>
                   
                   <div className="ml-4">
                     <button className="text-blue-600 hover:text-blue-700 text-sm font-medium">
-                      View Details
+                      {t.nav.viewDetails}
                     </button>
                   </div>
                 </div>
@@ -204,7 +214,7 @@ export default function MyEvaluationsClient({ evaluations, userName }: MyEvaluat
         {/* Performance Summary */}
         {evaluations.length > 0 && (
         <div className="mt-6 bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Performance Summary</h2>
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">{t.nav.performanceSummary}</h2>
           
           <div className="grid grid-cols-2 gap-4">
             <div className="text-center">
@@ -214,17 +224,17 @@ export default function MyEvaluationsClient({ evaluations, userName }: MyEvaluat
                   : '—'
                 }
               </div>
-              <div className="text-sm text-gray-600">Average Rating</div>
+              <div className="text-sm text-gray-600">{t.nav.averageRating}</div>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-green-600">{evaluations.length}</div>
-              <div className="text-sm text-gray-600">Completed Reviews</div>
+              <div className="text-sm text-gray-600">{t.nav.completedReviews}</div>
             </div>
           </div>
           
           <div className="mt-4 pt-4 border-t border-gray-200">
             <p className="text-sm text-gray-600 text-center">
-              🏆 Consistently exceeding expectations in performance reviews
+              {t.nav.consistentlyExceeding}
             </p>
           </div>
         </div>
