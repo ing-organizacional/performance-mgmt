@@ -210,7 +210,10 @@ export default function MyEvaluationsClient({ evaluations, userName, activeCycle
                   </div>
                   
                   <div className="ml-4">
-                    <button className="text-blue-600 hover:text-blue-700 text-sm font-medium">
+                    <button 
+                      onClick={() => router.push(`/evaluation-summary/${evaluation.id}`)}
+                      className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+                    >
                       {t.nav.viewDetails}
                     </button>
                   </div>

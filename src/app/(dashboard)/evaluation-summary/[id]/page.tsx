@@ -31,12 +31,24 @@ interface EvaluationSummary {
   }[]
 }
 
-async function getEvaluationSummary(evaluationId: string, companyId: string): Promise<EvaluationSummary | null> {
+async function getEvaluationSummary(evaluationId: string, companyId: string, userId: string, userRole: string): Promise<EvaluationSummary | null> {
+  // Build where clause based on user role
+  const whereClause: {
+    id: string
+    companyId: string
+    employeeId?: string
+  } = {
+    id: evaluationId,
+    companyId
+  }
+  
+  // If user is an employee, they can only see their own evaluations
+  if (userRole === 'employee') {
+    whereClause.employeeId = userId
+  }
+  
   const evaluation = await prisma.evaluation.findFirst({
-    where: {
-      id: evaluationId,
-      companyId
-    },
+    where: whereClause,
     include: {
       employee: {
         select: {
@@ -104,9 +116,8 @@ export default async function EvaluationSummaryPage({ params }: PageProps) {
   }
 
   const userRole = session.user.role
-  if (userRole !== 'hr' && userRole !== 'manager') {
-    redirect('/my-evaluations')
-  }
+  // Allow all authenticated users to access evaluation summaries
+  // Permission checking is done at the data level
 
   const companyId = session.user.companyId
   if (!companyId) {
@@ -114,10 +125,11 @@ export default async function EvaluationSummaryPage({ params }: PageProps) {
   }
 
   const { id: evaluationId } = await params
-  const evaluation = await getEvaluationSummary(evaluationId, companyId)
+  const evaluation = await getEvaluationSummary(evaluationId, companyId, session.user.id, userRole)
   
   if (!evaluation) {
-    redirect('/dashboard')
+    // Redirect based on user role
+    redirect(userRole === 'employee' ? '/my-evaluations' : '/dashboard')
   }
 
   return <EvaluationSummaryClient evaluation={evaluation} />
