@@ -66,7 +66,7 @@ export default function EvaluationSummaryClient({ evaluation, userRole, currentU
       } else {
         error(result.error || 'Failed to approve evaluation')
       }
-    } catch (err) {
+    } catch {
       error('Failed to approve evaluation')
     } finally {
       setIsApproving(false)

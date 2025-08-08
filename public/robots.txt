@@ -1,0 +1,70 @@
+# Performance Management System - Private Application
+# This application contains sensitive employee data and should not be indexed
+
+User-agent: *
+Disallow: /
+
+# Explicitly block all application paths
+Disallow: /api/
+Disallow: /dashboard/
+Disallow: /evaluations/
+Disallow: /evaluate/
+Disallow: /evaluation/
+Disallow: /evaluation-summary/
+Disallow: /my-evaluations/
+Disallow: /login
+Disallow: /users/
+Disallow: /admin/
+
+# Block sensitive file types and directories
+Disallow: /*.db$
+Disallow: /*.sql$
+Disallow: /*.bak$
+Disallow: /*.backup$
+Disallow: /*.log$
+Disallow: /.env
+Disallow: /.git/
+Disallow: /node_modules/
+Disallow: /.next/
+Disallow: /prisma/
+Disallow: /scripts/
+Disallow: /src/
+
+# Block common attack vectors
+Disallow: /wp-admin/
+Disallow: /wp-content/
+Disallow: /admin/
+Disallow: /administrator/
+Disallow: /phpmyadmin/
+Disallow: /mysql/
+Disallow: /database/
+
+# Search engine directives
+Noindex: /
+Nofollow: /
+Noarchive: /
+Nosnippet: /
+
+# Crawl delay (discourage frequent crawling)
+Crawl-delay: 86400
+
+# Block specific bots that might be aggressive
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: MJ12bot
+Disallow: /
+
+User-agent: SemrushBot
+Disallow: /
+
+User-agent: DotBot
+Disallow: /
+
+# Allow favicon and basic assets for legitimate browser requests
+Allow: /favicon.ico
+Allow: /apple-touch-icon*.png
+Allow: /manifest.json
+
+# Sitemap (empty - no pages should be indexed)
+Sitemap:

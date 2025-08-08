@@ -1,0 +1,5 @@
+name,email,username,role,department,userType,password,employeeId,personID,managerPersonID,managerEmployeeId,companyCode
+John Doe,john.doe@company.com,,employee,Human Resources,office,changeme123,EMP001,12345678,87654321,,
+Jane Smith,,jane_smith,employee,Production,operational,1234,EMP002,87654321,12345678,,
+Michael Manager,mike.manager@company.com,,manager,Sales,office,password123,MGR001,11111111,,,
+HR Administrator,hr.admin@company.com,,hr,Human Resources,office,admin123,HR001,99999999,,,
