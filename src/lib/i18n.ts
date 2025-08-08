@@ -300,6 +300,7 @@ export interface Translations {
     overdue3Days: string
     viewAll: string
     companyWideItems: string
+    auditLogs: string
     cycles: string
     performanceCycles: string
     cycleManagement: string
@@ -894,6 +895,7 @@ export const translations: Record<Language, Translations> = {
       dayOverdue: 'day overdue',
       dueToday: 'Due today',
       companyWideItems: 'Add/Remove Company OKRs and Competencies',
+      auditLogs: 'Audit Logs',
       managersWithIssues: 'Managers with Issues',
       employeesBehind: 'Employees Behind',
       overdueItems: 'Overdue Items', 
@@ -1332,6 +1334,7 @@ export const translations: Record<Language, Translations> = {
       overdue3Days: '>3 días',
       viewAll: 'Ver todo',
       companyWideItems: 'Agregar/Eliminar OKRs y Competencias de la Empresa',
+      auditLogs: 'Registros de Auditoría',
       cycles: 'Ciclos',
       performanceCycles: 'Ciclos de Desempeño',
       cycleManagement: 'Gestionar ciclos de evaluación de desempeño',
