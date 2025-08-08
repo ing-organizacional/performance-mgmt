@@ -386,7 +386,12 @@ export default function MyEvaluationsClient({ evaluations, userName, activeCycle
               </div>
               <div className="ml-3">
                 <p className="text-sm text-yellow-700">
-                  You have <span className="font-medium">{evaluations.filter(e => e.status === 'submitted').length}</span> evaluation(s) awaiting your approval.
+                  {(() => {
+                    const count = evaluations.filter(e => e.status === 'submitted').length;
+                    return count === 1 
+                      ? `${t.common.you} ${count} ${t.evaluations.evaluationAwaitingApproval}.`
+                      : `${t.common.you} ${count} ${t.evaluations.evaluationsAwaitingApproval}.`;
+                  })()}
                 </p>
               </div>
             </div>

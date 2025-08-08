@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { LanguageSwitcher } from '@/components/layout'
+import { createEvaluationItem } from '@/lib/actions/evaluations'
 
 interface CompanyEvaluationItem {
   id: string
@@ -62,7 +63,7 @@ export default function CompanyItemsClient({ initialItems }: CompanyItemsClientP
       id: item.id,
       title: item.title,
       description: item.description,
-      evaluationDeadline: item.evaluationDeadline ? item.evaluationDeadline.slice(0, 16) : ''
+      evaluationDeadline: item.evaluationDeadline ? item.evaluationDeadline.slice(0, 10) : ''
     })
   }
 
@@ -81,27 +82,25 @@ export default function CompanyItemsClient({ initialItems }: CompanyItemsClientP
     }
 
     try {
-      const response = await fetch('/api/evaluation-items', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          title: editingItem.title,
-          description: editingItem.description,
-          type: newItemType,
-          level: 'company', // Always company level for this page
-          evaluationDeadline: editingItem.evaluationDeadline || null
-        })
+      const result = await createEvaluationItem({
+        title: editingItem.title,
+        description: editingItem.description,
+        type: newItemType,
+        level: 'company', // Always company level for this page
+        evaluationDeadline: editingItem.evaluationDeadline || undefined
       })
 
-      if (response.ok) {
+      if (result.success) {
         await refreshItems() // Refresh data from server
         setEditingItem(null)
         setCreatingNew(false)
       } else {
-        console.error('Failed to create item')
+        alert(result.error || 'Failed to create item')
+        console.error('Failed to create item:', result.error)
       }
     } catch (error) {
       console.error('Error creating item:', error)
+      alert('Error creating item')
     }
   }
 
@@ -314,14 +313,14 @@ export default function CompanyItemsClient({ initialItems }: CompanyItemsClientP
                   {t.assignments.evaluationDeadline}
                 </label>
                 <input
-                  type="datetime-local"
+                  type="date"
                   value={editingItem.evaluationDeadline}
                   onChange={(e) => setEditingItem({
                     ...editingItem,
                     evaluationDeadline: e.target.value
                   })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-gray-900"
-                  min={new Date().toISOString().slice(0, 16)}
+                  min={new Date().toISOString().slice(0, 10)}
                 />
               </div>
               
@@ -411,14 +410,14 @@ export default function CompanyItemsClient({ initialItems }: CompanyItemsClientP
                       {t.assignments.evaluationDeadline}
                     </label>
                     <input
-                      type="datetime-local"
+                      type="date"
                       value={editingItem.evaluationDeadline}
                       onChange={(e) => setEditingItem({
                         ...editingItem,
                         evaluationDeadline: e.target.value
                       })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-gray-900"
-                      min={new Date().toISOString().slice(0, 16)}
+                      min={new Date().toISOString().slice(0, 10)}
                     />
                   </div>
                   

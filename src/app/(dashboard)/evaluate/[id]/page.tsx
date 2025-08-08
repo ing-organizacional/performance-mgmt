@@ -10,7 +10,7 @@ import { ToastContainer } from '@/components/ui'
 import { DeadlineDisplay } from '@/components/features/evaluation'
 import { useToast } from '@/hooks/useToast'
 import { hapticFeedback } from '@/utils/haptics'
-import { submitEvaluation, autosaveEvaluation, getEvaluation, getTeamData, getEvaluationItems, unlockEvaluation } from '@/lib/actions/evaluations'
+import { submitEvaluation, autosaveEvaluation, getEvaluation, getTeamData, getEvaluationItems, unlockEvaluation, updateEvaluationItem } from '@/lib/actions/evaluations'
 
 interface EvaluationItem {
   id: string
@@ -210,20 +210,14 @@ export default function EvaluatePage() {
     if (!editingItemId || !editingItemData) return
 
     try {
-      // Save to database
-      const response = await fetch(`/api/evaluation-items/${editingItemId}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          title: editingItemData.title,
-          description: editingItemData.description
-        })
+      // Save to database using server action
+      const result = await updateEvaluationItem(editingItemId, {
+        title: editingItemData.title,
+        description: editingItemData.description
       })
 
-      if (!response.ok) {
-        throw new Error('Failed to save changes')
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to save changes')
       }
 
       // Update the item in local state

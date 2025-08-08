@@ -8,6 +8,7 @@ export interface Translations {
     completed: string
     pending: string
     draft: string
+    draftReopened: string
     submitted: string
     approved: string
     inProgress: string
@@ -66,6 +67,7 @@ export interface Translations {
     approve: string
     recall: string
     unlock: string
+    you: string
   }
   
   // Auth
@@ -154,6 +156,11 @@ export interface Translations {
     evaluationSubmitted: string
     evaluationSubmittedDesc: string
     redirecting: string
+    newCompanyItemsAdded: string
+    employeeNeedReEvaluation: string
+    employeesNeedReEvaluation: string
+    evaluationsAwaitingApproval: string
+    evaluationAwaitingApproval: string
     comments: string
     minimumCharacters: string
     tapToRate: string
@@ -247,6 +254,7 @@ export interface Translations {
     below: string
     needsImprovement: string
     quickActions: string
+    administrativeActions: string
     generateReports: string
     exportPDF: string
     pdfExportCenter: string
@@ -536,6 +544,7 @@ export const translations: Record<Language, Translations> = {
       completed: 'Completed',
       pending: 'Pending',
       draft: 'Draft',
+      draftReopened: 'Draft (Reopened)',
       submitted: 'Submitted',
       approved: 'Approved',
       inProgress: 'In Progress',
@@ -589,7 +598,8 @@ export const translations: Record<Language, Translations> = {
       view: 'View',
       approve: 'Approve',
       recall: 'Recall',
-      unlock: 'Unlock'
+      unlock: 'Unlock',
+      you: 'You have'
     },
     auth: {
       signIn: 'Sign in',
@@ -672,6 +682,11 @@ export const translations: Record<Language, Translations> = {
       evaluationSubmitted: 'Evaluation Submitted Successfully!',
       evaluationSubmittedDesc: 'The performance evaluation for {name} has been saved and submitted. You\'ll be redirected back to the team overview.',
       redirecting: 'Redirecting...',
+      newCompanyItemsAdded: 'New company items added',
+      employeeNeedReEvaluation: 'employee needs re-evaluation',
+      employeesNeedReEvaluation: 'employees need re-evaluation',
+      evaluationsAwaitingApproval: 'evaluations awaiting your approval',
+      evaluationAwaitingApproval: 'evaluation awaiting your approval',
       comments: 'Comments',
       minimumCharacters: 'Minimum {count} characters',
       tapToRate: 'Tap a star to rate this item',
@@ -757,6 +772,7 @@ export const translations: Record<Language, Translations> = {
       below: 'Below (2)',
       needsImprovement: 'Needs Improvement (1)',
       quickActions: 'Quick Actions',
+      administrativeActions: 'Administrative Actions',
       generateReports: 'Generate Reports',
       exportPDF: 'Export PDF',
       pdfExportCenter: 'Report Downloads',
@@ -877,7 +893,7 @@ export const translations: Record<Language, Translations> = {
       dayRemaining: 'day remaining',
       dayOverdue: 'day overdue',
       dueToday: 'Due today',
-      companyWideItems: 'Company-Wide Items',
+      companyWideItems: 'Add/Remove Company OKRs and Competencies',
       managersWithIssues: 'Managers with Issues',
       employeesBehind: 'Employees Behind',
       overdueItems: 'Overdue Items', 
@@ -1042,6 +1058,7 @@ export const translations: Record<Language, Translations> = {
       completed: 'Completado',
       pending: 'Pendiente',
       draft: 'Borrador',
+      draftReopened: 'Borrador (Reabierto)',
       submitted: 'Enviado',
       approved: 'Aprobado',
       inProgress: 'En Progreso',
@@ -1095,7 +1112,8 @@ export const translations: Record<Language, Translations> = {
       view: 'Ver',
       approve: 'Aprobar',
       recall: 'Recuperar',
-      unlock: 'Desbloquear'
+      unlock: 'Desbloquear',
+      you: 'Tienes'
     },
     auth: {
       signIn: 'Iniciar sesión',
@@ -1178,6 +1196,11 @@ export const translations: Record<Language, Translations> = {
       evaluationSubmitted: '¡Evaluación Enviada Exitosamente!',
       evaluationSubmittedDesc: 'La evaluación de desempeño de {name} ha sido guardada y enviada. Serás redirigido de vuelta al resumen del equipo.',
       redirecting: 'Redirigiendo...',
+      newCompanyItemsAdded: 'Nuevos elementos de empresa agregados',
+      employeeNeedReEvaluation: 'empleado necesita re-evaluación',
+      employeesNeedReEvaluation: 'empleados necesitan re-evaluación',
+      evaluationsAwaitingApproval: 'evaluaciones esperando tu aprobación',
+      evaluationAwaitingApproval: 'evaluación esperando tu aprobación',
       comments: 'Comentarios',
       minimumCharacters: 'Mínimo {count} caracteres',
       tapToRate: 'Toca una estrella para calificar',
@@ -1263,6 +1286,7 @@ export const translations: Record<Language, Translations> = {
       below: 'Por Debajo (2)',
       needsImprovement: 'Necesita Mejorar (1)',
       quickActions: 'Acciones Rápidas',
+      administrativeActions: 'Acciones Administrativas',
       generateReports: 'Generar Reportes',
       exportPDF: 'Exportar PDF',
       pdfExportCenter: 'Descarga de reportes',
@@ -1307,7 +1331,7 @@ export const translations: Record<Language, Translations> = {
       submittedBy: 'Enviado por',
       overdue3Days: '>3 días',
       viewAll: 'Ver todo',
-      companyWideItems: 'Elementos de Toda la Empresa',
+      companyWideItems: 'Agregar/Eliminar OKRs y Competencias de la Empresa',
       cycles: 'Ciclos',
       performanceCycles: 'Ciclos de Desempeño',
       cycleManagement: 'Gestionar ciclos de evaluación de desempeño',

@@ -4,6 +4,102 @@ import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma-client'
 import { revalidatePath } from 'next/cache'
 
+// Server action to assign company-wide item to all employees and reopen completed evaluations
+export async function assignCompanyItemToAllEmployees(itemId: string) {
+  try {
+    const session = await auth()
+    
+    if (!session?.user?.id) {
+      return { success: false, error: 'Unauthorized' }
+    }
+
+    const userRole = session.user.role
+    const companyId = session.user.companyId
+
+    // Only HR can assign company-wide items
+    if (userRole !== 'hr') {
+      return { success: false, error: 'Access denied - HR role required' }
+    }
+
+    // Get all employees in the company
+    const employees = await prisma.user.findMany({
+      where: {
+        companyId,
+        role: { in: ['employee', 'manager'] }
+      },
+      select: { id: true }
+    })
+
+    // Create assignments for all employees
+    const assignments = employees.map(employee => ({
+      evaluationItemId: itemId,
+      employeeId: employee.id,
+      companyId,
+      assignedBy: session.user.id
+    }))
+
+    await prisma.evaluationItemAssignment.createMany({
+      data: assignments
+    })
+
+    // Get active performance cycle
+    const activeCycle = await prisma.performanceCycle.findFirst({
+      where: {
+        companyId,
+        status: 'active'
+      }
+    })
+
+    if (activeCycle) {
+      // Derive period info from active cycle
+      const cycleName = activeCycle.name.toLowerCase()
+      let periodType = 'yearly'
+      let periodDate = new Date().getFullYear().toString()
+
+      if (cycleName.includes('annual') || cycleName.includes('yearly') || cycleName.includes('year')) {
+        periodType = 'yearly'
+        const yearMatch = activeCycle.name.match(/\b(20\d{2})\b/)
+        periodDate = yearMatch ? yearMatch[1] : new Date().getFullYear().toString()
+      } else if (cycleName.includes('quarter') || cycleName.includes('q1') || cycleName.includes('q2') || cycleName.includes('q3') || cycleName.includes('q4')) {
+        periodType = 'quarterly'
+        const quarterMatch = activeCycle.name.match(/\b(20\d{2}[-\s]?Q[1-4]|\bQ[1-4][-\s]?20\d{2})\b/i)
+        if (quarterMatch) {
+          periodDate = quarterMatch[1].replace(/\s/g, '-').toUpperCase()
+        } else {
+          const currentDate = new Date()
+          const quarter = Math.ceil((currentDate.getMonth() + 1) / 3)
+          periodDate = `${currentDate.getFullYear()}-Q${quarter}`
+        }
+      }
+
+      // Reopen all completed evaluations in the current period
+      const reopenResult = await prisma.evaluation.updateMany({
+        where: {
+          companyId,
+          status: 'completed',
+          periodType,
+          periodDate
+        },
+        data: {
+          status: 'draft',
+          updatedAt: new Date()
+        }
+      })
+
+      console.log(`Reopened ${reopenResult.count} completed evaluations due to new company-wide item`)
+    }
+
+    revalidatePath('/evaluations/assignments')
+    revalidatePath('/dashboard/company-items')
+    revalidatePath('/evaluations')
+    return { success: true, assignedCount: assignments.length }
+
+  } catch (error) {
+    console.error('Error assigning company item to all employees:', error)
+    return { success: false, error: 'Failed to assign company item to all employees' }
+  }
+}
+
 // Server action to assign evaluation items to employees
 export async function assignItemsToEmployees(itemId: string, employeeIds: string[]) {
   try {
@@ -149,7 +245,7 @@ export async function createEvaluationItem(formData: {
     const sortOrder = (lastItem?.sortOrder || 0) + 1
 
     // Create the item
-    await prisma.evaluationItem.create({
+    const newItem = await prisma.evaluationItem.create({
       data: {
         companyId,
         title: title.trim(),
@@ -165,8 +261,87 @@ export async function createEvaluationItem(formData: {
       }
     })
 
+    // If it's a company-wide item, automatically assign to all employees and reopen completed evaluations
+    if (level === 'company') {
+      try {
+        // Get all employees in the company
+        const employees = await prisma.user.findMany({
+          where: {
+            companyId,
+            role: { in: ['employee', 'manager'] }
+          },
+          select: { id: true }
+        })
+
+        // Create assignments for all employees
+        const assignments = employees.map(employee => ({
+          evaluationItemId: newItem.id,
+          employeeId: employee.id,
+          companyId,
+          assignedBy: userId
+        }))
+
+        await prisma.evaluationItemAssignment.createMany({
+          data: assignments
+        })
+
+        // Get active performance cycle
+        const activeCycle = await prisma.performanceCycle.findFirst({
+          where: {
+            companyId,
+            status: 'active'
+          }
+        })
+
+        if (activeCycle) {
+          // Derive period info from active cycle
+          const cycleName = activeCycle.name.toLowerCase()
+          let periodType = 'yearly'
+          let periodDate = new Date().getFullYear().toString()
+
+          if (cycleName.includes('annual') || cycleName.includes('yearly') || cycleName.includes('year')) {
+            periodType = 'yearly'
+            const yearMatch = activeCycle.name.match(/\b(20\d{2})\b/)
+            periodDate = yearMatch ? yearMatch[1] : new Date().getFullYear().toString()
+          } else if (cycleName.includes('quarter') || cycleName.includes('q1') || cycleName.includes('q2') || cycleName.includes('q3') || cycleName.includes('q4')) {
+            periodType = 'quarterly'
+            const quarterMatch = activeCycle.name.match(/\b(20\d{2}[-\s]?Q[1-4]|\bQ[1-4][-\s]?20\d{2})\b/i)
+            if (quarterMatch) {
+              periodDate = quarterMatch[1].replace(/\s/g, '-').toUpperCase()
+            } else {
+              const currentDate = new Date()
+              const quarter = Math.ceil((currentDate.getMonth() + 1) / 3)
+              periodDate = `${currentDate.getFullYear()}-Q${quarter}`
+            }
+          }
+
+          // Reopen all completed evaluations in the current period
+          const reopenResult = await prisma.evaluation.updateMany({
+            where: {
+              companyId,
+              status: 'completed',
+              periodType,
+              periodDate
+            },
+            data: {
+              status: 'draft',
+              updatedAt: new Date()
+            }
+          })
+
+          console.log(`Reopened ${reopenResult.count} completed evaluations due to new company-wide item`)
+        }
+
+        console.log(`Assigned company-wide item to ${assignments.length} employees`)
+      } catch (error) {
+        console.error('Error handling company-wide item assignment:', error)
+        // Don't fail the whole creation, just log the error
+      }
+    }
+
     revalidatePath('/evaluations/assignments')
     revalidatePath('/dashboard/company-items')
+    revalidatePath('/evaluations')
     return { success: true }
 
   } catch (error) {
@@ -453,8 +628,26 @@ export async function getEvaluationItems(employeeId: string) {
       console.log('First item:', items[0].title, items[0].level)
     }
 
+    // Apply smart sorting: prioritize company-wide items created in the last 24 hours (newly created)
+    const sortedItems = items.sort((a, b) => {
+      const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000)
+      const aIsNewCompanyItem = a.level === 'company' && new Date(a.createdAt) > oneDayAgo
+      const bIsNewCompanyItem = b.level === 'company' && new Date(b.createdAt) > oneDayAgo
+      
+      if (aIsNewCompanyItem && !bIsNewCompanyItem) return -1
+      if (!aIsNewCompanyItem && bIsNewCompanyItem) return 1
+      
+      // If both are new company items or neither are, sort by creation date (newest first)
+      if (aIsNewCompanyItem && bIsNewCompanyItem) {
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      }
+      
+      // Default to sortOrder for other items
+      return a.sortOrder - b.sortOrder
+    })
+
     // Transform to match expected format
-    const formattedItems = items.map(item => ({
+    const formattedItems = sortedItems.map(item => ({
       id: item.id,
       title: item.title,
       description: item.description,
@@ -750,11 +943,132 @@ export async function approveEvaluation(evaluationId: string) {
     })
 
     revalidatePath('/my-evaluations')
+    revalidatePath('/evaluations')
+    revalidatePath('/dashboard')
     return { success: true }
 
   } catch (error) {
     console.error('Error approving evaluation:', error)
     return { success: false, error: 'Failed to approve evaluation' }
+  }
+}
+
+// Server action to get reopened evaluations count for direct reports only
+export async function getReopenedEvaluationsCount() {
+  try {
+    const session = await auth()
+    
+    if (!session?.user?.id) {
+      return { success: false, error: 'Unauthorized' }
+    }
+
+    const userId = session.user.id
+    const userRole = session.user.role
+    const companyId = session.user.companyId
+
+    // Only managers and HR can check their reopened evaluations
+    if (userRole !== 'manager' && userRole !== 'hr') {
+      return { success: false, error: 'Access denied - Manager or HR role required' }
+    }
+
+    // Get active performance cycle to determine current period
+    const activeCycle = await prisma.performanceCycle.findFirst({
+      where: {
+        companyId,
+        status: 'active'
+      }
+    })
+
+    if (!activeCycle) {
+      return { success: true, count: 0 }
+    }
+
+    // Derive period info from active cycle
+    const cycleName = activeCycle.name.toLowerCase()
+    let periodType = 'yearly'
+    let periodDate = new Date().getFullYear().toString()
+
+    if (cycleName.includes('annual') || cycleName.includes('yearly') || cycleName.includes('year')) {
+      periodType = 'yearly'
+      const yearMatch = activeCycle.name.match(/\b(20\d{2})\b/)
+      periodDate = yearMatch ? yearMatch[1] : new Date().getFullYear().toString()
+    } else if (cycleName.includes('quarter') || cycleName.includes('q1') || cycleName.includes('q2') || cycleName.includes('q3') || cycleName.includes('q4')) {
+      periodType = 'quarterly'
+      const quarterMatch = activeCycle.name.match(/\b(20\d{2}[-\s]?Q[1-4]|\bQ[1-4][-\s]?20\d{2})\b/i)
+      if (quarterMatch) {
+        periodDate = quarterMatch[1].replace(/\s/g, '-').toUpperCase()
+      } else {
+        const currentDate = new Date()
+        const quarter = Math.ceil((currentDate.getMonth() + 1) / 3)
+        periodDate = `${currentDate.getFullYear()}-Q${quarter}`
+      }
+    }
+
+    // Get count of draft evaluations that were genuinely reopened (had previous work done)
+    // We check for drafts that were updated in the last 24 hours as a heuristic for reopened evaluations
+    const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000)
+    
+    // Get evaluations that were potentially reopened (only for current period)
+    const potentiallyReopenedEvaluations = await prisma.evaluation.findMany({
+      where: {
+        managerId: userId, // Always filter by direct reports
+        companyId,
+        status: 'draft',
+        periodType,
+        periodDate,
+        updatedAt: {
+          gte: oneDayAgo
+        },
+        evaluationItemsData: {
+          not: null
+        }
+      },
+      select: {
+        id: true,
+        status: true,
+        evaluationItemsData: true,
+        createdAt: true,
+        updatedAt: true,
+        employee: {
+          select: {
+            id: true,
+            name: true,
+            email: true
+          }
+        }
+      }
+    })
+
+
+
+    // Filter to only include evaluations that have actual rating/comment data
+    const reopenedCount = potentiallyReopenedEvaluations.filter(evaluation => {
+      if (!evaluation.evaluationItemsData) return false
+      
+      try {
+        const items = JSON.parse(evaluation.evaluationItemsData)
+        
+        // Check if any item has a rating or meaningful comment
+        const hasActualData = items.some((item: { rating?: number | null; comment?: string }) => 
+          item.rating !== null && item.rating !== undefined ||
+          (item.comment && item.comment.trim().length > 0)
+        )
+        
+        // Also ensure this wasn't just created (significant time difference between created and updated)
+        const timeDifference = new Date(evaluation.updatedAt).getTime() - new Date(evaluation.createdAt).getTime()
+        const hasSignificantTimeDifference = timeDifference > 5 * 60 * 1000 // More than 5 minutes
+        
+        return hasActualData && hasSignificantTimeDifference
+      } catch (e) {
+        return false
+      }
+    }).length
+
+    return { success: true, count: reopenedCount }
+
+  } catch (error) {
+    console.error('Error getting reopened evaluations count:', error)
+    return { success: false, error: 'Failed to get reopened evaluations count' }
   }
 }
 
@@ -822,4 +1136,5 @@ export async function unlockEvaluation(evaluationId: string) {
     return { success: false, error: 'Failed to unlock evaluation' }
   }
 }
+
 

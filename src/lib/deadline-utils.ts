@@ -60,7 +60,7 @@ export function calculateDeadlineInfo(deadline: string | null): DeadlineInfo | n
 /**
  * Get a human-readable deadline status text
  */
-export function getDeadlineStatusText(deadlineInfo: DeadlineInfo, translations?: any): string {
+export function getDeadlineStatusText(deadlineInfo: DeadlineInfo, translations?: { dashboard?: { dayOverdue?: string; daysOverdue?: string; daysRemaining?: string; dayRemaining?: string; dueToday?: string } }): string {
   if (deadlineInfo.isOverdue) {
     const days = deadlineInfo.daysRemaining
     if (translations?.dashboard) {
@@ -70,7 +70,7 @@ export function getDeadlineStatusText(deadlineInfo: DeadlineInfo, translations?:
   }
   
   if (deadlineInfo.isToday) {
-    if (translations?.dashboard) {
+    if (translations?.dashboard?.dueToday) {
       return translations.dashboard.dueToday
     }
     return 'Due today'

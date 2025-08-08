@@ -9,16 +9,19 @@ import { CycleStatusBanner } from '@/components/features/cycles'
 interface Employee {
   id: string
   name: string
-  department: string
+  department: string | null
   role: string
-  email?: string
+  email?: string | null
   _count: {
     evaluationsReceived: number
   }
   evaluationsReceived: {
     id: string
     status: string
-    overallRating?: number
+    overallRating?: number | null
+    evaluationItemsData?: string | null
+    createdAt: string
+    updatedAt: string
   }[]
 }
 
@@ -35,13 +38,15 @@ interface EvaluationsClientProps {
   teamSummary: TeamSummary
   currentCycleId: string | null
   userRole: string
+  reopenedEvaluationsCount?: number
 }
 
 export default function EvaluationsClient({ 
   employees, 
   teamSummary, 
   currentCycleId, 
-  userRole 
+  userRole,
+  reopenedEvaluationsCount = 0
 }: EvaluationsClientProps) {
   const router = useRouter()
   const { t } = useLanguage()
@@ -104,6 +109,24 @@ export default function EvaluationsClient({
         />
       </div>
 
+      {/* Reopened Evaluations Banner */}
+      {(userRole === 'manager' || userRole === 'hr') && reopenedEvaluationsCount > 0 && (
+        <div className="px-4 pt-3">
+          <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
+            <div className="flex items-center">
+              <svg className="w-5 h-5 text-orange-600 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+              </svg>
+              <div className="flex-1">
+                <span className="text-orange-900 text-sm font-medium">
+                  {t.evaluations.newCompanyItemsAdded} - {reopenedEvaluationsCount} {reopenedEvaluationsCount > 1 ? t.evaluations.employeesNeedReEvaluation : t.evaluations.employeeNeedReEvaluation}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Fixed Team Summary Card */}
       <div className="sticky top-[85px] z-10 bg-gray-50 px-4 pt-3 pb-2">
         <div className="bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
@@ -123,7 +146,12 @@ export default function EvaluationsClient({
           <div className="mt-3 pt-3 border-t border-gray-200">
             <div className="flex justify-between text-xs">
               <span className="text-green-600">✅ {teamSummary.completedEvaluations}</span>
-              <span className="text-yellow-600">🔄 {teamSummary.inProgressEvaluations}</span>
+              <span className="text-yellow-600 flex items-center">
+                <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                {teamSummary.inProgressEvaluations}
+              </span>
               <span className="text-gray-500">⭕ {teamSummary.totalEmployees - teamSummary.completedEvaluations - teamSummary.inProgressEvaluations}</span>
             </div>
           </div>
@@ -136,9 +164,32 @@ export default function EvaluationsClient({
           const getEvaluationStatus = () => {
             const latestEval = employee.evaluationsReceived[0]
             if (!latestEval) return { status: 'empty', icon: '⭕', color: 'text-gray-500', label: t.status.notStarted }
+            
             if (latestEval.status === 'submitted' || latestEval.status === 'approved' || latestEval.status === 'completed') {
               return { status: 'completed', icon: '✅', color: 'text-green-600', label: t.status.completed }
             }
+            
+            // Check if this is a reopened evaluation (draft with evaluation data that was recently updated)
+            if (latestEval.status === 'draft') {
+              // Simple heuristic: if it's a draft but has evaluation data, it might be reopened
+              // In a real implementation, you might want a more sophisticated way to detect this
+              const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000)
+              const updatedRecently = new Date(latestEval.updatedAt || latestEval.createdAt) > oneDayAgo
+              
+              if (updatedRecently && latestEval.evaluationItemsData) {
+                return { 
+                  status: 'reopened', 
+                  icon: (
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                  ), 
+                  color: 'text-blue-600', 
+                  label: t.status.draftReopened 
+                }
+              }
+            }
+            
             return { status: 'inprogress', icon: '🔄', color: 'text-yellow-600', label: t.status.inProgress }
           }
           
@@ -156,8 +207,8 @@ export default function EvaluationsClient({
                     <h3 className="text-base font-medium text-gray-900 truncate">
                       {employee.name}
                     </h3>
-                    <span className={`text-sm ${statusInfo.color}`}>
-                      {statusInfo.icon}
+                    <span className={`text-sm ${statusInfo.color} flex items-center`}>
+                      {typeof statusInfo.icon === 'string' ? statusInfo.icon : statusInfo.icon}
                     </span>
                   </div>
                   <p className="text-sm text-gray-500 truncate">

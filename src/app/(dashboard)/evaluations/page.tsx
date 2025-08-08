@@ -2,22 +2,9 @@ import { auth } from '@/auth'
 import { redirect } from 'next/navigation'
 import { prisma } from '@/lib/prisma-client'
 import EvaluationsClient from './EvaluationsClient'
+import { getReopenedEvaluationsCount } from '@/lib/actions/evaluations'
 
-interface Employee {
-  id: string
-  name: string
-  department: string
-  role: string
-  email?: string
-  _count: {
-    evaluationsReceived: number
-  }
-  evaluationsReceived: {
-    id: string
-    status: string
-    overallRating?: number
-  }[]
-}
+// Employee interface moved to EvaluationsClient for consistency
 
 interface TeamSummary {
   totalEmployees: number
@@ -50,7 +37,10 @@ async function getTeamData(userId: string, userRole: string, companyId: string) 
           id: true,
           status: true,
           overallRating: true,
-          periodDate: true
+          periodDate: true,
+          evaluationItemsData: true,
+          createdAt: true,
+          updatedAt: true
         },
         orderBy: {
           createdAt: 'desc'
@@ -108,7 +98,14 @@ async function getTeamData(userId: string, userRole: string, companyId: string) 
   }
 
   return {
-    employees: employees as Employee[],
+    employees: employees.map(emp => ({
+      ...emp,
+      evaluationsReceived: emp.evaluationsReceived.map(evaluation => ({
+        ...evaluation,
+        createdAt: evaluation.createdAt.toISOString(),
+        updatedAt: evaluation.updatedAt.toISOString()
+      }))
+    })),
     summary,
     currentCycleId
   }
@@ -133,12 +130,22 @@ export default async function EvaluationsPage() {
   // Fetch team data directly from database
   const { employees, summary, currentCycleId } = await getTeamData(userId, userRole, companyId)
 
+  // Get reopened evaluations count for managers and HR
+  let reopenedCount = 0
+  if (userRole === 'manager' || userRole === 'hr') {
+    const reopenedResult = await getReopenedEvaluationsCount()
+    if (reopenedResult.success && reopenedResult.count) {
+      reopenedCount = reopenedResult.count
+    }
+  }
+
   return (
     <EvaluationsClient 
       employees={employees}
       teamSummary={summary}
       currentCycleId={currentCycleId}
       userRole={userRole}
+      reopenedEvaluationsCount={reopenedCount}
     />
   )
 }
