@@ -3,6 +3,7 @@
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma-client'
 import { revalidatePath } from 'next/cache'
+import { auditEvaluation, auditBulkOperation } from '@/lib/services/audit-service'
 
 // Server action to assign company-wide item to all employees and reopen completed evaluations
 export async function assignCompanyItemToAllEmployees(itemId: string) {
@@ -41,6 +42,16 @@ export async function assignCompanyItemToAllEmployees(itemId: string) {
     await prisma.evaluationItemAssignment.createMany({
       data: assignments
     })
+
+    // Audit the bulk operation
+    await auditBulkOperation(
+      session.user.id,
+      session.user.role,
+      companyId,
+      'assign_company_item',
+      employees.length,
+      { itemId, employeeCount: employees.length }
+    )
 
     // Get active performance cycle
     const activeCycle = await prisma.performanceCycle.findFirst({
@@ -866,16 +877,17 @@ export async function submitEvaluation(evaluationId: string) {
       }
     })
 
-    // Create audit log entry
-    await prisma.auditLog.create({
-      data: {
-        userId,
-        evaluationId,
-        action: 'submitted',
-        oldData: JSON.stringify({ status: 'draft' }),
-        newData: JSON.stringify({ status: 'submitted' })
-      }
-    })
+    // Create audit log entry using new service
+    await auditEvaluation(
+      userId,
+      session.user.role,
+      companyId,
+      'submit',
+      evaluationId,
+      evaluation.employeeId,
+      { status: 'draft' },
+      { status: 'submitted' }
+    )
 
     revalidatePath('/evaluations')
     revalidatePath(`/evaluate/${evaluation.employeeId}`)
@@ -930,16 +942,17 @@ export async function approveEvaluation(evaluationId: string) {
       }
     })
 
-    // Create audit log entry
-    await prisma.auditLog.create({
-      data: {
-        userId,
-        evaluationId,
-        action: 'approved',
-        oldData: JSON.stringify({ status: 'submitted' }),
-        newData: JSON.stringify({ status: 'completed' })
-      }
-    })
+    // Create audit log entry using new service
+    await auditEvaluation(
+      userId,
+      session.user.role,
+      companyId,
+      'approve',
+      evaluationId,
+      evaluation.employeeId,
+      { status: 'submitted' },
+      { status: 'completed' }
+    )
 
     revalidatePath('/my-evaluations')
     revalidatePath('/evaluations')
@@ -1072,7 +1085,7 @@ export async function getReopenedEvaluationsCount() {
 }
 
 // Server action for HR to unlock evaluation (move back to draft)
-export async function unlockEvaluation(evaluationId: string) {
+export async function unlockEvaluation(evaluationId: string, reason?: string) {
   try {
     const session = await auth()
     
@@ -1115,16 +1128,18 @@ export async function unlockEvaluation(evaluationId: string) {
       }
     })
 
-    // Create audit log entry
-    await prisma.auditLog.create({
-      data: {
-        userId,
-        evaluationId,
-        action: 'unlocked',
-        oldData: JSON.stringify({ status: 'submitted' }),
-        newData: JSON.stringify({ status: 'draft', unlockedBy: userId })
-      }
-    })
+    // Create audit log entry using new service
+    await auditEvaluation(
+      userId,
+      session.user.role,
+      companyId,
+      'unlock',
+      evaluationId,
+      evaluation.employeeId,
+      { status: 'submitted' },
+      { status: 'draft', unlockedBy: userId },
+      reason
+    )
 
     revalidatePath('/evaluations')
     revalidatePath('/dashboard')

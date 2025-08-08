@@ -240,17 +240,21 @@ export async function POST(request: NextRequest) {
       })
     }
 
-    // Create audit log
+    // Create audit log with new schema
     await prisma.auditLog.create({
       data: {
-        evaluationId: evaluation.id,
         userId,
-        action: existingEvaluation ? 'updated' : 'created',
-        newData: JSON.stringify({
+        userRole: session.user.role,
+        companyId: session.user.companyId,
+        action: existingEvaluation ? 'update' : 'create',
+        entityType: 'evaluation',
+        entityId: evaluation.id,
+        targetUserId: employeeId,
+        newData: {
           evaluationItems,
           overallRating,
           overallComment
-        })
+        }
       }
     })
 

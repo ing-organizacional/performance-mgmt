@@ -22,6 +22,7 @@ model Company {
   evaluationItemAssignments EvaluationItemAssignment[]
   performanceCycles         PerformanceCycle[]
   partialAssessments        PartialAssessment[]
+  auditLogs                 AuditLog[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -95,7 +96,6 @@ model Evaluation {
   manager   User              @relation("ManagerEvaluations", fields: [managerId], references: [id])
   company   Company           @relation(fields: [companyId], references: [id])
   cycle     PerformanceCycle? @relation(fields: [cycleId], references: [id])
-  auditLogs AuditLog[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -155,17 +155,43 @@ model EvaluationItemAssignment {
 }
 
 model AuditLog {
-  id           String  @id @default(cuid())
-  evaluationId String
+  id           String   @id @default(cuid())
+  timestamp    DateTime @default(now())
+  
+  // Actor information
   userId       String
-  action       String // "created" | "updated" | "submitted" | "approved"
-  oldData      String? // JSON snapshot
-  newData      String? // JSON snapshot
-
-  evaluation Evaluation @relation(fields: [evaluationId], references: [id])
-  user       User       @relation(fields: [userId], references: [id])
-
-  timestamp DateTime @default(now())
+  userRole     String   // Role at time of action
+  ipAddress    String?
+  userAgent    String?
+  sessionId    String?  // For correlating related actions
+  
+  // Action details
+  action       String   // "create" | "update" | "delete" | "view" | "export" | "submit" | "approve" | "unlock" | "login" | "logout"
+  entityType   String   // "evaluation" | "user" | "cycle" | "item" | "assignment" | "partial_assessment"
+  entityId     String?  // ID of the affected entity
+  
+  // Target information (when action affects another user)
+  targetUserId String?  // e.g., employee being evaluated
+  
+  // Change tracking
+  oldData      Json?    // Previous state
+  newData      Json?    // New state
+  metadata     Json?    // Additional context (e.g., export parameters, search filters)
+  
+  // Compliance
+  reason       String?  // Why this action was taken (for sensitive operations)
+  companyId    String
+  
+  // Relations
+  user         User     @relation(fields: [userId], references: [id])
+  company      Company  @relation(fields: [companyId], references: [id])
+  
+  // Indexes for performance
+  @@index([userId, timestamp])
+  @@index([entityType, entityId])
+  @@index([companyId, timestamp])
+  @@index([action, timestamp])
+  @@index([targetUserId])
 }
 
 model PerformanceCycle {

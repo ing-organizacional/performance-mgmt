@@ -5,6 +5,7 @@ import { prisma } from '@/lib/prisma-client'
 import { auth } from '@/auth'
 import bcrypt from 'bcryptjs'
 import { z } from 'zod'
+import { auditUserManagement } from '@/lib/services/audit-service'
 
 // Validation schemas
 const userSchema = z.object({
@@ -37,7 +38,7 @@ async function requireHRAccess() {
 
 export async function createUser(formData: FormData) {
   try {
-    await requireHRAccess()
+    const currentUser = await requireHRAccess()
 
     const rawData = {
       name: formData.get('name'),
@@ -91,7 +92,7 @@ export async function createUser(formData: FormData) {
     }
 
     // Create user
-    await prisma.user.create({
+    const newUser = await prisma.user.create({
       data: {
         name: userData.name,
         email: userData.email || null,
@@ -107,6 +108,24 @@ export async function createUser(formData: FormData) {
         requiresPinOnly: userData.userType === 'operational' && !!userData.pinCode
       }
     })
+
+    // Audit the user creation
+    await auditUserManagement(
+      currentUser.id,
+      currentUser.role,
+      userData.companyId,
+      'create',
+      newUser.id,
+      undefined,
+      {
+        name: userData.name,
+        email: userData.email,
+        username: userData.username,
+        role: userData.role,
+        department: userData.department,
+        userType: userData.userType
+      }
+    )
 
     revalidatePath('/users')
     return {

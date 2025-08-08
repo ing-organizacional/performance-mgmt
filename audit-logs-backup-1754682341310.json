@@ -1,0 +1,86 @@
+[
+  {
+    "id": "cme107s800001yf6swx31o0el",
+    "evaluationId": "cme1027vr005kyfvd8pk77czb",
+    "userId": "cme1027t40002yfvd1k32hj4a",
+    "action": "unlocked",
+    "oldData": "{\"status\":\"submitted\"}",
+    "newData": "{\"status\":\"draft\",\"unlockedBy\":\"cme1027t40002yfvd1k32hj4a\"}",
+    "timestamp": "2025-08-07T06:16:32.160Z",
+    "userRole": "hr",
+    "companyId": "cme1027jn0000yfvdm1zgtv78",
+    "targetUserId": "cme1027u1001yyfvd38xvkfyf"
+  },
+  {
+    "id": "cme11ydh50005yf6s6hajh6zk",
+    "evaluationId": "cme1027vr005kyfvd8pk77czb",
+    "userId": "cme1027ta000cyfvd1q9cjzw3",
+    "action": "submitted",
+    "oldData": "{\"status\":\"draft\"}",
+    "newData": "{\"status\":\"submitted\"}",
+    "timestamp": "2025-08-07T07:05:12.378Z",
+    "userRole": "manager",
+    "companyId": "cme1027jn0000yfvdm1zgtv78",
+    "targetUserId": "cme1027u1001yyfvd38xvkfyf"
+  },
+  {
+    "id": "cme13i9a60001yf0bs694z36j",
+    "evaluationId": "cme1027vr005kyfvd8pk77czb",
+    "userId": "cme1027u1001yyfvd38xvkfyf",
+    "action": "approved",
+    "oldData": "{\"status\":\"submitted\"}",
+    "newData": "{\"status\":\"completed\"}",
+    "timestamp": "2025-08-07T07:48:39.678Z",
+    "userRole": "employee",
+    "companyId": "cme1027jn0000yfvdm1zgtv78",
+    "targetUserId": "cme1027u1001yyfvd38xvkfyf"
+  },
+  {
+    "id": "cme1420ht0005yf0blyzccizg",
+    "evaluationId": "cme13ycp30003yf0bueun7kyd",
+    "userId": "cme1027t40002yfvd1k32hj4a",
+    "action": "submitted",
+    "oldData": "{\"status\":\"draft\"}",
+    "newData": "{\"status\":\"submitted\"}",
+    "timestamp": "2025-08-07T08:04:01.410Z",
+    "userRole": "hr",
+    "companyId": "cme1027jn0000yfvdm1zgtv78",
+    "targetUserId": "cme1027tb000eyfvdomwudxqz"
+  },
+  {
+    "id": "cme143f4w0007yf0bp36z50f1",
+    "evaluationId": "cme13ycp30003yf0bueun7kyd",
+    "userId": "cme1027tb000eyfvdomwudxqz",
+    "action": "approved",
+    "oldData": "{\"status\":\"submitted\"}",
+    "newData": "{\"status\":\"completed\"}",
+    "timestamp": "2025-08-07T08:05:07.040Z",
+    "userRole": "employee",
+    "companyId": "cme1027jn0000yfvdm1zgtv78",
+    "targetUserId": "cme1027tb000eyfvdomwudxqz"
+  },
+  {
+    "id": "cme22j14j0003yfu1bvfu7dki",
+    "evaluationId": "cme22ihow0001yfu19oykl9bs",
+    "userId": "cme1027t40002yfvd1k32hj4a",
+    "action": "submitted",
+    "oldData": "{\"status\":\"draft\"}",
+    "newData": "{\"status\":\"submitted\"}",
+    "timestamp": "2025-08-08T00:09:02.323Z",
+    "userRole": "hr",
+    "companyId": "cme1027jn0000yfvdm1zgtv78",
+    "targetUserId": "cme1027tb000eyfvdomwudxqz"
+  },
+  {
+    "id": "cme22p6vq0001yfh2r1cikhis",
+    "evaluationId": "cme22ihow0001yfu19oykl9bs",
+    "userId": "cme1027tb000eyfvdomwudxqz",
+    "action": "approved",
+    "oldData": "{\"status\":\"submitted\"}",
+    "newData": "{\"status\":\"completed\"}",
+    "timestamp": "2025-08-08T00:13:49.718Z",
+    "userRole": "employee",
+    "companyId": "cme1027jn0000yfvdm1zgtv78",
+    "targetUserId": "cme1027tb000eyfvdomwudxqz"
+  }
+]
