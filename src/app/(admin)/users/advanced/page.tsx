@@ -268,7 +268,7 @@ export default function AdvancedAdminPage() {
                   </p>
                 </div>
                 <button
-                  onClick={() => window.open('http://localhost:5555', '_blank')}
+                  onClick={() => window.open(`${window.location.protocol}//${window.location.hostname}:5555`, '_blank')}
                   className="px-3 py-2 bg-purple-600 text-white rounded-lg text-xs font-medium hover:bg-purple-700 active:scale-95 transition-all duration-150 touch-manipulation"
                 >
                   {t.users.openPrismaStudio}
