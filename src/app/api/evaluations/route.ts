@@ -3,6 +3,7 @@ import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma-client'
 import { validateCycleWritePermission } from '@/lib/cycle-permissions'
 import { AuthUser } from '@/lib/auth-middleware'
+import { auditEvaluation } from '@/lib/services/audit-service'
 
 interface EvaluationRequestBody {
   employeeId: string
@@ -240,23 +241,22 @@ export async function POST(request: NextRequest) {
       })
     }
 
-    // Create audit log with new schema
-    await prisma.auditLog.create({
-      data: {
-        userId,
-        userRole: session.user.role,
-        companyId: session.user.companyId,
-        action: existingEvaluation ? 'update' : 'create',
-        entityType: 'evaluation',
-        entityId: evaluation.id,
-        targetUserId: employeeId,
-        newData: {
-          evaluationItems,
-          overallRating,
-          overallComment
-        }
+    // Create audit log using the audit service
+    await auditEvaluation(
+      userId,
+      session.user.role,
+      session.user.companyId,
+      existingEvaluation ? 'update' : 'create',
+      evaluation.id,
+      employeeId,
+      existingEvaluation ? { status: existingEvaluation.status } : undefined,
+      {
+        evaluationItems,
+        overallRating,
+        overallComment,
+        status: evaluation.status
       }
-    })
+    )
 
     return NextResponse.json({
       success: true,
