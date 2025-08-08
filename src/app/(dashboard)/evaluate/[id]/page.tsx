@@ -44,7 +44,7 @@ export default function EvaluatePage() {
   const [overallComment, setOverallComment] = useState('')
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
-  const [showSuccess, setShowSuccess] = useState(false)
+  const [showSuccess] = useState(false)
   const [employeeName, setEmployeeName] = useState('')
   const [editingItemId, setEditingItemId] = useState<string | null>(null)
   const [editingItemData, setEditingItemData] = useState<{ title: string; description: string } | null>(null)
@@ -163,7 +163,7 @@ export default function EvaluatePage() {
     if (evaluationItems.length > 0) {
       setCurrentStep(0)
     }
-  }, [params.id])
+  }, [params.id, evaluationItems.length])
 
   const loadExistingEvaluation = async (evaluationId: string) => {
     try {
@@ -231,8 +231,8 @@ export default function EvaluatePage() {
       setEditingItemId(null)
       setEditingItemData(null)
       
-    } catch (err) {
-      console.error('Error updating item:', err)
+    } catch (updateErr) {
+      console.error('Error updating item:', updateErr)
       error('Failed to update item')
     }
   }
@@ -354,7 +354,7 @@ export default function EvaluatePage() {
       } else {
         error(result.error || 'Failed to submit evaluation')
       }
-    } catch (err) {
+    } catch {
       error('Failed to submit evaluation')
     } finally {
       setSubmitting(false)
@@ -379,7 +379,7 @@ export default function EvaluatePage() {
       } else {
         error(result.error || 'Failed to unlock evaluation')
       }
-    } catch (err) {
+    } catch {
       error('Failed to unlock evaluation')
     } finally {
       setSubmitting(false)

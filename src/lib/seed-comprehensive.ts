@@ -22,15 +22,15 @@ const hashPassword = async (password: string) => {
   return bcrypt.hash(password, 12)
 }
 
-// Department employee distribution
-const departmentDistribution = {
-  'HR': 3,           // 1 HR Manager (super user) + 2 employees
-  'Rooms': 10,       // 1 Manager + 9 employees
-  'Food & Beverage': 12, // 1 Manager + 11 employees
-  'Finance': 7,      // 1 Manager + 6 employees  
-  'Maintenance': 8   // 1 Manager + 7 employees
-  // Total: 40
-}
+// Department employee distribution (for future use)
+// const departmentDistribution = {
+//   'HR': 3,           // 1 HR Manager (super user) + 2 employees
+//   'Rooms': 10,       // 1 Manager + 9 employees
+//   'Food & Beverage': 12, // 1 Manager + 11 employees
+//   'Finance': 7,      // 1 Manager + 6 employees  
+//   'Maintenance': 8   // 1 Manager + 7 employees
+//   // Total: 40
+// }
 
 // Popular movie/TV characters organized by department
 const employeeData = {
@@ -251,7 +251,7 @@ async function seed() {
   console.log('  ✅ Created 3 company-wide items')
 
   // Create HR additional competency
-  const hrCompetency = await prisma.evaluationItem.create({
+  await prisma.evaluationItem.create({
     data: {
       companyId: company.id,
       cycleId: cycle.id,

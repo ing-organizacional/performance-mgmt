@@ -814,7 +814,6 @@ export async function submitEvaluation(evaluationId: string) {
     }
 
     const userId = session.user.id
-    const userRole = session.user.role
     const companyId = session.user.companyId
 
     // Get the evaluation
@@ -853,7 +852,7 @@ export async function submitEvaluation(evaluationId: string) {
         if (!allComplete) {
           return { success: false, error: 'All evaluation items must have ratings and comments before submission' }
         }
-      } catch (e) {
+      } catch {
         return { success: false, error: 'Invalid evaluation data format' }
       }
     }
@@ -1059,7 +1058,7 @@ export async function getReopenedEvaluationsCount() {
         const hasSignificantTimeDifference = timeDifference > 5 * 60 * 1000 // More than 5 minutes
         
         return hasActualData && hasSignificantTimeDifference
-      } catch (e) {
+      } catch {
         return false
       }
     }).length

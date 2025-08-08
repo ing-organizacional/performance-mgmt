@@ -52,16 +52,6 @@ export default function PendingEvaluationsClient({
     return matchesSearch && matchesDepartment
   })
 
-  // Filter completed employees by department and search term
-  const filteredCompletedEmployees = completedEmployees.filter(emp => {
-    const matchesSearch = emp.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      emp.department?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      emp.manager?.name.toLowerCase().includes(searchTerm.toLowerCase())
-    
-    const matchesDepartment = filterDepartment === 'all' || emp.department === filterDepartment
-    
-    return matchesSearch && matchesDepartment
-  })
 
 
   return (

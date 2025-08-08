@@ -21,7 +21,6 @@ export default function SearchFilterBar({
   filterValue,
   setFilterValue,
   filterOptions,
-  filterLabel,
   className = '',
   children
 }: SearchFilterBarProps) {

@@ -171,11 +171,41 @@ yarn db:push                # Push schema changes
 # Development
 yarn dev                    # Start dev server
 yarn build                 # Production build
-yarn start                 # Production server
+yarn start                 # Production server (dev/test only)
+# For production with standalone output, use:
+node .next/standalone/server.js
 yarn lint                  # Code linting
 ```
 
 ## 👥 User Management
+
+### 🔑 Employee Identification Keys
+
+The system uses multiple keys to identify employees:
+
+**🎯 Primary Business Key:**
+- **`personID`** - National ID (Cédula, DNI, Social Security) - **REQUIRED**
+  - Most reliable identifier (never changes)
+  - Used for manager assignment and duplicate detection
+  - Example: `12345678`
+
+**🏢 Company Keys:**
+- **`employeeId`** - Company-assigned employee number (Optional)
+  - Examples: `EMP001`, `MGR001`, `HR001`
+  - Used for reporting and alternative manager assignment
+  - May change with reorganization
+
+**🔐 Authentication Keys:**
+- **`email`** - For office workers (login identifier)
+  - Example: `john.doe@company.com`
+- **`username`** - For operational workers (login identifier)
+  - Example: `john_worker`, `station_01`
+
+**🎯 Key Hierarchy (Most to Least Reliable):**
+1. `personID` - National ID (preferred for all operations)
+2. `employeeId` - Company ID (good for internal references)
+3. `email` - Can change when employees move
+4. `username` - For operational workers only
 
 ### CSV Import Format
 ```csv
@@ -185,22 +215,31 @@ John Smith,john@company.com,,employee,Sales,office,password123,EMP001,12345678,8
 Maria Worker,,maria.worker,employee,Manufacturing,operational,1234,EMP002,23456789,,MGR001,DEMO_001
 ```
 
-**Required Fields:**
-- `name`: Full employee name (required)
-- `role`: employee, manager, or hr (required) 
-- `companyCode`: Company identifier (required)
-- Either `email` OR `username` (at least one required)
-- `personID`: National ID/Cédula (required for API import, optional for CLI)
+**📋 Required Fields:**
+- **`name`** - Full employee name (required)
+- **`personID`** - National ID/Cédula (required) - **Primary business key**
+- **`role`** - employee, manager, or hr (required) 
+- Either **`email`** OR **`username`** (at least one required for authentication)
 
-**Manager Assignment (choose one):**
-- `managerPersonID`: Manager's National ID (preferred method)
-- `managerEmployeeId`: Manager's Employee ID (alternative method)
+**👤 Manager Assignment (choose one method):**
+- **`managerPersonID`** - Manager's National ID (**PREFERRED** - most reliable)
+- **`managerEmployeeId`** - Manager's Employee ID (alternative method)
 
-**HRIS Integration Fields:**
-- `employeeId`: Company-assigned ID (EMP001, MGR001) for HRIS integration
-- `personID`: National ID/Cédula for legal identification and unique identification
-- `department`: Department/team name
-- `userType`: office (default) or operational
+**🏢 Optional HRIS Integration Fields:**
+- `employeeId` - Company-assigned ID (EMP001, MGR001) for HRIS integration
+- `department` - Department/team name
+- `userType` - office (default) or operational
+- `companyCode` - Company identifier (defaults to current user's company)
+
+**📝 CSV Template Files:**
+- **`/public/user-import-template.csv`** - Clean import template
+- **`/public/user-import-instructions.md`** - Comprehensive import guide
+
+**💡 Best Practices:**
+- Always use `personID` as the primary identifier
+- Use `managerPersonID` for manager assignment (more reliable than employeeId)
+- Ensure PersonIDs are unique across your organization
+- Keep a backup mapping of PersonID to EmployeeID for reference
 
 ### Server Actions Examples
 ```typescript
@@ -259,14 +298,49 @@ curl http://localhost:3000/api/admin/companies
 
 ## 🐳 Deployment
 
-**Docker Ready:**
+### Docker Deployment (Recommended for unRAID)
+
+**Build and Run:**
 ```bash
 # Build container
 docker build -t performance-mgmt .
 
 # Run with volume persistence
-docker run -p 3000:3000 -v ./data:/app/prisma performance-mgmt
+docker run -p 3000:3000 \
+  -v /mnt/user/appdata/performance-mgmt:/app/data \
+  -e NEXTAUTH_URL=http://your-server-ip:3000 \
+  -e NEXTAUTH_SECRET=your-secure-secret \
+  performance-mgmt
 ```
+
+**🚀 Initial Setup in Docker:**
+```bash
+# 1. Start container and populate database
+docker exec -it <container-name> npx tsx src/lib/seed-comprehensive.ts
+
+# 2. Login with demo credentials:
+#    HR: hr@demo.com / password123
+#    Manager: manager@demo.com / password123
+#    Employee: employee1@demo.com / password123
+
+# 3. Access CSV import templates
+docker exec -it <container-name> cp /app/public/user-import-template.csv /app/data/
+docker exec -it <container-name> cp /app/public/user-import-instructions.md /app/data/
+```
+
+**📊 CSV Import in Docker:**
+1. Copy template files from container to host system
+2. Fill out CSV with your employee data following the template
+3. Login as HR → Users → Advanced → Upload CSV
+4. Review import results and fix any errors
+
+**Docker Configuration:**
+- **Port**: `3000:3000`
+- **Volume**: `/your/data/path:/app/data` (for SQLite persistence)
+- **Environment**:
+  - `NEXTAUTH_URL` - Your server URL
+  - `NEXTAUTH_SECRET` - Secure secret key
+  - `DATABASE_URL` - Auto-configured to `/app/data/production.db`
 
 **Windows Server Deployment:**
 - Node.js runtime

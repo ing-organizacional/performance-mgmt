@@ -2,7 +2,8 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
-  // output: 'standalone', // Commented out for development - uncomment for Docker deployment
+  // output: 'standalone', // Uncomment for Docker deployment
+  serverExternalPackages: ['@prisma/client'],
   
   // Turbopack configuration (minimal as recommended by Next.js docs)
   turbopack: {
