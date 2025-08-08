@@ -113,7 +113,15 @@ yarn lint && yarn tsc --noEmit  # Code quality check
 - Use YARN exclusively (never npm)
 - Follow NextAuth v5 patterns with JWT strategy
 - Maintain company-based data isolation
-- Apply TypeScript casting: `result as ModelType`
+- Apply TypeScript casting: `result as ModelType` (AUDIT NOTE: Some unsafe type assertions found)
+
+**Security Requirements (August 2025 Audit):**
+- Remove all hardcoded default passwords before any deployment
+- Implement comprehensive Zod validation for all API endpoints
+- Add CSRF protection, rate limiting, and security headers
+- Replace console.log statements with structured logging
+- Fix unsafe type assertions with proper type guards
+- Add database indexes for performance optimization
 
 **Code Quality Requirements:**
 - Clean TypeScript compilation: `yarn tsc --noEmit`
@@ -127,28 +135,45 @@ yarn lint && yarn tsc --noEmit  # Code quality check
 - Update bilingual translations (English/Spanish)
 - Test with different user roles (HR/Manager/Employee)
 - Maintain audit trail for data changes
+- **SECURITY REQUIREMENTS (Post-Audit):**
+  - Add Zod schema validation for all inputs
+  - Implement proper error handling without information disclosure
+  - Add comprehensive type safety (no unsafe assertions)
+  - Test for N+1 query problems
+  - Ensure no console.log statements in production code
+  - Add appropriate security headers and protections
 
 ## Current System State (August 2025)
 
-**Recent Changes in Working Directory:**
-- Enhanced evaluation system with improved UX and bilingual support
-- Comprehensive evaluation locking for submitted evaluations
-- Improved evaluation selection logic (shows most recently updated)
-- Dynamic performance summary and cycle integration
-- Deadline management utilities for evaluation items
+**Comprehensive Code Audit Completed:**
+- Complete security vulnerability assessment performed
+- Performance bottlenecks and optimization opportunities identified
+- Architecture analysis and improvement recommendations provided
+- All documentation updated with audit findings
 
 **Branch Status:** Currently on `my-evaluations` branch
 
 **Build Status:** ✅ Clean TypeScript compilation and ESLint passes
 
-**Key Recent Commits:**
-- `e6f63a0` - Enhanced evaluation system UX with improved styling and bilingual support  
-- `bada0f6` - Implemented comprehensive evaluation locking for submitted evaluations
+**Security Status:** ⚠️ CRITICAL ISSUES IDENTIFIED - See SECURITY.md for details
+
+**Key Audit Findings:**
+- Hardcoded default passwords in `/src/app/api/admin/import/route.ts:232-234`
+- Missing comprehensive input validation (Zod schemas needed)
+- Information disclosure via console.log statements
+- N+1 query problems in team data fetching
+- Large components violating single responsibility principle
+- Missing security controls (CSRF, rate limiting, CSP)
 
 **Production Readiness:**
 - Core functionality complete and tested
-- Security audit completed (change default secrets before production)
+- ❌ Security audit reveals CRITICAL vulnerabilities requiring fixes
 - Mobile-optimized and bilingual
 - Comprehensive evaluation workflow implemented
 - Performance cycles with read-only enforcement active
 - Server Actions architecture reduces API complexity
+- ⚠️ DO NOT DEPLOY until security fixes implemented
+
+**Estimated Fix Timeline:**
+- Critical security fixes: 2-3 weeks
+- All recommended improvements: 6-8 weeks

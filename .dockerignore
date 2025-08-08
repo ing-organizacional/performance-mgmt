@@ -1,17 +1,68 @@
+# Build artifacts
 Dockerfile
 .dockerignore
 node_modules
-npm-debug.log
-README.md
-.env
-.env.local
-.env.production.local
-.env.staging.local
-.git
-.gitignore
 .next
 .vercel
+dist
+build
+out
+
+# Development files
+npm-debug.log
+yarn-error.log
+*.log
+.DS_Store
+*.swp
+*.swo
+*~
+.idea
+.vscode
+*.sublime-*
+
+# Git
+.git
+.gitignore
+.github
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Test coverage
 coverage
 .nyc_output
+jest.config.*
+__tests__
+*.test.*
+*.spec.*
+
+# Database files
 prisma/dev.db*
-*.log
+prisma/*.db
+prisma/*.db-journal
+*.sqlite
+*.sqlite3
+
+# Documentation
+README.md
+SECURITY-DEPLOYMENT.md
+CLAUDE.md
+docs
+*.md
+
+# TypeScript
+*.tsbuildinfo
+tsconfig.tsbuildinfo
+
+# Package manager cache (but NOT lock files - those are needed!)
+.yarn/cache
+.yarn/install-state.gz
+.pnp.*
+.npm
+
+# Temporary files
+tmp
+temp
+.tmp

@@ -1,6 +1,28 @@
 # Deployment Guide
 
+⚠️ **IMPORTANT: Security Fixes Required Before Production Deployment**
+
 This guide covers deploying the Performance Management System using Docker, with support for both single-company and multi-company setups.
+
+**Security Status (August 2025):** MEDIUM-HIGH RISK - Critical security fixes must be implemented before production deployment. See SECURITY.md for details.
+
+## 🚨 Pre-Production Security Checklist
+
+### Critical Security Fixes Required
+- [ ] **Remove hardcoded default passwords** (`/src/app/api/admin/import/route.ts:232-234`)
+- [ ] **Remove console.log statements** with sensitive data in production code
+- [ ] **Implement CSRF protection** - Currently not implemented
+- [ ] **Add Content Security Policy headers** - Missing security headers
+- [ ] **Implement rate limiting** - No protection against brute force attacks
+- [ ] **Add comprehensive input validation** - All API routes need Zod schemas
+- [ ] **Fix unsafe type assertions** - Multiple instances throughout codebase
+- [ ] **Generate secure NEXTAUTH_SECRET** with `openssl rand -base64 32`
+
+### Estimated Security Fix Time
+- **Critical fixes**: 2-3 weeks development time
+- **All recommendations**: 6-8 weeks total
+
+**DO NOT DEPLOY TO PRODUCTION** until these security issues are resolved.
 
 ## 🐳 Docker Deployment
 
@@ -83,7 +105,12 @@ performance-mgmt/
 NODE_ENV=production
 DATABASE_URL=file:./data/production.db
 NEXTAUTH_URL=https://your-domain.com
-NEXTAUTH_SECRET=your-super-secret-key-here
+# ⚠️ CRITICAL: Generate secure secret with: openssl rand -base64 32
+NEXTAUTH_SECRET=REPLACE_WITH_SECURE_32_BYTE_STRING_GENERATED_BY_OPENSSL
+
+# ⚠️ SECURITY WARNING: 
+# The current codebase has hardcoded default passwords that must be removed
+# before production deployment. See SECURITY.md for details.
 ```
 
 ## 🖥️ Windows Server Deployment
@@ -147,7 +174,7 @@ tar -czf backups/all-companies-$(date +%Y%m%d).tar.gz ./data/
 docker-compose down
 
 # Restore database
-cp ./backups/production-20240315.db ./data/production.db
+cp ./backups/production-20250315.db ./data/production.db
 
 # Restart services
 docker-compose up -d
@@ -174,7 +201,7 @@ curl http://localhost:3000/api/health
 # Response:
 {
   "status": "healthy",
-  "timestamp": "2024-03-15T10:30:00.000Z",
+  "timestamp": "2025-03-15T10:30:00.000Z",
   "database": "connected",
   "version": "1.0.0"
 }
@@ -245,6 +272,25 @@ services:
 
 ## 🔐 Security
 
+### ⚠️ Current Security Status (August 2025)
+
+**CRITICAL ISSUES IDENTIFIED:**
+
+1. **Hardcoded Default Passwords**
+   - Location: `/src/app/api/admin/import/route.ts:232-234`
+   - Impact: Default credentials pose immediate security risk
+   - Status: **NOT FIXED** - Requires immediate attention
+
+2. **Missing Security Controls**
+   - CSRF Protection: **NOT IMPLEMENTED**
+   - Rate Limiting: **NOT IMPLEMENTED**  
+   - Content Security Policy: **NOT IMPLEMENTED**
+   - Input Validation: **PARTIAL** (missing Zod schemas)
+
+3. **Information Disclosure**
+   - Console.log statements leak sensitive data in production
+   - Generic error handling loses security context
+
 ### SSL/TLS Configuration
 
 ```yaml
@@ -262,13 +308,14 @@ services:
       - performance-mgmt
 ```
 
-### Security Headers
+### Security Headers (TO BE IMPLEMENTED)
 
-Already configured in the application:
-- CSRF protection
-- Secure cookies
-- Content Security Policy
-- XSS protection
+Currently missing - needs implementation:
+- CSRF protection ❌
+- Secure cookies ⚠️ (partial)
+- Content Security Policy ❌
+- XSS protection ⚠️ (basic only)
+- Rate limiting ❌
 
 ### Network Security
 
@@ -365,4 +412,30 @@ tar -czf backups/weekly-backup-$DATE.tar.gz ./data/
 find backups/ -name "weekly-backup-*.tar.gz" -mtime +30 -delete
 ```
 
-This deployment setup provides production-ready containerization with complete data isolation for multi-company environments.
+## 🔒 Security Audit Summary (August 2025)
+
+### Code Quality Assessment: B+ (Good with room for improvement)
+
+The deployment setup provides solid containerization architecture, but **critical security vulnerabilities must be addressed before production use**.
+
+### High Priority Security Issues
+1. **Authentication**: Hardcoded passwords and missing rate limiting
+2. **Input Validation**: No Zod schemas for API validation
+3. **Security Headers**: Missing CSRF, CSP, and other protective headers
+4. **Type Safety**: Unsafe type assertions throughout codebase
+5. **Information Disclosure**: Console.log statements in production
+
+### Performance Issues
+1. **Database**: N+1 queries and missing indexes
+2. **Components**: Large files (500+ lines) violating SRP
+3. **Caching**: No caching strategy implemented
+
+### Deployment Readiness
+- **Architecture**: ✅ Well-structured Next.js 15 + Docker
+- **Data Isolation**: ✅ Multi-tenant architecture working
+- **Security**: ❌ Critical vulnerabilities need fixing
+- **Performance**: ⚠️ Optimization needed for scale
+
+**RECOMMENDATION:** Complete security fixes before any production deployment. This deployment guide should only be used for development/testing until security issues are resolved.
+
+See `SECURITY.md` for complete vulnerability details and `API_AUDIT.md` for performance improvements.
