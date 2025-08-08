@@ -20,6 +20,68 @@ async function getDashboardData(companyId: string) {
     where: { id: companyId },
     select: { name: true }
   })
+  
+  // Get overdue drafts (drafts older than 7 days)
+  const sevenDaysAgo = new Date()
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
+  
+  const overdueDrafts = await prisma.evaluation.findMany({
+    where: {
+      companyId,
+      status: 'draft',
+      createdAt: {
+        lt: sevenDaysAgo
+      }
+    },
+    include: {
+      employee: {
+        select: {
+          name: true,
+          department: true
+        }
+      },
+      manager: {
+        select: {
+          name: true
+        }
+      }
+    },
+    orderBy: {
+      createdAt: 'asc'
+    }
+  })
+  
+  // Get pending approvals (submitted evaluations)
+  const pendingApprovals = await prisma.evaluation.findMany({
+    where: {
+      companyId,
+      status: 'submitted'
+    },
+    include: {
+      employee: {
+        select: {
+          name: true,
+          department: true
+        }
+      },
+      manager: {
+        select: {
+          name: true
+        }
+      }
+    },
+    orderBy: {
+      updatedAt: 'asc'
+    }
+  })
+  
+  // Calculate days pending for approvals
+  const threeDaysAgo = new Date()
+  threeDaysAgo.setDate(threeDaysAgo.getDate() - 3)
+  
+  const overdueApprovals = pendingApprovals.filter(e => 
+    new Date(e.updatedAt) < threeDaysAgo
+  ).length
 
   // Get all performance cycles for company
   const allCycles = await prisma.performanceCycle.findMany({
@@ -162,7 +224,25 @@ async function getDashboardData(companyId: string) {
     completionStats,
     ratingDistribution: ratingCounts,
     activeCycle: activeCycle as EvaluationCycle | null,
-    allCycles: formattedCycles
+    allCycles: formattedCycles,
+    overdueDrafts: overdueDrafts.map(e => ({
+      id: e.id,
+      employeeName: e.employee.name,
+      employeeDepartment: e.employee.department,
+      managerName: e.manager.name,
+      createdAt: e.createdAt.toISOString(),
+      daysOverdue: Math.floor((Date.now() - e.createdAt.getTime()) / (1000 * 60 * 60 * 24))
+    })),
+    pendingApprovals: pendingApprovals.map(e => ({
+      id: e.id,
+      employeeId: e.employeeId,
+      employeeName: e.employee.name,
+      employeeDepartment: e.employee.department,
+      managerName: e.manager.name,
+      submittedAt: e.updatedAt.toISOString(),
+      daysPending: Math.floor((Date.now() - e.updatedAt.getTime()) / (1000 * 60 * 60 * 24))
+    })),
+    overdueApprovalsCount: overdueApprovals
   }
 }
 
@@ -184,7 +264,7 @@ export default async function DashboardPage() {
   }
 
   // Fetch dashboard data directly from database
-  const { company, completionStats, ratingDistribution, activeCycle, allCycles } = await getDashboardData(companyId)
+  const { company, completionStats, ratingDistribution, activeCycle, allCycles, overdueDrafts, pendingApprovals, overdueApprovalsCount } = await getDashboardData(companyId)
 
   return (
     <DashboardClient 
@@ -195,6 +275,9 @@ export default async function DashboardPage() {
       ratingDistribution={ratingDistribution}
       activeCycle={activeCycle}
       allCycles={allCycles}
+      overdueDrafts={overdueDrafts}
+      pendingApprovals={pendingApprovals}
+      overdueApprovalsCount={overdueApprovalsCount}
     />
   )
 }

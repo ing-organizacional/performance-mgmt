@@ -29,7 +29,7 @@ export async function seedDatabase() {
       role: 'hr',
       employeeId: 'HR000',
       personID: '10101010',
-      passwordHash: await bcrypt.hash('password123', 12),
+      passwordHash: await bcrypt.hash('a', 12),
       userType: 'office',
       loginMethod: 'email',
       active: true
@@ -52,7 +52,7 @@ export async function seedDatabase() {
       role: 'manager',
       employeeId: 'MGR001',
       personID: '87654321',
-      passwordHash: await bcrypt.hash('password123', 12),
+      passwordHash: await bcrypt.hash('a', 12),
       userType: 'office',  
       loginMethod: 'email',
       department: 'Operations',
@@ -78,7 +78,7 @@ export async function seedDatabase() {
         managerId: manager.id,
         employeeId: `EMP00${i}`,
         personID: `1234567${i}`,
-        passwordHash: await bcrypt.hash('password123', 12),
+        passwordHash: await bcrypt.hash('a', 12),
         userType: 'office',
         loginMethod: 'email',
         department: 'Sales',
@@ -136,7 +136,7 @@ export async function seedDatabase() {
         role: 'hr',
         employeeId: `HR00${i}`,
         personID: `1111111${i}`,
-        passwordHash: await bcrypt.hash('password123', 12),
+        passwordHash: await bcrypt.hash('a', 12),
         userType: 'office',
         loginMethod: 'email',
         department: i === 1 ? 'Human Resources' : i === 2 ? 'Talent Acquisition' : 'Learning & Development',
@@ -169,7 +169,7 @@ export async function seedDatabase() {
           managerId: hrManager.id,
           employeeId: `H${hrIndex + 1}E0${empIndex}`,
           personID: `222${hrIndex + 1}00${empIndex}`,
-          passwordHash: await bcrypt.hash('password123', 12),
+          passwordHash: await bcrypt.hash('a', 12),
           userType: 'office',
           loginMethod: 'email',
           department: departments[hrIndex],
@@ -331,17 +331,266 @@ export async function seedDatabase() {
     }
   })
 
+  // Create test evaluations with various statuses
+  console.log('📝 Creating test evaluations with different statuses...')
+  
+  // Get all employees for evaluation creation
+  const allEmployees = await prisma.user.findMany({
+    where: {
+      companyId: company.id,
+      role: 'employee'
+    },
+    include: {
+      manager: true
+    }
+  })
+
+  // Sample evaluation items data (simplified for seeding)
+  const sampleEvaluationItems = [
+    {
+      id: 'item-1',
+      title: 'Increase Company Revenue by 25%',
+      description: 'Drive overall company growth through strategic initiatives and market expansion',
+      type: 'okr',
+      rating: null,
+      comment: '',
+      level: 'company',
+      createdBy: hrAdmin.id
+    },
+    {
+      id: 'item-2', 
+      title: 'Digital Transformation Initiative',
+      description: 'Successfully implement digital tools across all departments to improve efficiency',
+      type: 'okr',
+      rating: null,
+      comment: '',
+      level: 'company',
+      createdBy: hrAdmin.id
+    },
+    {
+      id: 'item-3',
+      title: 'Communication Excellence',
+      description: 'Clear, professional communication across all channels and stakeholders', 
+      type: 'competency',
+      rating: null,
+      comment: '',
+      level: 'company',
+      createdBy: hrAdmin.id
+    },
+    {
+      id: 'item-4',
+      title: 'Adaptability',
+      description: 'Flexibility and resilience in changing business environments',
+      type: 'competency', 
+      rating: null,
+      comment: '',
+      level: 'company',
+      createdBy: hrAdmin.id
+    },
+    {
+      id: 'item-5',
+      title: 'Improve Department Efficiency by 15%',
+      description: 'Streamline processes and reduce waste in daily operations',
+      type: 'okr',
+      rating: null,
+      comment: '',
+      level: 'department',
+      createdBy: manager.id
+    }
+  ]
+
+  // Create evaluations with different statuses for testing
+  const evaluationScenarios = [
+    // COMPLETED evaluations (employee approved)
+    {
+      employee: allEmployees[0], // employee1@demo.com
+      status: 'completed',
+      overallRating: 4,
+      managerComments: 'Excellent performance this quarter. Consistently exceeds expectations.',
+      items: sampleEvaluationItems.map((item, idx) => ({
+        ...item,
+        rating: [5, 4, 4, 4, 3][idx],
+        comment: [
+          'Outstanding work on revenue initiatives, exceeded target by 10%',
+          'Led digital transformation in sales department successfully', 
+          'Clear and effective communicator with all team members',
+          'Adapted quickly to new processes and market changes',
+          'Implemented 3 efficiency improvements saving 20% time'
+        ][idx]
+      })),
+      completedDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) // 1 week ago
+    },
+
+    // SUBMITTED evaluation (waiting for employee approval) 
+    {
+      employee: allEmployees[1], // employee2@demo.com  
+      status: 'submitted',
+      overallRating: 3,
+      managerComments: 'Good performance with room for improvement in some areas.',
+      items: sampleEvaluationItems.map((item, idx) => ({
+        ...item,
+        rating: [3, 3, 4, 2, 3][idx],
+        comment: [
+          'Met revenue targets, could focus more on proactive initiatives',
+          'Participated in digital tools training, needs more practice',
+          'Good communication skills, occasionally needs clarification',
+          'Sometimes struggles with unexpected changes, improving',
+          'Solid contributor to team efficiency efforts'
+        ][idx]
+      })),
+      submittedDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000) // 2 days ago
+    },
+
+    // SUBMITTED evaluation (overdue - >3 days)
+    {
+      employee: allEmployees[2], // employee3@demo.com
+      status: 'submitted', 
+      overallRating: 5,
+      managerComments: 'Exceptional performance, natural leader and innovator.',
+      items: sampleEvaluationItems.map((item, idx) => ({
+        ...item,
+        rating: [5, 5, 5, 5, 4][idx],
+        comment: [
+          'Exceeded revenue goals by 15%, developed new client acquisition strategy',
+          'Led digital transformation training for entire department',
+          'Excellent presentation and stakeholder communication skills',
+          'Thrives in changing environments, helps others adapt',
+          'Introduced 5 process improvements, mentors other team members'
+        ][idx]
+      })),
+      submittedDate: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000) // 5 days ago (overdue)
+    },
+
+    // DRAFT evaluation (incomplete - missing comments)
+    {
+      employee: allEmployees[3], // worker1 (first operational worker)
+      status: 'draft',
+      overallRating: null,
+      managerComments: '',
+      items: sampleEvaluationItems.map((item, idx) => ({
+        ...item,
+        rating: idx < 3 ? [4, 3, 4][idx] : null, // Only first 3 items have ratings
+        comment: idx < 3 ? [
+          'Good progress on company objectives',
+          'Learning new digital tools effectively', 
+          'Communicates well with team'
+        ][idx] : '' // Missing comments for last 2 items
+      })),
+      draftDate: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000)
+    },
+
+    // DRAFT evaluation (completely empty - overdue)  
+    {
+      employee: allEmployees[4], // worker2
+      status: 'draft',
+      overallRating: null,
+      managerComments: '',
+      items: sampleEvaluationItems.map(item => ({
+        ...item,
+        rating: null,
+        comment: ''
+      })),
+      draftDate: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000) // 10 days ago (very overdue)
+    }
+  ]
+
+  // Create the actual evaluations
+  for (let i = 0; i < evaluationScenarios.length; i++) {
+    const scenario = evaluationScenarios[i]
+    if (!scenario.employee.manager) continue
+
+    await prisma.evaluation.upsert({
+      where: {
+        employeeId_periodType_periodDate: {
+          employeeId: scenario.employee.id,
+          periodType: 'yearly',
+          periodDate: currentYear.toString()
+        }
+      },
+      update: {},
+      create: {
+        employeeId: scenario.employee.id,
+        managerId: scenario.employee.manager.id,
+        companyId: company.id,
+        cycleId: defaultCycle.id,
+        periodType: 'yearly',
+        periodDate: currentYear.toString(),
+        status: scenario.status,
+        overallRating: scenario.overallRating,
+        managerComments: scenario.managerComments,
+        evaluationItemsData: JSON.stringify(scenario.items),
+        createdAt: scenario.completedDate || scenario.submittedDate || scenario.draftDate || new Date(),
+        updatedAt: scenario.completedDate || scenario.submittedDate || scenario.draftDate || new Date()
+      }
+    })
+  }
+
+  // Create some evaluations for HR managers' teams too
+  for (let hrIndex = 0; hrIndex < hrManagers.length; hrIndex++) {
+    const hrManager = hrManagers[hrIndex]
+    const hrEmployees = await prisma.user.findMany({
+      where: {
+        companyId: company.id,
+        managerId: hrManager.id
+      }
+    })
+
+    // Create one completed evaluation per HR team
+    if (hrEmployees.length > 0) {
+      await prisma.evaluation.upsert({
+        where: {
+          employeeId_periodType_periodDate: {
+            employeeId: hrEmployees[0].id,
+            periodType: 'yearly',
+            periodDate: currentYear.toString()
+          }
+        },
+        update: {},
+        create: {
+          employeeId: hrEmployees[0].id,
+          managerId: hrManager.id,
+          companyId: company.id,
+          cycleId: defaultCycle.id,
+          periodType: 'yearly',
+          periodDate: currentYear.toString(),
+          status: 'completed',
+          overallRating: 4,
+          managerComments: `Great performance in ${hrManager.department} department.`,
+          evaluationItemsData: JSON.stringify(sampleEvaluationItems.map(item => ({
+            ...item,
+            rating: 4,
+            comment: `Solid performance on ${item.title.toLowerCase()}`
+          }))),
+          createdAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000),
+          updatedAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000)
+        }
+      })
+    }
+  }
+
   console.log('✅ Database seeded successfully!')
-  console.log('📧 HR Admin Login: hr@demo.com / password123')
-  console.log('👨‍💼 Manager Login: manager@demo.com / password123')
-  console.log('👨‍💻 Employee Login: employee1@demo.com / password123')  
-  console.log('🔧 Worker Login: worker1 / 1234')
+  console.log('')
+  console.log('🔑 Login Credentials:')
+  console.log('📧 HR Admin: hr@demo.com / a')
+  console.log('👨‍💼 Manager: manager@demo.com / a')
+  console.log('👨‍💻 Employee 1: employee1@demo.com / a')  
+  console.log('👨‍💻 Employee 2: employee2@demo.com / a')
+  console.log('👨‍💻 Employee 3: employee3@demo.com / a')
+  console.log('🔧 Worker 1: worker1 / 1234')
+  console.log('🔧 Worker 2: worker2 / 1234')
   console.log('')
   console.log('🧑‍💼 HR Managers with Teams:')
-  console.log('   HR1 (Human Resources): hr1@demo.com / password123 (4 employees)')
-  console.log('   HR2 (Talent Acquisition): hr2@demo.com / password123 (4 employees)')  
-  console.log('   HR3 (Learning & Development): hr3@demo.com / password123 (4 employees)')
+  console.log('   HR1 (Human Resources): hr1@demo.com / a (4 employees)')
+  console.log('   HR2 (Talent Acquisition): hr2@demo.com / a (4 employees)')  
+  console.log('   HR3 (Learning & Development): hr3@demo.com / a (4 employees)')
   console.log('')
-  console.log('🎯 8 Default evaluation items created (3 OKRs + 2 Competencies)')
-  console.log(`🔄 Performance cycle created: "${defaultCycle.name}" (${defaultCycle.status})`)
+  console.log('📊 Test Evaluation Status Distribution:')
+  console.log('   ✅ COMPLETED: employee1@demo.com (approved, good ratings)')
+  console.log('   📤 SUBMITTED: employee2@demo.com (2 days ago, needs approval)')
+  console.log('   ⏰ SUBMITTED: employee3@demo.com (5 days ago, overdue approval)')
+  console.log('   🔄 DRAFT: worker1 (partial ratings, missing comments)')
+  console.log('   ❌ DRAFT: worker2 (empty, 10 days overdue)')
+  console.log('')
+  console.log('🎯 8 evaluation items created per evaluation')
+  console.log(`🔄 Performance cycle: "${defaultCycle.name}" (${defaultCycle.status})`)
 }

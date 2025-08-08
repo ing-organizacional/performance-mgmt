@@ -249,7 +249,7 @@ export default function AssignmentsClient({
       id: item.id,
       title: item.title,
       description: item.description,
-      evaluationDeadline: item.evaluationDeadline ? item.evaluationDeadline.slice(0, 16) : ''
+      evaluationDeadline: item.evaluationDeadline ? item.evaluationDeadline.slice(0, 10) : ''
     })
   }
 
@@ -597,14 +597,14 @@ export default function AssignmentsClient({
                         {t.assignments.evaluationDeadline}
                       </label>
                       <input
-                        type="datetime-local"
+                        type="date"
                         value={editingItem.evaluationDeadline}
                         onChange={(e) => setEditingItem({
                           ...editingItem,
                           evaluationDeadline: e.target.value
                         })}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-gray-900"
-                        min={new Date().toISOString().slice(0, 16)}
+                        min={new Date().toISOString().slice(0, 10)}
                         disabled={isPending}
                       />
                     </div>
@@ -625,7 +625,7 @@ export default function AssignmentsClient({
                       className="flex items-center space-x-2 px-4 py-2 bg-gray-200 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-300 transition-colors"
                     >
                       <span>✕</span>
-                      <span>{t.common.cancelButton}</span>
+                      <span>{t.common.cancel}</span>
                     </button>
                   </div>
                 </div>
@@ -782,14 +782,14 @@ export default function AssignmentsClient({
                             {t.assignments.evaluationDeadline}
                           </label>
                           <input
-                            type="datetime-local"
+                            type="date"
                             value={editingItem.evaluationDeadline}
                             onChange={(e) => setEditingItem({
                               ...editingItem,
                               evaluationDeadline: e.target.value
                             })}
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-gray-900"
-                            min={new Date().toISOString().slice(0, 16)}
+                            min={new Date().toISOString().slice(0, 10)}
                             disabled={isPending}
                           />
                         </div>
@@ -802,7 +802,7 @@ export default function AssignmentsClient({
                           className="flex items-center space-x-2 px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
                         >
                           <span>✓</span>
-                          <span>{isPending ? t.common.saving : t.common.saveButton}</span>
+                          <span>{isPending ? t.common.saving : t.common.save}</span>
                         </button>
                         <button
                           onClick={handleCancelEdit}
@@ -810,7 +810,7 @@ export default function AssignmentsClient({
                           className="flex items-center space-x-2 px-4 py-2 bg-gray-200 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-300 transition-colors"
                         >
                           <span>✕</span>
-                          <span>{t.common.cancelButton}</span>
+                          <span>{t.common.cancel}</span>
                         </button>
                       </div>
                     </div>
@@ -843,7 +843,7 @@ export default function AssignmentsClient({
                           className="flex items-center space-x-1 px-4 py-3 min-h-[44px] bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 active:scale-95 active:bg-gray-300 disabled:bg-gray-200 disabled:cursor-not-allowed transition-all duration-150 flex-shrink-0 touch-manipulation"
                         >
                           <span>✏️</span>
-                          <span>{t.common.editButton}</span>
+                          <span>{t.common.edit}</span>
                         </button>
                       </div>
                       
@@ -1013,14 +1013,14 @@ export default function AssignmentsClient({
                         {t.assignments.evaluationDeadline}
                       </label>
                       <input
-                        type="datetime-local"
+                        type="date"
                         value={editingItem.evaluationDeadline}
                         onChange={(e) => setEditingItem({
                           ...editingItem,
                           evaluationDeadline: e.target.value
                         })}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-gray-900"
-                        min={new Date().toISOString().slice(0, 16)}
+                        min={new Date().toISOString().slice(0, 10)}
                         disabled={isPending}
                       />
                     </div>
@@ -1044,7 +1044,7 @@ export default function AssignmentsClient({
                       className="flex items-center space-x-2 px-4 py-2 bg-gray-200 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-300 transition-colors"
                     >
                       <span>✕</span>
-                      <span>{t.common.cancelButton}</span>
+                      <span>{t.common.cancel}</span>
                     </button>
                   </div>
                 </div>
@@ -1144,7 +1144,7 @@ export default function AssignmentsClient({
                             } ${isPending ? 'opacity-50' : ''}`}
                           >
                             <span>{employeeHasItem(employee.id, item.id) ? '✓' : '➕'}</span>
-                            <span>{employeeHasItem(employee.id, item.id) ? t.evaluations.completed : (isPending ? t.common.saving : t.assignments.assignToSelected.split(' ')[0])}</span>
+                            <span>{employeeHasItem(employee.id, item.id) ? t.status.completed : (isPending ? t.common.saving : t.assignments.assignToSelected.split(' ')[0])}</span>
                           </button>
                         </div>
                       ))

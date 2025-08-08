@@ -55,8 +55,8 @@ export default function EvaluationDetailPage() {
       manager: {
         name: 'John Manager'
       },
-      periodType: 'quarterly',
-      periodDate: '2024-Q1',
+      periodType: 'yearly',
+      periodDate: new Date().getFullYear().toString(),
       okrsData: {
         okr_1: {
           id: 'okr_1',

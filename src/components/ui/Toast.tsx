@@ -11,7 +11,7 @@ interface ToastProps {
   duration?: number
 }
 
-export default function Toast({ message, type, onClose, duration = 4000 }: ToastProps) {
+export default function Toast({ message, type, onClose, duration = 5000 }: ToastProps) {
   const [isVisible, setIsVisible] = useState(false)
 
   useEffect(() => {
@@ -73,8 +73,8 @@ export default function Toast({ message, type, onClose, duration = 4000 }: Toast
 
   return (
     <div
-      className={`fixed top-4 right-4 z-[100] max-w-sm w-full transition-all duration-300 transform ${
-        isVisible ? 'translate-y-0 opacity-100' : '-translate-y-2 opacity-0'
+      className={`fixed top-4 left-4 right-4 z-[100] mx-auto transition-all duration-500 transform ${
+        isVisible ? 'translate-y-0 opacity-100 scale-100' : '-translate-y-4 opacity-0 scale-95'
       }`}
     >
       <div className={`rounded-lg border p-4 shadow-lg ${getToastStyles()}`}>

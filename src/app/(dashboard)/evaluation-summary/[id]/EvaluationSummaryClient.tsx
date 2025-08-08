@@ -1,9 +1,13 @@
 'use client'
 
-import Link from 'next/link'
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { LanguageSwitcher } from '@/components/layout'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { useExport } from '@/hooks/useExport'
+import { unlockEvaluation, approveEvaluation } from '@/lib/actions/evaluations'
+import { useToast } from '@/hooks/useToast'
+import { ToastContainer } from '@/components/ui'
 
 interface EvaluationSummary {
   id: string
@@ -35,11 +39,59 @@ interface EvaluationSummary {
 
 interface EvaluationSummaryClientProps {
   evaluation: EvaluationSummary
+  userRole: string
+  currentUserId: string
 }
 
-export default function EvaluationSummaryClient({ evaluation }: EvaluationSummaryClientProps) {
+export default function EvaluationSummaryClient({ evaluation, userRole, currentUserId }: EvaluationSummaryClientProps) {
   const { t } = useLanguage()
+  const router = useRouter()
   const { isExporting, exportError, exportEvaluationById } = useExport()
+  const { toasts, error, success, removeToast } = useToast()
+  const [isUnlocking, setIsUnlocking] = useState(false)
+  const [unlockError, setUnlockError] = useState<string | null>(null)
+  const [isApproving, setIsApproving] = useState(false)
+
+
+  const handleApproveEvaluation = async () => {
+    if (!evaluation.id) return
+    
+    setIsApproving(true)
+    try {
+      const result = await approveEvaluation(evaluation.id)
+      if (result.success) {
+        success(t.evaluations.evaluationApprovedSuccess)
+        // Refresh the page to show updated status
+        window.location.reload()
+      } else {
+        error(result.error || 'Failed to approve evaluation')
+      }
+    } catch (err) {
+      error('Failed to approve evaluation')
+    } finally {
+      setIsApproving(false)
+    }
+  }
+
+  const handleUnlockEvaluation = async () => {
+    if (!evaluation.id) return
+    setIsUnlocking(true)
+    setUnlockError(null)
+    
+    try {
+      const result = await unlockEvaluation(evaluation.id)
+      if (result.success) {
+        // Refresh the page to show updated status
+        router.refresh()
+      } else {
+        setUnlockError(result.error || 'Failed to unlock evaluation')
+      }
+    } catch {
+      setUnlockError('An unexpected error occurred')
+    } finally {
+      setIsUnlocking(false)
+    }
+  }
 
   const getRatingColor = (rating: number | null) => {
     if (!rating) return 'gray'
@@ -51,13 +103,13 @@ export default function EvaluationSummaryClient({ evaluation }: EvaluationSummar
   }
 
   const getRatingLabel = (rating: number | null) => {
-    if (!rating) return t.evaluations.notStarted
+    if (!rating) return t.status.notStarted
     switch (rating) {
-      case 5: return t.evaluations.outstanding
-      case 4: return t.evaluations.exceedsExpectations
-      case 3: return t.evaluations.meetsExpectations
-      case 2: return t.evaluations.belowExpectations
-      case 1: return t.evaluations.needsImprovement
+      case 5: return t.ratings.outstanding
+      case 4: return t.ratings.exceedsExpectations
+      case 3: return t.ratings.meetsExpectations
+      case 2: return t.ratings.belowExpectations
+      case 1: return t.ratings.needsImprovement
       default: return `${rating}/5`
     }
   }
@@ -65,7 +117,7 @@ export default function EvaluationSummaryClient({ evaluation }: EvaluationSummar
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'completed': return 'green'
-      case 'submitted': return 'blue'
+      case 'submitted': return 'green'
       case 'approved': return 'purple'
       case 'draft': return 'yellow'
       default: return 'gray'
@@ -74,10 +126,10 @@ export default function EvaluationSummaryClient({ evaluation }: EvaluationSummar
 
   const getStatusLabel = (status: string) => {
     switch (status) {
-      case 'completed': return t.evaluations.completed
-      case 'submitted': return 'Submitted'
-      case 'approved': return 'Approved'
-      case 'draft': return t.evaluations.inProgress
+      case 'completed': return t.status.completed
+      case 'submitted': return t.status.submitted
+      case 'approved': return t.status.approved
+      case 'draft': return t.status.draft
       default: return status
     }
   }
@@ -105,14 +157,14 @@ export default function EvaluationSummaryClient({ evaluation }: EvaluationSummar
         <div className="px-4 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
-              <Link
-                href="/dashboard/ratings"
-                className="flex items-center justify-center w-10 h-10 rounded-lg bg-gray-100 hover:bg-gray-200 active:scale-95 transition-all duration-150 mr-3 touch-manipulation"
+              <button
+                onClick={() => router.back()}
+                className="flex items-center justify-center w-10 h-10 rounded-lg hover:bg-gray-100 active:scale-95 transition-all duration-150 mr-3 touch-manipulation"
               >
                 <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                 </svg>
-              </Link>
+              </button>
               <div>
                 <h1 className="text-lg font-semibold text-gray-900">{t.evaluations.evaluation}</h1>
                 <p className="text-sm text-gray-500">{evaluation.employee.name}</p>
@@ -148,6 +200,21 @@ export default function EvaluationSummaryClient({ evaluation }: EvaluationSummar
               </div>
             </div>
           )}
+
+          {/* Unlock Error Display */}
+          {unlockError && (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+              <div className="flex items-center">
+                <svg className="w-5 h-5 text-red-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <div>
+                  <h3 className="text-sm font-medium text-red-800">Unlock Error</h3>
+                  <p className="text-sm text-red-600 mt-1">{unlockError}</p>
+                </div>
+              </div>
+            </div>
+          )}
           
           {/* Employee & Overall Performance Header */}
           <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
@@ -174,24 +241,76 @@ export default function EvaluationSummaryClient({ evaluation }: EvaluationSummar
               </div>
               
               <div className="flex items-center gap-3">
+                {/* HR Unlock Button - Only for submitted evaluations */}
+                {userRole === 'hr' && evaluation.status === 'submitted' && (
+                  <button
+                    onClick={handleUnlockEvaluation}
+                    disabled={isUnlocking}
+                    className={`flex items-center space-x-1 px-2 py-2 text-orange-700 text-xs font-medium rounded-lg active:scale-95 transition-all duration-150 touch-manipulation whitespace-nowrap tracking-tighter leading-none ${
+                      isUnlocking 
+                        ? 'bg-gray-400 text-white cursor-not-allowed' 
+                        : 'bg-orange-100 hover:bg-orange-200'
+                    }`}
+                    title="Unlock evaluation for editing"
+                  >
+                    {isUnlocking ? (
+                      <svg className="animate-spin w-3.5 h-3.5" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                      </svg>
+                    ) : (
+                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z" />
+                      </svg>
+                    )}
+                    <span>{isUnlocking ? 'Unlocking...' : 'Unlock'}</span>
+                  </button>
+                )}
+
+                {/* Employee Approve Button - Only for the employee viewing their own submitted evaluation */}
+                {evaluation.status === 'submitted' && currentUserId === evaluation.employee.id && (
+                  <button
+                    onClick={handleApproveEvaluation}
+                    disabled={isApproving}
+                    className={`flex items-center space-x-2 px-4 py-2.5 text-white text-sm font-medium rounded-lg active:scale-95 transition-all duration-150 touch-manipulation whitespace-nowrap shadow-md ${
+                      isApproving 
+                        ? 'bg-gray-400 cursor-not-allowed' 
+                        : 'bg-green-600 hover:bg-green-700 hover:shadow-lg'
+                    }`}
+                    title="Approve this evaluation"
+                  >
+                    {isApproving ? (
+                      <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                      </svg>
+                    ) : (
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                    )}
+                    <span>{isApproving ? t.common.approving : t.common.approve}</span>
+                  </button>
+                )}
+
                 {/* Context-Aware Export Button */}
                 <button
                   onClick={() => exportEvaluationById(evaluation.id, 'pdf')}
                   disabled={isExporting}
-                  className={`flex items-center gap-2 px-3 py-2 text-white text-sm font-medium rounded-lg active:scale-95 transition-all duration-150 touch-manipulation ${
+                  className={`flex items-center space-x-1 px-2 py-2 text-blue-700 text-xs font-medium rounded-lg active:scale-95 transition-all duration-150 touch-manipulation whitespace-nowrap tracking-tighter leading-none ${
                     isExporting 
-                      ? 'bg-gray-400 cursor-not-allowed' 
-                      : 'bg-blue-600 hover:bg-blue-700'
+                      ? 'bg-gray-400 text-white cursor-not-allowed' 
+                      : 'bg-blue-100 hover:bg-blue-200'
                   }`}
                   title={t.dashboard.exportPDF}
                 >
                   {isExporting ? (
-                    <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+                    <svg className="animate-spin w-3.5 h-3.5" fill="none" viewBox="0 0 24 24">
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                       <path className="opacity-75" fill="currentColor" d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                     </svg>
                   ) : (
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
                   )}
@@ -201,7 +320,6 @@ export default function EvaluationSummaryClient({ evaluation }: EvaluationSummar
                 {/* Status Badge */}
                 <div className={`px-3 py-1 rounded-full text-sm font-medium ${
                   getStatusColor(evaluation.status) === 'green' ? 'bg-green-100 text-green-700' :
-                  getStatusColor(evaluation.status) === 'blue' ? 'bg-blue-100 text-blue-700' :
                   getStatusColor(evaluation.status) === 'purple' ? 'bg-purple-100 text-purple-700' :
                   getStatusColor(evaluation.status) === 'yellow' ? 'bg-yellow-100 text-yellow-700' :
                   'bg-gray-100 text-gray-700'
@@ -468,6 +586,9 @@ export default function EvaluationSummaryClient({ evaluation }: EvaluationSummar
           )}
         </div>
       </div>
+      
+      {/* Toast Container */}
+      <ToastContainer toasts={toasts} onRemoveToast={removeToast} />
     </div>
   )
 }

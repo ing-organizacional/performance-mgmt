@@ -691,7 +691,7 @@ async function main() {
         companyId: company.id,
         cycleId: cycle.id,
         periodType: 'yearly',
-        periodDate: '2025',
+        periodDate: new Date().getFullYear().toString(),
         evaluationItemsData: JSON.stringify(evaluationItemsData),
         overallRating,
         managerComments: getRandomOverallComment(overallRating),

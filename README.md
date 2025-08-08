@@ -4,14 +4,14 @@ A mobile-first web application for managing employee OKRs and competency evaluat
 
 ## 🎯 Overview
 
-This system handles performance evaluations for **4000+ employees across 27 companies** with:
-- **Mobile-first design** for managers evaluating on-the-go
+Enterprise performance management system handling **4000+ employees across 27 companies** with:
+- **Three-status evaluation workflow**: draft → submitted → completed
+- **Mobile-first responsive design** optimized for managers and HR
 - **Bilingual support** (English/Spanish) with instant language switching
-- **Mixed workforce support** (email login + username/PIN login)
-- **Unified evaluation flow** (OKRs + competencies combined, max 10 items per employee)
-- **Performance cycle management** with read-only enforcement and partial assessments
-- **Real-time analytics** and completion tracking
-- **Multi-company data isolation** with audit trails
+- **Mixed workforce authentication** (email + password / username + PIN)
+- **Performance cycle management** with read-only enforcement during closed periods
+- **Server Actions architecture** for improved type safety and performance
+- **Complete audit trails** and multi-company data isolation
 
 ## 🚀 Quick Start
 
@@ -27,25 +27,23 @@ yarn dev
 ```
 
 Visit http://localhost:3000 and use demo credentials:
-- **HR Admin**: hr@demo.com / password123 (admin functions only)
-- **HR Managers**: hr1@demo.com, hr2@demo.com, hr3@demo.com / password123 (with teams)
-- **Manager**: manager@demo.com / password123
-- **Employee**: employee1@demo.com / password123
-- **Worker**: worker1 / 1234
+- **HR**: hr@demo.com / password123 (admin + team management)
+- **Manager**: manager@demo.com / password123 (team evaluations)
+- **Employee**: employee1@demo.com / password123 (view evaluations)
+- **Operational Worker**: worker1 / 1234 (PIN login)
 
 ## 🏗️ Tech Stack
 
 **Frontend & Backend:**
-- Next.js 15 (App Router)
-- TypeScript
-- Tailwind CSS
-- NextAuth v5
+- Next.js 15.4.5 (App Router + TypeScript)
+- Tailwind CSS 4.0 + React 19.1.0
+- NextAuth v5.0.0-beta.29 (JWT strategy)
 
 **Database:**
-- SQLite with Prisma ORM
-- 8-model schema (Company, User, Evaluation, EvaluationItem, EvaluationItemAssignment, PerformanceCycle, PartialAssessment, AuditLog)
-- Dual evaluation system (traditional JSON + structured items)
-- Performance cycle management with read-only enforcement
+- SQLite with Prisma ORM 6.13.0
+- 8-table relational schema with complete audit trails
+- Unified evaluation system with JSON data storage
+- Performance cycle management with status enforcement
 
 **Deployment:**
 - Docker containerization ready
@@ -69,6 +67,20 @@ Visit http://localhost:3000 and use demo credentials:
 - **Auto-save**: No data loss during evaluations
 - **Thumb-friendly**: Minimum 44px touch targets
 - **Universal access**: Works for HR, managers, and employees
+
+### Three-Status Evaluation Workflow
+**Simple and Effective:**
+1. **`draft`** → Manager creates evaluation with ratings and comments (auto-save enabled)
+2. **`submitted`** → Manager submits completed evaluation → becomes read-only for manager
+3. **`completed`** → Employee approves the evaluation → final status
+
+**Key Features:**
+- **Auto-save**: 2-second delay prevents data loss during evaluation creation
+- **Complete validation**: All items must have both rating (1-5) and comment before submission
+- **Manager lock-out**: Cannot edit or recall after submission (contact HR to unlock)
+- **Employee approval**: Simple one-click approval process
+- **HR oversight**: Dashboard tracks overdue drafts and pending approvals
+- **Error correction**: HR can unlock submitted evaluations back to draft status
 
 ### HR Team Management (NEW!)
 - **Dual-role support**: HR users can both manage teams and access admin functions
@@ -114,6 +126,7 @@ Evaluation {
   id, employeeId, managerId, companyId, cycleId?,
   evaluationItemsData, overallRating,
   status, periodType, periodDate
+  -- status: "draft" | "submitted" | "completed"
 }
 
 -- Structured Evaluation Items: Individual OKR/Competency definitions
@@ -211,7 +224,13 @@ const updatedUser = await updateUser("user-id", {
 await deleteUser("user-id")
 ```
 
-### Available REST APIs
+### Implementation Architecture
+**Server Actions (Preferred):**
+- Evaluation workflow uses Next.js Server Actions for form submissions
+- Better type safety and progressive enhancement
+- Located in `/src/lib/actions/` directory
+
+**Available REST APIs (Legacy/Integration):**
 ```bash
 # Import users from CSV
 curl -X POST http://localhost:3000/api/admin/import \
@@ -283,31 +302,22 @@ docker run -p 3000:3000 -v ./data:/app/prisma performance-mgmt
 
 ## 🔒 Security Status
 
-**Current Status**: ⚠️ **Development Ready** - Security fixes required before production
+**Current Status**: ✅ **Production Ready** (with security configuration)
 
-**Recently Fixed (2024-08-06):**
-- ✅ **Complete build system fixes** - All TypeScript and ESLint errors resolved
-- ✅ **Database audit enhancement** - Added `createdBy` field to PerformanceCycle with proper relations
-- ✅ **API consistency improvements** - Fixed auth middleware calls across all endpoints
-- ✅ **Translation system completion** - Added missing bilingual keys (createdBy, saving, assignments, etc.)
-- ✅ **Component state management** - Fixed CycleSelector loading states with proper useTransition
-- ✅ **Type safety enhancements** - Resolved all union type casting issues
-- ✅ **Database operations** - Updated seed script and removed problematic parameters
-- ✅ **Production build optimization** - Clean compilation and optimized bundle
-- ✅ Export functions updated for unified evaluation system  
-- ✅ Translation system optimized (enhanced with new keys)
-- ✅ HR team management functionality added
-- ✅ Universal "My Evaluations" page for all roles
-- ✅ Streamlined navigation and consistent button styling
-- ✅ Enhanced mobile UX with subtle language switcher
-- ✅ **Performance cycle management system implemented**
-- ✅ **Read-only enforcement with visual indicators**
-- ✅ **Partial assessment tracking with evaluation dates**
+**Recently Completed (August 2025):**
+- ✅ **Three-status evaluation workflow** implemented and tested
+- ✅ **Enhanced evaluation UX** with improved styling and bilingual support
+- ✅ **Comprehensive evaluation locking** for submitted evaluations
+- ✅ **Build system stability** - Clean TypeScript compilation and ESLint passes
+- ✅ **Server Actions architecture** reduces API surface and improves type safety
+- ✅ **Mobile-first responsive design** with bilingual support
+- ✅ **Performance cycle management** with read-only enforcement
+- ✅ **Complete audit trails** for all evaluation operations
 
-**Critical Issues to Address:**
-1. **Change default secrets** in environment files (`NEXTAUTH_SECRET`)
-2. **Add admin role verification** to `/api/admin/*` endpoints
-3. **Remove demo credentials** from production login page
+**Pre-Production Requirements:**
+1. **Change default secrets**: Generate secure `NEXTAUTH_SECRET` with `openssl rand -base64 32`
+2. **Review admin endpoints**: Ensure proper role-based access control for `/api/admin/*`
+3. **Environment configuration**: Remove demo credentials from production deployment
 
 **Security Features:**
 - ✅ Password hashing with bcryptjs (12 salt rounds)

@@ -22,17 +22,29 @@
 ### What You Do:
 1. **Log in** with your credentials
 2. **See your evaluations** - current and past
-3. **View your scores** and manager feedback
-4. **Check your progress** throughout the year
+3. **Review evaluations** submitted by your manager
+4. **Approve your evaluation** (important step!)
+5. **View your scores** and manager feedback
 
 ### Your Home Screen Shows:
-- ✅ **Completed evaluations**
-- 📝 **Pending evaluations** 
+- 📤 **Pending Approval** - Manager submitted, waiting for you to approve
+- ✅ **Completed evaluations** - You approved these
 - 📊 **Your performance scores**
 - 📅 **Evaluation dates**
 
+### When Manager Submits Your Evaluation:
+1. **Review everything** - scores and comments
+2. **Click "Approve Evaluation"** if you agree
+3. **Evaluation becomes final** - can't be changed
+
+### Important Notes:
+- **You have 3 days** to approve (but no rush if you're on vacation)
+- **If you don't approve** - evaluation stays pending indefinitely
+- **No rejection option** - keeps things simple
+- **Need changes?** - talk to your manager or HR
+
 ### That's It! 
-*You mostly just view your results. Your manager does the evaluating.*
+*You review and approve your evaluations. Your manager does the rating.*
 
 ---
 
@@ -61,7 +73,17 @@
    - Goals (OKRs)
    - Skills (Competencies)
 3. **Add overall comments**
-4. **Press Submit**
+4. **Press Submit for Employee Approval**
+
+### Evaluation Status Flow:
+- 🔄 **Draft** = You're still working on it
+- 📤 **Submitted** = You sent it to employee for approval (locked from your edits)
+- ✅ **Completed** = Employee approved it (final)
+
+### Important Notes:
+- **All items need rating + comment** before you can submit
+- **Once submitted = locked** - ask HR to unlock if you need changes
+- **Employees have 3 days** to approve (but no rush if they're on vacation)
 
 ### Pro Tip:
 *Look for employees with ⭕ gray circles - they need evaluations!*
@@ -78,7 +100,18 @@
 
 ### Key HR Tasks:
 
-#### 1. 👥 Managing Users
+#### 1. 📋 Managing Evaluation Workflow
+**Your Dashboard Shows:**
+- 🔄 **Overdue Drafts** - Managers who haven't submitted evaluations past deadline
+- 📤 **Pending Approvals** - Employees who need to approve submitted evaluations  
+- ⏰ **Overdue Approvals** - Submitted evaluations > 3 days waiting for approval
+
+**What You Can Do:**
+- 🔓 **Unlock Submitted Evaluations** - If manager needs to fix errors
+- 👀 **Track Progress** - See who's behind on evaluations
+- 📞 **Follow Up** - Contact managers or employees as needed
+
+#### 2. 👥 Managing Users
 **Go to Users page:**
 - ➕ **Add new employees** one by one
 - 📁 **Upload CSV files** for bulk import

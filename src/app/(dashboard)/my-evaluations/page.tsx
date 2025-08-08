@@ -2,20 +2,38 @@ import { auth } from '@/auth'
 import { redirect } from 'next/navigation'
 import { prisma } from '@/lib/prisma-client'
 import MyEvaluationsClient from './MyEvaluationsClient'
+import type { EvaluationCycle } from '@/types'
 
 interface Evaluation {
   id: string
   period: string
-  status: 'draft' | 'submitted' | 'approved' | 'completed'
+  status: 'draft' | 'submitted' | 'completed'
   overallRating: number | null
   submittedAt: string | null
   managerName: string
 }
 
-async function getMyEvaluations(userId: string): Promise<Evaluation[]> {
+async function getActiveCycle(companyId: string): Promise<EvaluationCycle | null> {
+  const cycle = await prisma.performanceCycle.findFirst({
+    where: {
+      companyId,
+      status: 'active'
+    }
+  })
+  
+  return cycle as EvaluationCycle | null
+}
+
+async function getMyEvaluations(userId: string, companyId: string): Promise<Evaluation[]> {
+  console.log('Fetching evaluations for userId:', userId, 'companyId:', companyId)
+  
   const evaluations = await prisma.evaluation.findMany({
     where: {
-      employeeId: userId
+      employeeId: userId,
+      companyId: companyId,
+      status: {
+        in: ['draft', 'submitted', 'completed']
+      }
     },
     include: {
       manager: {
@@ -30,11 +48,16 @@ async function getMyEvaluations(userId: string): Promise<Evaluation[]> {
     }
   })
 
+  console.log('Found evaluations:', evaluations.length)
+  if (evaluations.length > 0) {
+    console.log('Evaluation statuses:', evaluations.map(e => e.status))
+  }
+
   // Transform the data to match the expected format
   return evaluations.map(evaluation => ({
     id: evaluation.id,
     period: `${evaluation.periodDate} ${evaluation.periodType}`,
-    status: evaluation.status as 'draft' | 'submitted' | 'approved' | 'completed',
+    status: evaluation.status as 'draft' | 'submitted' | 'completed',
     overallRating: evaluation.overallRating,
     submittedAt: evaluation.createdAt.toISOString(),
     managerName: evaluation.manager.name
@@ -48,13 +71,25 @@ export default async function MyEvaluationsPage() {
     redirect('/login')
   }
 
-  // Fetch evaluations directly from database
-  const evaluations = await getMyEvaluations(session.user.id)
+  const companyId = session.user.companyId
+  if (!companyId) {
+    redirect('/login')
+  }
+
+  const userRole = session.user.role
+  
+  console.log('My Evaluations Page - User:', session.user.email, 'ID:', session.user.id, 'Role:', userRole)
+
+  // Fetch evaluations and active cycle from database
+  const evaluations = await getMyEvaluations(session.user.id, companyId)
+  const activeCycle = await getActiveCycle(companyId)
 
   return (
     <MyEvaluationsClient 
       evaluations={evaluations}
       userName={session.user.name || ''}
+      activeCycle={activeCycle}
+      userRole={userRole}
     />
   )
 }

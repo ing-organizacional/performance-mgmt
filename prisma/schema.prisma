@@ -89,7 +89,7 @@ model Evaluation {
 
   overallRating   Int? // 1-5 scale
   managerComments String?
-  status          String  @default("draft") // "draft" | "submitted" | "approved"
+  status          String  @default("draft") // "draft" | "submitted" | "completed"
 
   employee  User              @relation("EmployeeEvaluations", fields: [employeeId], references: [id])
   manager   User              @relation("ManagerEvaluations", fields: [managerId], references: [id])

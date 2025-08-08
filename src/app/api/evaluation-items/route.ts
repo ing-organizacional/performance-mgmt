@@ -149,7 +149,23 @@ export async function GET(request: NextRequest) {
     // Remove duplicates by ID and sort
     const uniqueItems = allItems.filter((item, index, array) => 
       array.findIndex(i => i.id === item.id) === index
-    ).sort((a, b) => a.sortOrder - b.sortOrder)
+    ).sort((a, b) => {
+      // Prioritize company-wide items created in the last 24 hours (newly created)
+      const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000)
+      const aIsNewCompanyItem = a.level === 'company' && new Date(a.createdAt) > oneDayAgo
+      const bIsNewCompanyItem = b.level === 'company' && new Date(b.createdAt) > oneDayAgo
+      
+      if (aIsNewCompanyItem && !bIsNewCompanyItem) return -1
+      if (!aIsNewCompanyItem && bIsNewCompanyItem) return 1
+      
+      // If both are new company items or neither are, sort by creation date (newest first)
+      if (aIsNewCompanyItem && bIsNewCompanyItem) {
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      }
+      
+      // Default to sortOrder for other items
+      return a.sortOrder - b.sortOrder
+    })
 
     // Transform to format expected by evaluation page
     const formattedItems = uniqueItems.map((item) => ({
@@ -181,185 +197,5 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST /api/evaluation-items - Create new evaluation item
-export async function POST(request: NextRequest) {
-  try {
-    const session = await auth()
-    
-    if (!session?.user?.id) {
-      return NextResponse.json({ 
-        success: false, 
-        error: 'Unauthorized' 
-      }, { status: 401 })
-    }
-
-    const userId = session.user.id
-    const userRole = session.user.role
-    
-    const companyId = session.user.companyId
-
-    // Only managers and HR can create items
-    if (userRole !== 'manager' && userRole !== 'hr') {
-      return NextResponse.json({ 
-        success: false, 
-        error: 'Access denied - Manager or HR role required' 
-      }, { status: 403 })
-    }
-
-    const body = await request.json()
-    const { title, description, type, level, evaluationDeadline } = body
-
-    if (!title || !description || !type || !level) {
-      return NextResponse.json({ 
-        success: false, 
-        error: 'Title, description, type, and level are required' 
-      }, { status: 400 })
-    }
-
-    // Validate deadline if provided
-    let deadlineDate = null
-    if (evaluationDeadline) {
-      deadlineDate = new Date(evaluationDeadline)
-      if (isNaN(deadlineDate.getTime())) {
-        return NextResponse.json({ 
-          success: false, 
-          error: 'Invalid deadline date format. Please provide a valid date and time.' 
-        }, { status: 400 })
-      }
-      
-      // Deadline must be in the future (at least 1 hour from now)
-      const now = new Date()
-      const oneHourFromNow = new Date(now.getTime() + 60 * 60 * 1000)
-      if (deadlineDate <= oneHourFromNow) {
-        return NextResponse.json({ 
-          success: false, 
-          error: 'Deadline must be at least 1 hour in the future.' 
-        }, { status: 400 })
-      }
-
-      // Check if deadline is not too far in the future (e.g., more than 2 years)
-      const twoYearsFromNow = new Date(now.getTime() + 2 * 365 * 24 * 60 * 60 * 1000)
-      if (deadlineDate > twoYearsFromNow) {
-        return NextResponse.json({ 
-          success: false, 
-          error: 'Deadline cannot be more than 2 years in the future.' 
-        }, { status: 400 })
-      }
-    }
-
-    // Validate type and level
-    if (!['okr', 'competency'].includes(type)) {
-      return NextResponse.json({ 
-        success: false, 
-        error: 'Type must be okr or competency' 
-      }, { status: 400 })
-    }
-
-    if (!['company', 'department', 'manager'].includes(level)) {
-      return NextResponse.json({ 
-        success: false, 
-        error: 'Level must be company, department, or manager' 
-      }, { status: 400 })
-    }
-
-    // Permission check
-    if (userRole === 'manager' && level === 'company') {
-      return NextResponse.json({ 
-        success: false, 
-        error: 'Only HR can create company-level items' 
-      }, { status: 403 })
-    }
-
-    // Get user info for assignedTo field
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      select: { department: true }
-    })
-
-    let assignedTo = null
-    if (level === 'department' && user?.department) {
-      assignedTo = user.department
-    } else if (level === 'manager') {
-      assignedTo = userId
-    }
-
-    // Get the next sort order
-    const lastItem = await prisma.evaluationItem.findFirst({
-      where: { companyId },
-      orderBy: { sortOrder: 'desc' }
-    })
-    const sortOrder = (lastItem?.sortOrder || 0) + 1
-
-    // Create the item
-    const newItem = await prisma.evaluationItem.create({
-      data: {
-        companyId,
-        title,
-        description,
-        type,
-        level,
-        createdBy: userId,
-        assignedTo,
-        sortOrder,
-        active: true,
-        evaluationDeadline: deadlineDate,
-        deadlineSetBy: deadlineDate ? userId : null
-      },
-      include: {
-        creator: {
-          select: {
-            name: true,
-            role: true
-          }
-        },
-        deadlineSetByUser: {
-          select: {
-            name: true,
-            role: true
-          }
-        }
-      }
-    })
-
-    // Log deadline setting for audit purposes
-    if (deadlineDate) {
-      const auditLog = {
-        timestamp: new Date().toISOString(),
-        userId: userId,
-        userName: session.user.name,
-        userRole: userRole,
-        action: 'deadline_set_on_creation',
-        itemId: newItem.id,
-        itemTitle: newItem.title,
-        deadline: deadlineDate.toISOString(),
-        companyId: companyId
-      }
-      console.log('AUDIT: Evaluation item created with deadline:', JSON.stringify(auditLog, null, 2))
-    }
-
-    return NextResponse.json({
-      success: true,
-      data: {
-        id: newItem.id,
-        title: newItem.title,
-        description: newItem.description,
-        type: newItem.type,
-        level: newItem.level,
-        createdBy: newItem.creator.name,
-        creatorRole: newItem.creator.role,
-        evaluationDeadline: newItem.evaluationDeadline?.toISOString() || null,
-        deadlineSetBy: newItem.deadlineSetByUser?.name || null,
-        deadlineSetByRole: newItem.deadlineSetByUser?.role || null
-      },
-      message: 'Evaluation item created successfully'
-    })
-
-  } catch (error) {
-    console.error('Error creating evaluation item:', error)
-    return NextResponse.json({ 
-      success: false,
-      error: 'Failed to create evaluation item',
-      details: error instanceof Error ? error.message : 'Unknown error'
-    }, { status: 500 })
-  }
-}
+// POST endpoint removed - now handled by server action createEvaluationItem
+// This keeps the API cleaner and more consistent

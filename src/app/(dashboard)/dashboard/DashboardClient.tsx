@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { signOut } from 'next-auth/react'
 import Link from 'next/link'
-import { ExportButton, PDFExportCenter } from '@/components/features/dashboard'
+import { PDFExportCenter } from '@/components/features/dashboard'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { LanguageSwitcher } from '@/components/layout'
 import { CycleSelector } from '@/components/features/cycles'
@@ -43,6 +43,25 @@ interface PerformanceCycle {
   }
 }
 
+interface OverdueDraft {
+  id: string
+  employeeName: string
+  employeeDepartment: string | null
+  managerName: string
+  createdAt: string
+  daysOverdue: number
+}
+
+interface PendingApproval {
+  id: string
+  employeeId: string
+  employeeName: string
+  employeeDepartment: string | null
+  managerName: string
+  submittedAt: string
+  daysPending: number
+}
+
 interface DashboardClientProps {
   userRole: string
   companyId: string
@@ -51,6 +70,9 @@ interface DashboardClientProps {
   ratingDistribution: RatingDistribution
   activeCycle: EvaluationCycle | null
   allCycles: PerformanceCycle[]
+  overdueDrafts: OverdueDraft[]
+  pendingApprovals: PendingApproval[]
+  overdueApprovalsCount: number
 }
 
 export default function DashboardClient({
@@ -59,7 +81,10 @@ export default function DashboardClient({
   completionStats,
   ratingDistribution,
   activeCycle,
-  allCycles
+  allCycles,
+  overdueDrafts,
+  pendingApprovals,
+  overdueApprovalsCount
 }: DashboardClientProps) {
   const router = useRouter()
   const { t } = useLanguage()
@@ -115,7 +140,7 @@ export default function DashboardClient({
                 className="flex items-center justify-center space-x-1 px-2 py-2 bg-blue-600 text-white text-xs font-medium rounded-lg hover:bg-blue-700 active:scale-95 transition-all duration-150 touch-manipulation whitespace-nowrap tracking-tighter leading-none"
               >
                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 5 15 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13.5 7a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
                 </svg>
                 <span>{t.nav.employeeEvaluations}</span>
               </button>
@@ -353,26 +378,118 @@ export default function DashboardClient({
           </div>
         </button>
 
+        {/* Overdue Drafts Section - HR Only */}
+        {overdueDrafts.length > 0 && (
+          <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold text-gray-900">{t.dashboard.overdueDrafts || 'Overdue Draft Evaluations'}</h2>
+              <span className="px-2 py-1 bg-red-100 text-red-700 text-xs font-medium rounded-full">
+                {overdueDrafts.length} {t.dashboard.overdue || 'overdue'}
+              </span>
+            </div>
+            <div className="space-y-2">
+              {overdueDrafts.slice(0, 5).map((draft) => (
+                <div key={draft.id} className="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-gray-900 truncate">{draft.employeeName}</p>
+                    <p className="text-xs text-gray-500">
+                      {t.common.manager}: {draft.managerName} • {draft.daysOverdue} {t.dashboard.daysOverdue || 'days overdue'}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => router.push(`/evaluate/${draft.id}`)}
+                    className="px-3 py-1 bg-red-600 text-white rounded text-xs font-medium hover:bg-red-700 transition-colors"
+                  >
+                    {t.common.view}
+                  </button>
+                </div>
+              ))}
+              {overdueDrafts.length > 5 && (
+                <button
+                  onClick={() => router.push('/dashboard/overdue')}
+                  className="w-full text-center text-sm text-blue-600 hover:text-blue-700 font-medium pt-2"
+                >
+                  {t.dashboard.viewAll || 'View all'} ({overdueDrafts.length})
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Pending Approvals Section - HR Only */}
+        {pendingApprovals.length > 0 && (
+          <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold text-gray-900">{t.dashboard.pendingApprovals || 'Pending Employee Approvals'}</h2>
+              <div className="flex items-center space-x-2">
+                <span className="px-2 py-1 bg-yellow-100 text-yellow-700 text-xs font-medium rounded-full">
+                  {pendingApprovals.length} {t.dashboard.pending || 'pending'}
+                </span>
+                {overdueApprovalsCount > 0 && (
+                  <span className="px-2 py-1 bg-red-100 text-red-700 text-xs font-medium rounded-full">
+                    {overdueApprovalsCount} {t.dashboard.overdue3Days || '>3 days'}
+                  </span>
+                )}
+              </div>
+            </div>
+            <div className="space-y-2">
+              {pendingApprovals.slice(0, 5).map((approval) => (
+                <div key={approval.id} className={`flex items-center justify-between p-3 border rounded-lg ${
+                  approval.daysPending > 3 ? 'border-red-200 bg-red-50' : 'border-gray-200'
+                }`}>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-gray-900 truncate">{approval.employeeName}</p>
+                    <p className="text-xs text-gray-500">
+                      {t.dashboard.submittedBy || 'Submitted by'}: {approval.managerName} • {approval.daysPending} {t.dashboard.daysPending || 'days ago'}
+                    </p>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    {approval.daysPending > 3 && (
+                      <svg className="w-4 h-4 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                      </svg>
+                    )}
+                    <button
+                      onClick={() => router.push(`/evaluation-summary/${approval.id}`)}
+                      className="px-3 py-1 bg-yellow-600 text-white rounded text-xs font-medium hover:bg-yellow-700 transition-colors"
+                    >
+                      {t.common.view}
+                    </button>
+                  </div>
+                </div>
+              ))}
+              {pendingApprovals.length > 5 && (
+                <button
+                  onClick={() => router.push('/dashboard/pending-approvals')}
+                  className="w-full text-center text-sm text-blue-600 hover:text-blue-700 font-medium pt-2"
+                >
+                  {t.dashboard.viewAll || 'View all'} ({pendingApprovals.length})
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Quick Actions */}
         <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">{t.dashboard.quickActions}</h2>
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">{t.dashboard.administrativeActions}</h2>
           
           <div className="grid grid-cols-1 gap-3">
-            <div className="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
+
+            <button 
+              onClick={() => router.push('/dashboard/company-items')}
+              className="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+            >
               <div className="flex items-center">
-                <svg className="w-5 h-5 text-blue-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                <svg className="w-5 h-5 text-green-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
                 </svg>
-                <span className="text-sm font-medium text-gray-700">{t.dashboard.exportAllEvaluations}</span>
+                <span className="text-sm font-medium text-gray-700">{t.dashboard.companyWideItems}</span>
               </div>
-              <ExportButton
-                type="company"
-                format="excel"
-                className="px-3 py-1 bg-blue-600 text-white rounded text-xs font-medium hover:bg-blue-700 transition-colors"
-              >
-                Excel
-              </ExportButton>
-            </div>
+              <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
 
             <button 
               onClick={() => setIsExportCenterOpen(true)}
@@ -398,21 +515,6 @@ export default function DashboardClient({
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                 </svg>
                 <span className="text-sm font-medium text-gray-700">{t.dashboard.manageUsers}</span>
-              </div>
-              <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
-
-            <button 
-              onClick={() => router.push('/dashboard/company-items')}
-              className="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
-            >
-              <div className="flex items-center">
-                <svg className="w-5 h-5 text-green-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
-                </svg>
-                <span className="text-sm font-medium text-gray-700">{t.dashboard.companyWideItems}</span>
               </div>
               <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
