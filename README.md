@@ -302,45 +302,133 @@ curl http://localhost:3000/api/admin/companies
 
 **Build and Run:**
 ```bash
-# Build container
-docker build -t performance-mgmt .
+# Build container for production
+docker build --platform linux/amd64 -t sgd-performance-demo:latest .
 
 # Run with volume persistence
-docker run -p 3000:3000 \
-  -v /mnt/user/appdata/performance-mgmt:/app/data \
-  -e NEXTAUTH_URL=http://your-server-ip:3000 \
+docker run -p 3000:3000 -p 5555:5555 \
+  -v /mnt/user/appdata/sgd-performance-demo:/app/data \
+  -e NEXTAUTH_URL=https://your-domain.com \
   -e NEXTAUTH_SECRET=your-secure-secret \
-  performance-mgmt
+  -e DATABASE_URL=file:/app/data/production.db \
+  sgd-performance-demo:latest
 ```
 
-**🚀 Initial Setup in Docker:**
+## 🚀 **Initial Setup & Demo Data**
+
+### **1. Container Startup**
+The container automatically:
+- Creates SQLite database with proper schema
+- Sets up proper UnRAID permissions (nobody:users)
+- Starts Next.js application on port 3000
+
+### **2. Initialize Comprehensive Demo Data**
+
+The production Docker image is kept lean, so seeding requires temporarily installing dependencies:
+
 ```bash
-# 1. Start container and populate database
-docker exec -it <container-name> npx tsx src/lib/seed-comprehensive.ts
+# Method 1: Copy seed file to container and run (Recommended)
+# Copy the comprehensive seed file to the container
+docker cp /path/to/src/lib/seed-comprehensive.ts <container-name>:/app/data/seed-comprehensive.ts
 
-# 2. Login with demo credentials:
-#    HR: hr@demo.com / password123
-#    Manager: manager@demo.com / password123
-#    Employee: employee1@demo.com / password123
-
-# 3. Access CSV import templates
-docker exec -it <container-name> cp /app/public/user-import-template.csv /app/data/
-docker exec -it <container-name> cp /app/public/user-import-instructions.md /app/data/
+# Install dependencies, run seed, then clean up (all as root to avoid permission issues)
+docker exec -u root -it <container-name> sh -c "
+yarn add bcryptjs tsx && \
+npx tsx /app/data/seed-comprehensive.ts && \
+yarn remove bcryptjs tsx && \
+yarn cache clean
+"
 ```
 
-**📊 CSV Import in Docker:**
-1. Copy template files from container to host system
-2. Fill out CSV with your employee data following the template
-3. Login as HR → Users → Advanced → Upload CSV
-4. Review import results and fix any errors
+**Why run as root?** The production container runs as user `nextjs` (UID 99) for security, but installing/removing yarn packages requires root permissions to modify `node_modules/`.
 
-**Docker Configuration:**
-- **Port**: `3000:3000`
-- **Volume**: `/your/data/path:/app/data` (for SQLite persistence)
-- **Environment**:
-  - `NEXTAUTH_URL` - Your server URL
-  - `NEXTAUTH_SECRET` - Secure secret key
-  - `DATABASE_URL` - Auto-configured to `/app/data/production.db`
+**Alternative: Get root shell and run commands separately**
+```bash
+# Get root shell in container
+docker exec -u root -it <container-name> sh
+
+# Inside the root shell, run:
+yarn add bcryptjs tsx
+npx tsx /app/data/seed-comprehensive.ts  
+yarn remove bcryptjs tsx
+yarn cache clean
+exit
+```
+
+**Demo Data Includes:**
+- **4000+ employees** across 27 companies
+- **Complete org hierarchies** with manager relationships
+- **Performance cycles** (Annual/Quarterly) in various states
+- **Evaluation workflows** (draft → submitted → completed)
+- **Mixed workforce** (office + operational workers)
+- **Bilingual data** (English/Spanish examples)
+- **Evaluation items** at Company/Department/Manager levels
+
+### **3. Demo Login Credentials**
+After seeding, access the system with:
+- **HR Admin**: `hr@demo.com / password123`
+- **Manager**: `manager@demo.com / password123`  
+- **Employee**: `employee1@demo.com / password123`
+- **Operational**: `worker1 / 1234` (PIN login)
+
+### **4. Prisma Studio (Database Admin)**
+```bash
+# Start Prisma Studio for database management
+docker exec -it <container-name> npx --yes prisma studio --port 5555 --hostname 0.0.0.0
+
+# Access at: http://your-server-ip:5555
+# Shows all tables: User, Company, Evaluation, PerformanceCycle, etc.
+```
+
+**Prisma Studio Features:**
+- Browse all demo data visually
+- Real-time database inspection
+- Useful for troubleshooting during demos
+- Shows relationships between companies, users, evaluations
+
+## 🔧 **UnRAID Configuration**
+
+### **Docker Template Settings:**
+```yaml
+Repository: yourusername/sgd-performance-demo:latest
+Ports:
+  - 3000:3000/tcp (Web Interface)
+  - 5555:5555/tcp (Prisma Studio - Optional)
+Volumes:
+  - /mnt/user/appdata/sgd-performance-demo:/app/data
+Environment:
+  - NODE_ENV=production
+  - NEXTAUTH_URL=https://sgdemo.ing-organizacional.com
+  - NEXTAUTH_SECRET=your-secure-secret
+  - DATABASE_URL=file:/app/data/production.db
+```
+
+### **Host Permissions Setup:**
+```bash
+# Standard UnRAID permissions
+mkdir -p /mnt/user/appdata/sgd-performance-demo
+chown -R nobody:users /mnt/user/appdata/sgd-performance-demo
+chmod -R 777 /mnt/user/appdata/sgd-performance-demo
+```
+
+## 📊 **Production Database Management**
+
+### **CSV Import in Docker:**
+1. **Access Templates**: Available at `/app/public/user-import-template.csv`
+2. **Upload via UI**: Login as HR → Users → Advanced → Upload CSV
+3. **Bulk Import**: Supports thousands of users with validation
+4. **Error Handling**: Complete import validation and error reporting
+
+### **Database Backup:**
+```bash
+# Backup database
+cp /mnt/user/appdata/sgd-performance-demo/production.db \
+   /mnt/user/backups/sgd-demo-$(date +%Y%m%d).db
+
+# Restore database  
+cp /mnt/user/backups/sgd-demo-20250807.db \
+   /mnt/user/appdata/sgd-performance-demo/production.db
+```
 
 **Windows Server Deployment:**
 - Node.js runtime
