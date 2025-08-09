@@ -6,14 +6,14 @@ import { queryAuditLogs } from '@/lib/services/audit-service'
 export default async function AuditPage({
   searchParams
 }: {
-  searchParams: { 
+  searchParams: Promise<{ 
     page?: string
     action?: string
     entityType?: string
     userId?: string
     startDate?: string
     endDate?: string
-  }
+  }>
 }) {
   const session = await auth()
   
@@ -26,13 +26,16 @@ export default async function AuditPage({
     redirect('/dashboard')
   }
 
-  const page = parseInt(searchParams.page || '1')
+  // Await searchParams
+  const params = await searchParams
+  
+  const page = parseInt(params.page || '1')
   const filters = {
-    action: searchParams.action as any,
-    entityType: searchParams.entityType as any,
-    userId: searchParams.userId,
-    startDate: searchParams.startDate ? new Date(searchParams.startDate) : undefined,
-    endDate: searchParams.endDate ? new Date(searchParams.endDate) : undefined
+    action: params.action as any,
+    entityType: params.entityType as any,
+    userId: params.userId,
+    startDate: params.startDate ? new Date(params.startDate) : undefined,
+    endDate: params.endDate ? new Date(params.endDate) : undefined
   }
 
   const { logs, total, pages } = await queryAuditLogs(

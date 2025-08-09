@@ -97,23 +97,29 @@ export default function AuditDashboard({
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white shadow-sm border-b border-gray-200">
-        <div className="px-4 py-4">
-          <div className="flex items-center justify-between">
-            <h1 className="text-xl font-semibold text-gray-900">Audit Log Dashboard</h1>
+      {/* Fixed Header - Matching app design */}
+      <div className="fixed top-0 left-0 right-0 z-50 bg-white shadow-sm border-b border-gray-200">
+        <div className="px-4 py-3">
+          <div className="flex items-center justify-between mb-3">
+            <div className="min-w-0 flex-1">
+              <h1 className="text-lg font-semibold text-gray-900 truncate">Audit Log Dashboard</h1>
+              <p className="text-xs text-gray-500">System security and compliance tracking</p>
+            </div>
             <Link
               href="/dashboard"
-              className="text-sm text-blue-600 hover:text-blue-700"
+              className="flex items-center justify-center w-9 h-9 bg-blue-600 text-white rounded-lg hover:bg-blue-700 active:scale-95 transition-all duration-150 touch-manipulation ml-3"
+              title="Back to Dashboard"
             >
-              ← Back to Dashboard
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
             </Link>
           </div>
         </div>
       </div>
 
-      {/* Filters */}
-      <div className="bg-white border-b border-gray-200 px-4 py-3">
+      {/* Filters - Account for fixed header */}
+      <div className="mt-20 bg-white border-b border-gray-200 px-4 py-3">
         <div className="flex flex-wrap gap-3">
           {/* Action Filter */}
           <select
