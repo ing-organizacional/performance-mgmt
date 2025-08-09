@@ -225,6 +225,14 @@ export interface Translations {
   // Settings
   settings: {
     profile: string
+    editProfile: string
+    changePassword: string
+    currentPassword: string
+    newPassword: string
+    confirmPassword: string
+    passwordsMatch: string
+    passwordUpdated: string
+    passwordSecurityNote: string
   }
   
   // Assignments
@@ -826,7 +834,15 @@ export const translations: Record<Language, Translations> = {
       faceId: 'Face ID'
     },
     settings: {
-      profile: 'Profile'
+      profile: 'Profile',
+      editProfile: 'Edit Profile',
+      changePassword: 'Change Password',
+      currentPassword: 'Current Password',
+      newPassword: 'New Password',
+      confirmPassword: 'Confirm New Password',
+      passwordsMatch: 'Passwords must match',
+      passwordUpdated: 'Password updated successfully',
+      passwordSecurityNote: 'Security Note: Your new password should be at least 8 characters long and contain a mix of letters, numbers, and symbols.'
     },
     assignments: {
       assignmentManager: 'Assignment Manager',
@@ -1416,7 +1432,15 @@ export const translations: Record<Language, Translations> = {
       faceId: 'Face ID'
     },
     settings: {
-      profile: 'Perfil'
+      profile: 'Perfil',
+      editProfile: 'Editar Perfil',
+      changePassword: 'Cambiar Contraseña',
+      currentPassword: 'Contraseña Actual',
+      newPassword: 'Nueva Contraseña',
+      confirmPassword: 'Confirmar Nueva Contraseña',
+      passwordsMatch: 'Las contraseñas deben coincidir',
+      passwordUpdated: 'Contraseña actualizada exitosamente',
+      passwordSecurityNote: 'Nota de Seguridad: Su nueva contraseña debe tener al menos 8 caracteres e incluir una combinación de letras, números y símbolos.'
     },
     assignments: {
       assignmentManager: 'Gestor de Asignaciones',

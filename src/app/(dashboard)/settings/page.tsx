@@ -3,6 +3,7 @@ import { auth } from '@/auth'
 import { redirect } from 'next/navigation'
 import { prisma } from '@/lib/prisma-client'
 import SettingsClient from './SettingsClient'
+import BackButton from './BackButton'
 
 export default async function SettingsPage() {
   const session = await auth()
@@ -40,7 +41,10 @@ export default async function SettingsPage() {
   return (
     <div className="container mx-auto px-4 py-6">
       <div className="max-w-3xl mx-auto">
-        <h1 className="text-2xl font-bold text-gray-900 mb-6">Settings</h1>
+        <div className="flex items-center gap-4 mb-6">
+          <BackButton />
+          <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
+        </div>
         
         <Suspense fallback={
           <div className="flex items-center justify-center p-8">

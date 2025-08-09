@@ -5,6 +5,7 @@ import { useLanguage } from '@/contexts/LanguageContext'
 import { BiometricAuth } from '@/components/ui'
 import { getBiometricCredentials, removeBiometricCredential } from '@/lib/actions/biometric'
 import { useToast } from '@/hooks/useToast'
+import ChangePasswordModal from './ChangePasswordModal'
 import type { User } from 'next-auth'
 
 interface BiometricCredential {
@@ -26,6 +27,7 @@ export default function SettingsClient({ user }: SettingsClientProps) {
   const [credentials, setCredentials] = useState<BiometricCredential[]>([])
   const [loading, setLoading] = useState(true)
   const [removing, setRemoving] = useState<string | null>(null)
+  const [showChangePassword, setShowChangePassword] = useState(false)
 
   useEffect(() => {
     loadCredentials()
@@ -51,6 +53,11 @@ export default function SettingsClient({ user }: SettingsClientProps) {
   const handleBiometricSetupSuccess = (_credentialId: string) => {
     success(t.biometric?.setupSuccess || 'Biometric authentication set up successfully')
     loadCredentials() // Reload to show the new credential
+  }
+
+  const handlePasswordChangeSuccess = () => {
+    // No need to refresh page for password changes
+    // The success message is handled in the modal
   }
 
   const handleBiometricSetupError = (error: string) => {
@@ -128,9 +135,17 @@ export default function SettingsClient({ user }: SettingsClientProps) {
       {/* User Profile Section */}
       <div className="bg-white shadow rounded-lg">
         <div className="px-4 py-3 border-b border-gray-200">
-          <h2 className="text-lg font-semibold text-gray-900">
-            {t.settings?.profile || 'Profile'}
-          </h2>
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-gray-900">
+              {t.settings?.profile || 'Profile'}
+            </h2>
+            <button
+              onClick={() => setShowChangePassword(true)}
+              className="px-3 py-1.5 text-sm font-medium text-blue-600 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 active:scale-95 transition-all duration-150 touch-manipulation"
+            >
+              {t.settings?.changePassword || 'Change Password'}
+            </button>
+          </div>
         </div>
         <div className="px-4 py-3">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -146,17 +161,21 @@ export default function SettingsClient({ user }: SettingsClientProps) {
               </label>
               <p className="mt-0.5 text-sm text-gray-900">{user.email}</p>
             </div>
-            <div>
-              <label className="block text-xs font-bold text-gray-700">
-                {t.auth?.role || 'Role'}
-              </label>
-              <p className="mt-0.5 text-sm text-gray-900 capitalize">{user.role}</p>
-            </div>
-            <div>
-              <label className="block text-xs font-bold text-gray-700">
-                {t.common?.department || 'Department'}
-              </label>
-              <p className="mt-0.5 text-sm text-gray-900">{user.department || 'N/A'}</p>
+            <div className="md:col-span-2">
+              <div className="flex">
+                <div className="flex-1">
+                  <label className="block text-xs font-bold text-gray-700">
+                    {t.common?.department || 'Department'}
+                  </label>
+                  <p className="mt-0.5 text-sm text-gray-900">{user.department || 'N/A'}</p>
+                </div>
+                <div className="flex-1">
+                  <label className="block text-xs font-bold text-gray-700">
+                    {t.auth?.role || 'Role'}
+                  </label>
+                  <p className="mt-0.5 text-sm text-gray-900 capitalize">{user.role}</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -256,6 +275,14 @@ export default function SettingsClient({ user }: SettingsClientProps) {
           )}
         </div>
       </div>
+
+      {/* Change Password Modal */}
+      <ChangePasswordModal
+        user={user}
+        isOpen={showChangePassword}
+        onClose={() => setShowChangePassword(false)}
+        onSuccess={handlePasswordChangeSuccess}
+      />
     </div>
   )
 }
