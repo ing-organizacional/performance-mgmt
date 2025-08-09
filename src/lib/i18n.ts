@@ -181,6 +181,7 @@ export interface Translations {
   speech: {
     startRecording: string
     stopRecording: string
+    listening: string
     tapToSpeak: string
     microphoneAccess: string
     networkError: string
@@ -797,6 +798,7 @@ export const translations: Record<Language, Translations> = {
     speech: {
       startRecording: 'Start voice recording',
       stopRecording: 'Stop recording',
+      listening: 'Listening...',
       tapToSpeak: 'Tap microphone to dictate',
       microphoneAccess: 'Microphone access denied. Please allow microphone access.',
       networkError: 'Network error. Please check your internet connection.',
@@ -1397,6 +1399,7 @@ export const translations: Record<Language, Translations> = {
     speech: {
       startRecording: 'Iniciar grabación de voz',
       stopRecording: 'Detener grabación',
+      listening: 'Escuchando...',
       tapToSpeak: 'Toca el micrófono para dictar',
       microphoneAccess: 'Acceso al micrófono denegado. Por favor permite el acceso al micrófono.',
       networkError: 'Error de red. Por favor verifica tu conexión a internet.',

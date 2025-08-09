@@ -44,3 +44,6 @@ next-env.d.ts
 /src/generated/prisma
 /prisma/dev.db
 /prisma/dev.db-journal
+prisma-studio.log
+
+certificates

@@ -97,7 +97,6 @@ export async function assignCompanyItemToAllEmployees(itemId: string) {
         }
       })
 
-      console.log(`Reopened ${reopenResult.count} completed evaluations due to new company-wide item`)
     }
 
     revalidatePath('/evaluations/assignments')
@@ -340,10 +339,8 @@ export async function createEvaluationItem(formData: {
             }
           })
 
-          console.log(`Reopened ${reopenResult.count} completed evaluations due to new company-wide item`)
-        }
+            }
 
-        console.log(`Assigned company-wide item to ${assignments.length} employees`)
       } catch (error) {
         console.error('Error handling company-wide item assignment:', error)
         // Don't fail the whole creation, just log the error
@@ -494,12 +491,6 @@ export async function getTeamData() {
       return { success: false, error: 'Access denied - Manager or HR role required' }
     }
 
-    // Debug logging
-    console.log('getTeamData Debug:', {
-      userId,
-      userRole,
-      companyId
-    })
 
     // Get team members with their evaluations
     const teamMembers = await prisma.user.findMany({
@@ -530,11 +521,6 @@ export async function getTeamData() {
       }
     })
 
-    console.log('getTeamData Results:', {
-      teamMembersCount: teamMembers.length,
-      janitorGlenn: teamMembers.find(emp => emp.name.includes('Glenn')),
-      sampleEmployee: teamMembers[0]
-    })
 
     return { success: true, employees: teamMembers }
 
@@ -561,21 +547,11 @@ export async function getEvaluationItems(employeeId: string) {
       return { success: false, error: 'Access denied - Manager or HR role required' }
     }
 
-    // Debug logging
-    console.log('getEvaluationItems Debug:', {
-      employeeId,
-      userRole,
-      companyId,
-      sessionUserId: session.user.id
-    })
-
     // Get employee details first
     const employee = await prisma.user.findUnique({
       where: { id: employeeId },
       select: { department: true, companyId: true, name: true }
     })
-    
-    console.log('Employee found:', employee)
 
     // Build the OR conditions
     const orConditions = [
@@ -604,8 +580,6 @@ export async function getEvaluationItems(employeeId: string) {
         assignedTo: employee.department
       })
     }
-    
-    console.log('OR conditions built:', JSON.stringify(orConditions, null, 2))
 
     // Get evaluation items assigned to this employee or general company items
     const items = await prisma.evaluationItem.findMany({
@@ -633,11 +607,6 @@ export async function getEvaluationItems(employeeId: string) {
       }
     })
 
-    // Debug: log the query results
-    console.log('Found items:', items.length, 'items')
-    if (items.length > 0) {
-      console.log('First item:', items[0].title, items[0].level)
-    }
 
     // Apply smart sorting: prioritize company-wide items created in the last 24 hours (newly created)
     const sortedItems = items.sort((a, b) => {

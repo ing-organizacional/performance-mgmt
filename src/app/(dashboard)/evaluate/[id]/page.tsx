@@ -6,7 +6,7 @@ import { useEffect, useState, useRef, useCallback, useMemo } from 'react'
 import { useParams } from 'next/navigation'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { LanguageSwitcher } from '@/components/layout'
-import { ToastContainer, SpeechTextarea } from '@/components/ui'
+import { ToastContainer, SpeechTextarea, StarRating } from '@/components/ui'
 import { DeadlineDisplay } from '@/components/features/evaluation'
 import { useToast } from '@/hooks/useToast'
 import { hapticFeedback } from '@/utils/haptics'
@@ -237,62 +237,8 @@ export default function EvaluatePage() {
     }
   }
 
-  const handleRating = (rating: number) => {
-    // Prevent editing if evaluation is not in draft status
-    if (evaluationStatus !== 'draft') return
-    
-    // Add haptic feedback for rating selection
-    hapticFeedback.light()
-    
-    if (currentItem) {
-      const updatedItems = evaluationItems.map(item => 
-        item.id === currentItem.id ? { ...item, rating } : item
-      )
-      setEvaluationItems(updatedItems)
-    } else if (isOverall) {
-      setOverallRating(rating)
-    }
-    
-    // Focus on comment textarea after rating (small delay for smooth UX)
-    setTimeout(() => {
-      commentTextareaRef.current?.focus()
-    }, 100)
-    
-    // Trigger auto-save
-    triggerAutoSave()
-  }
-  
-  const handleCommentChange = (comment: string) => {
-    // Prevent editing if evaluation is not in draft status
-    if (evaluationStatus !== 'draft') return
-    
-    if (currentItem) {
-      const updatedItems = evaluationItems.map(item => 
-        item.id === currentItem.id ? { ...item, comment } : item
-      )
-      setEvaluationItems(updatedItems)
-    } else if (isOverall) {
-      setOverallComment(comment)
-    }
-    
-    // Trigger auto-save
-    triggerAutoSave()
-  }
-  
-  // Auto-save functionality
-  const triggerAutoSave = () => {
-    // Clear existing timeout
-    if (autoSaveTimeoutRef.current) {
-      clearTimeout(autoSaveTimeoutRef.current)
-    }
-    
-    // Set new timeout for auto-save (2 seconds delay)
-    autoSaveTimeoutRef.current = setTimeout(() => {
-      autoSaveEvaluationAction()
-    }, 2000)
-  }
-  
-  const autoSaveEvaluationAction = async () => {
+  // Auto-save functionality (moved before handleRating)
+  const autoSaveEvaluationAction = useCallback(async () => {
     if (evaluationStatus !== 'draft') return // Only auto-save drafts
     
     try {
@@ -315,16 +261,67 @@ export default function EvaluatePage() {
       if (result.success && result.evaluationId && !evaluationId) {
         setEvaluationId(result.evaluationId)
       }
-      
-      if (!result.success) {
-        console.error('Auto-save failed:', result.error)
-      }
     } catch (err) {
-      console.error('Auto-save failed:', err)
+      console.error('Auto-save error:', err)
     } finally {
       setAutoSaving(false)
     }
+  }, [evaluationStatus, params.id, evaluationItems, overallRating, overallComment, evaluationId])
+
+  const triggerAutoSave = useCallback(() => {
+    // Clear existing timeout
+    if (autoSaveTimeoutRef.current) {
+      clearTimeout(autoSaveTimeoutRef.current)
+    }
+    
+    // Set new timeout for auto-save (1 second delay)
+    autoSaveTimeoutRef.current = setTimeout(() => {
+      autoSaveEvaluationAction()
+    }, 1000)
+  }, [autoSaveEvaluationAction])
+
+  const handleRating = useCallback((rating: number) => {
+    // Prevent editing if evaluation is not in draft status
+    if (evaluationStatus !== 'draft') return
+    
+    // Add haptic feedback for rating selection
+    hapticFeedback.light()
+    
+    if (currentItem) {
+      const updatedItems = evaluationItems.map(item => 
+        item.id === currentItem.id ? { ...item, rating } : item
+      )
+      setEvaluationItems(updatedItems)
+    } else if (isOverall) {
+      setOverallRating(rating)
+    }
+    
+    // Focus on comment textarea after rating (small delay for smooth UX)
+    setTimeout(() => {
+      commentTextareaRef.current?.focus()
+    }, 100)
+    
+    // Trigger auto-save
+    triggerAutoSave()
+  }, [evaluationStatus, currentItem, evaluationItems, isOverall, triggerAutoSave])
+  
+  const handleCommentChange = (comment: string) => {
+    // Prevent editing if evaluation is not in draft status
+    if (evaluationStatus !== 'draft') return
+    
+    if (currentItem) {
+      const updatedItems = evaluationItems.map(item => 
+        item.id === currentItem.id ? { ...item, comment } : item
+      )
+      setEvaluationItems(updatedItems)
+    } else if (isOverall) {
+      setOverallComment(comment)
+    }
+    
+    // Trigger auto-save
+    triggerAutoSave()
   }
+  
   
   // Submit evaluation for approval
   const handleSubmitForApproval = async () => {
@@ -721,25 +718,13 @@ export default function EvaluatePage() {
                     </p>
                   </div>
                   
-                  <div className="flex gap-2 justify-center mb-1 px-4">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <button
-                        key={star}
-                        onClick={isEvaluationLocked ? undefined : () => handleRating(star)}
-                        disabled={isEvaluationLocked}
-                        className={`flex items-center justify-center p-3 min-h-[44px] min-w-[44px] rounded-lg transition-colors duration-150 touch-manipulation ${
-                          currentItem.rating && currentItem.rating >= star
-                            ? 'text-yellow-500 bg-yellow-100'
-                            : isEvaluationLocked 
-                              ? 'text-gray-300 cursor-not-allowed'
-                              : 'text-gray-300 hover:text-yellow-400 hover:bg-yellow-50 active:bg-yellow-100'
-                        }`}
-                      >
-                        <svg className="w-10 h-10" fill="currentColor" viewBox="0 0 20 20">
-                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                        </svg>
-                      </button>
-                    ))}
+                  <div className="mb-1 px-4">
+                    <StarRating
+                      rating={currentItem.rating}
+                      onRatingChange={handleRating}
+                      disabled={isEvaluationLocked}
+                      size="large"
+                    />
                   </div>
                   {currentItem.rating && (
                     <p className="text-center text-lg font-semibold text-gray-800 mt-3">
@@ -813,26 +798,12 @@ export default function EvaluatePage() {
             {/* Rating Stars */}
             <div className="mb-6">
               <p className="text-sm font-bold text-gray-700 mb-3">{t.evaluations.overallRating}</p>
-              <div className="flex gap-2 justify-center">
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <button
-                    key={star}
-                    onClick={isEvaluationLocked ? undefined : () => handleRating(star)}
-                    disabled={isEvaluationLocked}
-                    className={`flex items-center justify-center p-3 min-h-[44px] min-w-[44px] rounded-lg transition-colors duration-150 touch-manipulation ${
-                      overallRating && overallRating >= star
-                        ? 'text-yellow-500 bg-yellow-100'
-                        : isEvaluationLocked
-                          ? 'text-gray-300 cursor-not-allowed'
-                          : 'text-gray-300 hover:text-yellow-400 hover:bg-yellow-50 active:bg-yellow-100'
-                    }`}
-                  >
-                    <svg className="w-10 h-10" fill="currentColor" viewBox="0 0 20 20">
-                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                    </svg>
-                  </button>
-                ))}
-              </div>
+              <StarRating
+                rating={overallRating}
+                onRatingChange={handleRating}
+                disabled={isEvaluationLocked}
+                size="large"
+              />
               {overallRating && (
                 <p className="text-center text-sm text-gray-600 mt-2">
                   {overallRating === 1 && t.ratings.needsImprovement}

@@ -58,13 +58,16 @@ export function useSpeechRecognition(
 
   // Check browser support on mount
   useEffect(() => {
+    console.log('Checking speech recognition support...')
     const SpeechRecognition = 
       window.SpeechRecognition || window.webkitSpeechRecognition
 
     if (SpeechRecognition) {
+      console.log('Speech recognition supported')
       setIsSupported(true)
       recognitionRef.current = new SpeechRecognition()
     } else {
+      console.log('Speech recognition NOT supported')
       setIsSupported(false)
     }
   }, [])
@@ -81,17 +84,27 @@ export function useSpeechRecognition(
     recognition.maxAlternatives = maxAlternatives
 
     recognition.onstart = () => {
+      console.log('Speech recognition started')
       setIsListening(true)
       setError(null)
     }
 
     recognition.onend = () => {
+      console.log('Speech recognition ended')
       setIsListening(false)
     }
 
     recognition.onerror = (event: any) => {
+      console.log('Speech recognition error:', event.error)
       setError(event.error)
       setIsListening(false)
+      
+      // Special handling for localhost development network errors
+      if (event.error === 'network' && window.location.hostname === 'localhost') {
+        console.log('Network error on localhost - this is likely due to self-signed certificate issues')
+        // Don't set a user-facing error for development network issues
+        // The component will handle this gracefully
+      }
       
       // Handle specific error cases with generic English messages
       // (Component using this hook should provide proper translations)
@@ -140,15 +153,17 @@ export function useSpeechRecognition(
         recognition.stop()
       }
     }
-  }, [language, continuous, interimResults, maxAlternatives, finalTranscript, isListening])
+  }, [language, continuous, interimResults, maxAlternatives]) // Remove state dependencies to prevent loops
 
   const startListening = useCallback(() => {
     if (!recognitionRef.current || !isSupported) return
     
     try {
       setError(null)
+      console.log('Attempting to start speech recognition...')
       recognitionRef.current.start()
     } catch (error) {
+      console.log('Error starting recognition:', error)
       setError('Failed to start speech recognition')
     }
   }, [isSupported])

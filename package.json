@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbo",
+    "dev:https": "next dev --turbo --experimental-https",
     "dev:webpack": "next dev",
     "build": "next build",
     "start": "next start",

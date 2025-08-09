@@ -76,6 +76,16 @@ model User {
   @@unique([companyId, username])
   @@unique([companyId, employeeId]) // Employee ID unique per company (HRIS integration)
   @@unique([companyId, personID]) // National ID unique per company (for data isolation)
+  
+  // Performance indexes
+  @@index([companyId])
+  @@index([managerId])
+  @@index([active])
+  @@index([role])
+  @@index([department])
+  @@index([companyId, active])
+  @@index([managerId, active])
+  @@index([companyId, role, active])
 }
 
 model Evaluation {
@@ -103,6 +113,18 @@ model Evaluation {
   updatedAt DateTime @updatedAt
 
   @@unique([employeeId, periodType, periodDate])
+  
+  // Performance indexes
+  @@index([companyId])
+  @@index([employeeId])
+  @@index([managerId])
+  @@index([cycleId])
+  @@index([status])
+  @@index([companyId, status])
+  @@index([managerId, status])
+  @@index([employeeId, status])
+  @@index([cycleId, status])
+  @@index([companyId, cycleId, status])
 }
 
 model EvaluationItem {
@@ -136,6 +158,16 @@ model EvaluationItem {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  
+  // Performance indexes
+  @@index([companyId])
+  @@index([cycleId])
+  @@index([level])
+  @@index([active])
+  @@index([assignedTo])
+  @@index([companyId, active])
+  @@index([cycleId, active])
+  @@index([companyId, level, active])
 }
 
 model EvaluationItemAssignment {
