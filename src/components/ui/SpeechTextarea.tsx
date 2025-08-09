@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useCallback, forwardRef, useImperativeHandle } from 'react'
 import { useLanguage } from '@/contexts/LanguageContext'
 import SpeechToTextButton from './SpeechToTextButton'
 import { useToast } from '@/hooks/useToast'
@@ -18,7 +18,11 @@ interface SpeechTextareaProps {
   required?: boolean
 }
 
-export default function SpeechTextarea({
+export interface SpeechTextareaRef {
+  focus: () => void
+}
+
+const SpeechTextarea = forwardRef<SpeechTextareaRef, SpeechTextareaProps>(({
   value,
   onChange,
   placeholder,
@@ -29,13 +33,20 @@ export default function SpeechTextarea({
   showCharCount = false,
   label,
   required = false
-}: SpeechTextareaProps) {
+}, ref) => {
   const { t } = useLanguage()
   const { error: showError } = useToast()
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const [isFocused, setIsFocused] = useState(false)
 
-  const handleSpeechTranscript = (transcript: string) => {
+  // Expose focus method to parent component
+  useImperativeHandle(ref, () => ({
+    focus: () => {
+      textareaRef.current?.focus()
+    }
+  }))
+
+  const handleSpeechTranscript = useCallback((transcript: string) => {
     if (!transcript.trim()) return
 
     // Insert transcript at cursor position or append to existing text
@@ -83,9 +94,9 @@ export default function SpeechTextarea({
     if ('vibrate' in navigator) {
       navigator.vibrate(50)
     }
-  }
+  }, [value, onChange, maxLength, showError, t.speech])
 
-  const handleSpeechError = (error: string) => {
+  const handleSpeechError = useCallback((error: string) => {
     // Translate error codes to user-friendly messages
     let errorMessage = error
     
@@ -110,7 +121,7 @@ export default function SpeechTextarea({
     }
     
     showError(errorMessage)
-  }
+  }, [t.speech, showError])
 
   const characterCount = value ? value.length : 0
   const isOverLimit = maxLength && characterCount > maxLength
@@ -152,14 +163,17 @@ export default function SpeechTextarea({
         
         {/* Focus indicator for speech button */}
         {isFocused && (
-          <div className="absolute top-1 right-1 w-8 h-8 border-2 border-blue-500 rounded-lg opacity-50 pointer-events-none" />
+          <div className="absolute top-2 right-2 w-9 h-9 border-2 border-blue-500 rounded-lg opacity-50 pointer-events-none" />
         )}
       </div>
       
       {/* Character count and help text */}
       <div className="flex justify-between items-center text-sm">
-        <div className="text-gray-500">
-          🎤 {t.speech?.tapToSpeak || 'Tap microphone to speak'}
+        <div className="text-gray-500 flex items-center gap-1">
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+          </svg>
+          {t.speech?.tapToSpeak || 'Tap microphone to speak'}
         </div>
         
         {showCharCount && maxLength && (
@@ -170,4 +184,8 @@ export default function SpeechTextarea({
       </div>
     </div>
   )
-}
+})
+
+SpeechTextarea.displayName = 'SpeechTextarea'
+
+export default SpeechTextarea
