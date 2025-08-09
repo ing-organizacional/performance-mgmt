@@ -32,34 +32,15 @@ export async function POST(request: NextRequest) {
     }
 
     // Delete all data in the correct order to avoid foreign key constraints
-    console.log('Starting database reset...')
-
     // Delete in reverse dependency order
     await prisma.auditLog.deleteMany({})
-    console.log('Deleted audit logs')
-
     await prisma.partialAssessment.deleteMany({})
-    console.log('Deleted partial assessments')
-
     await prisma.evaluationItemAssignment.deleteMany({})
-    console.log('Deleted evaluation item assignments')
-
     await prisma.evaluationItem.deleteMany({})
-    console.log('Deleted evaluation items')
-
     await prisma.evaluation.deleteMany({})
-    console.log('Deleted evaluations')
-
     await prisma.performanceCycle.deleteMany({})
-    console.log('Deleted performance cycles')
-
     await prisma.user.deleteMany({})
-    console.log('Deleted users')
-
     await prisma.company.deleteMany({})
-    console.log('Deleted companies')
-
-    console.log('Database reset completed successfully')
 
     return NextResponse.json({
       success: true,

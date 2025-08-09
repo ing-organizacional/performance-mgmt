@@ -47,6 +47,7 @@ export async function PUT(
     }
     
     const updateData = bodyValidation.data
+    const { evaluationDeadline, active, title, description } = updateData
 
     // Validate deadline if provided
     let deadlineDate = null
@@ -137,21 +138,23 @@ export async function PUT(
       active?: boolean
     } = {}
 
+    const isActiveToggle = active !== undefined && active !== existingItem.active
+    
     // Only update title/description if provided (not for active-only toggles)
     if (!isActiveToggle) {
-      updateData.title = title
-      updateData.description = description
+      if (title !== undefined) dbUpdateData.title = title
+      if (description !== undefined) dbUpdateData.description = description
     }
 
     // Handle active status changes
     if (active !== undefined) {
-      updateData.active = active
+      dbUpdateData.active = active
     }
 
     // Add deadline fields if they were provided in the request
     if (evaluationDeadline !== undefined) {
-      updateData.evaluationDeadline = deadlineDate
-      updateData.deadlineSetBy = deadlineDate ? session.user.id : null
+      dbUpdateData.evaluationDeadline = deadlineDate
+      dbUpdateData.deadlineSetBy = deadlineDate ? session.user.id : null
     }
 
     // Handle deactivation - remove all existing assignments
@@ -241,7 +244,7 @@ export async function PUT(
     // Update the item
     const updatedItem = await prisma.evaluationItem.update({
       where: { id },
-      data: updateData,
+      data: dbUpdateData,
       include: {
         creator: {
           select: {
