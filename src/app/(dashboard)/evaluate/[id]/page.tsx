@@ -7,6 +7,47 @@ interface EvaluatePageProps {
   params: Promise<{ id: string }>
 }
 
+interface EmployeeEvaluation {
+  id: string
+  status: 'draft' | 'submitted' | 'completed'
+  createdAt: Date
+  overallRating: number | null
+}
+
+interface EmployeeWithEvaluations {
+  id: string
+  name: string
+  email?: string | null
+  role?: string
+  position?: string
+  evaluationsReceived?: EmployeeEvaluation[]
+}
+
+interface SavedEvaluationItem {
+  id: string
+  rating?: number | null
+  comment?: string
+  title?: string
+  description?: string
+  [key: string]: unknown // Allow additional properties from JSON
+}
+
+// Use the same interface as EvaluateClient expects
+interface ProcessedEvaluationItem {
+  id: string
+  title: string
+  description: string
+  type: string
+  rating: number | null
+  comment: string
+  level?: string
+  createdBy?: string
+  creatorRole?: string
+  evaluationDeadline?: string | null
+  deadlineSetBy?: string | null
+  deadlineSetByRole?: string | null
+}
+
 export default async function EvaluatePage({ params }: EvaluatePageProps) {
   // Get session
   const session = await auth()
@@ -101,13 +142,15 @@ export default async function EvaluatePage({ params }: EvaluatePageProps) {
   let evaluationStatus: 'draft' | 'submitted' | 'completed' = 'draft'
   let evaluationId = null
 
-  const latestEval = (employeeData as any).evaluationsReceived?.[0]
-  if (latestEval && (latestEval.status === 'submitted' || latestEval.status === 'draft' || latestEval.status === 'completed')) {
-    evaluationId = latestEval.id
-    evaluationStatus = latestEval.status
+  const latestEval = (employeeData as EmployeeWithEvaluations).evaluationsReceived?.[0]
+  if (latestEval && ['submitted', 'draft', 'completed'].includes(latestEval.status)) {
+    // Type assertion after runtime validation
+    const typedEval = latestEval as EmployeeEvaluation
+    evaluationId = typedEval.id
+    evaluationStatus = typedEval.status
     
     // Load existing evaluation data
-    const evaluationResult = await getEvaluation(latestEval.id)
+    const evaluationResult = await getEvaluation(typedEval.id)
     if (evaluationResult.success && evaluationResult.data) {
       existingEvaluationData = evaluationResult.data
     }
@@ -122,7 +165,17 @@ export default async function EvaluatePage({ params }: EvaluatePageProps) {
   }
 
   // Process evaluation items with existing data if available
-  let processedItems = itemsResult.items || []
+  let processedItems: ProcessedEvaluationItem[] = (itemsResult.items || []).map(item => ({
+    ...item,
+    rating: null,
+    comment: '',
+    level: item.level ?? '',
+    createdBy: item.createdBy ?? '',
+    creatorRole: item.creatorRole ?? '',
+    evaluationDeadline: item.evaluationDeadline ?? null,
+    deadlineSetBy: item.deadlineSetBy ?? null,
+    deadlineSetByRole: item.deadlineSetByRole ?? null
+  }))
   let overallRating = null
   let overallComment = ''
 
@@ -131,12 +184,12 @@ export default async function EvaluatePage({ params }: EvaluatePageProps) {
     if (existingEvaluationData.evaluationItemsData) {
       try {
         const savedItems = JSON.parse(existingEvaluationData.evaluationItemsData)
-        processedItems = processedItems.map((item: any) => {
-          const savedItem = savedItems.find((saved: any) => saved.id === item.id)
+        processedItems = processedItems.map((item: ProcessedEvaluationItem): ProcessedEvaluationItem => {
+          const savedItem = savedItems.find((saved: SavedEvaluationItem) => saved.id === item.id)
           return {
             ...item,
-            rating: savedItem?.rating || null,
-            comment: savedItem?.comment || '',
+            rating: savedItem?.rating ?? null,
+            comment: savedItem?.comment ?? '',
           }
         })
       } catch (error) {

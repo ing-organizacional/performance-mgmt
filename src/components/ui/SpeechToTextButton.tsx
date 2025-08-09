@@ -44,7 +44,7 @@ export default function SpeechToTextButton({
       resetTranscript()
       setIsRecording(false)
     }
-  }, [finalTranscript]) // Remove onTranscript and resetTranscript from dependencies
+  }, [finalTranscript]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Handle errors
   useEffect(() => {
@@ -61,7 +61,7 @@ export default function SpeechToTextButton({
       }
       setIsRecording(false)
     }
-  }, [error]) // Remove onError from dependencies
+  }, [error]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Handle listening state changes
   useEffect(() => {

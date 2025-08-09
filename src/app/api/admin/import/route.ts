@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma-client'
 import bcrypt from 'bcryptjs'
 import { requireHRRole } from '@/lib/auth-middleware'
+import { rateLimit } from '@/lib/rate-limit'
+// Headers accessed from request object
 
 interface ImportUserData {
   name: string
@@ -26,6 +28,28 @@ interface ImportResults {
 
 // POST /api/admin/import - Import users from CSV file
 export async function POST(request: NextRequest) {
+  // Rate limiting for sensitive admin import endpoint
+  const forwardedFor = request.headers.get('x-forwarded-for')
+  const realIp = request.headers.get('x-real-ip')  
+  const ip = forwardedFor?.split(',')[0] || realIp || request.headers.get('host') || 'unknown'
+  
+  const rateLimitResult = rateLimit(
+    `admin-import:${ip}`,
+    { maxAttempts: 10, windowMs: 60 * 60 * 1000 } // 10 attempts per hour for admin operations
+  )
+  
+  if (!rateLimitResult.success) {
+    return NextResponse.json({
+      success: false,
+      error: 'Too many import requests. Please try again later.'
+    }, { 
+      status: 429,
+      headers: {
+        'Retry-After': Math.ceil((rateLimitResult.resetTime - Date.now()) / 1000).toString()
+      }
+    })
+  }
+
   const authResult = await requireHRRole()
   if (authResult instanceof NextResponse) {
     return authResult
@@ -217,6 +241,30 @@ export async function POST(request: NextRequest) {
           }
         }
 
+        // Validate password is provided
+        if (!password || password.trim().length === 0) {
+          results.failed++
+          results.errors.push(`Password is required for user: ${name}`)
+          continue
+        }
+
+        // Validate password strength (minimum requirements)
+        if (userType === 'operational') {
+          // PIN validation for operational users
+          if (!/^\d{4,6}$/.test(password)) {
+            results.failed++
+            results.errors.push(`Operational user PIN must be 4-6 digits for user: ${name}`)
+            continue
+          }
+        } else {
+          // Password validation for office users
+          if (password.length < 8) {
+            results.failed++
+            results.errors.push(`Password must be at least 8 characters for user: ${name}`)
+            continue
+          }
+        }
+
         // Create user
         await prisma.user.create({
           data: {
@@ -230,8 +278,8 @@ export async function POST(request: NextRequest) {
             employeeId: employeeId || null,
             personID: personID,
             userType: userType || 'office',
-            passwordHash: await bcrypt.hash(password || 'changeme123', 12),
-            pinCode: (userType === 'operational') ? (password || '1234') : null,
+            passwordHash: password ? await bcrypt.hash(password, 12) : null,
+            pinCode: (userType === 'operational' && password) ? password : null,
             requiresPinOnly: userType === 'operational',
             loginMethod: email ? 'email' : 'username',
             active: true
