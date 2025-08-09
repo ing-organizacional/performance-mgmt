@@ -147,7 +147,7 @@ export default function EvaluatePage() {
     
     // Fetch evaluation items and employee data
     fetchEvaluationData()
-  }, [session, status, router, employeeId]) // Use employeeId instead of fetchEvaluationData
+  }, [session, status, router, employeeId, fetchEvaluationData]) // Include fetchEvaluationData
 
   // Refresh data when component comes into focus (user navigates back)
   useEffect(() => {

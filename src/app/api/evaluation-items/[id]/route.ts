@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma-client'
+import { toISOStringSafe } from '@/lib/utils/date'
 
 // PUT /api/evaluation-items/[id] - Update evaluation item
 export async function PUT(
@@ -215,7 +216,8 @@ export async function PUT(
     }
 
     // Log deadline changes for audit purposes
-    if (evaluationDeadline !== undefined && existingItem.evaluationDeadline?.toISOString() !== deadlineDate?.toISOString()) {
+    if (evaluationDeadline !== undefined && 
+        toISOStringSafe(existingItem.evaluationDeadline) !== toISOStringSafe(deadlineDate)) {
       const auditLog = {
         timestamp: new Date().toISOString(),
         userId: session.user.id,
@@ -224,8 +226,8 @@ export async function PUT(
         action: 'deadline_changed',
         itemId: id,
         itemTitle: existingItem.title,
-        oldDeadline: existingItem.evaluationDeadline?.toISOString() || null,
-        newDeadline: deadlineDate?.toISOString() || null,
+        oldDeadline: toISOStringSafe(existingItem.evaluationDeadline),
+        newDeadline: toISOStringSafe(deadlineDate),
         companyId: existingItem.companyId
       }
       console.log('AUDIT: Evaluation item deadline changed:', JSON.stringify(auditLog, null, 2))
@@ -264,7 +266,7 @@ export async function PUT(
         active: updatedItem.active,
         createdBy: updatedItem.creator.name,
         creatorRole: updatedItem.creator.role,
-        evaluationDeadline: updatedItem.evaluationDeadline?.toISOString() || null,
+        evaluationDeadline: toISOStringSafe(updatedItem.evaluationDeadline),
         deadlineSetBy: updatedItem.deadlineSetByUser?.name || null,
         deadlineSetByRole: updatedItem.deadlineSetByUser?.role || null
       },

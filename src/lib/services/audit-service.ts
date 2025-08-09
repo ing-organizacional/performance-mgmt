@@ -6,6 +6,7 @@
 import { prisma } from '@/lib/prisma-client'
 import { headers } from 'next/headers'
 import type { Prisma } from '@prisma/client'
+import type { JsonValue, InputJsonValue } from '@prisma/client/runtime/library'
 
 export type AuditAction = 
   | 'create' 
@@ -40,9 +41,9 @@ interface AuditLogEntry {
   entityType: EntityType
   entityId?: string
   targetUserId?: string
-  oldData?: any
-  newData?: any
-  metadata?: Record<string, any>
+  oldData?: JsonValue
+  newData?: JsonValue
+  metadata?: Record<string, unknown>
   reason?: string
   sessionId?: string
 }
@@ -87,9 +88,9 @@ export async function createAuditLog(entry: AuditLogEntry): Promise<void> {
         entityType: entry.entityType,
         entityId: entry.entityId,
         targetUserId: entry.targetUserId,
-        oldData: entry.oldData ? entry.oldData : undefined,
-        newData: entry.newData ? entry.newData : undefined,
-        metadata: entry.metadata ? entry.metadata : undefined,
+        oldData: entry.oldData as InputJsonValue,
+        newData: entry.newData as InputJsonValue,
+        metadata: entry.metadata as InputJsonValue,
         reason: entry.reason,
         ipAddress: context.ipAddress,
         userAgent: context.userAgent,
@@ -111,7 +112,7 @@ export async function auditLogin(
   userRole: string, 
   companyId: string,
   success: boolean,
-  metadata?: Record<string, any>
+  metadata?: Record<string, unknown>
 ) {
   await createAuditLog({
     userId,
@@ -123,7 +124,7 @@ export async function auditLogin(
     metadata: {
       success,
       timestamp: new Date().toISOString(),
-      ...metadata
+      ...(metadata || {})
     }
   })
 }
@@ -136,7 +137,7 @@ export async function auditExport(
   userRole: string,
   companyId: string,
   exportType: string,
-  filters: Record<string, any>,
+  filters: JsonValue,
   recordCount: number
 ) {
   await createAuditLog({
@@ -164,8 +165,8 @@ export async function auditEvaluation(
   action: AuditAction,
   evaluationId: string,
   targetUserId?: string,
-  oldData?: any,
-  newData?: any,
+  oldData?: JsonValue,
+  newData?: JsonValue,
   reason?: string
 ) {
   await createAuditLog({
@@ -191,8 +192,8 @@ export async function auditUserManagement(
   companyId: string,
   action: AuditAction,
   targetUserId: string,
-  oldData?: any,
-  newData?: any,
+  oldData?: JsonValue,
+  newData?: JsonValue,
   reason?: string
 ) {
   await createAuditLog({
@@ -218,7 +219,7 @@ export async function auditBulkOperation(
   companyId: string,
   operation: string,
   affectedCount: number,
-  metadata?: Record<string, any>
+  metadata?: Record<string, unknown>
 ) {
   await createAuditLog({
     userId,
@@ -229,7 +230,7 @@ export async function auditBulkOperation(
     metadata: {
       operation,
       affectedCount,
-      ...metadata
+      ...(metadata || {})
     }
   })
 }

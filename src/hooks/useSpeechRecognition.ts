@@ -9,11 +9,7 @@ interface SpeechRecognitionOptions {
   maxAlternatives?: number
 }
 
-interface SpeechRecognitionResult {
-  transcript: string
-  confidence: number
-  isFinal: boolean
-}
+// SpeechResult interface removed as it was unused
 
 interface UseSpeechRecognitionReturn {
   isSupported: boolean
@@ -28,11 +24,58 @@ interface UseSpeechRecognitionReturn {
   resetTranscript: () => void
 }
 
-// Extend Window interface to include webkit prefix
+// Define proper SpeechRecognition types
+interface SpeechRecognitionConstructor {
+  new (): SpeechRecognition;
+}
+
+interface SpeechRecognition extends EventTarget {
+  continuous: boolean;
+  interimResults: boolean;
+  lang: string;
+  maxAlternatives: number;
+  start(): void;
+  stop(): void;
+  abort(): void;
+  onresult: ((this: SpeechRecognition, ev: SpeechRecognitionEvent) => void) | null;
+  onerror: ((this: SpeechRecognition, ev: SpeechRecognitionErrorEvent) => void) | null;
+  onstart: ((this: SpeechRecognition, ev: Event) => void) | null;
+  onend: ((this: SpeechRecognition, ev: Event) => void) | null;
+}
+
+interface SpeechRecognitionEvent extends Event {
+  readonly resultIndex: number;
+  readonly results: SpeechRecognitionResultList;
+}
+
+interface SpeechRecognitionResultList {
+  readonly length: number;
+  item(index: number): SpeechRecognitionResult;
+  [index: number]: SpeechRecognitionResult;
+}
+
+interface SpeechRecognitionResult {
+  readonly isFinal: boolean;
+  readonly length: number;
+  item(index: number): SpeechRecognitionAlternative;
+  [index: number]: SpeechRecognitionAlternative;
+}
+
+interface SpeechRecognitionAlternative {
+  readonly transcript: string;
+  readonly confidence: number;
+}
+
+interface SpeechRecognitionErrorEvent extends Event {
+  readonly error: string;
+  readonly message: string;
+}
+
+// Extend Window interface
 declare global {
   interface Window {
-    SpeechRecognition: any
-    webkitSpeechRecognition: any
+    SpeechRecognition: SpeechRecognitionConstructor;
+    webkitSpeechRecognition: SpeechRecognitionConstructor;
   }
 }
 
@@ -54,7 +97,7 @@ export function useSpeechRecognition(
   const [confidence, setConfidence] = useState(0)
   const [error, setError] = useState<string | null>(null)
 
-  const recognitionRef = useRef<any>(null)
+  const recognitionRef = useRef<SpeechRecognition | null>(null)
 
   // Check browser support on mount
   useEffect(() => {
@@ -94,7 +137,7 @@ export function useSpeechRecognition(
       setIsListening(false)
     }
 
-    recognition.onerror = (event: any) => {
+    recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
       console.log('Speech recognition error:', event.error)
       setError(event.error)
       setIsListening(false)
@@ -126,7 +169,7 @@ export function useSpeechRecognition(
       }
     }
 
-    recognition.onresult = (event: any) => {
+    recognition.onresult = (event: SpeechRecognitionEvent) => {
       let interimTranscriptValue = ''
       let finalTranscriptValue = finalTranscript
 
@@ -153,7 +196,8 @@ export function useSpeechRecognition(
         recognition.stop()
       }
     }
-  }, [language, continuous, interimResults, maxAlternatives]) // Remove state dependencies to prevent loops
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [language, continuous, interimResults, maxAlternatives]) // State dependencies omitted to prevent infinite loops
 
   const startListening = useCallback(() => {
     if (!recognitionRef.current || !isSupported) return
@@ -173,7 +217,7 @@ export function useSpeechRecognition(
     
     try {
       recognitionRef.current.stop()
-    } catch (error) {
+    } catch {
       setError('Failed to stop speech recognition')
     }
   }, [isListening])

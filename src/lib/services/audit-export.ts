@@ -3,7 +3,7 @@
  */
 
 import { utils, writeFile } from 'xlsx'
-import type { AuditAction, EntityType } from './audit-service'
+// Types are defined inline below
 
 interface AuditLogExport {
   id: string
@@ -16,9 +16,9 @@ interface AuditLogExport {
   entityId?: string
   targetUserId?: string
   ipAddress?: string
-  oldData?: any
-  newData?: any
-  metadata?: any
+  oldData?: string
+  newData?: string
+  metadata?: string
   reason?: string
 }
 
@@ -26,7 +26,24 @@ interface AuditLogExport {
  * Export audit logs to Excel with current filters
  */
 export async function exportAuditLogsToExcel(
-  logs: any[],
+  logs: Array<{
+    id: string
+    timestamp: Date | string
+    user: {
+      id: string
+      name: string
+      role: string
+    }
+    action: string
+    entityType: string
+    entityId?: string
+    targetUserId?: string
+    ipAddress?: string
+    oldData?: Record<string, unknown>
+    newData?: Record<string, unknown>
+    metadata?: Record<string, unknown>
+    reason?: string
+  }>,
   filters: {
     action?: string
     entityType?: string
@@ -80,7 +97,7 @@ export async function exportAuditLogsToExcel(
     
     // Calculate column widths based on content
     const headers = Object.keys(exportData[0] || {})
-    headers.forEach((header, i) => {
+    headers.forEach((header) => {
       let maxLen = header.length
       exportData.forEach(row => {
         const value = String(row[header as keyof AuditLogExport] || '')

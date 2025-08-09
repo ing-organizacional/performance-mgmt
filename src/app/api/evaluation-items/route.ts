@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma-client'
+import { toISOStringSafe } from '@/lib/utils/date'
 
 // GET /api/evaluation-items - Get evaluation items for specific employee (used in evaluation flow)
 export async function GET(request: NextRequest) {
@@ -178,7 +179,7 @@ export async function GET(request: NextRequest) {
       level: item.level,
       createdBy: item.creator.name,
       creatorRole: item.creator.role,
-      evaluationDeadline: item.evaluationDeadline?.toISOString() || null,
+      evaluationDeadline: toISOStringSafe(item.evaluationDeadline),
       deadlineSetBy: item.deadlineSetByUser?.name || null,
       deadlineSetByRole: item.deadlineSetByUser?.role || null
     }))

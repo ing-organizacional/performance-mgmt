@@ -220,7 +220,7 @@ async function verifyBiometricSignature(
   signature: string,
   authenticatorData: string,
   clientDataJSON: string,
-  _expectedCounter: number
+  _expectedCounter?: number
 ): Promise<boolean> {
   // This is a simplified implementation
   // In production, you would:

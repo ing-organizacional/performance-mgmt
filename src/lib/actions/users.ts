@@ -378,8 +378,8 @@ export async function changePassword(formData: FormData) {
       session.user.companyId,
       'update',
       session.user.id,
-      null,
-      { action: 'password_change', timestamp: new Date() },
+      undefined,
+      { action: 'password_change', timestamp: new Date().toISOString() },
       'Password changed by user'
     )
 

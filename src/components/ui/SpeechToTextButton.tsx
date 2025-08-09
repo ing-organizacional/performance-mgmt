@@ -44,7 +44,7 @@ export default function SpeechToTextButton({
       resetTranscript()
       setIsRecording(false)
     }
-  }, [finalTranscript]) // Remove function props from dependencies to prevent infinite loops
+  }, [finalTranscript, onTranscript, resetTranscript])
 
   // Handle errors
   useEffect(() => {
@@ -61,7 +61,7 @@ export default function SpeechToTextButton({
       }
       setIsRecording(false)
     }
-  }, [error]) // Remove onError from dependencies to prevent infinite loops
+  }, [error, onError])
 
   // Handle listening state changes
   useEffect(() => {

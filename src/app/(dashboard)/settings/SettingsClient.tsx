@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { BiometricAuth } from '@/components/ui'
 import { getBiometricCredentials, removeBiometricCredential } from '@/lib/actions/biometric'
@@ -29,11 +29,7 @@ export default function SettingsClient({ user }: SettingsClientProps) {
   const [removing, setRemoving] = useState<string | null>(null)
   const [showChangePassword, setShowChangePassword] = useState(false)
 
-  useEffect(() => {
-    loadCredentials()
-  }, [])
-
-  const loadCredentials = async () => {
+  const loadCredentials = useCallback(async () => {
     try {
       setLoading(true)
       const result = await getBiometricCredentials()
@@ -48,9 +44,13 @@ export default function SettingsClient({ user }: SettingsClientProps) {
     } finally {
       setLoading(false)
     }
-  }
+  }, [showError])
 
-  const handleBiometricSetupSuccess = (_credentialId: string) => {
+  useEffect(() => {
+    loadCredentials()
+  }, [loadCredentials])
+
+  const handleBiometricSetupSuccess = () => {
     success(t.biometric?.setupSuccess || 'Biometric authentication set up successfully')
     loadCredentials() // Reload to show the new credential
   }

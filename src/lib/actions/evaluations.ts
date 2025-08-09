@@ -4,6 +4,7 @@ import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma-client'
 import { revalidatePath, unstable_cache, revalidateTag } from 'next/cache'
 import { auditEvaluation, auditBulkOperation } from '@/lib/services/audit-service'
+import { toISOStringSafe } from '@/lib/utils/date'
 
 // Server action to assign company-wide item to all employees and reopen completed evaluations
 export async function assignCompanyItemToAllEmployees(itemId: string) {
@@ -542,7 +543,16 @@ const getCachedEvaluationItemsForEmployee = unstable_cache(
     })
 
     // Build the OR conditions  
-    const orConditions = [
+    const orConditions: Array<{
+      level?: string
+      assignedTo?: string
+      individualAssignments?: {
+        some: {
+          employeeId: string
+          companyId: string
+        }
+      }
+    }> = [
       { level: 'company' },
       {
         individualAssignments: {
@@ -559,7 +569,7 @@ const getCachedEvaluationItemsForEmployee = unstable_cache(
       orConditions.push({
         level: 'department',
         assignedTo: employee.department
-      } as any)
+      })
     }
 
     // Get evaluation items assigned to this employee or general company items
@@ -675,7 +685,7 @@ export async function getEvaluationItems(employeeId: string) {
       comment: '',
       createdBy: item.creator?.name,
       creatorRole: item.creator?.role,
-      evaluationDeadline: item.evaluationDeadline?.toISOString() || null,
+      evaluationDeadline: toISOStringSafe(item.evaluationDeadline),
       deadlineSetBy: item.deadlineSetByUser?.name || null,
       deadlineSetByRole: item.deadlineSetByUser?.role || null
     }))

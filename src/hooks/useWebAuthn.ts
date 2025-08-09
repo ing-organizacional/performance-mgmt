@@ -2,9 +2,9 @@
 
 import { useState, useCallback } from 'react'
 
-// Simplified interfaces that match WebAuthn API exactly
-interface CredentialCreationOptions extends PublicKeyCredentialCreationOptions {}
-interface CredentialRequestOptions extends PublicKeyCredentialRequestOptions {}
+// Type aliases for WebAuthn API
+type CredentialCreationOptions = PublicKeyCredentialCreationOptions
+type CredentialRequestOptions = PublicKeyCredentialRequestOptions
 
 interface BiometricCredential {
   id: string
@@ -70,7 +70,7 @@ export function useWebAuthn(): UseWebAuthnReturn {
       const available = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable()
       setIsSupported(available)
       return available
-    } catch (err) {
+    } catch {
       setIsSupported(false)
       return false
     }
@@ -116,26 +116,28 @@ export function useWebAuthn(): UseWebAuthnReturn {
       }
 
       return result
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const error = err as Error & { name?: string }
+      
       // Don't set error state for user cancellation to prevent loops
-      if (err.name === 'NotAllowedError') {
+      if (error.name === 'NotAllowedError') {
         // User cancelled - this is normal behavior, don't show persistent error
         console.log('User cancelled biometric setup - this is normal')
         // Optionally show a brief message via callback instead of state
       } else {
-        console.error('WebAuthn creation error:', err)
+        console.error('WebAuthn creation error:', error)
       }
       
-      if (err.name === 'NotSupportedError') {
+      if (error.name === 'NotSupportedError') {
         setError('Biometric authentication is not supported on this device')
-      } else if (err.name === 'SecurityError') {
+      } else if (error.name === 'SecurityError') {
         setError('Security error: Please ensure you are using HTTPS')
-      } else if (err.name === 'InvalidStateError') {
+      } else if (error.name === 'InvalidStateError') {
         setError('A credential already exists for this account')
-      } else if (err.message === 'Operation timed out') {
+      } else if (error.message === 'Operation timed out') {
         setError('The operation timed out. Please try again.')
       } else {
-        setError(err.message || 'Failed to set up biometric authentication')
+        setError(error.message || 'Failed to set up biometric authentication')
       }
       
       return null
@@ -177,26 +179,28 @@ export function useWebAuthn(): UseWebAuthnReturn {
       }
 
       return result
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const error = err as Error & { name?: string }
+      
       // Handle user cancellation gracefully for authentication too
-      if (err.name === 'NotAllowedError') {
+      if (error.name === 'NotAllowedError') {
         console.log('User cancelled biometric authentication - this is normal')
       } else {
-        console.error('WebAuthn authentication error:', err)
+        console.error('WebAuthn authentication error:', error)
       }
       
       // Provide user-friendly error messages
-      if (err.name === 'NotSupportedError') {
+      if (error.name === 'NotSupportedError') {
         setError('Biometric authentication is not supported on this device')
-      } else if (err.name === 'SecurityError') {
+      } else if (error.name === 'SecurityError') {
         setError('Security error: Please ensure you are using HTTPS')
-      } else if (err.name === 'NotAllowedError') {
+      } else if (error.name === 'NotAllowedError') {
         // Don't set persistent error for cancellation during login
         console.log('Authentication cancelled by user')
-      } else if (err.name === 'InvalidStateError') {
+      } else if (error.name === 'InvalidStateError') {
         setError('No biometric credentials found for this account')
       } else {
-        setError(err.message || 'Failed to set up biometric authentication')
+        setError(error.message || 'Failed to set up biometric authentication')
       }
       
       return null

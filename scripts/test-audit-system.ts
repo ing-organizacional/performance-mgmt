@@ -44,7 +44,7 @@ async function testAuditSystem() {
       action: 'login' as any,
       entityType: 'user' as any,
       entityId: testUser.id,
-      metadata: { loginMethod: 'email', timestamp: new Date() }
+      metadata: { loginMethod: 'email', timestamp: new Date().toISOString() }
     })
     console.log('   ✓ Created login audit')
     
