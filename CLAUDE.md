@@ -34,11 +34,9 @@ Performance Management System - Enterprise web application managing employee eva
 - `/src/lib/actions/` - Server Actions (users, evaluations, cycles)
 - `/src/lib/seed.ts` - Database seeding
 
-**Active APIs (14 endpoints):**
+**Active APIs (12 endpoints):**
 - `/api/auth/[...nextauth]` - NextAuth authentication (POST)
 - `/api/health` - System health check (GET)
-- `/api/evaluations` - Evaluation CRUD (GET/POST)
-- `/api/evaluations/[id]` - Individual evaluations (GET)
 - `/api/evaluation-items` + `/api/evaluation-items/[id]` - Item management (GET/PUT/DELETE)
 - `/api/manager/team` + `/api/manager/team-assignments` - Team data (GET)
 - `/api/partial-assessments` - HR assessments (GET/POST)

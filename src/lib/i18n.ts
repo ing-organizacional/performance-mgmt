@@ -300,6 +300,29 @@ export interface Translations {
     overdue3Days: string
     viewAll: string
     companyWideItems: string
+    auditLogs: string
+    auditDashboard: string
+    auditDescription: string
+    auditFilters: string
+    allActions: string
+    allTypes: string
+    clearFilters: string
+    showDetails: string
+    hideDetails: string
+    auditDetails: string
+    exportExcel: string
+    showingOf: string
+    noAuditLogs: string
+    timestamp: string
+    user: string
+    action: string
+    entity: string
+    details: string
+    ipAddress: string
+    reason: string
+    oldData: string
+    newData: string
+    metadata: string
     cycles: string
     performanceCycles: string
     cycleManagement: string
@@ -894,6 +917,29 @@ export const translations: Record<Language, Translations> = {
       dayOverdue: 'day overdue',
       dueToday: 'Due today',
       companyWideItems: 'Add/Remove Company OKRs and Competencies',
+      auditLogs: 'Audit Logs',
+      auditDashboard: 'Audit Dashboard',
+      auditDescription: 'Security and compliance tracking',
+      auditFilters: 'Filters',
+      allActions: 'All Actions',
+      allTypes: 'All Types',
+      clearFilters: 'Clear Filters',
+      showDetails: 'Show Details',
+      hideDetails: 'Hide Details',
+      auditDetails: 'Audit Log Details',
+      exportExcel: 'Export Excel',
+      showingOf: 'Showing',
+      noAuditLogs: 'No audit logs found matching your filters',
+      timestamp: 'Timestamp',
+      user: 'User',
+      action: 'Action',
+      entity: 'Entity',
+      details: 'Details',
+      ipAddress: 'IP Address',
+      reason: 'Reason',
+      oldData: 'Old Data',
+      newData: 'New Data',
+      metadata: 'Metadata',
       managersWithIssues: 'Managers with Issues',
       employeesBehind: 'Employees Behind',
       overdueItems: 'Overdue Items', 
@@ -1332,6 +1378,29 @@ export const translations: Record<Language, Translations> = {
       overdue3Days: '>3 días',
       viewAll: 'Ver todo',
       companyWideItems: 'Agregar/Eliminar OKRs y Competencias de la Empresa',
+      auditLogs: 'Registros de Auditoría',
+      auditDashboard: 'Panel de Auditoría',
+      auditDescription: 'Seguimiento de seguridad y cumplimiento',
+      auditFilters: 'Filtros',
+      allActions: 'Todas las Acciones',
+      allTypes: 'Todos los Tipos',
+      clearFilters: 'Limpiar Filtros',
+      showDetails: 'Ver Detalles',
+      hideDetails: 'Ocultar Detalles',
+      auditDetails: 'Detalles del Registro',
+      exportExcel: 'Exportar Excel',
+      showingOf: 'Mostrando',
+      noAuditLogs: 'No se encontraron registros con los filtros aplicados',
+      timestamp: 'Fecha y Hora',
+      user: 'Usuario',
+      action: 'Acción',
+      entity: 'Entidad',
+      details: 'Detalles',
+      ipAddress: 'Dirección IP',
+      reason: 'Razón',
+      oldData: 'Datos Anteriores',
+      newData: 'Datos Nuevos',
+      metadata: 'Metadatos',
       cycles: 'Ciclos',
       performanceCycles: 'Ciclos de Desempeño',
       cycleManagement: 'Gestionar ciclos de evaluación de desempeño',
