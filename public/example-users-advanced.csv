@@ -1,11 +1,29 @@
-name,email,username,role,department,userType,password,employeeId,personID,managerPersonID,managerEmployeeId,companyCode
-Michael Chen,michael.chen@demo.com,,manager,Engineering,office,password123,MGR001,87654321,,,DEMO_001
-Sarah Johnson,sarah.johnson@demo.com,,employee,Marketing,office,password123,EMP001,12345678,87654321,,DEMO_001
-David Smith,david.smith@demo.com,,employee,Sales,office,password123,EMP003,34567890,,MGR001,DEMO_001
-Anna Thompson,anna.thompson@demo.com,,hr,Human Resources,office,password123,HR001,11111111,,,DEMO_001
-Lisa Rodriguez,lisa.rodriguez@demo.com,,employee,Human Resources,office,password123,EMP002,23456789,,HR001,DEMO_001
-Robert Brown,robert.brown@demo.com,,manager,Finance,office,password123,MGR002,22222222,,,DEMO_001
-Thomas Miller,thomas.miller@demo.com,,employee,Finance,office,password123,EMP007,78901234,22222222,,DEMO_001
-Maria Garcia,,maria_garcia,employee,Production,operational,1234,EMP004,45678901,,MGR001,DEMO_001
-James Wilson,,james_wilson,employee,Production,operational,1234,EMP005,56789012,87654321,,DEMO_001
-Jennifer Davis,,jennifer_davis,employee,Warehouse,operational,5678,EMP006,67890123,,MGR002,DEMO_001
+name,email,username,role,department,userType,password,employeeId,personID,managerPersonID,managerEmployeeId,companyCode,position,shift
+CEO Executive,ceo@advancedhotel.com,,hr,Executive,office,ceopass2024,CEO001,00000000,,,ADV_HOTEL,Chief Executive Officer,Day Shift
+GM Hotel,gm@advancedhotel.com,,manager,Management,office,gmpass2024,GM001,10000000,00000000,,ADV_HOTEL,General Manager,Day Shift
+Front Office Manager,fom@advancedhotel.com,,manager,Front Office,office,fompass2024,FOM001,20000000,10000000,,ADV_HOTEL,Front Office Manager,Day Shift
+Housekeeping Manager,hkm@advancedhotel.com,,manager,Housekeeping,office,hkmpass2024,HKM001,30000000,10000000,,ADV_HOTEL,Housekeeping Manager,Day Shift
+F&B Manager,fbm@advancedhotel.com,,manager,Food & Beverage,office,fbmpass2024,FBM001,40000000,10000000,,ADV_HOTEL,F&B Manager,Day Shift
+Maintenance Manager,mtm@advancedhotel.com,,manager,Maintenance,office,mtmpass2024,MTM001,50000000,10000000,,ADV_HOTEL,Maintenance Manager,Day Shift
+Reception Supervisor,reception.sup@advancedhotel.com,,employee,Front Office,office,reception123,SUP001,21000000,20000000,,ADV_HOTEL,Reception Supervisor,Day Shift
+Night Auditor,night.audit@advancedhotel.com,,employee,Front Office,office,nightaudit123,EMP001,22000000,20000000,,ADV_HOTEL,Night Auditor,Night Shift
+Concierge,concierge@advancedhotel.com,,employee,Front Office,office,concierge123,EMP002,23000000,20000000,,ADV_HOTEL,Concierge,Day Shift
+Executive Housekeeper,exec.hk@advancedhotel.com,,employee,Housekeeping,office,exechk123,SUP002,31000000,30000000,,ADV_HOTEL,Executive Housekeeper,Day Shift
+Housekeeping Supervisor,hk.sup@advancedhotel.com,,employee,Housekeeping,office,hksup123,SUP003,32000000,30000000,,ADV_HOTEL,Housekeeping Supervisor,Day Shift
+Executive Chef,chef@advancedhotel.com,,employee,Food & Beverage,office,chef123,CHEF001,41000000,40000000,,ADV_HOTEL,Executive Chef,Day Shift
+Restaurant Manager,rest.mgr@advancedhotel.com,,employee,Food & Beverage,office,restmgr123,SUP004,42000000,40000000,,ADV_HOTEL,Restaurant Manager,Day Shift
+Banquet Manager,banquet.mgr@advancedhotel.com,,employee,Food & Beverage,office,banquet123,SUP005,43000000,40000000,,ADV_HOTEL,Banquet Manager,Day Shift
+Engineering Supervisor,eng.sup@advancedhotel.com,,employee,Maintenance,office,engsup123,SUP006,51000000,50000000,,ADV_HOTEL,Engineering Supervisor,Day Shift
+Maria Gonzalez,,maria_housekeeping,employee,Housekeeping,operational,1234,HK001,80100001,30000000,,ADV_HOTEL,Room Attendant,Morning Shift
+Carmen Rodriguez,,carmen_housekeeping,employee,Housekeeping,operational,1234,HK002,80100002,32000000,,ADV_HOTEL,Room Attendant,Afternoon Shift
+Lucia Fernandez,,lucia_housekeeping,employee,Housekeeping,operational,5678,HK003,80100003,32000000,,ADV_HOTEL,Laundry Attendant,Day Shift
+Pedro Martinez,,pedro_maintenance,employee,Maintenance,operational,9876,MT001,80200001,50000000,,ADV_HOTEL,Maintenance Technician,Day Shift
+Carlos Jimenez,,carlos_maintenance,employee,Maintenance,operational,4321,MT002,80200002,51000000,,ADV_HOTEL,HVAC Technician,Day Shift
+Ana Delgado,,ana_kitchen,employee,Food & Beverage,operational,2468,FB001,80300001,40000000,,ADV_HOTEL,Kitchen Assistant,Morning Shift
+Luis Morales,,luis_kitchen,employee,Food & Beverage,operational,1357,FB002,80300002,41000000,,ADV_HOTEL,Prep Cook,Day Shift
+Sofia Vargas,,sofia_server,employee,Food & Beverage,operational,8642,FB003,80300003,42000000,,ADV_HOTEL,Server,Evening Shift
+Roberto Cruz,,roberto_bartender,employee,Food & Beverage,operational,9753,FB004,80300004,42000000,,ADV_HOTEL,Bartender,Night Shift
+Isabella Torres,,isabella_front,employee,Front Office,operational,1928,FO001,80400001,20000000,,ADV_HOTEL,Bell Attendant,Day Shift
+Diego Silva,,diego_front,employee,Front Office,operational,3746,FO002,80400002,21000000,,ADV_HOTEL,Valet Attendant,Evening Shift
+Valentina Lopez,,valentina_security,employee,Security,operational,5940,SEC001,80500001,10000000,,ADV_HOTEL,Security Guard,Night Shift
+Fernando Ruiz,,fernando_security,employee,Security,operational,7182,SEC002,80500002,10000000,,ADV_HOTEL,Security Guard,Day Shift

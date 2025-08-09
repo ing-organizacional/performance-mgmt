@@ -1,87 +1,165 @@
 # CSV User Import Instructions
 
-## 📋 Template: `user-import-template.csv`
+## 📋 Templates Available
 
-Download and fill out the CSV template to bulk import users into the Performance Management System.
+### 🔧 **Advanced Template**: `example-users-advanced.csv`
+- **Hotel/Hospitality Industry Example** - 28 users across multiple departments
+- **Complex Hierarchy** - CEO → GM → Department Managers → Supervisors → Staff
+- **Mixed Workforce** - Office workers (email) + Operational workers (PIN)
+- **Complete Example** - Demonstrates all fields and relationships
 
-## 📊 Required Fields
+### 📊 **Basic Template**: `example-users.csv` 
+- **Simple Company Structure** - 14 users with basic hierarchy
+- **Getting Started** - Easy to understand and modify
+- **Common Use Case** - Standard office/operational mix
 
-| Field | Required | Description | Example |
-|-------|----------|-------------|---------|
-| `name` | ✅ **YES** | Full employee name | `John Doe` |
-| `personID` | ✅ **YES** | National ID (Cédula, DNI) | `12345678` |
-| `role` | ✅ **YES** | User role: `employee`, `manager`, or `hr` | `employee` |
+### 📝 **Empty Template**: `user-import-template.csv`
+- **Blank Template** - Headers only for your data
+- **Custom Import** - Start fresh with your organization
 
-## 🔐 Authentication Fields
-
-**Office Workers (Computer Access):**
-- `email` - Required for office workers
-- `password` - Login password (min 8 chars)
-- `userType` - Set to `office`
-
-**Operational Workers (Mobile/PIN Access):**
-- `username` - Required for operational workers  
-- `password` - PIN code (4 digits recommended)
-- `userType` - Set to `operational`
-
-## 🏢 Organizational Fields
-
-| Field | Required | Description | Example |
-|-------|----------|-------------|---------|
-| `department` | Optional | Employee department | `Human Resources` |
-| `employeeId` | Optional | Company employee number | `EMP001` |
-| `companyCode` | Optional | Company identifier | `COMPANY_001` |
-
-## 👥 Manager Assignment
-
-Assign managers using **one** of these fields:
-- `managerPersonID` - Manager's national ID
-- `managerEmployeeId` - Manager's employee ID
-
-## 📝 Example Rows
+## 🎯 Required CSV Structure
 
 ```csv
-name,email,username,role,department,userType,password,employeeId,personID,managerPersonID
-John Doe,john.doe@company.com,,employee,HR,office,changeme123,EMP001,12345678,87654321
-Jane Worker,,jane_worker,employee,Production,operational,1234,EMP002,87654321,12345678
-Mike Manager,mike@company.com,,manager,Sales,office,password123,MGR001,11111111,
+name,email,username,role,department,userType,password,employeeId,personID,managerPersonID,managerEmployeeId,companyCode,position,shift
 ```
 
-## ⚠️ Important Notes
+## 📊 Field Requirements
 
-### **Required Combinations:**
-- **Office users**: Must have `email` 
-- **Operational users**: Must have `username`
-- **All users**: Must have `name`, `personID`, `role`
+### ✅ **Always Required**
+| Field | Description | Example |
+|-------|-------------|---------|
+| `name` | Full employee name | `Maria Rodriguez` |
+| `personID` | National ID (unique identifier) | `12345678` |
+| `role` | `employee`, `manager`, or `hr` | `employee` |
 
-### **Security:**
-- All PersonIDs must be unique
-- Passwords will be hashed automatically
-- Manager must exist before assigning employees
+### 🔐 **Authentication Requirements**
 
-### **Data Validation:**
-- Duplicate users are rejected
-- Invalid roles are rejected  
-- Missing required fields cause row to be skipped
+**Office Workers (Computer/Email Access):**
+- ✅ `email` - Required for office workers
+- ✅ `userType` - Set to `office` 
+- ✅ `password` - Min 8 characters
+- ❌ `username` - Leave empty
 
-## 🚀 Import Process
+**Operational Workers (PIN/Mobile Access):**
+- ✅ `username` - Required for operational workers
+- ✅ `userType` - Set to `operational`
+- ✅ `password` - 4-6 digit PIN (e.g., `1234`)
+- ❌ `email` - Leave empty
 
-1. **Download** `user-import-template.csv`
-2. **Fill out** user data following this guide
-3. **Login** as HR administrator  
-4. **Go to** Admin section → Import Users
-5. **Upload** your CSV file
-6. **Review** import results and error messages
+### 🏢 **Optional Fields**
+| Field | Description | Example |
+|-------|-------------|---------|
+| `department` | Work department | `Housekeeping`, `Front Office` |
+| `position` | Job title | `Room Attendant`, `Sales Manager` |
+| `shift` | Work shift | `Morning Shift`, `Night Shift` |
+| `employeeId` | Company employee number | `EMP001`, `MGR001` |
+| `companyCode` | Company identifier | `HOTEL_ABC`, `CORP_001` |
 
-## 🔍 Troubleshooting
+### 👥 **Manager Assignment**
 
-**Common Issues:**
-- ❌ `Missing personID` - Add national ID for each user
-- ❌ `User already exists` - PersonID, email, or username is duplicate
-- ❌ `Manager not found` - Create manager before assigning employees
-- ❌ `Missing email or username` - Office users need email, operational users need username
+Use **ONE** of these to assign a manager:
+- `managerPersonID` - Manager's national ID (personID)
+- `managerEmployeeId` - Manager's employee ID
 
-**Success Criteria:**
-- ✅ Clean import with no errors
+**Important**: Managers must be imported before their employees!
+
+## 📝 **Import Order Strategy**
+
+For successful imports, follow this order:
+
+1. **HR/CEO Level** (no manager)
+2. **Top Managers** (report to HR/CEO)
+3. **Department Managers** (report to top managers)
+4. **Supervisors** (report to department managers)
+5. **Employees** (report to supervisors/managers)
+
+## 💡 **Real Examples from Templates**
+
+### HR/CEO (No Manager)
+```csv
+CEO Executive,ceo@advancedhotel.com,,hr,Executive,office,ceopass2024,CEO001,00000000,,,ADV_HOTEL,Chief Executive Officer,Day Shift
+```
+
+### Manager (Reports to CEO)
+```csv
+GM Hotel,gm@advancedhotel.com,,manager,Management,office,gmpass2024,GM001,10000000,00000000,,ADV_HOTEL,General Manager,Day Shift
+```
+
+### Office Employee (Reports to Manager)
+```csv
+Reception Supervisor,reception.sup@advancedhotel.com,,employee,Front Office,office,reception123,SUP001,21000000,20000000,,ADV_HOTEL,Reception Supervisor,Day Shift
+```
+
+### Operational Employee (Reports to Manager)
+```csv
+Maria Gonzalez,,maria_housekeeping,employee,Housekeeping,operational,1234,HK001,80100001,30000000,,ADV_HOTEL,Room Attendant,Morning Shift
+```
+
+## ⚠️ **Critical Rules**
+
+### **Unique Identifiers**
+- `personID` must be unique across all users
+- `email` must be unique (when provided)
+- `username` must be unique (when provided)
+- `employeeId` must be unique (when provided)
+
+### **Manager Relationships**
+- Managers must exist before assigning employees to them
+- Use either `managerPersonID` OR `managerEmployeeId` (not both)
+- HR role users typically don't have managers
+- Avoid circular manager relationships
+
+### **Password Security**
+- Office workers: Minimum 8 characters
+- Operational workers: 4-6 digit PIN codes
+- Passwords are automatically hashed during import
+
+## 🚀 **Import Process**
+
+1. **Choose Template**
+   - Download `example-users-advanced.csv` for comprehensive example
+   - Download `example-users.csv` for simpler structure
+   - Download `user-import-template.csv` for blank template
+
+2. **Prepare Your Data**
+   - Follow import order (HR → Managers → Employees)
+   - Ensure all required fields are filled
+   - Verify manager relationships are correct
+
+3. **Upload and Import**
+   - Login as HR administrator
+   - Navigate to `/users/advanced`
+   - Select and upload your CSV file
+   - Review import results and fix any errors
+
+## 🔍 **Common Issues & Solutions**
+
+| Error | Cause | Solution |
+|-------|-------|----------|
+| `Manager not found with PersonID: 12345` | Employee references non-existent manager | Import manager first, verify PersonID matches |
+| `User already exists with PersonID: 67890` | Duplicate PersonID in database | Use unique PersonIDs for each user |
+| `Office workers require email` | Office user missing email field | Add email address for userType='office' |
+| `Operational workers require username` | Operational user missing username | Add username for userType='operational' |
+| `Password must be at least 8 characters` | Office user password too short | Use stronger passwords for office workers |
+| `Operational user PIN must be 4-6 digits` | Invalid PIN format | Use numeric PIN codes (e.g., 1234, 5678) |
+
+## ✅ **Validation Checklist**
+
+Before importing, verify:
+- [ ] All required fields completed
+- [ ] PersonIDs are unique and valid
+- [ ] Email addresses for office workers
+- [ ] Usernames for operational workers  
+- [ ] Manager relationships exist
+- [ ] Import order follows hierarchy
+- [ ] Passwords meet requirements
+- [ ] Company codes are consistent
+
+## 🎯 **Success Indicators**
+
+After successful import:
+- ✅ Import summary shows users created
+- ✅ No error messages in import results
 - ✅ Users can login with provided credentials
-- ✅ Manager relationships established correctly
+- ✅ Manager relationships visible in user management
+- ✅ Correct departments and positions assigned

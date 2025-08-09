@@ -1,11 +1,15 @@
-name,email,username,role,department,userType,password,employeeId,personID,managerPersonID,managerEmployeeId,companyCode
-Michael Chen,michael.chen@demo.com,,manager,Engineering,office,password123,MGR001,87654321,,,DEMO_001
-Sarah Johnson,sarah.johnson@demo.com,,employee,Marketing,office,password123,EMP001,12345678,87654321,,DEMO_001
-David Smith,david.smith@demo.com,,employee,Sales,office,password123,EMP003,34567890,,MGR001,DEMO_001
-Anna Thompson,anna.thompson@demo.com,,hr,Human Resources,office,password123,HR001,11111111,,,DEMO_001
-Lisa Rodriguez,lisa.rodriguez@demo.com,,employee,Human Resources,office,password123,EMP002,23456789,,HR001,DEMO_001
-Robert Brown,robert.brown@demo.com,,manager,Finance,office,password123,MGR002,22222222,,,DEMO_001
-Thomas Miller,thomas.miller@demo.com,,employee,Finance,office,password123,EMP007,78901234,22222222,,DEMO_001
-Maria Garcia,,maria_garcia,employee,Production,operational,1234,EMP004,45678901,,MGR001,DEMO_001
-James Wilson,,james_wilson,employee,Production,operational,1234,EMP005,56789012,87654321,,DEMO_001
-Jennifer Davis,,jennifer_davis,employee,Warehouse,operational,5678,EMP006,67890123,,MGR002,DEMO_001
+name,email,username,role,department,userType,password,employeeId,personID,managerPersonID,managerEmployeeId,companyCode,position,shift
+HR Director,hr.director@demo.com,,hr,Human Resources,office,securepass123,HR001,11111111,,,DEMO_001,HR Director,Day Shift
+Sales Manager,sales.mgr@demo.com,,manager,Sales,office,managerpass123,MGR001,22222222,,,DEMO_001,Sales Manager,Day Shift
+Finance Manager,finance.mgr@demo.com,,manager,Finance,office,financepass123,MGR002,33333333,,,DEMO_001,Finance Manager,Day Shift
+Operations Manager,ops.mgr@demo.com,,manager,Operations,office,opspass123,MGR003,44444444,,,DEMO_001,Operations Manager,Day Shift
+Sarah Johnson,sarah.johnson@demo.com,,employee,Sales,office,employee123,EMP001,12345678,22222222,,DEMO_001,Sales Representative,Day Shift
+David Smith,david.smith@demo.com,,employee,Sales,office,employee123,EMP002,23456789,22222222,,DEMO_001,Account Executive,Day Shift
+Lisa Rodriguez,lisa.rodriguez@demo.com,,employee,Human Resources,office,employee123,EMP003,34567890,11111111,,DEMO_001,HR Specialist,Day Shift
+Thomas Miller,thomas.miller@demo.com,,employee,Finance,office,employee123,EMP004,45678901,33333333,,DEMO_001,Accounting Clerk,Day Shift
+Michael Chen,michael.chen@demo.com,,employee,Finance,office,employee123,EMP005,56789012,33333333,,DEMO_001,Financial Analyst,Day Shift
+Maria Garcia,,maria_garcia,employee,Operations,operational,1234,EMP006,67890123,44444444,,DEMO_001,Production Worker,Morning Shift
+James Wilson,,james_wilson,employee,Operations,operational,1234,EMP007,78901234,44444444,,DEMO_001,Warehouse Worker,Night Shift
+Jennifer Davis,,jennifer_davis,employee,Housekeeping,operational,5678,EMP008,89012345,44444444,,DEMO_001,Housekeeper,Morning Shift
+Carlos Lopez,,carlos_lopez,employee,Maintenance,operational,9876,EMP009,90123456,44444444,,DEMO_001,Maintenance Technician,Day Shift
+Ana Martinez,,ana_martinez,employee,Food Service,operational,4321,EMP010,01234567,44444444,,DEMO_001,Kitchen Assistant,Evening Shift
