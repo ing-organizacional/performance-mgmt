@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma-client'
 import { toISOStringSafe } from '@/lib/utils/date'
+import { validateQueryParams, teamQuerySchema, validationError } from '@/lib/validation'
 
 // GET /api/evaluation-items - Get evaluation items for specific employee (used in evaluation flow)
 export async function GET(request: NextRequest) {
@@ -18,9 +19,15 @@ export async function GET(request: NextRequest) {
     const userId = session.user.id
     const companyId = session.user.companyId
     
-    // Get employeeId from query parameters if evaluating someone else
+    // Validate query parameters
     const { searchParams } = new URL(request.url)
     const employeeId = searchParams.get('employeeId')
+    
+    // Validate employeeId if provided (should be valid CUID)
+    if (employeeId && !/^c[a-z0-9]{24}$/.test(employeeId)) {
+      return validationError('Invalid employee ID format')
+    }
+    
     const targetEmployeeId = employeeId || userId
 
     // Get employee info to determine department and manager

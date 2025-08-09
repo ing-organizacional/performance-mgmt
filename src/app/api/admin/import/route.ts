@@ -3,7 +3,14 @@ import { prisma } from '@/lib/prisma-client'
 import bcrypt from 'bcryptjs'
 import { requireHRRole } from '@/lib/auth-middleware'
 import { rateLimit } from '@/lib/rate-limit'
-// Headers accessed from request object
+import { 
+  importUserSchema, 
+  csvFileSchema, 
+  validateFormData, 
+  validationError, 
+  parseCSV,
+  validateFile 
+} from '@/lib/validation'
 
 interface ImportUserData {
   name: string
@@ -61,58 +68,39 @@ export async function POST(request: NextRequest) {
     const file = formData.get('file') as File
 
     if (!file) {
-      return NextResponse.json({ 
-        success: false, 
-        error: 'CSV file is required' 
-      }, { status: 400 })
+      return validationError('CSV file is required')
+    }
+
+    // Enhanced file validation
+    const fileValidation = validateFile(file, 10 * 1024 * 1024, ['text/csv', 'application/csv', 'text/plain'])
+    if (!fileValidation.valid) {
+      return validationError(fileValidation.error)
     }
 
     if (!file.name.endsWith('.csv')) {
-      return NextResponse.json({ 
-        success: false, 
-        error: 'File must be a CSV' 
-      }, { status: 400 })
+      return validationError('File must have .csv extension')
     }
 
-    // Parse CSV file
-    const csvText = await file.text()
-    const lines = csvText.split('\n').filter(line => line.trim())
-    
-    if (lines.length < 2) {
-      return NextResponse.json({ 
-        success: false, 
-        error: 'CSV must have header row and at least one data row' 
-      }, { status: 400 })
+    // Parse CSV with comprehensive validation
+    const csvResult = await parseCSV(file, importUserSchema, {
+      skipHeader: true,
+      maxRows: 1000,
+      allowPartialValidation: true
+    })
+
+    if (!csvResult.success) {
+      return validationError(`CSV parsing failed: ${csvResult.error}`)
     }
 
-    // Parse header row
-    const headers = lines[0].split(',').map(h => h.trim().replace(/['"]/g, ''))
-    
-    // Parse data rows
-    const users: ImportUserData[] = []
-    for (let i = 1; i < lines.length; i++) {
-      const values = lines[i].split(',').map(v => v.trim().replace(/['"]/g, ''))
-      if (values.length !== headers.length) continue // Skip malformed rows
-      
-      const userData: Partial<ImportUserData> = {}
-      headers.forEach((header, index) => {
-        const value = values[index]
-        if (value && value !== '') {
-          (userData as Record<string, string>)[header] = value
-        }
-      })
-      
-      // Only add users with required fields
-      if (userData.name && userData.role) {
-        users.push(userData as ImportUserData)
-      }
-    }
+    const { data: users, errors: parseErrors } = csvResult
 
     if (users.length === 0) {
-      return NextResponse.json({ 
-        success: false, 
-        error: 'No valid user data found in CSV' 
-      }, { status: 400 })
+      return validationError('No valid user data found in CSV', parseErrors)
+    }
+
+    // Log parsing warnings if any
+    if (parseErrors.length > 0) {
+      console.warn('CSV parsing warnings:', parseErrors.slice(0, 10)) // Log first 10 warnings
     }
 
     const results: ImportResults = {

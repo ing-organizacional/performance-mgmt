@@ -1,8 +1,9 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma-client'
+import { validateQueryParams, teamQuerySchema } from '@/lib/validation'
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
     const session = await auth()
     
@@ -13,8 +14,15 @@ export async function GET() {
       }, { status: 401 })
     }
 
+    // Validate query parameters
+    const { searchParams } = new URL(request.url)
+    const queryValidation = validateQueryParams(teamQuerySchema, searchParams)
+    if (!queryValidation.success) {
+      return queryValidation.response
+    }
+    const { includeSubordinates, includeMetrics } = queryValidation.data
+
     const userId = session.user.id
-    
     const userRole = session.user.role
 
     // Only managers and HR can access this endpoint

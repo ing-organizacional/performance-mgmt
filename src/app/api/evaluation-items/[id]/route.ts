@@ -2,6 +2,12 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma-client'
 import { toISOStringSafe } from '@/lib/utils/date'
+import { 
+  validateJsonBody, 
+  evaluationItemUpdateSchema, 
+  validationError, 
+  userIdSchema 
+} from '@/lib/validation'
 
 // PUT /api/evaluation-items/[id] - Update evaluation item
 export async function PUT(
@@ -20,6 +26,11 @@ export async function PUT(
 
     const { id } = await params
     
+    // Validate ID parameter
+    if (!/^c[a-z0-9]{24}$/.test(id)) {
+      return validationError('Invalid evaluation item ID format')
+    }
+    
     const userRole = session.user.role
     
     // Only managers and HR can edit items
@@ -30,18 +41,13 @@ export async function PUT(
       }, { status: 403 })
     }
 
-    const body = await request.json()
-    const { title, description, evaluationDeadline, active } = body
-
-    // If only toggling active status, don't require title/description
-    const isActiveToggle = active !== undefined && !title && !description
-    
-    if (!isActiveToggle && (!title || !description)) {
-      return NextResponse.json({ 
-        success: false, 
-        error: 'Title and description are required' 
-      }, { status: 400 })
+    // Validate request body
+    const bodyValidation = await validateJsonBody(evaluationItemUpdateSchema, request)
+    if (!bodyValidation.success) {
+      return bodyValidation.response
     }
+    
+    const updateData = bodyValidation.data
 
     // Validate deadline if provided
     let deadlineDate = null
