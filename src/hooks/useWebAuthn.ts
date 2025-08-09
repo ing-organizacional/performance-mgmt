@@ -79,6 +79,7 @@ export function useWebAuthn(): UseWebAuthnReturn {
   const createCredential = useCallback(async (
     options: CredentialCreationOptions
   ): Promise<BiometricCredential | null> => {
+    // Clear any previous error state
     setError(null)
     setIsCreating(true)
 
@@ -88,9 +89,16 @@ export function useWebAuthn(): UseWebAuthnReturn {
         throw new Error('WebAuthn or biometric authentication is not supported on this device')
       }
 
-      const credential = await navigator.credentials.create({
+      // Add timeout to prevent hanging
+      const timeoutPromise = new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error('Operation timed out')), 60000)
+      )
+
+      const credentialPromise = navigator.credentials.create({
         publicKey: options
-      }) as PublicKeyCredential
+      }) as Promise<PublicKeyCredential>
+
+      const credential = await Promise.race([credentialPromise, timeoutPromise])
 
       if (!credential) {
         throw new Error('Failed to create credential')
@@ -109,17 +117,23 @@ export function useWebAuthn(): UseWebAuthnReturn {
 
       return result
     } catch (err: any) {
-      console.error('WebAuthn creation error:', err)
+      // Don't set error state for user cancellation to prevent loops
+      if (err.name === 'NotAllowedError') {
+        // User cancelled - this is normal behavior, don't show persistent error
+        console.log('User cancelled biometric setup - this is normal')
+        // Optionally show a brief message via callback instead of state
+      } else {
+        console.error('WebAuthn creation error:', err)
+      }
       
-      // Provide user-friendly error messages
       if (err.name === 'NotSupportedError') {
         setError('Biometric authentication is not supported on this device')
       } else if (err.name === 'SecurityError') {
         setError('Security error: Please ensure you are using HTTPS')
-      } else if (err.name === 'NotAllowedError') {
-        setError('Biometric authentication was cancelled or not allowed')
       } else if (err.name === 'InvalidStateError') {
         setError('A credential already exists for this account')
+      } else if (err.message === 'Operation timed out') {
+        setError('The operation timed out. Please try again.')
       } else {
         setError(err.message || 'Failed to set up biometric authentication')
       }
@@ -164,7 +178,12 @@ export function useWebAuthn(): UseWebAuthnReturn {
 
       return result
     } catch (err: any) {
-      console.error('WebAuthn authentication error:', err)
+      // Handle user cancellation gracefully for authentication too
+      if (err.name === 'NotAllowedError') {
+        console.log('User cancelled biometric authentication - this is normal')
+      } else {
+        console.error('WebAuthn authentication error:', err)
+      }
       
       // Provide user-friendly error messages
       if (err.name === 'NotSupportedError') {
@@ -172,7 +191,8 @@ export function useWebAuthn(): UseWebAuthnReturn {
       } else if (err.name === 'SecurityError') {
         setError('Security error: Please ensure you are using HTTPS')
       } else if (err.name === 'NotAllowedError') {
-        setError('Biometric authentication was cancelled or not allowed')
+        // Don't set persistent error for cancellation during login
+        console.log('Authentication cancelled by user')
       } else if (err.name === 'InvalidStateError') {
         setError('No biometric credentials found for this account')
       } else {

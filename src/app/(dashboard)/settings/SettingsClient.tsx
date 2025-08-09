@@ -124,39 +124,39 @@ export default function SettingsClient({ user }: SettingsClientProps) {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       {/* User Profile Section */}
       <div className="bg-white shadow rounded-lg">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h2 className="text-xl font-semibold text-gray-900">
+        <div className="px-4 py-3 border-b border-gray-200">
+          <h2 className="text-lg font-semibold text-gray-900">
             {t.settings?.profile || 'Profile'}
           </h2>
         </div>
-        <div className="px-6 py-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="px-4 py-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium text-gray-700">
+              <label className="block text-xs font-bold text-gray-700">
                 {t.auth?.name || 'Name'}
               </label>
-              <p className="mt-1 text-sm text-gray-900">{user.name}</p>
+              <p className="mt-0.5 text-sm text-gray-900">{user.name}</p>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">
+              <label className="block text-xs font-bold text-gray-700">
                 {t.auth?.email || 'Email'}
               </label>
-              <p className="mt-1 text-sm text-gray-900">{user.email}</p>
+              <p className="mt-0.5 text-sm text-gray-900">{user.email}</p>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">
+              <label className="block text-xs font-bold text-gray-700">
                 {t.auth?.role || 'Role'}
               </label>
-              <p className="mt-1 text-sm text-gray-900 capitalize">{user.role}</p>
+              <p className="mt-0.5 text-sm text-gray-900 capitalize">{user.role}</p>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">
+              <label className="block text-xs font-bold text-gray-700">
                 {t.common?.department || 'Department'}
               </label>
-              <p className="mt-1 text-sm text-gray-900">{user.department || 'N/A'}</p>
+              <p className="mt-0.5 text-sm text-gray-900">{user.department || 'N/A'}</p>
             </div>
           </div>
         </div>
@@ -164,59 +164,61 @@ export default function SettingsClient({ user }: SettingsClientProps) {
 
       {/* Biometric Authentication Section */}
       <div className="bg-white shadow rounded-lg">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h2 className="text-xl font-semibold text-gray-900">
+        <div className="px-4 py-3 border-b border-gray-200">
+          <h2 className="text-lg font-semibold text-gray-900">
             {t.biometric?.authentication || 'Biometric Authentication'}
           </h2>
-          <p className="mt-1 text-sm text-gray-600">
+          <p className="mt-1 text-xs text-gray-600">
             {t.biometric?.settingsDescription || 'Manage your biometric authentication methods for secure login'}
           </p>
         </div>
-        <div className="px-6 py-4">
+        <div className="px-4 py-4">
           {loading ? (
-            <div className="flex items-center justify-center p-8">
-              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+            <div className="flex items-center justify-center p-4">
+              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
             </div>
           ) : (
-            <div className="space-y-6">
+            <div className="space-y-4">
               {/* Setup New Biometric */}
               <div>
-                <h3 className="text-lg font-medium text-gray-900 mb-4">
+                <h3 className="text-base font-medium text-gray-900 mb-3">
                   {t.biometric?.addNew || 'Add New Biometric Authentication'}
                 </h3>
-                <BiometricAuth
-                  mode="setup"
-                  userId={user.id}
-                  userName={user.email || user.name}
-                  userDisplayName={user.name}
-                  onSuccess={handleBiometricSetupSuccess}
-                  onError={handleBiometricSetupError}
-                  className="max-w-sm"
-                />
+                <div className="flex justify-center">
+                  <BiometricAuth
+                    mode="setup"
+                    userId={user.id}
+                    userName={user.email || user.name}
+                    userDisplayName={user.name}
+                    onSuccess={handleBiometricSetupSuccess}
+                    onError={handleBiometricSetupError}
+                    className="max-w-sm"
+                  />
+                </div>
               </div>
 
               {/* Existing Credentials */}
               {credentials.length > 0 && (
                 <div>
-                  <h3 className="text-lg font-medium text-gray-900 mb-4">
+                  <h3 className="text-base font-medium text-gray-900 mb-3">
                     {t.biometric?.existingCredentials || 'Your Biometric Credentials'}
                   </h3>
-                  <div className="space-y-4">
+                  <div className="space-y-3">
                     {credentials.map((credential) => (
                       <div
                         key={credential.id}
-                        className="flex items-center justify-between p-4 border border-gray-200 rounded-lg"
+                        className="flex items-center justify-between p-3 border border-gray-200 rounded-lg"
                       >
-                        <div className="flex items-center space-x-4">
+                        <div className="flex items-center space-x-3">
                           {getDeviceIcon(credential.deviceType)}
                           <div>
                             <h4 className="text-sm font-medium text-gray-900">
                               {credential.deviceName || getDeviceTypeName(credential.deviceType)}
                             </h4>
-                            <p className="text-xs text-gray-600">
+                            <p className="text-xs text-gray-500">
                               {t.common?.created || 'Created'}: {formatDate(credential.createdAt)}
                             </p>
-                            <p className="text-xs text-gray-600">
+                            <p className="text-xs text-gray-500">
                               {t.common?.lastUsed || 'Last used'}: {formatDate(credential.lastUsed)}
                             </p>
                           </div>
@@ -239,13 +241,13 @@ export default function SettingsClient({ user }: SettingsClientProps) {
               )}
 
               {credentials.length === 0 && (
-                <div className="text-center py-8">
+                <div className="text-center py-6">
                   <div className="text-gray-400 mb-2">
-                    <svg className="mx-auto h-12 w-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="mx-auto h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
                     </svg>
                   </div>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-xs text-gray-500">
                     {t.biometric?.noCredentials || 'No biometric credentials set up yet'}
                   </p>
                 </div>

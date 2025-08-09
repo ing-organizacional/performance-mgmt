@@ -182,7 +182,7 @@ export default function LoginPage() {
           </form>
 
           {/* Biometric Authentication Option */}
-          <div className="mt-6">
+          <div className="mt-4">
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-gray-300" />
@@ -192,12 +192,13 @@ export default function LoginPage() {
               </div>
             </div>
             
-            <div className="mt-6">
+            <div className="mt-4">
               <BiometricAuth
                 mode="login"
                 onSuccess={handleBiometricSuccess}
                 onError={handleBiometricError}
                 disabled={loading}
+                compact={true}
               />
             </div>
           </div>

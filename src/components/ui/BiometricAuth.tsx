@@ -15,6 +15,7 @@ interface BiometricAuthProps {
   onError?: (error: string) => void
   className?: string
   disabled?: boolean
+  compact?: boolean
 }
 
 export default function BiometricAuth({
@@ -25,7 +26,8 @@ export default function BiometricAuth({
   onSuccess,
   onError,
   className = '',
-  disabled = false
+  disabled = false,
+  compact = false
 }: BiometricAuthProps) {
   const { t } = useLanguage()
   const { success, error: showError } = useToast()
@@ -52,13 +54,13 @@ export default function BiometricAuth({
     checkBiometricSupport()
   }, [checkSupport])
 
-  // Handle errors from the hook
-  useEffect(() => {
-    if (error) {
-      onError?.(error)
-      showError(error)
-    }
-  }, [error, onError, showError])
+  // Disable automatic error handling from hook to prevent loops
+  // useEffect(() => {
+  //   if (error) {
+  //     onError?.(error)
+  //     showError(error)
+  //   }
+  // }, [error, onError, showError])
 
   const generateChallenge = (): ArrayBuffer => {
     // In production, this should come from your server
@@ -122,6 +124,11 @@ export default function BiometricAuth({
       }
     } catch (err) {
       console.error('Biometric setup failed:', err)
+      // Don't show error UI for user cancellation to prevent loops
+      if (err instanceof Error && (err.message.includes('cancelled') || err.message.includes('not allowed'))) {
+        console.log('User cancelled biometric setup - this is normal')
+        return // Exit silently for cancellation
+      }
       const errorMessage = err instanceof Error ? err.message : 'Setup failed'
       onError?.(errorMessage)
       showError(errorMessage)
@@ -156,6 +163,11 @@ export default function BiometricAuth({
       }
     } catch (err) {
       console.error('Biometric login failed:', err)
+      // Don't show error UI for user cancellation to prevent loops
+      if (err instanceof Error && (err.message.includes('cancelled') || err.message.includes('not allowed'))) {
+        console.log('User cancelled biometric login - this is normal')
+        return // Exit silently for cancellation
+      }
       const errorMessage = err instanceof Error ? err.message : 'Login failed'
       onError?.(errorMessage)
       showError(errorMessage)
@@ -171,34 +183,12 @@ export default function BiometricAuth({
   }
 
   const getBiometricIcon = () => {
-    // Detect device type for appropriate icon
-    const userAgent = navigator.userAgent.toLowerCase()
-    const isIOS = /iphone|ipad|ipod/.test(userAgent)
-    const isMac = /macintosh|mac os x/.test(userAgent)
-    const isAndroid = /android/.test(userAgent)
-
-    if (isIOS || isMac) {
-      return (
-        // Face ID / Touch ID icon
-        <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
-          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.94-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v-.07zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
-        </svg>
-      )
-    } else if (isAndroid) {
-      return (
-        // Fingerprint icon
-        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm8-2v2m-6-6v6m6-4v4m-2-8v8"/>
-        </svg>
-      )
-    } else {
-      return (
-        // Generic biometric icon
-        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-        </svg>
-      )
-    }
+    // Use fingerprint icon for all devices
+    return (
+      <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M7.864 4.243A7.5 7.5 0 0119.5 10.5c0 2.92-.556 5.709-1.568 8.268M5.742 6.364A7.465 7.465 0 004.5 10.5a7.464 7.464 0 01-1.15 3.993m1.989 3.559A11.209 11.209 0 008.25 10.5a3.75 3.75 0 117.5 0c0 .527-.021 1.049-.064 1.565M12 10.5a14.94 14.94 0 01-3.6 9.75m6.633-4.596a18.666 18.666 0 01-2.485 5.33" />
+      </svg>
+    )
   }
 
   const getDeviceSpecificText = () => {
@@ -228,6 +218,29 @@ export default function BiometricAuth({
 
   const isLoading = isCreating || isAuthenticating
 
+  if (compact) {
+    return (
+      <div className="flex justify-center">
+        <button
+          onClick={mode === 'setup' ? handleSetupBiometric : handleBiometricLogin}
+          disabled={disabled || isLoading}
+          className={`flex flex-col items-center justify-center w-24 h-24 border-2 border-dashed border-blue-300 rounded-lg hover:border-blue-400 hover:bg-blue-50 active:bg-blue-100 transition-all duration-200 touch-manipulation ${
+            disabled || isLoading ? 'opacity-50 cursor-not-allowed' : 'active:scale-95'
+          } ${className}`}
+        >
+          {isLoading ? (
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+          ) : (
+            <div className="text-blue-600">
+              {getBiometricIcon()}
+            </div>
+          )}
+        </button>
+      </div>
+    )
+  }
+
+  // Full mode for settings page
   return (
     <button
       onClick={mode === 'setup' ? handleSetupBiometric : handleBiometricLogin}
@@ -240,7 +253,9 @@ export default function BiometricAuth({
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mb-3"></div>
       ) : (
         <div className="text-blue-600 mb-3">
-          {getBiometricIcon()}
+          <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M7.864 4.243A7.5 7.5 0 0119.5 10.5c0 2.92-.556 5.709-1.568 8.268M5.742 6.364A7.465 7.465 0 004.5 10.5a7.464 7.464 0 01-1.15 3.993m1.989 3.559A11.209 11.209 0 008.25 10.5a3.75 3.75 0 117.5 0c0 .527-.021 1.049-.064 1.565M12 10.5a14.94 14.94 0 01-3.6 9.75m6.633-4.596a18.666 18.666 0 01-2.485 5.33" />
+          </svg>
         </div>
       )}
       
