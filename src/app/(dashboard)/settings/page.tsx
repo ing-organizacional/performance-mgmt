@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation'
 import { prisma } from '@/lib/prisma-client'
 import SettingsClient from './SettingsClient'
 import BackButton from './BackButton'
+import { LoadingSpinner } from '@/components/ui'
 
 export default async function SettingsPage() {
   const session = await auth()
@@ -50,7 +51,7 @@ export default async function SettingsPage() {
         
         <Suspense fallback={
           <div className="flex items-center justify-center p-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <LoadingSpinner size="lg" color="blue" />
           </div>
         }>
           <SettingsClient user={user} />

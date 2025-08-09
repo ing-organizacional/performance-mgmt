@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation'
 import { useState, useRef, useCallback, useMemo } from 'react'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { LanguageSwitcher } from '@/components/layout'
-import { ToastContainer, SpeechTextarea, StarRating } from '@/components/ui'
+import { ToastContainer, SpeechTextarea, StarRating, RedirectingPage } from '@/components/ui'
 import type { SpeechTextareaRef } from '@/components/ui/SpeechTextarea'
 import { DeadlineDisplay } from '@/components/features/evaluation'
 import { useToast } from '@/hooks/useToast'
@@ -325,28 +325,11 @@ export default function EvaluateClient({
   // Success screen
   if (showSuccess) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
-        <div className="bg-white rounded-xl border border-gray-200 p-8 shadow-lg text-center max-w-md w-full animate-in fade-in-0 zoom-in-95 duration-500">
-          <div className="mb-6">
-            <div className="mx-auto flex items-center justify-center h-20 w-20 rounded-full bg-green-100 mb-4 animate-in zoom-in-0 duration-700 delay-200">
-              <svg className="h-10 w-10 text-green-600 animate-in scale-in-0 duration-500 delay-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-            </div>
-            <h2 className="text-xl font-semibold text-gray-900 mb-2 animate-in slide-in-from-bottom-4 duration-500 delay-300">
-              {t.evaluations?.evaluationSubmitted || 'Evaluation Submitted'}
-            </h2>
-            <p className="text-gray-600 animate-in slide-in-from-bottom-4 duration-500 delay-400">
-              {(t.evaluations?.evaluationSubmittedDesc || 'Evaluation for {name} has been submitted successfully').replace('{name}', employee.name)}
-            </p>
-          </div>
-          
-          <div className="flex items-center justify-center animate-in slide-in-from-bottom-4 duration-500 delay-500">
-            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
-            <span className="ml-2 text-sm text-gray-500">{t.evaluations?.redirecting || 'Redirecting...'}</span>
-          </div>
-        </div>
-      </div>
+      <RedirectingPage
+        message={t.evaluations?.evaluationSubmitted || 'Evaluation Submitted'}
+        destination="evaluations page"
+        showSuccess={true}
+      />
     )
   }
 

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useLanguage } from '@/contexts/LanguageContext'
+import { LoadingSpinner } from '@/components/ui'
 
 interface Department {
   name: string
@@ -148,8 +149,8 @@ export default function DepartmentSelector({ onSelectionChange, companyId }: Dep
   if (loading) {
     return (
       <div className="flex items-center justify-center py-8">
-        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
-        <span className="ml-2 text-sm text-gray-600">{t.common.loading}...</span>
+        <LoadingSpinner size="md" color="blue" />
+        <span className="ml-3 text-sm text-gray-600">{t.common.loading}...</span>
       </div>
     )
   }

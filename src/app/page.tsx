@@ -2,6 +2,7 @@
 
 import { useSession } from 'next-auth/react'
 import { useEffect } from 'react'
+import { LoadingPage, RedirectingPage } from '@/components/ui'
 
 export default function HomePage() {
   const { data: session, status } = useSession()
@@ -27,15 +28,17 @@ export default function HomePage() {
 
   if (status === 'loading') {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-lg">Loading...</div>
-      </div>
+      <LoadingPage 
+        message="Authenticating..."
+        subtitle="Please wait while we verify your credentials"
+      />
     )
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="text-lg">Redirecting...</div>
-    </div>
+    <RedirectingPage 
+      message="Welcome back!"
+      destination="your dashboard"
+    />
   )
 }

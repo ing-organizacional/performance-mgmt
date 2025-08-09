@@ -5,6 +5,7 @@ import { useLanguage } from '@/contexts/LanguageContext'
 import { useWebAuthn, stringToArrayBuffer, arrayBufferToBase64 } from '@/hooks/useWebAuthn'
 import { useToast } from '@/hooks/useToast'
 import { registerBiometricCredential, authenticateWithBiometric } from '@/lib/actions/biometric'
+import LoadingSpinner from './LoadingSpinner'
 
 interface BiometricAuthProps {
   mode: 'setup' | 'login'
@@ -207,7 +208,7 @@ export default function BiometricAuth({
   if (isChecking) {
     return (
       <div className={`flex items-center justify-center p-4 ${className}`}>
-        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+        <LoadingSpinner size="md" color="blue" />
       </div>
     )
   }
@@ -229,7 +230,7 @@ export default function BiometricAuth({
           } ${className}`}
         >
           {isLoading ? (
-            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+            <LoadingSpinner size="md" color="blue" />
           ) : (
             <div className="text-blue-600">
               {getBiometricIcon()}
@@ -250,7 +251,7 @@ export default function BiometricAuth({
       } ${className}`}
     >
       {isLoading ? (
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mb-3"></div>
+        <LoadingSpinner size="lg" color="blue" />
       ) : (
         <div className="text-blue-600 mb-3">
           <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>

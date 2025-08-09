@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useLanguage } from '@/contexts/LanguageContext'
-import { BiometricAuth } from '@/components/ui'
+import { BiometricAuth, LoadingSpinner } from '@/components/ui'
 import { getBiometricCredentials, removeBiometricCredential } from '@/lib/actions/biometric'
 import { useToast } from '@/hooks/useToast'
 import ChangePasswordModal from './ChangePasswordModal'
@@ -202,7 +202,7 @@ export default function SettingsClient({ user }: SettingsClientProps) {
         <div className="px-4 py-4">
           {loading ? (
             <div className="flex items-center justify-center p-4">
-              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
+              <LoadingSpinner size="sm" color="blue" />
             </div>
           ) : (
             <div className="space-y-4">
@@ -256,7 +256,7 @@ export default function SettingsClient({ user }: SettingsClientProps) {
                           className="px-3 py-1 text-sm text-red-600 hover:text-red-700 hover:bg-red-50 rounded-md transition-colors disabled:opacity-50"
                         >
                           {removing === credential.credentialId ? (
-                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600"></div>
+                            <LoadingSpinner size="sm" color="red" />
                           ) : (
                             t.common?.remove || 'Remove'
                           )}
