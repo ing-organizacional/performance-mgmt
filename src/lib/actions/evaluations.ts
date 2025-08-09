@@ -84,7 +84,7 @@ export async function assignCompanyItemToAllEmployees(itemId: string) {
       }
 
       // Reopen all completed evaluations in the current period
-      const reopenResult = await prisma.evaluation.updateMany({
+      await prisma.evaluation.updateMany({
         where: {
           companyId,
           status: 'completed',
@@ -327,7 +327,7 @@ export async function createEvaluationItem(formData: {
           }
 
           // Reopen all completed evaluations in the current period
-          const reopenResult = await prisma.evaluation.updateMany({
+          await prisma.evaluation.updateMany({
             where: {
               companyId,
               status: 'completed',
@@ -541,8 +541,8 @@ const getCachedEvaluationItemsForEmployee = unstable_cache(
       select: { department: true, companyId: true, name: true }
     })
 
-    // Build the OR conditions
-    const orConditions: any[] = [
+    // Build the OR conditions  
+    const orConditions = [
       { level: 'company' },
       {
         individualAssignments: {
@@ -559,7 +559,7 @@ const getCachedEvaluationItemsForEmployee = unstable_cache(
       orConditions.push({
         level: 'department',
         assignedTo: employee.department
-      })
+      } as any)
     }
 
     // Get evaluation items assigned to this employee or general company items

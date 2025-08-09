@@ -160,7 +160,7 @@ export default function EvaluatePage() {
 
     window.addEventListener('focus', handleFocus)
     return () => window.removeEventListener('focus', handleFocus)
-  }, [employeeId, loading]) // Remove fetchEvaluationData dependency
+  }, [employeeId, loading, fetchEvaluationData])
 
   // Reset current step when evaluation items change (new employee)
   useEffect(() => {

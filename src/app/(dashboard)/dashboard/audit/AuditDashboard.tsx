@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { signOut } from 'next-auth/react'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { LanguageSwitcher } from '@/components/layout'
 import { exportAuditLogsToExcel } from '@/lib/services/audit-export'
@@ -16,9 +15,9 @@ interface AuditLog {
   targetUserId?: string
   ipAddress?: string
   userAgent?: string
-  oldData?: any
-  newData?: any
-  metadata?: any
+  oldData?: Record<string, unknown>
+  newData?: Record<string, unknown>
+  metadata?: Record<string, unknown>
   reason?: string
   user: {
     id: string
