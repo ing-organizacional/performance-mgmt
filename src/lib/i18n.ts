@@ -68,6 +68,11 @@ export interface Translations {
     recall: string
     unlock: string
     you: string
+    remove: string
+    never: string
+    created: string
+    lastUsed: string
+    name: string
   }
   
   // Auth
@@ -85,6 +90,9 @@ export interface Translations {
     manager: string
     employee: string
     worker: string
+    name: string
+    email: string
+    role: string
   }
   
   // Navigation
@@ -98,6 +106,7 @@ export interface Translations {
     welcomeBack: string
     performanceHistory: string
     currentPeriod: string
+    settings: string
     evaluationComplete: string
     latestPerformanceEvaluation: string
     reviewedBy: string
@@ -166,6 +175,56 @@ export interface Translations {
     tapToRate: string
     commentPlaceholder: string
     commentGuidance: string
+  }
+
+  // Speech-to-Text
+  speech: {
+    startRecording: string
+    stopRecording: string
+    tapToSpeak: string
+    microphoneAccess: string
+    networkError: string
+    noSpeechDetected: string
+    audioNotSupported: string
+    speakNow: string
+    speechNotSupported: string
+    transcriptionError: string
+    lengthExceeded: string
+  }
+
+  // Biometric Authentication
+  biometric: {
+    setup: string
+    use: string
+    setupSuccess: string
+    loginSuccess: string
+    notSupported: string
+    cancelled: string
+    failed: string
+    httpsRequired: string
+    credentialExists: string
+    noCredentials: string
+    tapToSetup: string
+    tapToAuth: string
+    settingUp: string
+    authenticating: string
+    faceIdTouchId: string
+    touchId: string
+    fingerprint: string
+    biometric: string
+    userInfoRequired: string
+    authentication: string
+    settingsDescription: string
+    addNew: string
+    existingCredentials: string
+    confirmRemove: string
+    removeSuccess: string
+    faceId: string
+  }
+
+  // Settings
+  settings: {
+    profile: string
   }
   
   // Assignments
@@ -622,7 +681,12 @@ export const translations: Record<Language, Translations> = {
       approve: 'Approve',
       recall: 'Recall',
       unlock: 'Unlock',
-      you: 'You have'
+      you: 'You have',
+      remove: 'Remove',
+      never: 'Never',
+      created: 'Created',
+      lastUsed: 'Last used',
+      name: 'Name'
     },
     auth: {
       signIn: 'Sign in',
@@ -637,7 +701,10 @@ export const translations: Record<Language, Translations> = {
       hr: 'HR',
       manager: 'Manager',
       employee: 'Employee',
-      worker: 'Worker'
+      worker: 'Worker',
+      name: 'Name',
+      email: 'Email',
+      role: 'Role'
     },
     nav: {
       performanceManagement: 'Performance Management',
@@ -649,6 +716,7 @@ export const translations: Record<Language, Translations> = {
       welcomeBack: 'Welcome back',
       performanceHistory: 'Performance History',
       currentPeriod: 'Current Period',
+      settings: 'Settings',
       evaluationComplete: 'Evaluation Complete!',
       latestPerformanceEvaluation: 'Your latest performance evaluation has been submitted and approved.',
       reviewedBy: 'Reviewed by',
@@ -715,6 +783,50 @@ export const translations: Record<Language, Translations> = {
       tapToRate: 'Tap a star to rate this item',
       commentPlaceholder: 'Provide specific feedback and examples...',
       commentGuidance: 'Include specific examples and actionable suggestions.'
+    },
+    speech: {
+      startRecording: 'Start voice recording',
+      stopRecording: 'Stop recording',
+      tapToSpeak: 'Tap microphone to dictate',
+      microphoneAccess: 'Microphone access denied. Please allow microphone access.',
+      networkError: 'Network error. Please check your internet connection.',
+      noSpeechDetected: 'No speech detected. Please try again.',
+      audioNotSupported: 'No microphone found. Please check your audio settings.',
+      speakNow: 'Speak now...',
+      speechNotSupported: 'Speech recognition is not supported in this browser',
+      transcriptionError: 'Speech recognition error. Please try again.',
+      lengthExceeded: 'Text exceeds the maximum length limit'
+    },
+    biometric: {
+      setup: 'Set up',
+      use: 'Use',
+      setupSuccess: 'Biometric authentication set up successfully',
+      loginSuccess: 'Biometric authentication successful',
+      notSupported: 'Biometric authentication is not supported on this device',
+      cancelled: 'Biometric authentication was cancelled',
+      failed: 'Biometric authentication failed',
+      httpsRequired: 'HTTPS required for biometric authentication',
+      credentialExists: 'Biometric credential already exists for this account',
+      noCredentials: 'No biometric credentials found for this account',
+      tapToSetup: 'Tap to set up biometric authentication',
+      tapToAuth: 'Tap to authenticate with biometrics',
+      settingUp: 'Setting up...',
+      authenticating: 'Authenticating...',
+      faceIdTouchId: 'Face ID / Touch ID',
+      touchId: 'Touch ID',
+      fingerprint: 'Fingerprint',
+      biometric: 'Biometric Authentication',
+      userInfoRequired: 'User information required for biometric setup',
+      authentication: 'Biometric Authentication',
+      settingsDescription: 'Manage your biometric authentication methods for secure login',
+      addNew: 'Add New Biometric Authentication',
+      existingCredentials: 'Your Biometric Credentials',
+      confirmRemove: 'Are you sure you want to remove this biometric credential?',
+      removeSuccess: 'Biometric credential removed successfully',
+      faceId: 'Face ID'
+    },
+    settings: {
+      profile: 'Profile'
     },
     assignments: {
       assignmentManager: 'Assignment Manager',
@@ -1159,7 +1271,12 @@ export const translations: Record<Language, Translations> = {
       approve: 'Aprobar',
       recall: 'Recuperar',
       unlock: 'Desbloquear',
-      you: 'Tienes'
+      you: 'Tienes',
+      remove: 'Eliminar',
+      never: 'Nunca',
+      created: 'Creado',
+      lastUsed: 'Último uso',
+      name: 'Nombre'
     },
     auth: {
       signIn: 'Iniciar sesión',
@@ -1174,7 +1291,10 @@ export const translations: Record<Language, Translations> = {
       hr: 'RRHH',
       manager: 'Jefatura',
       employee: 'Colaborador',
-      worker: 'Trabajador'
+      worker: 'Trabajador',
+      name: 'Nombre',
+      email: 'Email',
+      role: 'Rol'
     },
     nav: {
       performanceManagement: 'Gestión de Desempeño',
@@ -1186,6 +1306,7 @@ export const translations: Record<Language, Translations> = {
       welcomeBack: 'Bienvenido de vuelta',
       performanceHistory: 'Historial de Desempeño',
       currentPeriod: 'Período Actual',
+      settings: 'Configuración',
       evaluationComplete: '¡Evaluación Completada!',
       latestPerformanceEvaluation: 'Tu última evaluación de desempeño ha sido enviada y aprobada.',
       reviewedBy: 'Revisado por',
@@ -1252,6 +1373,50 @@ export const translations: Record<Language, Translations> = {
       tapToRate: 'Toca una estrella para calificar',
       commentPlaceholder: 'Proporciona comentarios específicos y ejemplos...',
       commentGuidance: 'Incluye ejemplos específicos y sugerencias prácticas.'
+    },
+    speech: {
+      startRecording: 'Iniciar grabación de voz',
+      stopRecording: 'Detener grabación',
+      tapToSpeak: 'Toca el micrófono para dictar',
+      microphoneAccess: 'Acceso al micrófono denegado. Por favor permite el acceso al micrófono.',
+      networkError: 'Error de red. Por favor verifica tu conexión a internet.',
+      noSpeechDetected: 'No se detectó voz. Por favor intenta de nuevo.',
+      audioNotSupported: 'No se encontró micrófono. Por favor verifica tu configuración de audio.',
+      speakNow: 'Habla ahora...',
+      speechNotSupported: 'El reconocimiento de voz no es compatible con este navegador',
+      transcriptionError: 'Error de reconocimiento de voz. Por favor intenta de nuevo.',
+      lengthExceeded: 'El texto excede el límite máximo de longitud'
+    },
+    biometric: {
+      setup: 'Configurar',
+      use: 'Usar',
+      setupSuccess: 'Autenticación biométrica configurada exitosamente',
+      loginSuccess: 'Autenticación biométrica exitosa',
+      notSupported: 'La autenticación biométrica no es compatible con este dispositivo',
+      cancelled: 'La autenticación biométrica fue cancelada',
+      failed: 'Falló la autenticación biométrica',
+      httpsRequired: 'HTTPS requerido para autenticación biométrica',
+      credentialExists: 'Ya existe una credencial biométrica para esta cuenta',
+      noCredentials: 'No se encontraron credenciales biométricas para esta cuenta',
+      tapToSetup: 'Toca para configurar autenticación biométrica',
+      tapToAuth: 'Toca para autenticarte con biometría',
+      settingUp: 'Configurando...',
+      authenticating: 'Autenticando...',
+      faceIdTouchId: 'Face ID / Touch ID',
+      touchId: 'Touch ID',
+      fingerprint: 'Huella Digital',
+      biometric: 'Autenticación Biométrica',
+      userInfoRequired: 'Información de usuario requerida para configurar autenticación biométrica',
+      authentication: 'Autenticación Biométrica',
+      settingsDescription: 'Gestiona tus métodos de autenticación biométrica para inicio de sesión seguro',
+      addNew: 'Agregar Nueva Autenticación Biométrica',
+      existingCredentials: 'Tus Credenciales Biométricas',
+      confirmRemove: '¿Estás seguro de que deseas eliminar esta credencial biométrica?',
+      removeSuccess: 'Credencial biométrica eliminada exitosamente',
+      faceId: 'Face ID'
+    },
+    settings: {
+      profile: 'Perfil'
     },
     assignments: {
       assignmentManager: 'Gestor de Asignaciones',

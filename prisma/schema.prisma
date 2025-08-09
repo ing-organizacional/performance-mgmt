@@ -66,6 +66,7 @@ model User {
   closedCycles                 PerformanceCycle[]         @relation("CycleClosedBy")
   partialAssessmentsAsEmployee PartialAssessment[]        @relation("PartialAssessmentEmployee")
   partialAssessmentsAsAssessor PartialAssessment[]        @relation("PartialAssessmentAssessor")
+  biometricCredentials         BiometricCredential[]      @relation("UserBiometricCredentials")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -242,4 +243,23 @@ model PartialAssessment {
   updatedAt DateTime @updatedAt
 
   @@unique([cycleId, employeeId, evaluationItemId, isActive])
+}
+
+model BiometricCredential {
+  id           String @id @default(cuid())
+  userId       String
+  credentialId String @unique // WebAuthn credential ID
+  publicKey    String // Base64 encoded public key
+  deviceName   String? // Optional device name for user identification
+  deviceType   String // "face_id" | "touch_id" | "fingerprint" | "other"
+  counter      Int    @default(0) // WebAuthn signature counter
+  isActive     Boolean @default(true)
+  lastUsed     DateTime?
+
+  user User @relation("UserBiometricCredentials", fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, credentialId])
 }

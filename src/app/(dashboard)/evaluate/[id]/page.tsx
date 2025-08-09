@@ -6,7 +6,7 @@ import { useEffect, useState, useRef, useCallback, useMemo } from 'react'
 import { useParams } from 'next/navigation'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { LanguageSwitcher } from '@/components/layout'
-import { ToastContainer } from '@/components/ui'
+import { ToastContainer, SpeechTextarea } from '@/components/ui'
 import { DeadlineDisplay } from '@/components/features/evaluation'
 import { useToast } from '@/hooks/useToast'
 import { hapticFeedback } from '@/utils/haptics'
@@ -771,20 +771,21 @@ export default function EvaluatePage() {
                     {t.evaluations.minimumCharacters.replace('{count}', MIN_COMMENT_LENGTH.toString())}. {t.evaluations.commentGuidance}
                   </p>
                   
-                  <textarea
-                    ref={commentTextareaRef}
+                  <SpeechTextarea
                     value={currentItem.comment}
-                    onChange={isEvaluationLocked ? undefined : (e) => handleCommentChange(e.target.value)}
+                    onChange={(value) => !isEvaluationLocked && handleCommentChange(value)}
                     placeholder={isEvaluationLocked ? "" : t.evaluations.commentPlaceholder}
-                    readOnly={isEvaluationLocked}
-                    className={`w-full px-4 py-3 border-2 rounded-xl shadow-sm transition-all duration-200 resize-none text-gray-900 ${
+                    disabled={isEvaluationLocked}
+                    rows={8}
+                    maxLength={1000}
+                    showCharCount={true}
+                    className={`px-4 py-3 border-2 rounded-xl shadow-sm transition-all duration-200 ${
                       isEvaluationLocked 
                         ? 'bg-gray-50 border-gray-300 cursor-not-allowed'
                         : (currentItem?.comment.trim().length || 0) >= MIN_COMMENT_LENGTH
                         ? 'border-green-300 focus:border-green-500 focus:ring-green-200'
                         : 'border-red-300 focus:border-red-500 focus:ring-red-200'
                     } focus:ring-4`}
-                    rows={8}
                   />
                 </div>
               </div>
@@ -851,15 +852,17 @@ export default function EvaluatePage() {
                   ({t.evaluations.minimumCharacters.replace('{count}', MIN_COMMENT_LENGTH.toString())} - {overallComment.trim().length}/{MIN_COMMENT_LENGTH})
                 </span>
               </label>
-              <textarea
+              <SpeechTextarea
                 value={overallComment}
-                onChange={isEvaluationLocked ? undefined : (e) => handleCommentChange(e.target.value)}
+                onChange={(value) => !isEvaluationLocked && setOverallComment(value)}
                 placeholder={isEvaluationLocked ? "" : "Provide comprehensive overall feedback..."}
-                readOnly={isEvaluationLocked}
-                className={`w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-gray-900 ${
+                disabled={isEvaluationLocked}
+                rows={6}
+                maxLength={2000}
+                showCharCount={true}
+                className={`px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 ${
                   isEvaluationLocked ? 'bg-gray-50 cursor-not-allowed' : ''
                 }`}
-                rows={6}
               />
             </div>
           </div>

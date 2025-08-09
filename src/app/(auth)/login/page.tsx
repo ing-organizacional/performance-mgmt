@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { signIn } from 'next-auth/react'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { LanguageSwitcher } from '@/components/layout'
+import { BiometricAuth } from '@/components/ui'
 
 export default function LoginPage() {
   const [identifier, setIdentifier] = useState('')
@@ -42,6 +43,50 @@ export default function LoginPage() {
       setError(t.auth.loginFailed)
       setLoading(false)
     }
+  }
+
+  const handleBiometricSuccess = async (credentialId: string, user?: unknown) => {
+    setLoading(true)
+    setError('')
+
+    try {
+      if (user && typeof user === 'object' && 'id' in user) {
+        // Biometric authentication was successful and we have user data
+        // Create a session by signing in with the verified user data
+        const userObj = user as { id: string; email?: string; username?: string }
+        const result = await signIn('credentials', {
+          identifier: userObj.email || userObj.username,
+          biometricAuth: 'true',
+          userId: userObj.id,
+          redirect: false
+        })
+
+        if (result?.error) {
+          throw new Error('Failed to create session')
+        }
+
+        // Update lastLogin in the background
+        fetch('/api/auth/update-last-login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        }).catch(() => {}) // Fire and forget
+        
+        // Redirect to dashboard
+        window.location.href = '/'
+      } else {
+        // Fallback - just show success message
+        setError('')
+        setLoading(false)
+      }
+    } catch (err) {
+      console.error('Biometric login error:', err)
+      setError(t.biometric?.failed || 'Biometric authentication failed')
+      setLoading(false)
+    }
+  }
+
+  const handleBiometricError = (error: string) => {
+    setError(error)
   }
 
   return (
@@ -135,6 +180,27 @@ export default function LoginPage() {
               </button>
             </div>
           </form>
+
+          {/* Biometric Authentication Option */}
+          <div className="mt-6">
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-300" />
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="bg-white px-2 text-gray-500">or</span>
+              </div>
+            </div>
+            
+            <div className="mt-6">
+              <BiometricAuth
+                mode="login"
+                onSuccess={handleBiometricSuccess}
+                onError={handleBiometricError}
+                disabled={loading}
+              />
+            </div>
+          </div>
 
 {process.env.NODE_ENV === 'development' && (
             <div className="mt-6">
