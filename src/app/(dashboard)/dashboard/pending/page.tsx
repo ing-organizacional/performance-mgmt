@@ -22,7 +22,7 @@ async function getPendingEvaluations(companyId: string) {
     where: {
       companyId,
       active: true,
-      role: { in: ['employee', 'manager'] } // Exclude HR from evaluations
+      role: { in: ['employee', 'manager', 'hr'] } // All roles should be evaluated
     },
     select: {
       id: true,
