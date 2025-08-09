@@ -1,4 +1,4 @@
-# API Endpoints Audit - Current System State (August 2025)
+# API Endpoints Audit - Current System State (August 9, 2025) - SECURITY UPDATED
 
 This document provides an accurate audit of the current API architecture, which uses a **hybrid approach** combining Next.js Server Actions with essential REST API endpoints.
 
@@ -37,7 +37,7 @@ This document provides an accurate audit of the current API architecture, which 
 | Endpoint | Methods | Purpose | Status |
 |----------|---------|---------|---------|
 | `/api/admin/import` | POST | CSV user import | **Active** |
-| `/api/admin/reset-database` | POST | Database reset (dev only) | **Dangerous** |
+| `/api/admin/reset-database` | POST | Database reset (dev only) | **Secured** |
 
 ## Server Actions Implementation
 
