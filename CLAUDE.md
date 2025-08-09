@@ -40,13 +40,12 @@ Performance Management System - Enterprise web application managing employee eva
 - `/src/lib/actions/` - Server Actions (users, evaluations, cycles)
 - `/src/lib/seed.ts` - Database seeding
 
-**Active APIs (8 endpoints):**
+**Active APIs (7 endpoints):**
 
 - `/api/auth/[...nextauth]` - NextAuth authentication (GET/POST)
 - `/api/auth/update-last-login` - Login timestamp tracking (POST)
 - `/api/health` - System health check (GET)
 - `/api/evaluation-items` + `/api/evaluation-items/[id]` - Item management (GET/PUT)
-- `/api/manager/team` - Team data (GET)
 - `/api/admin/import` - CSV import (POST)
 - `/api/admin/reset-database` - DB reset (POST)
 
@@ -55,6 +54,7 @@ Performance Management System - Enterprise web application managing employee eva
 - `/src/lib/actions/users.ts` - User management (create, update, delete)
 - `/src/lib/actions/cycles.ts` - Cycle management (create, update status)
 - `/src/lib/actions/evaluations.ts` - Evaluation workflow (submit, approve, unlock)
+- `/src/lib/actions/team.ts` - Team data with 5-minute caching (getManagerTeam, revalidateManagerTeam)
 - `/src/lib/actions/biometric.ts` - WebAuthn/FIDO2 biometric authentication
 - `/src/lib/actions/export.ts` + `exports.ts` - Advanced export system
 - `/src/lib/actions/index.ts` - Centralized action exports
@@ -217,7 +217,7 @@ yarn lint && yarn tsc --noEmit  # Code quality check
 - ⚠️ **Hardcoded demo passwords** in seed files (`/src/lib/seed.ts:108-109`, login page displays)
 - ✅ **Rate limiting implemented** for admin import endpoint (10 attempts/hour)
 - ⚠️ **Console.log in seed files** - development only, not production APIs
-- ⚠️ **N+1 query problems** in team data fetching (performance impact)
+- ✅ **N+1 query problems resolved** in team data fetching (5-minute caching implemented)
 - ⚠️ **Large components** violating single responsibility principle
 - ⚠️ **Missing security controls** (CSRF protection, Content Security Policy)
 
@@ -228,7 +228,7 @@ yarn lint && yarn tsc --noEmit  # Code quality check
 - ✅ **Mobile-optimized and bilingual** (English/Spanish)
 - ✅ **Comprehensive evaluation workflow** (3-status system)
 - ✅ **Performance cycles** with read-only enforcement active
-- ✅ **Server Actions architecture** reduces API complexity (8 APIs vs original 21)
+- ✅ **Server Actions architecture** reduces API complexity (7 APIs vs original 21)
 - ✅ **Next.js caching optimizations** implemented (`unstable_cache`)
 - ⚠️ **Security hardening needed** - CSRF protection and CSP headers
 - ⚠️ **Demo data cleanup** - remove hardcoded passwords before production

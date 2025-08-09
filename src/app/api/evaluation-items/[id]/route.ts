@@ -5,8 +5,7 @@ import { toISOStringSafe } from '@/lib/utils/date'
 import { 
   validateJsonBody, 
   evaluationItemUpdateSchema, 
-  validationError, 
-  userIdSchema 
+  validationError
 } from '@/lib/validation'
 
 // PUT /api/evaluation-items/[id] - Update evaluation item
@@ -129,8 +128,8 @@ export async function PUT(
       }, { status: 403 })
     }
 
-    // Prepare update data
-    const updateData: {
+    // Prepare update data for database
+    const dbUpdateData: {
       title?: string
       description?: string
       evaluationDeadline?: Date | null

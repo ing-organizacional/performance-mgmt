@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma-client'
 import { toISOStringSafe } from '@/lib/utils/date'
-import { validateQueryParams, teamQuerySchema, validationError } from '@/lib/validation'
+import { validationError } from '@/lib/validation'
 
 // GET /api/evaluation-items - Get evaluation items for specific employee (used in evaluation flow)
 export async function GET(request: NextRequest) {

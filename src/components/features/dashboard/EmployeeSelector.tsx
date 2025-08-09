@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { LoadingSpinner } from '@/components/ui'
+import { getManagerTeam } from '@/lib/actions/team'
 
 interface Employee {
   id: string
@@ -37,44 +38,36 @@ export default function EmployeeSelector({ onSelectionChange, companyId }: Emplo
   const fetchEmployees = async () => {
     try {
       setLoading(true)
-      const response = await fetch('/api/manager/team')
-      if (response.ok) {
-        const data = await response.json()
-        // Transform the data to match our Employee interface
-        const employeeList: Employee[] = []
-        
-        // Add employees from team members
-        if (data.teamMembers && Array.isArray(data.teamMembers)) {
-          data.teamMembers.forEach((member: {
-            id: string
-            name: string
-            department: string | null
-            role: string
-            hasCompletedEvaluation?: boolean
-          }) => {
-            employeeList.push({
-              id: member.id,
-              name: member.name,
-              department: member.department,
-              role: member.role,
-              hasEvaluation: member.hasCompletedEvaluation || false
-            })
-          })
-        }
-
-        // Add current user if they have evaluations
-        if (data.currentUser && data.currentUser.id) {
+      const data = await getManagerTeam()
+      
+      // Transform the data to match our Employee interface
+      const employeeList: Employee[] = []
+      
+      // Add employees from team members
+      if (data.teamMembers && Array.isArray(data.teamMembers)) {
+        data.teamMembers.forEach((member) => {
           employeeList.push({
-            id: data.currentUser.id,
-            name: data.currentUser.name,
-            department: data.currentUser.department,
-            role: data.currentUser.role,
-            hasEvaluation: true // Assume current user has access to their own evaluation
+            id: member.id,
+            name: member.name,
+            department: member.department,
+            role: member.role,
+            hasEvaluation: member.hasCompletedEvaluation
           })
-        }
-
-        setEmployees(employeeList)
+        })
       }
+
+      // Add current user if they have evaluations
+      if (data.currentUser && data.currentUser.id) {
+        employeeList.push({
+          id: data.currentUser.id,
+          name: data.currentUser.name,
+          department: data.currentUser.department,
+          role: data.currentUser.role,
+          hasEvaluation: true // Assume current user has access to their own evaluation
+        })
+      }
+
+      setEmployees(employeeList)
     } catch (error) {
       console.error('Failed to fetch employees:', error)
     } finally {

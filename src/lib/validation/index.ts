@@ -27,7 +27,7 @@ export function validateQueryParams<T>(
     return { success: true, data: parsed }
   } catch (error) {
     if (error instanceof z.ZodError) {
-      const errors = error.errors.map(err => `${err.path.join('.')}: ${err.message}`)
+      const errors = error.issues.map((err) => `${err.path.join('.')}: ${err.message}`)
       return { 
         success: false, 
         response: validationError('Invalid query parameters', errors)
@@ -51,7 +51,7 @@ export async function validateJsonBody<T>(
     return { success: true, data: parsed }
   } catch (error) {
     if (error instanceof z.ZodError) {
-      const errors = error.errors.map(err => `${err.path.join('.')}: ${err.message}`)
+      const errors = error.issues.map((err) => `${err.path.join('.')}: ${err.message}`)
       return { 
         success: false, 
         response: validationError('Invalid request body', errors)
@@ -76,7 +76,7 @@ export async function validateFormData<T>(
   formData: FormData
 ): Promise<{ success: true; data: T } | { success: false; response: NextResponse }> {
   try {
-    const data: Record<string, any> = {}
+    const data: Record<string, unknown> = {}
     
     // Convert FormData to object
     formData.forEach((value, key) => {
@@ -96,7 +96,7 @@ export async function validateFormData<T>(
     return { success: true, data: parsed }
   } catch (error) {
     if (error instanceof z.ZodError) {
-      const errors = error.errors.map(err => `${err.path.join('.')}: ${err.message}`)
+      const errors = error.issues.map((err) => `${err.path.join('.')}: ${err.message}`)
       return { 
         success: false, 
         response: validationError('Invalid form data', errors)
@@ -186,7 +186,7 @@ export async function parseCSV<T>(
         validRows.push(parsed)
       } catch (error) {
         if (error instanceof z.ZodError) {
-          const rowErrors = error.errors.map(err => `${err.path.join('.')}: ${err.message}`)
+          const rowErrors = error.issues.map((err) => `${err.path.join('.')}: ${err.message}`)
           errors.push(`Row ${i + 1}: ${rowErrors.join('; ')}`)
         } else {
           errors.push(`Row ${i + 1}: Parsing failed`)
@@ -200,6 +200,7 @@ export async function parseCSV<T>(
     
     return { success: true, data: validRows, errors }
   } catch (error) {
+    console.error('CSV parsing error:', error)
     return { success: false, error: 'Failed to parse CSV file' }
   }
 }

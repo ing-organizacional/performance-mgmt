@@ -16,7 +16,22 @@ export async function GET(request: NextRequest) {
     // Test database connection
     await prisma.$queryRaw`SELECT 1`
     
-    const healthInfo: any = {
+    interface HealthInfo {
+      status: 'healthy' | 'unhealthy'
+      timestamp: string
+      service: string
+      database: 'connected' | 'disconnected'
+      details?: {
+        totalUsers: number
+        totalCompanies: number
+        uptime: number
+        nodeVersion: string
+        environment: string
+      }
+      error?: string
+    }
+
+    const healthInfo: HealthInfo = {
       status: 'healthy',
       timestamp: new Date().toISOString(),
       service: 'performance-management-system',

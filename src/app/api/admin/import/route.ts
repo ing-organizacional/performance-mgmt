@@ -5,27 +5,10 @@ import { requireHRRole } from '@/lib/auth-middleware'
 import { rateLimit } from '@/lib/rate-limit'
 import { 
   importUserSchema, 
-  csvFileSchema, 
-  validateFormData, 
   validationError, 
   parseCSV,
   validateFile 
 } from '@/lib/validation'
-
-interface ImportUserData {
-  name: string
-  email?: string
-  username?: string
-  role: string
-  department?: string
-  userType?: string
-  password?: string
-  employeeId?: string
-  personID?: string
-  managerPersonID?: string
-  managerEmployeeId?: string
-  companyCode?: string
-}
 
 interface ImportResults {
   success: number

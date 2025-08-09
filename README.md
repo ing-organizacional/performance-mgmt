@@ -291,6 +291,7 @@ src/
 - `evaluations.ts` - Evaluation workflow management
 - `users.ts` - User CRUD operations
 - `cycles.ts` - Performance cycle management
+- `team.ts` - Team data with 5-minute caching
 - `biometric.ts` - WebAuthn credential management
 
 ### REST API Endpoints (Legacy)
@@ -298,7 +299,8 @@ src/
 - `GET /api/health` - System health check
 - `POST /api/auth/[...nextauth]` - NextAuth handlers
 - `GET /api/evaluation-items` - Evaluation item management
-- `GET /api/manager/team` - Team data access
+- `POST /api/admin/import` - CSV user import
+- `POST /api/admin/reset-database` - Database reset (dev only)
 
 ## 🤝 Support
 

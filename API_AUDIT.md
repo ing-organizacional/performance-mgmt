@@ -6,13 +6,14 @@ This document provides an accurate audit of the current API architecture, which 
 
 **Server Actions First Approach:**
 - ✅ **User Management**: Complete Server Actions implementation
-- ✅ **Performance Cycles**: Full CRUD via Server Actions
+- ✅ **Performance Cycles**: Full CRUD via Server Actions  
+- ✅ **Team Management**: Complete Server Actions with 5-minute caching
 - ✅ **Export System**: Advanced Server Actions with role-based access
 - ✅ **Evaluation Workflow**: Three-status system (submit, approve, unlock)
 - 🔄 **Evaluation Management**: Hybrid (APIs for fetching, Server Actions for mutations)
 - 🔐 **System APIs**: Essential endpoints (auth, health, file uploads)
 
-## Active API Endpoints (8 Total)
+## Active API Endpoints (7 Total)
 
 ### 🔐 **Authentication & System**
 | Endpoint | Methods | Purpose | Status |
@@ -30,7 +31,7 @@ This document provides an accurate audit of the current API architecture, which 
 ### 👥 **Team Management**
 | Endpoint | Methods | Purpose | Status |
 |----------|---------|---------|---------|
-| `/api/manager/team` | GET | Team member data | **Active** |
+| ~~`/api/manager/team`~~ | ~~GET~~ | ~~Team member data~~ | **✅ MIGRATED** |
 
 ### 🔧 **Admin Operations**
 | Endpoint | Methods | Purpose | Status |
@@ -52,6 +53,11 @@ This document provides an accurate audit of the current API architecture, which 
 - `unlockEvaluation()` - HR unlocks submitted evaluation back to draft
 - `autosaveEvaluation()` - Auto-save draft evaluations (2-second delay)
 - **Status**: Three-status workflow fully implemented
+
+### ✅ **Team Management** (`/src/lib/actions/team.ts`)
+- `getManagerTeam()` - Get team member data with evaluation status
+- `revalidateManagerTeam()` - Cache revalidation helper
+- **Status**: Complete Server Actions implementation (5-minute caching)
 
 ### ✅ **Performance Cycles** (`/src/lib/actions/cycles.ts`)
 - `createCycle()` - Create annual/quarterly cycles (HR only)
@@ -126,7 +132,7 @@ This document provides an accurate audit of the current API architecture, which 
 **Recent Major Improvements:**
 - ✅ **Performance optimization**: 6 duplicate API calls eliminated, 600ms+ improvement
 - ✅ **Architecture migration**: Server Actions + Next.js caching replacing client API calls
-- ✅ **API cleanup**: 62% reduction in API endpoints (21 → 8 active endpoints)
+- ✅ **API cleanup**: 67% reduction in API endpoints (21 → 7 active endpoints)
 - ✅ **Team assignments**: Fully migrated to Server Actions
 - ✅ **Health monitoring**: Docker healthcheck endpoint restored
 - Three-status evaluation workflow (draft → submitted → completed)
@@ -137,9 +143,15 @@ This document provides an accurate audit of the current API architecture, which 
 
 ### 🎯 **Completed Recent Conversions**
 1. ✅ **Evaluation APIs converted** - Now use Server Components with `unstable_cache` for 600ms+ performance improvement
-2. ✅ **Team assignments migrated** - Server Actions replace `/api/manager/team-assignments` endpoint
-3. ✅ **Company data scoped** - Direct Prisma queries replace `/api/admin/companies`
-4. ✅ **Partial assessments integrated** - Handled within evaluation workflow, no separate API needed
+2. ✅ **Team assignments migrated** - Server Actions replace `/api/manager/team-assignments` endpoint  
+3. ✅ **Team data migrated** - Server Actions replace `/api/manager/team` endpoint (August 2025)
+   - Converted `fetch('/api/manager/team')` calls in EmployeeSelector.tsx and DepartmentSelector.tsx
+   - Implemented `getManagerTeam()` server action with 5-minute caching
+   - Maintained backward compatibility with `teamMembers` array structure
+   - Enhanced type safety with proper `TeamMember` interface
+   - Reduced client bundle size by eliminating fetch logic
+4. ✅ **Company data scoped** - Direct Prisma queries replace `/api/admin/companies`
+5. ✅ **Partial assessments integrated** - Handled within evaluation workflow, no separate API needed
 
 ### 🧹 **Cleanup Tasks**
 1. **Remove empty directories**: `/api/dashboard/stats/`, `/api/admin/export/users/`, `/api/test-okrs/`
@@ -148,7 +160,7 @@ This document provides an accurate audit of the current API architecture, which 
 
 ### 📊 **Success Metrics**
 - **Current Progress**: 85% migrated to Server Actions
-- **API Reduction**: From 21 original endpoints to 8 active endpoints (62% reduction)
+- **API Reduction**: From 21 original endpoints to 7 active endpoints (67% reduction)
 - **Bundle Size**: Significantly reduced client-side JavaScript through Server Actions
 - **Performance**: 6 duplicate API calls eliminated, 600ms+ response time improvement
 - **Type Safety**: Improved Server Actions with proper TypeScript interfaces
@@ -165,7 +177,7 @@ This document provides an accurate audit of the current API architecture, which 
 2. ✅ **Major conversions completed** - Evaluation and team management fully migrated
 3. **Add production safeguards** - Environment checks for dangerous operations (still needed)
 4. ✅ **Caching implemented** - Next.js built-in caching with `unstable_cache`
-5. **Monitor remaining APIs** - Focus on the 8 remaining endpoints for optimization
+5. **Monitor remaining APIs** - Focus on the 7 remaining endpoints for optimization
 6. **Component refactoring** - Break down large components for better maintainability
 
 This system demonstrates a successful migration strategy from traditional REST APIs to modern Server Actions while maintaining essential API endpoints where technically required. The security implementation is robust and production-ready.

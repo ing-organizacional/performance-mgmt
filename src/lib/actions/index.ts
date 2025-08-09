@@ -16,6 +16,12 @@ export {
   deleteUser
 } from './users'
 
+// Team management actions
+export {
+  getManagerTeam,
+  revalidateManagerTeam
+} from './team'
+
 // Evaluation and assignment actions
 export {
   assignItemsToEmployees,

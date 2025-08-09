@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { LoadingSpinner } from '@/components/ui'
+import { getManagerTeam } from '@/lib/actions/team'
 
 interface Department {
   name: string
@@ -36,58 +37,51 @@ export default function DepartmentSelector({ onSelectionChange, companyId }: Dep
   const fetchDepartments = async () => {
     try {
       setLoading(true)
-      const response = await fetch('/api/manager/team')
-      if (response.ok) {
-        const data = await response.json()
-        
-        // Aggregate department data from team members
-        const departmentMap = new Map<string, Department>()
-        
-        if (data.teamMembers && Array.isArray(data.teamMembers)) {
-          data.teamMembers.forEach((member: {
-            department: string | null
-            hasCompletedEvaluation?: boolean
-            averageRating?: number
-          }) => {
-            const deptName = member.department || 'Unassigned'
-            
-            if (!departmentMap.has(deptName)) {
-              departmentMap.set(deptName, {
-                name: deptName,
-                employeeCount: 0,
-                evaluatedCount: 0,
-                pendingCount: 0,
-                avgRating: 0
-              })
-            }
-            
-            const dept = departmentMap.get(deptName)!
-            dept.employeeCount++
-            
-            if (member.hasCompletedEvaluation) {
-              dept.evaluatedCount++
-            } else {
-              dept.pendingCount++
-            }
-            
-            // Update average rating (simplified calculation)
-            if (member.averageRating) {
-              dept.avgRating = (dept.avgRating || 0) + member.averageRating
-            }
-          })
-        }
-        
-        // Calculate final averages and convert to array
-        const departmentList = Array.from(departmentMap.values()).map(dept => ({
-          ...dept,
-          avgRating: dept.evaluatedCount > 0 ? (dept.avgRating || 0) / dept.evaluatedCount : undefined
-        }))
-        
-        // Sort by name
-        departmentList.sort((a, b) => a.name.localeCompare(b.name))
-        
-        setDepartments(departmentList)
+      const data = await getManagerTeam()
+      
+      // Aggregate department data from team members
+      const departmentMap = new Map<string, Department>()
+      
+      if (data.teamMembers && Array.isArray(data.teamMembers)) {
+        data.teamMembers.forEach((member) => {
+          const deptName = member.department || 'Unassigned'
+          
+          if (!departmentMap.has(deptName)) {
+            departmentMap.set(deptName, {
+              name: deptName,
+              employeeCount: 0,
+              evaluatedCount: 0,
+              pendingCount: 0,
+              avgRating: 0
+            })
+          }
+          
+          const dept = departmentMap.get(deptName)!
+          dept.employeeCount++
+          
+          if (member.hasCompletedEvaluation) {
+            dept.evaluatedCount++
+          } else {
+            dept.pendingCount++
+          }
+          
+          // Update average rating (simplified calculation)
+          if (member.averageRating) {
+            dept.avgRating = (dept.avgRating || 0) + member.averageRating
+          }
+        })
       }
+      
+      // Calculate final averages and convert to array
+      const departmentList = Array.from(departmentMap.values()).map(dept => ({
+        ...dept,
+        avgRating: dept.evaluatedCount > 0 ? (dept.avgRating || 0) / dept.evaluatedCount : undefined
+      }))
+      
+      // Sort by name
+      departmentList.sort((a, b) => a.name.localeCompare(b.name))
+      
+      setDepartments(departmentList)
     } catch (error) {
       console.error('Failed to fetch departments:', error)
     } finally {
