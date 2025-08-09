@@ -252,6 +252,12 @@ export default function UsersClient({ users: initialUsers, companies, managers }
                             <span className="truncate">{user.department}</span>
                           </>
                         )}
+                        {user.position && (
+                          <>
+                            <span>•</span>
+                            <span className="truncate">{user.position}</span>
+                          </>
+                        )}
                         {user.employeeId && (
                           <>
                             <span>•</span>
@@ -426,6 +432,17 @@ export default function UsersClient({ users: initialUsers, companies, managers }
                   defaultValue={editingUser?.department || ''}
                   className="w-full px-3 py-2 text-base text-gray-900 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
                   placeholder={t.users.departmentPlaceholder}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-900 mb-2">{t.users.position}</label>
+                <input
+                  name="position"
+                  type="text"
+                  defaultValue={editingUser?.position || ''}
+                  className="w-full px-3 py-2 text-base text-gray-900 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+                  placeholder={t.users.positionPlaceholder}
                 />
               </div>
 

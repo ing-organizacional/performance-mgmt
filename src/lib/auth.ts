@@ -10,6 +10,7 @@ export interface AuthUser {
   companyId: string
   userType: 'office' | 'operational'
   department?: string
+  position?: string
 }
 
 export async function authenticateUser(
@@ -41,6 +42,8 @@ export async function authenticateUser(
         role: true,
         companyId: true,
         userType: true,
+        department: true,
+        position: true,
         company: {
           select: { code: true }
         }
@@ -65,6 +68,8 @@ export async function authenticateUser(
         role: true,
         companyId: true,
         userType: true,
+        department: true,
+        position: true,
         company: {
           select: { code: true }
         }
@@ -89,7 +94,9 @@ export async function authenticateUser(
     username: user.username || undefined,
     role: user.role,
     companyId: user.companyId,
-    userType: user.userType as 'office' | 'operational'
+    userType: user.userType as 'office' | 'operational',
+    department: user.department || undefined,
+    position: user.position || undefined
   }
 }
 
@@ -108,6 +115,8 @@ export async function getUserById(id: string): Promise<AuthUser | null> {
     username: user.username || undefined,
     role: user.role,
     companyId: user.companyId,
-    userType: user.userType as 'office' | 'operational'
+    userType: user.userType as 'office' | 'operational',
+    department: user.department || undefined,
+    position: user.position || undefined
   }
 }

@@ -49,6 +49,7 @@ model User {
   employeeId String? // Company-assigned employee number
   personID   String? // National ID number (cédula, DNI, etc.)
   department String?
+  position   String? // Job title/position (e.g., "Front Desk Agent", "Executive Chef", "Housekeeping Supervisor")
   shift      String?
   lastLogin  DateTime?
 

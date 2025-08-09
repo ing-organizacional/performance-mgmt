@@ -583,6 +583,7 @@ export interface Translations {
     role: string
     company: string
     employeeId: string
+    position: string
     personID: string
     userType: string
     loginMethod: string
@@ -621,6 +622,7 @@ export interface Translations {
     usernamePlaceholder: string
     departmentPlaceholder: string
     employeeIdPlaceholder: string
+    positionPlaceholder: string
     personIdPlaceholder: string
     shiftPlaceholder: string
   }
@@ -1183,6 +1185,7 @@ export const translations: Record<Language, Translations> = {
       role: 'Role',
       company: 'Company',
       employeeId: 'Employee ID',
+      position: 'Position',
       personID: 'National ID (Person ID)',
       userType: 'User Type',
       loginMethod: 'Login Method',
@@ -1221,6 +1224,7 @@ export const translations: Record<Language, Translations> = {
       usernamePlaceholder: 'john.smith',
       departmentPlaceholder: 'Operations, Sales, HR...',
       employeeIdPlaceholder: 'EMP001, MGR002...',
+      positionPlaceholder: 'Executive Chef, Front Desk Agent, Manager...',
       personIdPlaceholder: 'Cédula, DNI, National ID...',
       shiftPlaceholder: 'Morning, Night, Rotating...'
     }
@@ -1781,6 +1785,7 @@ export const translations: Record<Language, Translations> = {
       role: 'Rol',
       company: 'Empresa',
       employeeId: 'ID de Empleado',
+      position: 'Posición',
       personID: 'Cédula Nacional (ID Persona)',
       userType: 'Tipo de Usuario',
       loginMethod: 'Método de Acceso',
@@ -1819,6 +1824,7 @@ export const translations: Record<Language, Translations> = {
       usernamePlaceholder: 'juan.perez',
       departmentPlaceholder: 'Operaciones, Ventas, RRHH...',
       employeeIdPlaceholder: 'EMP001, MGR002...',
+      positionPlaceholder: 'Chef Ejecutivo, Recepcionista, Gerente...',
       personIdPlaceholder: 'Cédula, DNI, ID Nacional...',
       shiftPlaceholder: 'Mañana, Noche, Rotativo...'
     }

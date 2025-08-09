@@ -10,12 +10,12 @@
     "lint": "next lint",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
-    "db:seed": "tsx scripts/seed.js",
-    "db:seed:comprehensive": "tsx src/lib/seed-comprehensive.ts",
+    "db:seed": "tsx src/lib/seed-comprehensive.ts",
+    "db:seed:basic": "tsx scripts/seed.js",
     "db:studio": "prisma studio",
     "db:import": "tsx scripts/import-users.ts",
     "db:reset": "prisma db push --force-reset && yarn db:seed",
-    "db:reset:comprehensive": "prisma db push --force-reset && yarn db:seed:comprehensive"
+    "db:reset:basic": "prisma db push --force-reset && yarn db:seed:basic"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.10.0",

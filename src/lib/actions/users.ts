@@ -19,6 +19,7 @@ const userSchema = z.object({
   managerId: z.string().optional().or(z.literal('')),
   userType: z.enum(['office', 'operational']).default('office'),
   department: z.string().optional().or(z.literal('')),
+  position: z.string().optional().or(z.literal('')),
   employeeId: z.string().optional().or(z.literal('')),
   password: z.string().min(6, 'Password must be at least 6 characters').optional(),
   pinCode: z.string().optional().or(z.literal(''))
@@ -58,6 +59,7 @@ export async function createUser(formData: FormData) {
       managerId: formData.get('managerId'),
       userType: formData.get('userType') || 'office',
       department: formData.get('department'),
+      position: formData.get('position'),
       employeeId: formData.get('employeeId'),
       password: formData.get('password'),
       pinCode: formData.get('pinCode')
@@ -111,6 +113,7 @@ export async function createUser(formData: FormData) {
         managerId: userData.managerId || null,
         userType: userData.userType,
         department: userData.department || null,
+        position: userData.position || null,
         employeeId: userData.employeeId || null,
         passwordHash,
         pinCode: userData.pinCode || null,
@@ -164,6 +167,7 @@ export async function updateUser(userId: string, formData: FormData) {
       managerId: formData.get('managerId'),
       userType: formData.get('userType') || 'office',
       department: formData.get('department'),
+      position: formData.get('position'),
       employeeId: formData.get('employeeId'),
       password: formData.get('password'),
       pinCode: formData.get('pinCode')
@@ -211,6 +215,7 @@ export async function updateUser(userId: string, formData: FormData) {
       managerId: string | null
       userType: string
       department: string | null
+      position: string | null
       employeeId: string | null
       pinCode: string | null
       requiresPinOnly: boolean
@@ -224,6 +229,7 @@ export async function updateUser(userId: string, formData: FormData) {
       managerId: userData.managerId || null,
       userType: userData.userType,
       department: userData.department || null,
+      position: userData.position || null,
       employeeId: userData.employeeId || null,
       pinCode: userData.pinCode || null,
       requiresPinOnly: userData.userType === 'operational' && !!userData.pinCode

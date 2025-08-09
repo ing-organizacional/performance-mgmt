@@ -149,11 +149,19 @@ export default function SettingsClient({ user }: SettingsClientProps) {
         </div>
         <div className="px-4 py-3">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs font-bold text-gray-700">
-                {t.auth?.name || 'Name'}
-              </label>
-              <p className="mt-0.5 text-sm text-gray-900">{user.name}</p>
+            <div className="flex">
+              <div className="flex-1">
+                <label className="block text-xs font-bold text-gray-700">
+                  {t.auth?.name || 'Name'}
+                </label>
+                <p className="mt-0.5 text-sm text-gray-900">{user.name}</p>
+              </div>
+              <div className="flex-1">
+                <label className="block text-xs font-bold text-gray-700">
+                  {t.users?.position || 'Position'}
+                </label>
+                <p className="mt-0.5 text-sm text-gray-900">{user.position || 'N/A'}</p>
+              </div>
             </div>
             <div>
               <label className="block text-xs font-bold text-gray-700">

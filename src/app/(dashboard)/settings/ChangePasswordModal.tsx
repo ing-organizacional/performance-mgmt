@@ -13,7 +13,7 @@ interface ChangePasswordModalProps {
   onSuccess: () => void
 }
 
-export default function ChangePasswordModal({ user, isOpen, onClose, onSuccess }: ChangePasswordModalProps) {
+export default function ChangePasswordModal({ isOpen, onClose, onSuccess }: ChangePasswordModalProps) {
   const { t } = useLanguage()
   const { success, error } = useToast()
   const [isPending, startTransition] = useTransition()

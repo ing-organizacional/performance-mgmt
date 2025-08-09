@@ -34,7 +34,8 @@ export const config = {
               role: user.role as 'employee' | 'manager' | 'hr',
               companyId: user.companyId,
               userType: user.userType as 'office' | 'operational',
-              department: user.department || undefined
+              department: user.department || undefined,
+              position: user.position || undefined
             }
           }
 
@@ -60,7 +61,8 @@ export const config = {
             role: user.role as 'employee' | 'manager' | 'hr',
             companyId: user.companyId,
             userType: user.userType as 'office' | 'operational',
-            department: user.department
+            department: user.department || undefined,
+            position: user.position || undefined
           }
         }
 
@@ -75,6 +77,7 @@ export const config = {
         token.companyId = user.companyId as string
         token.userType = user.userType as 'office' | 'operational'
         token.department = user.department as string | undefined
+        token.position = user.position as string | undefined
       }
       return token
     },
@@ -85,6 +88,7 @@ export const config = {
         session.user.companyId = token.companyId as string
         session.user.userType = token.userType as 'office' | 'operational'
         session.user.department = token.department as string | undefined
+        session.user.position = token.position as string | undefined
       }
       return session
     }

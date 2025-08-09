@@ -21,6 +21,7 @@ export default async function SettingsPage() {
       email: true,
       role: true,
       department: true,
+      position: true,
       userType: true,
       companyId: true
     }
@@ -34,6 +35,7 @@ export default async function SettingsPage() {
   const user = {
     ...session.user,
     department: freshUserData.department || undefined,
+    position: freshUserData.position || undefined,
     name: freshUserData.name,
     email: freshUserData.email || session.user.email
   }
