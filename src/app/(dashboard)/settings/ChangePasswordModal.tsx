@@ -79,7 +79,7 @@ export default function ChangePasswordModal({ isOpen, onClose, onSuccess }: Chan
                   type={showCurrentPassword ? "text" : "password"}
                   required
                   className="w-full px-3 py-2 pr-10 text-sm text-gray-900 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
-                  placeholder="Enter your current password"
+                  placeholder={t.settings?.currentPasswordPlaceholder || "Enter your current password"}
                 />
                 <button
                   type="button"
@@ -115,7 +115,7 @@ export default function ChangePasswordModal({ isOpen, onClose, onSuccess }: Chan
                   required
                   minLength={8}
                   className="w-full px-3 py-2 pr-10 text-sm text-gray-900 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
-                  placeholder="Enter your new password (min 8 characters)"
+                  placeholder={t.settings?.newPasswordPlaceholder || "Enter your new password (min 8 characters)"}
                 />
                 <button
                   type="button"
@@ -151,7 +151,7 @@ export default function ChangePasswordModal({ isOpen, onClose, onSuccess }: Chan
                   required
                   minLength={8}
                   className="w-full px-3 py-2 pr-10 text-sm text-gray-900 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
-                  placeholder="Confirm your new password"
+                  placeholder={t.settings?.confirmPasswordPlaceholder || "Confirm your new password"}
                 />
                 <button
                   type="button"

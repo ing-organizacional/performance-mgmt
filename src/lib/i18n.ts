@@ -234,6 +234,9 @@ export interface Translations {
     passwordsMatch: string
     passwordUpdated: string
     passwordSecurityNote: string
+    currentPasswordPlaceholder: string
+    newPasswordPlaceholder: string
+    confirmPasswordPlaceholder: string
   }
   
   // Assignments
@@ -846,7 +849,10 @@ export const translations: Record<Language, Translations> = {
       confirmPassword: 'Confirm New Password',
       passwordsMatch: 'Passwords must match',
       passwordUpdated: 'Password updated successfully',
-      passwordSecurityNote: 'Security Note: Your new password should be at least 8 characters long and contain a mix of letters, numbers, and symbols.'
+      passwordSecurityNote: 'Security Note: Your new password should be at least 8 characters long and contain a mix of letters, numbers, and symbols.',
+      currentPasswordPlaceholder: 'Enter your current password',
+      newPasswordPlaceholder: 'Enter your new password (min 8 characters)',
+      confirmPasswordPlaceholder: 'Confirm your new password'
     },
     assignments: {
       assignmentManager: 'Assignment Manager',
@@ -1447,7 +1453,10 @@ export const translations: Record<Language, Translations> = {
       confirmPassword: 'Confirmar Nueva Contraseña',
       passwordsMatch: 'Las contraseñas deben coincidir',
       passwordUpdated: 'Contraseña actualizada exitosamente',
-      passwordSecurityNote: 'Nota de Seguridad: Su nueva contraseña debe tener al menos 8 caracteres e incluir una combinación de letras, números y símbolos.'
+      passwordSecurityNote: 'Nota de Seguridad: Su nueva contraseña debe tener al menos 8 caracteres e incluir una combinación de letras, números y símbolos.',
+      currentPasswordPlaceholder: 'Ingrese su contraseña actual',
+      newPasswordPlaceholder: 'Ingrese su nueva contraseña (mín 8 caracteres)',
+      confirmPasswordPlaceholder: 'Confirme su nueva contraseña'
     },
     assignments: {
       assignmentManager: 'Gestor de Asignaciones',
