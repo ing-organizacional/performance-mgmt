@@ -2,7 +2,7 @@
 
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma-client'
-import { revalidatePath } from 'next/cache'
+import { revalidatePath, unstable_cache, revalidateTag } from 'next/cache'
 import { auditEvaluation, auditBulkOperation } from '@/lib/services/audit-service'
 
 // Server action to assign company-wide item to all employees and reopen completed evaluations
@@ -102,6 +102,7 @@ export async function assignCompanyItemToAllEmployees(itemId: string) {
     revalidatePath('/evaluations/assignments')
     revalidatePath('/dashboard/company-items')
     revalidatePath('/evaluations')
+    revalidateTag('evaluation-items') // Invalidate cached evaluation items
     return { success: true, assignedCount: assignments.length }
 
   } catch (error) {
@@ -417,6 +418,7 @@ export async function updateEvaluationItem(itemId: string, formData: {
 
     revalidatePath('/evaluations/assignments')
     revalidatePath('/dashboard/company-items')
+    revalidateTag('evaluation-items') // Invalidate cached evaluation items
     return { success: true }
 
   } catch (error) {
@@ -530,23 +532,9 @@ export async function getTeamData() {
   }
 }
 
-// Server action to get evaluation items for employee
-export async function getEvaluationItems(employeeId: string) {
-  try {
-    const session = await auth()
-    
-    if (!session?.user?.id) {
-      return { success: false, error: 'Unauthorized' }
-    }
-
-    const userRole = session.user.role
-    const companyId = session.user.companyId
-
-    // Only managers and HR can access evaluation items
-    if (userRole !== 'manager' && userRole !== 'hr') {
-      return { success: false, error: 'Access denied - Manager or HR role required' }
-    }
-
+// Cached version of evaluation items query
+const getCachedEvaluationItemsForEmployee = unstable_cache(
+  async (employeeId: string, companyId: string) => {
     // Get employee details first
     const employee = await prisma.user.findUnique({
       where: { id: employeeId },
@@ -554,15 +542,8 @@ export async function getEvaluationItems(employeeId: string) {
     })
 
     // Build the OR conditions
-    const orConditions = [
-      // Company-wide items
+    const orConditions: any[] = [
       { level: 'company' },
-      // Manager-specific items
-      {
-        level: 'manager',
-        assignedTo: session.user.id
-      },
-      // Individual assignments
       {
         individualAssignments: {
           some: {
@@ -582,7 +563,7 @@ export async function getEvaluationItems(employeeId: string) {
     }
 
     // Get evaluation items assigned to this employee or general company items
-    const items = await prisma.evaluationItem.findMany({
+    return await prisma.evaluationItem.findMany({
       where: {
         companyId,
         active: true,
@@ -606,6 +587,63 @@ export async function getEvaluationItems(employeeId: string) {
         sortOrder: 'asc'
       }
     })
+  },
+  ['evaluation-items'],
+  {
+    tags: ['evaluation-items'],
+    revalidate: 60 // Cache for 1 minute
+  }
+)
+
+// Server action to get evaluation items for employee
+export async function getEvaluationItems(employeeId: string) {
+  try {
+    const session = await auth()
+    
+    if (!session?.user?.id) {
+      return { success: false, error: 'Unauthorized' }
+    }
+
+    const userRole = session.user.role
+    const companyId = session.user.companyId
+
+    // Only managers and HR can access evaluation items
+    if (userRole !== 'manager' && userRole !== 'hr') {
+      return { success: false, error: 'Access denied - Manager or HR role required' }
+    }
+
+    // Use cached database query
+    const cachedItems = await getCachedEvaluationItemsForEmployee(employeeId, companyId)
+    
+    // Add manager-specific items (these can't be cached globally)
+    const managerItems = await prisma.evaluationItem.findMany({
+      where: {
+        companyId,
+        active: true,
+        level: 'manager',
+        assignedTo: session.user.id
+      },
+      include: {
+        creator: {
+          select: {
+            name: true,
+            role: true
+          }
+        },
+        deadlineSetByUser: {
+          select: {
+            name: true,
+            role: true
+          }
+        }
+      },
+      orderBy: {
+        sortOrder: 'asc'
+      }
+    })
+
+    // Combine cached items with manager-specific items
+    const items = [...cachedItems, ...managerItems]
 
 
     // Apply smart sorting: prioritize company-wide items created in the last 24 hours (newly created)

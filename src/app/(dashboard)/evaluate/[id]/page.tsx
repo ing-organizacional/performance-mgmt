@@ -130,6 +130,10 @@ export default function EvaluatePage() {
     }
   }, [params.id])
 
+  // Memoize employee ID to prevent unnecessary re-renders
+  const employeeId = useMemo(() => params.id as string, [params.id])
+
+
   useEffect(() => {
     if (status === 'loading') return
     
@@ -143,27 +147,27 @@ export default function EvaluatePage() {
     
     // Fetch evaluation items and employee data
     fetchEvaluationData()
-  }, [session, status, router, fetchEvaluationData])
+  }, [session, status, router, employeeId]) // Use employeeId instead of fetchEvaluationData
 
   // Refresh data when component comes into focus (user navigates back)
   useEffect(() => {
     const handleFocus = () => {
       // Refetch data when user returns to this page
-      if (!loading) {
+      if (!loading && employeeId) {
         fetchEvaluationData()
       }
     }
 
     window.addEventListener('focus', handleFocus)
     return () => window.removeEventListener('focus', handleFocus)
-  }, [fetchEvaluationData, loading])
+  }, [employeeId, loading]) // Remove fetchEvaluationData dependency
 
   // Reset current step when evaluation items change (new employee)
   useEffect(() => {
     if (evaluationItems.length > 0) {
       setCurrentStep(0)
     }
-  }, [params.id, evaluationItems.length])
+  }, [employeeId, evaluationItems.length])
 
   const loadExistingEvaluation = async (evaluationId: string) => {
     try {
