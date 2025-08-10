@@ -73,11 +73,11 @@ export const dashboard: DashboardTranslations = {
   auditFilters: 'Filtros',
   allActions: 'Todas las Acciones',
   allTypes: 'Todos los Tipos',
-  clearFilters: 'Limpiar Filtros',
+  clearFilters: 'Limpiar',
   showDetails: 'Ver Detalles',
   hideDetails: 'Ocultar Detalles',
   auditDetails: 'Detalles del Registro',
-  exportExcel: 'Exportar Excel',
+  exportExcel: 'Exportar',
   showingOf: 'Mostrando',
   noAuditLogs: 'No se encontraron registros con los filtros aplicados',
   timestamp: 'Fecha y Hora',
@@ -275,5 +275,16 @@ export const dashboard: DashboardTranslations = {
   reportsTo: 'Reporta a',
   clearSearch: 'Limpiar búsqueda',
   departmentsHeader: 'Departamentos',
-  pendingText: 'pendientes'
+  pendingText: 'pendientes',
+  
+  // Action badges for audit logs
+  actionCreate: 'crear',
+  actionUpdate: 'actualizar', 
+  actionDelete: 'eliminar',
+  actionSubmit: 'enviar',
+  actionApprove: 'aprobar',
+  actionUnlock: 'desbloquear',
+  actionLogin: 'iniciar sesión',
+  actionExport: 'exportar',
+  actionImport: 'importar'
 }

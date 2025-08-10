@@ -582,6 +582,17 @@ export interface DashboardTranslations {
   clearSearch: string
   departmentsHeader: string
   pendingText: string
+  
+  // Action badges for audit logs
+  actionCreate: string
+  actionUpdate: string
+  actionDelete: string
+  actionSubmit: string
+  actionApprove: string
+  actionUnlock: string
+  actionLogin: string
+  actionExport: string
+  actionImport: string
 }
 
 export interface UsersTranslations {

@@ -73,11 +73,11 @@ export const dashboard: DashboardTranslations = {
   auditFilters: 'Filters',
   allActions: 'All Actions',
   allTypes: 'All Types',
-  clearFilters: 'Clear Filters',
+  clearFilters: 'Clear',
   showDetails: 'Show Details',
   hideDetails: 'Hide Details',
   auditDetails: 'Audit Log Details',
-  exportExcel: 'Export Excel',
+  exportExcel: 'Export',
   showingOf: 'Showing',
   noAuditLogs: 'No audit logs found matching your filters',
   timestamp: 'Timestamp',
@@ -275,5 +275,16 @@ export const dashboard: DashboardTranslations = {
   reportsTo: 'Reports to',
   clearSearch: 'Clear search',
   departmentsHeader: 'Departments',
-  pendingText: 'pending'
+  pendingText: 'pending',
+  
+  // Action badges for audit logs
+  actionCreate: 'create',
+  actionUpdate: 'update', 
+  actionDelete: 'delete',
+  actionSubmit: 'submit',
+  actionApprove: 'approve',
+  actionUnlock: 'unlock',
+  actionLogin: 'login',
+  actionExport: 'export',
+  actionImport: 'import'
 }
