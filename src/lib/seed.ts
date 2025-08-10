@@ -245,25 +245,25 @@ export async function seedDatabase() {
       sortOrder: 6 
     },
     
-    // 1 Individual OKR (set by Manager - editable)
+    // Additional Department-level items for more comprehensive testing
     { 
-      type: 'okr', 
-      level: 'manager',
-      title: 'Personal Skill Development', 
-      description: 'Complete assigned training and demonstrate new skills in daily work',
+      type: 'competency', 
+      level: 'department',
+      title: 'Team Collaboration', 
+      description: 'Work effectively with team members and support collective goals',
       createdBy: manager.id,
-      assignedTo: manager.id, // Manager ID
+      assignedTo: 'Sales', // Department name
       sortOrder: 7 
     },
     
-    // 1 Individual Competency (set by Manager - editable)
+    // Another Department-level competency
     { 
       type: 'competency', 
-      level: 'manager',
+      level: 'department',
       title: 'Problem Solving', 
-      description: 'Identify issues proactively and develop creative solutions independently',
+      description: 'Identify issues proactively and develop creative solutions for the team',
       createdBy: manager.id,
-      assignedTo: manager.id, // Manager ID
+      assignedTo: 'Sales', // Department name
       sortOrder: 8 
     }
   ]

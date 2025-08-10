@@ -19,6 +19,7 @@ const userSchema = z.object({
   managerId: z.string().optional().or(z.literal('')),
   userType: z.enum(['office', 'operational']).default('office'),
   department: z.string().optional().or(z.literal('')),
+  position: z.string().optional().or(z.literal('')),
   employeeId: z.string().optional().or(z.literal('')),
   password: z.string().min(6, 'Password must be at least 6 characters').optional(),
   pinCode: z.string().optional().or(z.literal(''))
@@ -26,6 +27,15 @@ const userSchema = z.object({
 
 const editUserSchema = userSchema.extend({
   password: z.string().min(6, 'Password must be at least 6 characters').optional().or(z.literal(''))
+})
+
+const changePasswordSchema = z.object({
+  currentPassword: z.string().min(1, 'Current password is required'),
+  newPassword: z.string().min(8, 'New password must be at least 8 characters'),
+  confirmPassword: z.string().min(1, 'Password confirmation is required')
+}).refine((data) => data.newPassword === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"]
 })
 
 async function requireHRAccess() {
@@ -49,6 +59,7 @@ export async function createUser(formData: FormData) {
       managerId: formData.get('managerId'),
       userType: formData.get('userType') || 'office',
       department: formData.get('department'),
+      position: formData.get('position'),
       employeeId: formData.get('employeeId'),
       password: formData.get('password'),
       pinCode: formData.get('pinCode')
@@ -102,6 +113,7 @@ export async function createUser(formData: FormData) {
         managerId: userData.managerId || null,
         userType: userData.userType,
         department: userData.department || null,
+        position: userData.position || null,
         employeeId: userData.employeeId || null,
         passwordHash,
         pinCode: userData.pinCode || null,
@@ -155,6 +167,7 @@ export async function updateUser(userId: string, formData: FormData) {
       managerId: formData.get('managerId'),
       userType: formData.get('userType') || 'office',
       department: formData.get('department'),
+      position: formData.get('position'),
       employeeId: formData.get('employeeId'),
       password: formData.get('password'),
       pinCode: formData.get('pinCode')
@@ -202,6 +215,7 @@ export async function updateUser(userId: string, formData: FormData) {
       managerId: string | null
       userType: string
       department: string | null
+      position: string | null
       employeeId: string | null
       pinCode: string | null
       requiresPinOnly: boolean
@@ -215,6 +229,7 @@ export async function updateUser(userId: string, formData: FormData) {
       managerId: userData.managerId || null,
       userType: userData.userType,
       department: userData.department || null,
+      position: userData.position || null,
       employeeId: userData.employeeId || null,
       pinCode: userData.pinCode || null,
       requiresPinOnly: userData.userType === 'operational' && !!userData.pinCode
@@ -292,6 +307,92 @@ export async function deleteUser(userId: string) {
     return {
       success: false,
       message: 'Failed to delete user'
+    }
+  }
+}
+
+export async function changePassword(formData: FormData) {
+  try {
+    const session = await auth()
+    if (!session?.user?.id) {
+      return {
+        success: false,
+        message: 'Authentication required'
+      }
+    }
+
+    const rawData = {
+      currentPassword: formData.get('currentPassword'),
+      newPassword: formData.get('newPassword'),
+      confirmPassword: formData.get('confirmPassword')
+    }
+
+    const result = changePasswordSchema.safeParse(rawData)
+    
+    if (!result.success) {
+      return {
+        success: false,
+        errors: result.error.flatten().fieldErrors,
+        message: 'Validation failed'
+      }
+    }
+
+    const { currentPassword, newPassword } = result.data
+
+    // Get user's current password hash
+    const user = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { passwordHash: true }
+    })
+
+    if (!user?.passwordHash) {
+      return {
+        success: false,
+        message: 'No password set for this account'
+      }
+    }
+
+    // Verify current password
+    const isCurrentPasswordValid = await bcrypt.compare(currentPassword, user.passwordHash)
+    if (!isCurrentPasswordValid) {
+      return {
+        success: false,
+        message: 'Current password is incorrect',
+        errors: { currentPassword: ['Current password is incorrect'] }
+      }
+    }
+
+    // Hash new password
+    const newPasswordHash = await bcrypt.hash(newPassword, 12)
+
+    // Update password
+    await prisma.user.update({
+      where: { id: session.user.id },
+      data: { passwordHash: newPasswordHash }
+    })
+
+    // Audit log for password change
+    await auditUserManagement(
+      session.user.id,
+      session.user.role,
+      session.user.companyId,
+      'update',
+      session.user.id,
+      undefined,
+      { action: 'password_change', timestamp: new Date().toISOString() },
+      'Password changed by user'
+    )
+
+    revalidatePath('/settings')
+    return {
+      success: true,
+      message: 'Password updated successfully'
+    }
+  } catch (error) {
+    console.error('Error changing password:', error)
+    return {
+      success: false,
+      message: 'Failed to update password'
     }
   }
 }

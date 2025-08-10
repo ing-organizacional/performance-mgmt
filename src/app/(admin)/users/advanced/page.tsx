@@ -10,6 +10,9 @@ import { ConfirmDialog } from '@/components/ui'
 import { useToast } from '@/hooks/useToast'
 import { useConfirm } from '@/hooks/useConfirm'
 import { exportUsersToExcel } from '@/lib/actions/export'
+import { resetDatabase } from '@/lib/actions/admin'
+import { CSVImportWorkflow } from '@/components/admin/CSVImportWorkflow'
+import { ScheduledImportManager } from '@/components/admin/ScheduledImportManager'
 
 export default function AdvancedAdminPage() {
   const { data: session, status } = useSession()
@@ -17,10 +20,10 @@ export default function AdvancedAdminPage() {
   const { t } = useLanguage()
   const { toasts, success, error, removeToast } = useToast()
   const { confirmState, confirm } = useConfirm()
-  const [uploading, setUploading] = useState(false)
   const [resetting, setResetting] = useState(false)
   const [resetConfirmText, setResetConfirmText] = useState('')
   const [exporting, setExporting] = useState(false)
+  const [activeTab, setActiveTab] = useState<'import' | 'scheduled' | 'database'>('import')
 
   useEffect(() => {
     if (status === 'loading') return
@@ -37,34 +40,8 @@ export default function AdvancedAdminPage() {
     }
   }, [session, status, router])
 
-  const handleCSVUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
-    if (!file) return
-
-    setUploading(true)
-    const formData = new FormData()
-    formData.append('file', file)
-
-    try {
-      const response = await fetch('/api/admin/import', {
-        method: 'POST',
-        body: formData,
-      })
-
-      if (response.ok) {
-        const result = await response.json()
-        success(`${t.users.successfullyImported} ${result.imported} users`)
-      } else {
-        const errorData = await response.json()
-        error(`${t.users.importFailed}: ${errorData.error}`)
-      }
-    } catch {
-      error(t.users.uploadFailed)
-    } finally {
-      setUploading(false)
-      // Reset file input
-      event.target.value = ''
-    }
+  const handleImportComplete = () => {
+    success(t.users.exportSuccess || 'Import completed successfully')
   }
 
   const handleDatabaseReset = async () => {
@@ -85,27 +62,26 @@ export default function AdvancedAdminPage() {
 
     setResetting(true)
     try {
-      const response = await fetch('/api/admin/reset-database', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ confirm: 'RESET' }),
-      })
-
-      if (response.ok) {
-        success(t.users.resetSuccess)
-        setResetConfirmText('')
-        // Redirect to login since all data is wiped
-        setTimeout(() => {
-          signOut({ callbackUrl: '/login' })
-        }, 2000)
+      const formData = new FormData()
+      formData.append('confirm', 'RESET')
+      
+      await resetDatabase(formData)
+      
+      // Server Action handles success/error via redirects
+      success(t.users.resetSuccess)
+      setResetConfirmText('')
+      
+      // Redirect to login since all data is wiped
+      setTimeout(() => {
+        signOut({ callbackUrl: '/login' })
+      }, 2000)
+      
+    } catch (err: unknown) {
+      if (err instanceof Error && err.message) {
+        error(`${t.users.resetFailed}: ${err.message}`)
       } else {
-        const errorData = await response.json()
-        error(`${t.users.resetFailed}: ${errorData.error}`)
+        error(t.users.resetFailed)
       }
-    } catch {
-      error(t.users.resetFailed)
     } finally {
       setResetting(false)
     }
@@ -192,69 +168,56 @@ export default function AdvancedAdminPage() {
 
       {/* Content */}
       <div className="px-4 py-6 space-y-6">
-        {/* CSV Upload Section */}
+        {/* Tab Navigation */}
         <div className="bg-white rounded-lg border border-gray-200 shadow-sm">
-          <div className="px-6 py-4 border-b border-gray-200">
-            <h2 className="text-lg font-semibold text-gray-900">{t.users.importUsersCSV}</h2>
-          </div>
-          <div className="px-6 py-4">
-          <div className="space-y-4">
-            <div>
-              <label htmlFor="csvFile" className="block text-sm font-medium text-gray-700 mb-2">
-                {t.users.uploadCSVFile}
-              </label>
-              <input
-                id="csvFile"
-                type="file"
-                accept=".csv"
-                onChange={handleCSVUpload}
-                disabled={uploading}
-                className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 disabled:opacity-50"
-              />
-              {uploading && (
-                <p className="text-sm text-blue-600 mt-2">{t.users.uploadingProcessing}</p>
-              )}
-            </div>
-            <div className="text-xs text-gray-500">
-              <p className="font-medium mb-1">{t.users.csvFormat}</p>
-              <p>name,email,username,role,department,userType,password,employeeId,personID,managerPersonID,managerEmployeeId,companyCode</p>
-              <div className="mt-2 space-y-1">
-                <div>
-                  <a 
-                    href="/example-users.csv" 
-                    download 
-                    className="text-blue-600 hover:text-blue-800 underline"
-                  >
-                    📋 {t.users.basicExampleCSV}
-                  </a>
-                  <span className="text-gray-400 ml-2">- {t.users.usesPersonIdMatching}</span>
-                </div>
-                <div>
-                  <a 
-                    href="/example-users-advanced.csv" 
-                    download 
-                    className="text-blue-600 hover:text-blue-800 underline"
-                  >
-                    🔧 {t.users.advancedExampleCSV}
-                  </a>
-                  <span className="text-gray-400 ml-2">- {t.users.showsBothIdOptions}</span>
-                </div>
-              </div>
-              <div className="mt-3 p-2 bg-blue-50 rounded text-xs">
-                <p className="font-medium text-blue-800 mb-1">{t.users.fieldExplanations}</p>
-                <ul className="text-blue-700 space-y-0.5">
-                  <li><strong>employeeId:</strong> {t.users.employeeIdExplanation}</li>
-                  <li><strong>personID:</strong> {t.users.personIdExplanation}</li>
-                  <li><strong>managerPersonID:</strong> {t.users.managerPersonIdExplanation}</li>
-                  <li><strong>managerEmployeeId:</strong> {t.users.managerEmployeeIdExplanation}</li>
-                </ul>
-              </div>
-            </div>
-          </div>
+          <div className="border-b border-gray-200">
+            <nav className="-mb-px flex">
+              <button
+                onClick={() => setActiveTab('import')}
+                className={`py-2 px-4 text-sm font-medium border-b-2 ${
+                  activeTab === 'import'
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                {t.users.manualImport}
+              </button>
+              <button
+                onClick={() => setActiveTab('scheduled')}
+                className={`py-2 px-4 text-sm font-medium border-b-2 ${
+                  activeTab === 'scheduled'
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                {t.users.scheduledImports}
+              </button>
+              <button
+                onClick={() => setActiveTab('database')}
+                className={`py-2 px-4 text-sm font-medium border-b-2 ${
+                  activeTab === 'database'
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                {t.users.databaseManagement}
+              </button>
+            </nav>
           </div>
         </div>
 
-        {/* Database Management Section */}
+        {/* Tab Content */}
+        {activeTab === 'import' && (
+          <CSVImportWorkflow onImportComplete={handleImportComplete} />
+        )}
+
+        {activeTab === 'scheduled' && (
+          <ScheduledImportManager onImportComplete={handleImportComplete} />
+        )}
+
+        {activeTab === 'database' && (
+          <>
+            {/* Database Management Section */}
         <div className="bg-white rounded-lg border border-gray-200 shadow-sm">
           <div className="px-6 py-4 border-b border-gray-200">
             <h2 className="text-lg font-semibold text-gray-900">{t.users.databaseManagement}</h2>
@@ -351,6 +314,8 @@ export default function AdvancedAdminPage() {
           </div>
           </div>
         </div>
+          </>
+        )}
       </div>
 
       {/* Toast Container */}

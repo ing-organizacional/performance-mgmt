@@ -23,6 +23,7 @@ model Company {
   performanceCycles         PerformanceCycle[]
   partialAssessments        PartialAssessment[]
   auditLogs                 AuditLog[]
+  scheduledImports          ScheduledImport[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -49,6 +50,7 @@ model User {
   employeeId String? // Company-assigned employee number
   personID   String? // National ID number (cédula, DNI, etc.)
   department String?
+  position   String? // Job title/position (e.g., "Front Desk Agent", "Executive Chef", "Housekeeping Supervisor")
   shift      String?
   lastLogin  DateTime?
 
@@ -66,6 +68,8 @@ model User {
   closedCycles                 PerformanceCycle[]         @relation("CycleClosedBy")
   partialAssessmentsAsEmployee PartialAssessment[]        @relation("PartialAssessmentEmployee")
   partialAssessmentsAsAssessor PartialAssessment[]        @relation("PartialAssessmentAssessor")
+  biometricCredentials         BiometricCredential[]      @relation("UserBiometricCredentials")
+  createdScheduledImports      ScheduledImport[]          @relation("ScheduledImportCreatedBy")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -74,6 +78,16 @@ model User {
   @@unique([companyId, username])
   @@unique([companyId, employeeId]) // Employee ID unique per company (HRIS integration)
   @@unique([companyId, personID]) // National ID unique per company (for data isolation)
+  
+  // Performance indexes
+  @@index([companyId])
+  @@index([managerId])
+  @@index([active])
+  @@index([role])
+  @@index([department])
+  @@index([companyId, active])
+  @@index([managerId, active])
+  @@index([companyId, role, active])
 }
 
 model Evaluation {
@@ -101,6 +115,18 @@ model Evaluation {
   updatedAt DateTime @updatedAt
 
   @@unique([employeeId, periodType, periodDate])
+  
+  // Performance indexes
+  @@index([companyId])
+  @@index([employeeId])
+  @@index([managerId])
+  @@index([cycleId])
+  @@index([status])
+  @@index([companyId, status])
+  @@index([managerId, status])
+  @@index([employeeId, status])
+  @@index([cycleId, status])
+  @@index([companyId, cycleId, status])
 }
 
 model EvaluationItem {
@@ -134,6 +160,16 @@ model EvaluationItem {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  
+  // Performance indexes
+  @@index([companyId])
+  @@index([cycleId])
+  @@index([level])
+  @@index([active])
+  @@index([assignedTo])
+  @@index([companyId, active])
+  @@index([cycleId, active])
+  @@index([companyId, level, active])
 }
 
 model EvaluationItemAssignment {
@@ -242,4 +278,60 @@ model PartialAssessment {
   updatedAt DateTime @updatedAt
 
   @@unique([cycleId, employeeId, evaluationItemId, isActive])
+}
+
+model BiometricCredential {
+  id           String @id @default(cuid())
+  userId       String
+  credentialId String @unique // WebAuthn credential ID
+  publicKey    String // Base64 encoded public key
+  deviceName   String? // Optional device name for user identification
+  deviceType   String // "face_id" | "touch_id" | "fingerprint" | "other"
+  counter      Int    @default(0) // WebAuthn signature counter
+  isActive     Boolean @default(true)
+  lastUsed     DateTime?
+
+  user User @relation("UserBiometricCredentials", fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, credentialId])
+}
+
+model ScheduledImport {
+  id           String    @id @default(cuid())
+  companyId    String
+  name         String    // "Daily HRIS Sync", "Weekly Employee Import"
+  description  String?   // Optional description
+  enabled      Boolean   @default(true)
+  
+  // Schedule configuration
+  schedule     Json      // { frequency, time, dayOfWeek, dayOfMonth, timezone }
+  
+  // Source configuration  
+  source       Json      // { type, url, credentials, headers }
+  
+  // Import options
+  importOptions Json     // UpsertOptions + notificationEmails, validateOnly
+  
+  // Execution tracking
+  lastRun      DateTime?
+  nextRun      DateTime?
+  status       String    @default("active") // "active" | "paused" | "error" | "disabled"
+  errorMessage String?
+  
+  // Metadata
+  createdBy    String
+  
+  // Relations
+  company        Company @relation(fields: [companyId], references: [id])
+  createdByUser  User    @relation("ScheduledImportCreatedBy", fields: [createdBy], references: [id])
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@unique([companyId, name])
+  @@index([nextRun, enabled])
+  @@index([companyId, status])
 }

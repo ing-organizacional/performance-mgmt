@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma-client'
+import { toISOStringSafe } from '@/lib/utils/date'
+import { 
+  validateJsonBody, 
+  evaluationItemUpdateSchema, 
+  validationError
+} from '@/lib/validation'
 
 // PUT /api/evaluation-items/[id] - Update evaluation item
 export async function PUT(
@@ -19,6 +25,11 @@ export async function PUT(
 
     const { id } = await params
     
+    // Validate ID parameter
+    if (!/^c[a-z0-9]{24}$/.test(id)) {
+      return validationError('Invalid evaluation item ID format')
+    }
+    
     const userRole = session.user.role
     
     // Only managers and HR can edit items
@@ -29,18 +40,14 @@ export async function PUT(
       }, { status: 403 })
     }
 
-    const body = await request.json()
-    const { title, description, evaluationDeadline, active } = body
-
-    // If only toggling active status, don't require title/description
-    const isActiveToggle = active !== undefined && !title && !description
-    
-    if (!isActiveToggle && (!title || !description)) {
-      return NextResponse.json({ 
-        success: false, 
-        error: 'Title and description are required' 
-      }, { status: 400 })
+    // Validate request body
+    const bodyValidation = await validateJsonBody(evaluationItemUpdateSchema, request)
+    if (!bodyValidation.success) {
+      return bodyValidation.response
     }
+    
+    const updateData = bodyValidation.data
+    const { evaluationDeadline, active, title, description } = updateData
 
     // Validate deadline if provided
     let deadlineDate = null
@@ -122,8 +129,8 @@ export async function PUT(
       }, { status: 403 })
     }
 
-    // Prepare update data
-    const updateData: {
+    // Prepare update data for database
+    const dbUpdateData: {
       title?: string
       description?: string
       evaluationDeadline?: Date | null
@@ -131,21 +138,23 @@ export async function PUT(
       active?: boolean
     } = {}
 
+    const isActiveToggle = active !== undefined && active !== existingItem.active
+    
     // Only update title/description if provided (not for active-only toggles)
     if (!isActiveToggle) {
-      updateData.title = title
-      updateData.description = description
+      if (title !== undefined) dbUpdateData.title = title
+      if (description !== undefined) dbUpdateData.description = description
     }
 
     // Handle active status changes
     if (active !== undefined) {
-      updateData.active = active
+      dbUpdateData.active = active
     }
 
     // Add deadline fields if they were provided in the request
     if (evaluationDeadline !== undefined) {
-      updateData.evaluationDeadline = deadlineDate
-      updateData.deadlineSetBy = deadlineDate ? session.user.id : null
+      dbUpdateData.evaluationDeadline = deadlineDate
+      dbUpdateData.deadlineSetBy = deadlineDate ? session.user.id : null
     }
 
     // Handle deactivation - remove all existing assignments
@@ -215,7 +224,8 @@ export async function PUT(
     }
 
     // Log deadline changes for audit purposes
-    if (evaluationDeadline !== undefined && existingItem.evaluationDeadline?.toISOString() !== deadlineDate?.toISOString()) {
+    if (evaluationDeadline !== undefined && 
+        toISOStringSafe(existingItem.evaluationDeadline) !== toISOStringSafe(deadlineDate)) {
       const auditLog = {
         timestamp: new Date().toISOString(),
         userId: session.user.id,
@@ -224,8 +234,8 @@ export async function PUT(
         action: 'deadline_changed',
         itemId: id,
         itemTitle: existingItem.title,
-        oldDeadline: existingItem.evaluationDeadline?.toISOString() || null,
-        newDeadline: deadlineDate?.toISOString() || null,
+        oldDeadline: toISOStringSafe(existingItem.evaluationDeadline),
+        newDeadline: toISOStringSafe(deadlineDate),
         companyId: existingItem.companyId
       }
       console.log('AUDIT: Evaluation item deadline changed:', JSON.stringify(auditLog, null, 2))
@@ -234,7 +244,7 @@ export async function PUT(
     // Update the item
     const updatedItem = await prisma.evaluationItem.update({
       where: { id },
-      data: updateData,
+      data: dbUpdateData,
       include: {
         creator: {
           select: {
@@ -264,7 +274,7 @@ export async function PUT(
         active: updatedItem.active,
         createdBy: updatedItem.creator.name,
         creatorRole: updatedItem.creator.role,
-        evaluationDeadline: updatedItem.evaluationDeadline?.toISOString() || null,
+        evaluationDeadline: toISOStringSafe(updatedItem.evaluationDeadline),
         deadlineSetBy: updatedItem.deadlineSetByUser?.name || null,
         deadlineSetByRole: updatedItem.deadlineSetByUser?.role || null
       },

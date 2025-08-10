@@ -10,9 +10,39 @@ export const config = {
       credentials: {
         identifier: { label: 'Email or Username' },
         password: { label: 'Password', type: 'password' },
-        companyCode: { label: 'Company Code' }
+        companyCode: { label: 'Company Code' },
+        biometricAuth: { label: 'Biometric Auth' },
+        userId: { label: 'User ID' }
       },
       async authorize(credentials) {
+        // Handle biometric authentication
+        if (credentials?.biometricAuth === 'true' && credentials?.userId) {
+          // For biometric auth, we trust the server-side verification has already happened
+          // Just fetch the user data by ID
+          const { prisma } = await import('@/lib/prisma-client')
+          
+          const user = await prisma.user.findUnique({
+            where: { id: credentials.userId as string },
+            include: { company: true }
+          })
+
+          if (user) {
+            return {
+              id: user.id,
+              name: user.name,
+              email: user.email || `${user.username}@${user.companyId}`,
+              role: user.role as 'employee' | 'manager' | 'hr',
+              companyId: user.companyId,
+              userType: user.userType as 'office' | 'operational',
+              department: user.department || undefined,
+              position: user.position || undefined
+            }
+          }
+
+          return null
+        }
+
+        // Handle regular username/password authentication
         if (!credentials?.identifier || !credentials?.password) {
           return null
         }
@@ -30,8 +60,9 @@ export const config = {
             email: user.email || `${user.username}@${user.companyId}`,
             role: user.role as 'employee' | 'manager' | 'hr',
             companyId: user.companyId,
-            userType: user.userType,
-            department: user.department
+            userType: user.userType as 'office' | 'operational',
+            department: user.department || undefined,
+            position: user.position || undefined
           }
         }
 
@@ -46,6 +77,7 @@ export const config = {
         token.companyId = user.companyId as string
         token.userType = user.userType as 'office' | 'operational'
         token.department = user.department as string | undefined
+        token.position = user.position as string | undefined
       }
       return token
     },
@@ -56,6 +88,7 @@ export const config = {
         session.user.companyId = token.companyId as string
         session.user.userType = token.userType as 'office' | 'operational'
         session.user.department = token.department as string | undefined
+        session.user.position = token.position as string | undefined
       }
       return session
     }

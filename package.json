@@ -1,28 +1,35 @@
 {
   "name": "performance-mgmt",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev --turbo",
+    "dev:https": "next dev --turbo --experimental-https",
     "dev:webpack": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
-    "db:seed": "tsx scripts/seed.js",
-    "db:seed:comprehensive": "tsx src/lib/seed-comprehensive.ts",
+    "db:seed": "tsx src/lib/seed-comprehensive.ts",
+    "db:seed:basic": "tsx scripts/seed.js",
     "db:studio": "prisma studio",
     "db:import": "tsx scripts/import-users.ts",
     "db:reset": "prisma db push --force-reset && yarn db:seed",
-    "db:reset:comprehensive": "prisma db push --force-reset && yarn db:seed:comprehensive"
+    "db:reset:basic": "prisma db push --force-reset && yarn db:seed:basic"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.10.0",
     "@headlessui/react": "^2.2.7",
     "@next/bundle-analyzer": "^15.4.5",
     "@prisma/client": "6.13.0",
+    "@radix-ui/react-checkbox": "^1.3.2",
+    "@radix-ui/react-progress": "^1.1.7",
+    "@radix-ui/react-separator": "^1.1.7",
+    "@radix-ui/react-slot": "^1.2.3",
     "bcryptjs": "^3.0.2",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
     "jspdf": "^3.0.1",
     "lucide-react": "^0.536.0",
     "next": "15.4.5",
@@ -30,20 +37,24 @@
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-pdf": "^10.0.1",
-    "xlsx": "^0.18.5",
-    "zod": "^4.0.14"
+    "tailwind-merge": "^3.3.1",
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.1/xlsx-0.20.1.tgz",
+    "zod": "4.0.15"
+  },
+  "overrides": {
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.1/xlsx-0.20.1.tgz"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
-    "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
+    "@types/node": "^22",
+    "@types/react": "19.1.9",
+    "@types/react-dom": "19.1.7",
     "eslint": "^9",
     "eslint-config-next": "15.4.5",
     "prisma": "6.13.0",
     "tailwindcss": "^4",
     "tsx": "^4.20.3",
-    "typescript": "^5"
+    "typescript": "5.9.2"
   }
 }

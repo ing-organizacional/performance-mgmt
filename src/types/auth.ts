@@ -9,6 +9,7 @@ export interface SessionUser {
   companyId: string
   userType: 'office' | 'operational'
   department?: string
+  position?: string
 }
 
 // NextAuth session extension
@@ -25,6 +26,7 @@ declare module 'next-auth' {
     companyId: string
     userType: 'office' | 'operational'
     department?: string
+    position?: string
   }
 }
 
@@ -34,6 +36,7 @@ declare module '@auth/core/jwt' {
     companyId: string
     userType: 'office' | 'operational'
     department?: string
+    position?: string
   }
 }
 

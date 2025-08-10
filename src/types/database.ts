@@ -27,6 +27,7 @@ export interface User {
   employeeId: string | null
   personID: string | null
   department: string | null
+  position: string | null
   shift: string | null
   lastLogin: Date | null
   createdAt: Date

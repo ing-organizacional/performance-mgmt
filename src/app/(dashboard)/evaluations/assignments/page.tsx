@@ -69,39 +69,21 @@ export default async function AssignmentsPage() {
     ]
   })
 
-  // Fetch team members based on user role
-  let teamMembers
-  if (userRole === 'hr') {
-    // HR can see all employees in the company
-    teamMembers = await prisma.user.findMany({
-      where: {
-        companyId,
-        role: 'employee'
-      },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        username: true,
-        department: true
-      }
-    })
-  } else {
-    // Managers see their direct reports
-    teamMembers = await prisma.user.findMany({
-      where: {
-        companyId,
-        managerId: userId
-      },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        username: true,
-        department: true
-      }
-    })
-  }
+  // Fetch team members - only show employees that this user manages
+  // Even HR users should only see their direct reports in the assignment interface
+  const teamMembers = await prisma.user.findMany({
+    where: {
+      companyId,
+      managerId: userId
+    },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      username: true,
+      department: true
+    }
+  })
 
   // Get all assignments for these team members
   const assignments = await prisma.evaluationItemAssignment.findMany({

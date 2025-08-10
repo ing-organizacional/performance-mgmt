@@ -55,19 +55,14 @@ export async function exportEvaluation(evaluationId: string, format: 'pdf' | 'ex
       return { success: false, error: 'Evaluation data not found' }
     }
 
-    console.log('Evaluation data for PDF:', {
-      hasEvaluationItems: !!evaluationData.evaluationItemsData,
-      itemsCount: evaluationData.evaluationItemsData?.length || 0,
-      hasOverallRating: !!evaluationData.overallRating,
-      employeeName: evaluationData.employee.name
-    })
+    // Validation: ensure evaluation has required data
 
     if (format === 'pdf') {
       try {
         const pdfBuffer = generatePDF(evaluationData, language)
         const filename = `evaluation_${evaluation.employee.name.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`
         
-        console.log('PDF generated successfully, buffer size:', pdfBuffer.length)
+        // PDF generation successful
         
         return {
           success: true,
@@ -189,20 +184,11 @@ export async function exportDepartmentEvaluations(department?: string, format: '
     // Get department evaluations
     const evaluations = await getCompanyEvaluations(user.companyId)
     
-    console.log('Department export debug:', {
-      targetDepartment,
-      totalEvaluations: evaluations.length,
-      availableDepartments: [...new Set(evaluations.map(e => e.employee.department))],
-      evaluationStatuses: [...new Set(evaluations.map(e => e.status))],
-      userRole: user.role
-    })
+    // Export department evaluations
     
     const departmentEvaluations = evaluations.filter(evaluation => evaluation.employee.department === targetDepartment)
     
-    console.log('Filtered department evaluations:', {
-      departmentEvaluations: departmentEvaluations.length,
-      employees: departmentEvaluations.map(e => ({ name: e.employee.name, dept: e.employee.department }))
-    })
+    // Filter evaluations for the target department
 
     if (departmentEvaluations.length === 0) {
       return { success: false, error: `No evaluations found for department: ${targetDepartment}. Available departments: ${[...new Set(evaluations.map(e => e.employee.department))].join(', ')}` }

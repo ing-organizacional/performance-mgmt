@@ -1,5 +1,6 @@
-name,email,username,role,department,userType,password,employeeId,personID,managerPersonID,managerEmployeeId,companyCode
-John Doe,john.doe@company.com,,employee,Human Resources,office,changeme123,EMP001,12345678,87654321,,
-Jane Smith,,jane_smith,employee,Production,operational,1234,EMP002,87654321,12345678,,
-Michael Manager,mike.manager@company.com,,manager,Sales,office,password123,MGR001,11111111,,,
-HR Administrator,hr.admin@company.com,,hr,Human Resources,office,admin123,HR001,99999999,,,
+name,email,username,role,department,userType,password,employeeId,personID,managerPersonID,managerEmployeeId,companyCode,position,shift
+John Doe,john.doe@company.com,,employee,Human Resources,office,changeme123,EMP001,12345678,87654321,,COMP001,HR Specialist,Day Shift
+Jane Smith,,jane_smith,employee,Production,operational,1234,EMP002,87654321,12345678,,COMP001,Production Worker,Night Shift
+Michael Manager,mike.manager@company.com,,manager,Sales,office,password123,MGR001,11111111,,,COMP001,Sales Manager,Day Shift
+HR Administrator,hr.admin@company.com,,hr,Human Resources,office,admin123,HR001,99999999,,,COMP001,HR Director,Day Shift
+Maria Garcia,,maria_garcia,employee,Housekeeping,operational,5678,EMP003,45678901,,MGR001,COMP001,Housekeeper,Morning Shift

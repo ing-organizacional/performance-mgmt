@@ -1,0 +1,337 @@
+import { useLanguage } from '@/contexts/LanguageContext'
+import type { EvaluationItem, Employee, EditingItem, ActiveTab } from '../types'
+import { ItemEditor } from './ItemEditor'
+
+interface AssignmentGridProps {
+  items: EvaluationItem[]
+  employees: Employee[]
+  activeTab: ActiveTab
+  editingItem: EditingItem | null
+  newItemType: 'okr' | 'competency'
+  isPending: boolean
+  selectedEmployees: string[]
+  confirmingUnassign: string | null
+  canEditDeadline: (item: EvaluationItem) => boolean
+  getEmployeesWithItem: (itemId: string) => Employee[]
+  onEditItem: (item: EvaluationItem) => void
+  onSaveEdit: () => void
+  onCancelEdit: () => void
+  onUpdateEditingItem: (updates: Partial<EditingItem>) => void
+  onBulkAssignment: (itemId: string) => void
+  onUnassignFromEmployee: (itemId: string, employeeId: string) => void
+  onIndividualAssignment: (itemId: string, employeeId: string) => void
+  employeeHasItem: (employeeId: string, itemId: string) => boolean
+}
+
+export function AssignmentGrid({
+  items,
+  employees,
+  activeTab,
+  editingItem,
+  newItemType,
+  isPending,
+  selectedEmployees,
+  confirmingUnassign,
+  canEditDeadline,
+  getEmployeesWithItem,
+  onEditItem,
+  onSaveEdit,
+  onCancelEdit,
+  onUpdateEditingItem,
+  onBulkAssignment,
+  onUnassignFromEmployee,
+  onIndividualAssignment,
+  employeeHasItem
+}: AssignmentGridProps) {
+  const { t } = useLanguage()
+
+  const getBadgeStyles = (level: string) => {
+    switch (level) {
+      case 'company':
+        return 'bg-purple-100 text-purple-700'
+      case 'department':
+        return 'bg-green-100 text-green-700'
+      default:
+        return 'bg-blue-100 text-blue-700'
+    }
+  }
+
+  const getBadgeIcon = (level: string) => {
+    switch (level) {
+      case 'company':
+        return (
+          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+            <path fillRule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm3 1h2v2H7V5zm2 4H7v2h2V9zm2-4h2v2h-2V5zm2 4h-2v2h2V9zm-6 4h2v2H7v-2zm4 0h2v2h-2v-2z" clipRule="evenodd" />
+          </svg>
+        )
+      case 'department':
+        return (
+          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z" />
+          </svg>
+        )
+      default:
+        return (
+          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+            <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+          </svg>
+        )
+    }
+  }
+
+  const getBadgeLabel = (level: string) => {
+    switch (level) {
+      case 'company':
+        return t.common.company
+      case 'department':
+        return t.common.department
+      default:
+        return t.common.department // Fallback to department for any remaining items
+    }
+  }
+
+  if (activeTab === 'company') {
+    return (
+      <div className="space-y-4">
+        {items.map((item) => (
+          <div key={item.id} className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
+            <div className="flex items-start justify-between mb-3">
+              <div className="flex items-center space-x-3">
+                <span className="text-2xl">
+                  {item.type === 'okr' ? '🎯' : '⭐'}
+                </span>
+                <div>
+                  <div className="flex items-center space-x-2 mb-1">
+                    <span className="text-sm font-bold text-blue-700 uppercase tracking-wide">
+                      {item.type === 'okr' ? t.evaluations.okr : t.evaluations.competency}
+                    </span>
+                    <span className={`flex items-center space-x-1 text-xs px-2 py-1 rounded-full font-medium ${getBadgeStyles(item.level)}`}>
+                      {getBadgeIcon(item.level)}
+                      <span>{getBadgeLabel(item.level)}</span>
+                    </span>
+                  </div>
+                  <h3 className="font-semibold text-gray-900">{item.title}</h3>
+                </div>
+              </div>
+              <div className="text-xs text-gray-500 text-right">
+                <div>{t.common.createdBy} {item.createdBy}</div>
+                <div className="text-green-600 font-medium mt-1">{t.assignments.appliedToAllEmployees}</div>
+              </div>
+            </div>
+            <p className="text-gray-600 text-sm ml-11">{item.description}</p>
+          </div>
+        ))}
+      </div>
+    )
+  }
+
+  if (activeTab === 'department') {
+    return (
+      <div className="space-y-4">
+        {items.map((item) => (
+          <div key={item.id} className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
+            {editingItem && editingItem.id === item.id ? (
+              <ItemEditor
+                editingItem={editingItem}
+                newItemType={item.type}
+                isCreatingNew={false}
+                level="department"
+                canSetDeadline={canEditDeadline(item)}
+                isPending={isPending}
+                onUpdateItem={onUpdateEditingItem}
+                onSave={onSaveEdit}
+                onCancel={onCancelEdit}
+              />
+            ) : (
+              <div className="space-y-3">
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center space-x-3 flex-1">
+                    <span className="text-2xl">
+                      {item.type === 'okr' ? '🎯' : '⭐'}
+                    </span>
+                    <div className="flex-1">
+                      <div className="flex items-center space-x-2 mb-1">
+                        <span className="text-sm font-bold text-blue-700 uppercase tracking-wide">
+                          {item.type === 'okr' ? t.evaluations.okr : t.evaluations.competency}
+                        </span>
+                        <span className={`text-xs px-2 py-1 rounded-full font-medium ${getBadgeStyles(item.level)}`}>
+                          <span className="flex items-center space-x-1">
+                            {getBadgeIcon(item.level)}
+                            <span>{getBadgeLabel(item.level)}</span>
+                          </span>
+                        </span>
+                      </div>
+                      <h3 className="font-semibold text-gray-900 text-lg leading-tight">{item.title}</h3>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => onEditItem(item)}
+                    disabled={isPending}
+                    className="flex items-center space-x-1 px-4 py-3 min-h-[44px] bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 active:scale-95 active:bg-gray-300 disabled:bg-gray-200 disabled:cursor-not-allowed transition-all duration-150 flex-shrink-0 touch-manipulation"
+                  >
+                    <span>✏️</span>
+                    <span>{t.common.edit}</span>
+                  </button>
+                </div>
+                
+                <p className="text-gray-600 text-sm ml-11 leading-relaxed">{item.description}</p>
+                
+                {/* Show current assignments for this item */}
+                {getEmployeesWithItem(item.id).length > 0 && (
+                  <div className="ml-11 mt-3 p-3 bg-gray-50 rounded-lg">
+                    <h4 className="text-sm font-medium text-gray-700 mb-2">
+                      {t.assignments.currentlyAssignedTo} ({getEmployeesWithItem(item.id).length}):
+                    </h4>
+                    <div className="flex flex-wrap gap-2">
+                      {getEmployeesWithItem(item.id).map((employee) => (
+                        <div key={employee.id} className="inline-flex items-center gap-2 px-3 py-2 rounded-lg text-xs bg-green-100 text-green-700 border border-green-200">
+                          <span>👤 {employee.name}</span>
+                          <button
+                            onClick={() => onUnassignFromEmployee(item.id, employee.id)}
+                            disabled={isPending}
+                            className={`flex items-center justify-center w-5 h-5 min-w-[20px] min-h-[20px] text-white text-xs rounded-full active:scale-95 transition-all duration-150 touch-manipulation ${
+                              confirmingUnassign === `${item.id}-${employee.id}`
+                                ? 'bg-orange-500 hover:bg-orange-600 animate-pulse'
+                                : 'bg-red-500 hover:bg-red-600'
+                            } ${isPending ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            title={
+                              confirmingUnassign === `${item.id}-${employee.id}`
+                                ? 'Click again to confirm removal'
+                                : `Remove from ${employee.name}`
+                            }
+                          >
+                            {confirmingUnassign === `${item.id}-${employee.id}` ? '?' : '✕'}
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                
+                <div className="ml-11 mt-3">
+                  <button
+                    onClick={() => onBulkAssignment(item.id)}
+                    disabled={selectedEmployees.length === 0 || isPending}
+                    className="flex items-center space-x-2 px-6 py-3 min-h-[44px] bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 active:scale-95 active:bg-green-800 disabled:bg-gray-300 disabled:cursor-not-allowed disabled:active:scale-100 transition-all duration-150 touch-manipulation shadow-sm"
+                  >
+                    <span>➕</span>
+                    <span>{isPending ? t.common.saving : t.assignments.assignToSelected}</span>
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    )
+  }
+
+  if (activeTab === 'individual') {
+    return (
+      <div className="space-y-4">
+        {employees.length === 0 ? (
+          <div className="text-center py-8 text-gray-500">
+            <p>{t.users.noUsersFound}</p>
+          </div>
+        ) : (
+          employees.map((employee) => (
+            <div key={employee.id} className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+                    <span className="text-lg">👤</span>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-gray-900">{employee.name}</h3>
+                    <p className="text-sm text-gray-500">
+                      {employee.email || employee.username} • {employee.department}
+                    </p>
+                  </div>
+                </div>
+                <div className="text-xs text-gray-500">
+                  {employee.assignedItems.length} {t.assignments.itemsAssigned}
+                </div>
+              </div>
+
+              {/* Show current assignments for this employee */}
+              {employee.assignedItems.length > 0 && (
+                <div className="mb-4 p-3 bg-gray-50 rounded-lg">
+                  <h4 className="text-sm font-medium text-gray-700 mb-2">
+                    {t.assignments.itemsAssigned} ({employee.assignedItems.length}):
+                  </h4>
+                  <div className="flex flex-wrap gap-1">
+                    {employee.assignedItems.map((itemId) => {
+                      const item = items.find(evalItem => evalItem.id === itemId)
+                      return item ? (
+                        <div key={itemId} className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs bg-blue-100 text-blue-700 border border-blue-200">
+                          <span>{item.type === 'okr' ? '🎯' : '⭐'} {item.title.slice(0, 12)}...</span>
+                          <button
+                            onClick={(e) => {
+                              e.preventDefault()
+                              e.stopPropagation()
+                              onUnassignFromEmployee(itemId, employee.id)
+                            }}
+                            disabled={isPending}
+                            className={`flex items-center justify-center w-4 h-4 min-w-[16px] text-white text-xs rounded-full active:scale-95 transition-all duration-150 touch-manipulation ${
+                              confirmingUnassign === `${itemId}-${employee.id}`
+                                ? 'bg-orange-500 hover:bg-orange-600 animate-pulse'
+                                : 'bg-red-500 hover:bg-red-600'
+                            } ${isPending ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            title={
+                              confirmingUnassign === `${itemId}-${employee.id}`
+                                ? t.common.yes
+                                : `${t.common.delete} "${item.title}"`
+                            }
+                          >
+                            {confirmingUnassign === `${itemId}-${employee.id}` ? '?' : '✕'}
+                          </button>
+                        </div>
+                      ) : null
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Individual Items for Assignment */}
+              <div className="space-y-3">
+                <h4 className="text-sm font-medium text-gray-700">{t.assignments.selectEmployees}:</h4>
+                {items.filter(item => item.level === 'manager').length === 0 ? (
+                  <p className="text-sm text-gray-500 italic">{t.companyItems.noItemsDescription}</p>
+                ) : (
+                  items.filter(item => item.level === 'manager').map((item) => (
+                    <div key={item.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      <div className="flex-1">
+                        <div className="flex items-center space-x-2 mb-1">
+                          <span className="text-lg">{item.type === 'okr' ? '🎯' : '⭐'}</span>
+                          <span className="text-sm font-bold text-blue-700 uppercase tracking-wide">
+                            {item.type === 'okr' ? t.evaluations.okr : t.evaluations.competency}
+                          </span>
+                        </div>
+                        <h5 className="font-medium text-gray-900">{item.title}</h5>
+                        <p className="text-sm text-gray-600">{item.description}</p>
+                      </div>
+                      <button
+                        onClick={() => onIndividualAssignment(item.id, employee.id)}
+                        disabled={employeeHasItem(employee.id, item.id) || isPending}
+                        className={`flex items-center space-x-2 px-4 py-2 min-h-[44px] text-sm font-medium rounded-lg transition-all duration-150 touch-manipulation ${
+                          employeeHasItem(employee.id, item.id)
+                            ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                            : 'bg-green-600 text-white hover:bg-green-700 active:scale-95'
+                        } ${isPending ? 'opacity-50' : ''}`}
+                      >
+                        <span>{employeeHasItem(employee.id, item.id) ? '✓' : '➕'}</span>
+                        <span>{employeeHasItem(employee.id, item.id) ? t.status.completed : (isPending ? t.common.saving : t.assignments.assignToSelected.split(' ')[0])}</span>
+                      </button>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+    )
+  }
+
+  return null
+}

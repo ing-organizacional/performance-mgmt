@@ -116,13 +116,13 @@ async function getDashboardData(companyId: string) {
   // Get active performance cycle
   const activeCycle = allCycles.find(cycle => cycle.status === 'active') || null
 
-  // Get all employees in the company (excluding HR admin role)
+  // Get all employees in the company (all roles should be evaluated)
   const totalEmployees = await prisma.user.count({
     where: {
       companyId,
       active: true,
       role: {
-        in: ['employee', 'manager', 'hr'] // Include all roles that should be evaluated
+        in: ['employee', 'manager', 'hr'] // All roles should be evaluated
       }
     }
   })
@@ -168,11 +168,12 @@ async function getDashboardData(companyId: string) {
   })
 
   // Count completed vs in progress from actual evaluations
+  // Only count 'completed' status as truly completed to match pending page logic
   employeeEvaluationMap.forEach(evaluation => {
-    if (evaluation.status === 'completed' || evaluation.status === 'submitted' || evaluation.status === 'approved') {
+    if (evaluation.status === 'completed') {
       completed++
       
-      // Count rating distribution
+      // Count rating distribution only for completed evaluations
       if (evaluation.overallRating) {
         switch (evaluation.overallRating) {
           case 5:
@@ -192,16 +193,19 @@ async function getDashboardData(companyId: string) {
             break
         }
       }
-    } else if (evaluation.status === 'draft') {
+    } else if (evaluation.status === 'draft' || evaluation.status === 'submitted') {
+      // Both draft and submitted are considered in progress
       inProgress++
     }
   })
 
+  // Calculate pending to match the pending evaluations page logic
+  // Pending = employees without completed evaluations (includes those with no evaluations at all)
   const completionStats: CompletionStats = {
     total: totalEmployees,
     completed,
     inProgress,
-    pending: totalEmployees - completed - inProgress,
+    pending: totalEmployees - completed,
     overdue: 0, // TODO: Implement deadline tracking
     duesSoon: 0 // TODO: Implement deadline tracking
   }

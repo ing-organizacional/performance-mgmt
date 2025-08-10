@@ -1,22 +1,24 @@
 # Performance Management System
 
-A mobile-first web application for managing employee OKRs and competency evaluations across multiple companies. Designed for mixed workforce environments (office workers + operational workers).
+A **secure, mobile-first** web application for managing employee OKRs and competency evaluations across multiple companies. Enterprise-grade security with **all critical vulnerabilities resolved** and comprehensive audit trails. Designed for mixed workforce environments (office workers + operational workers).
 
 ## 🎯 Overview
 
 Enterprise performance management system handling **4000+ employees across 27 companies** with:
+
 - **Three-status evaluation workflow**: draft → submitted → completed
 - **Mobile-first responsive design** optimized for managers and HR
 - **Bilingual support** (English/Spanish) with instant language switching
-- **Mixed workforce authentication** (email + password / username + PIN)
+- **Multi-modal authentication** (email + password / username + PIN / biometric)
+- **WebAuthn/FIDO2 biometric authentication** (Face ID, Touch ID, Fingerprint)
 - **Performance cycle management** with read-only enforcement during closed periods
 - **Server Actions architecture** for improved type safety and performance
 - **Complete audit trails** and multi-company data isolation
 
-## 🚀 Quick Start
+## 🚀 Quick Start (Secure & Updated)
 
 ```bash
-# Install dependencies
+# Install dependencies (all security-updated)
 yarn install
 
 # Set up database
@@ -24,527 +26,574 @@ yarn db:push && yarn db:seed
 
 # Start development server
 yarn dev
-```
 
-Visit http://localhost:3000 and use demo credentials:
-- **HR**: hr@demo.com / password123 (admin + team management)
-- **Manager**: manager@demo.com / password123 (team evaluations)
-- **Employee**: employee1@demo.com / password123 (view evaluations)
-- **Operational Worker**: worker1 / 1234 (PIN login)
+# Verify security (optional)
+yarn tsc --noEmit && yarn lint
+```
 
 ## 🏗️ Tech Stack
 
 **Frontend & Backend:**
-- Next.js 15.4.5 (App Router + TypeScript)
-- Tailwind CSS 4.0 + React 19.1.0
-- NextAuth v5.0.0-beta.29 (JWT strategy)
+
+- **Next.js 15.4.5** (App Router + TypeScript 5.9.2)
+- **Tailwind CSS 4.0** + React 19.1.0
+- **NextAuth v5.0.0-beta.29** (JWT strategy)
+- **Node.js 22.18.0** + Yarn 4.9.2 (Berry)
+- **Zod 4.0.15** validation + **@types/node 22.17.1**
 
 **Database:**
+
 - SQLite with Prisma ORM 6.13.0
-- 8-table relational schema with complete audit trails
+- **9-table relational schema** with complete audit trails
 - Unified evaluation system with JSON data storage
 - Performance cycle management with status enforcement
+- BiometricCredential table for WebAuthn/FIDO2 authentication
 
 **Deployment:**
+
 - Docker containerization ready
 - Windows Server compatible
-- Node.js runtime
+- Rate limiting and security headers implemented
 
 ## 📱 Key Features
 
-### 🌐 Bilingual Interface (NEW!)
-- **English/Spanish Support**: Complete translations for all interfaces
-- **Instant Language Switching**: 🇺🇸/🇪🇸 toggle button in all pages  
-- **Persistent Preference**: Language choice saved across sessions
-- **Professional UX**: Native-language experience for bilingual workforces
-- **Complete Coverage**: All text, forms, evaluations, and analytics translated
+### Authentication & Security
 
-### Mobile-First Evaluation Interface
-- **Progressive disclosure**: One decision per screen with fixed item card
-- **Star rating system**: Intuitive 1-5 scale with auto-focus on comments
-- **Unified evaluation**: OKRs (🎯) and Competencies (⭐) in single flow
-- **Three-tier system**: Company/Department/Manager level items
-- **Auto-save**: No data loss during evaluations
-- **Thumb-friendly**: Minimum 44px touch targets
-- **Universal access**: Works for HR, managers, and employees
+- **Multi-modal Authentication**: Email/password, username/PIN, biometric (WebAuthn/FIDO2)
+- **Role-based Access Control**: HR, Manager, Employee permissions
+- **Company Data Isolation**: Complete multi-tenant architecture
+- **Audit Logging**: Every action tracked with user, timestamp, and changes
 
-### Three-Status Evaluation Workflow
-**Simple and Effective:**
-1. **`draft`** → Manager creates evaluation with ratings and comments (auto-save enabled)
-2. **`submitted`** → Manager submits completed evaluation → becomes read-only for manager
-3. **`completed`** → Employee approves the evaluation → final status
+### Evaluation Management
 
-**Key Features:**
-- **Auto-save**: 2-second delay prevents data loss during evaluation creation
-- **Complete validation**: All items must have both rating (1-5) and comment before submission
-- **Manager lock-out**: Cannot edit or recall after submission (contact HR to unlock)
-- **Employee approval**: Simple one-click approval process
-- **HR oversight**: Dashboard tracks overdue drafts and pending approvals
-- **Error correction**: HR can unlock submitted evaluations back to draft status
+- **3-Status Workflow**: Draft evaluations → Manager submits → Employee approves
+- **Auto-save Functionality**: Real-time draft saving with 2-second delay
+- **Flexible Item System**: OKRs and competencies with company/department/manager assignment
+- **Deadline Management**: Configurable evaluation deadlines with notifications
 
-### HR Team Management (NEW!)
-- **Dual-role support**: HR users can both manage teams and access admin functions
-- **Team evaluations**: HR managers have their own direct reports to evaluate
-- **Seamless navigation**: Dashboard ↔ Evaluations ↔ My Evaluations workflow
-- **Real-time data**: Dynamic team summaries and completion tracking
-- **Back navigation**: Easy return to dashboard from evaluation views
+### Performance Cycles
 
-### Performance Cycle Management (NEW!)
-- **Annual/Quarterly Cycles**: Create performance review periods with defined start/end dates
-- **Status Control**: Active → Closed → Archived workflow with automatic enforcement
-- **Read-Only Enforcement**: Managers cannot edit when cycles are closed
-- **Partial Assessments**: HR can make individual item ratings with custom evaluation dates
-- **Visual Indicators**: Clear status banners and cycle selectors throughout the UI
-- **Audit Trail**: Complete tracking of cycle operations and status changes
+- **Cycle Status Control**: Active (editable) → Closed (read-only) → Archived
+- **Read-only Enforcement**: Prevents evaluation changes during closed periods
+- **HR Management**: Create, close, reopen cycles with complete control
+- **Visual Indicators**: Clear status banners and notifications
 
-### Multi-Company Architecture
-- **Data isolation**: Complete separation between companies
-- **Scalable**: Handles 4000+ employees efficiently
-- **Audit trail**: Complete change tracking
-- **Role-based access**: HR, Manager, Employee permissions
+### Mobile-First UX
 
-### User Management (3 Methods)
-1. **Visual Interface**: `yarn db:studio`
-2. **CSV Import**: `yarn db:import users.csv`
-3. **Server Actions**: `/src/lib/actions/users.ts`
+- **Touch Optimized**: 44px minimum touch targets throughout
+- **Progressive Disclosure**: One decision per screen approach
+- **Gesture Support**: Swipe navigation and touch interactions
+- **Responsive Design**: Seamless experience across all device sizes
+
+### Internationalization
+
+- **Bilingual Support**: Complete English/Spanish translation
+- **Instant Switching**: Language toggle without page reload
+- **Cultural Adaptation**: Date formats, number formats, currency
+
+### Export & Reporting
+
+- **Multiple Formats**: PDF individual reports, Excel team summaries
+- **Role-based Access**: Filtered data based on user permissions
+- **Performance Analytics**: Rating distributions and trends
+- **Audit Reports**: Complete change tracking and compliance
+
+### CSV Import & Data Management
+
+- **Manual CSV Import**: Multi-step workflow with preview and validation
+- **Scheduled Imports**: Automated imports from external systems (HRIS, APIs, URLs)
+- **Enterprise Features**: Upsert operations, audit logging, rollback capability
+- **Data Sources**: Support for URL/HTTP, REST APIs, SFTP (coming soon)
+- **Preview Mode**: Review all changes before execution
+- **Error Recovery**: Detailed validation with selective fixes
+- **Notification System**: Email alerts for import success/failure
+
+## 🔒 Security Features
+
+- **WebAuthn/FIDO2**: Face ID, Touch ID, Fingerprint authentication
+- **Password Security**: bcryptjs hashing with 12 salt rounds
+- **Session Management**: JWT tokens with 24-hour expiration
+- **Rate Limiting**: Brute force protection on sensitive endpoints
+- **Input Validation**: Comprehensive Zod 4.0.15 schema validation
+- **Security Headers**: CSP, X-Frame-Options, CSRF protection
+- **Dependency Security**: All dependencies updated and vulnerability-free
+- **HTTPS Ready**: SSL/TLS encryption support
 
 ## 📊 Database Schema
 
-```sql
--- Companies: Multi-tenant isolation
-Company { id, name, code, active }
+**10 Core Tables:**
 
--- Users: Mixed workforce with HRIS integration identifiers
-User { 
-  id, companyId, name, email?, username?, role,
-  passwordHash, pinCode?, userType, managerId,
-  employeeId?, personID?, department?, shift?
-}
+- `Company` - Multi-tenant root with isolation
+- `User` - Employee data with role hierarchy
+- `Evaluation` - Performance evaluation records
+- `EvaluationItem` - OKR/Competency definitions (company/department levels only)
+- `EvaluationItemAssignment` - Individual assignments
+- `PerformanceCycle` - Time-based evaluation periods
+- `PartialAssessment` - Granular rating tracking
+- `AuditLog` - Complete change history
+- `BiometricCredential` - WebAuthn credential storage
+- `ScheduledImport` - Automated CSV import configuration
 
--- Traditional Evaluations: JSON-based evaluation data with cycle association
-Evaluation {
-  id, employeeId, managerId, companyId, cycleId?,
-  evaluationItemsData, overallRating,
-  status, periodType, periodDate
-  -- status: "draft" | "submitted" | "completed"
-}
+## 🚀 Getting Started
 
--- Structured Evaluation Items: Individual OKR/Competency definitions
-EvaluationItem {
-  id, companyId, cycleId?, title, description,
-  type, level, createdBy, assignedTo?, active, sortOrder
-}
+### Prerequisites
 
--- Individual Item Assignments: Employee-specific item assignments
-EvaluationItemAssignment {
-  id, evaluationItemId, employeeId, assignedBy, companyId
-}
+- **Node.js 22.18.0** or higher (REQUIRED - verified compatible)
+- **Yarn 4.9.2 (Berry)** package manager (never use npm)
+- Modern browser with WebAuthn support (for biometric auth)
+- **TypeScript 5.9.2** for development (auto-installed)
 
--- Performance Cycles: Annual/quarterly review periods with status management
-PerformanceCycle {
-  id, companyId, name, startDate, endDate,
-  status, closedBy?, closedAt?
-}
-
--- Partial Assessments: Granular item tracking with evaluation date history
-PartialAssessment {
-  id, cycleId, employeeId, evaluationItemId,
-  rating?, comment?, assessedBy, assessedAt,
-  evaluationDate, assessmentType, isActive, companyId
-}
-
--- AuditLog: Complete change tracking
-AuditLog { id, evaluationId, userId, action, oldData, newData }
-```
-
-## 🔧 Development Commands
+### Installation
 
 ```bash
-# Database
-yarn db:studio              # Visual database editor
-yarn db:seed                # Add demo data
-yarn db:import users.csv    # Import users from CSV
-yarn db:reset               # Reset database + seed
-yarn db:generate            # Generate Prisma client
-yarn db:push                # Push schema changes
+# Clone the repository
+git clone [repository-url]
+cd performance-mgmt
 
-# Development
-yarn dev                    # Start dev server
-yarn build                 # Production build
-yarn start                 # Production server (dev/test only)
-# For production with standalone output, use:
-node .next/standalone/server.js
-yarn lint                  # Code linting
+# Install dependencies with Yarn Berry
+yarn install
+
+# Generate Prisma client
+yarn db:generate
+
+# Initialize database
+yarn db:push
+
+# Seed with demo data
+yarn db:seed
+
+# Start development server
+yarn dev
 ```
 
-## 👥 User Management
+### Environment Setup
 
-### 🔑 Employee Identification Keys
-
-The system uses multiple keys to identify employees:
-
-**🎯 Primary Business Key:**
-- **`personID`** - National ID (Cédula, DNI, Social Security) - **REQUIRED**
-  - Most reliable identifier (never changes)
-  - Used for manager assignment and duplicate detection
-  - Example: `12345678`
-
-**🏢 Company Keys:**
-- **`employeeId`** - Company-assigned employee number (Optional)
-  - Examples: `EMP001`, `MGR001`, `HR001`
-  - Used for reporting and alternative manager assignment
-  - May change with reorganization
-
-**🔐 Authentication Keys:**
-- **`email`** - For office workers (login identifier)
-  - Example: `john.doe@company.com`
-- **`username`** - For operational workers (login identifier)
-  - Example: `john_worker`, `station_01`
-
-**🎯 Key Hierarchy (Most to Least Reliable):**
-1. `personID` - National ID (preferred for all operations)
-2. `employeeId` - Company ID (good for internal references)
-3. `email` - Can change when employees move
-4. `username` - For operational workers only
-
-### CSV Import Format
-```csv
-name,email,username,role,department,userType,password,employeeId,personID,managerPersonID,managerEmployeeId,companyCode
-Michael Chen,michael.chen@demo.com,,manager,Engineering,office,password123,MGR001,87654321,,,DEMO_001
-John Smith,john@company.com,,employee,Sales,office,password123,EMP001,12345678,87654321,,DEMO_001
-Maria Worker,,maria.worker,employee,Manufacturing,operational,1234,EMP002,23456789,,MGR001,DEMO_001
-```
-
-**📋 Required Fields:**
-- **`name`** - Full employee name (required)
-- **`personID`** - National ID/Cédula (required) - **Primary business key**
-- **`role`** - employee, manager, or hr (required) 
-- Either **`email`** OR **`username`** (at least one required for authentication)
-
-**👤 Manager Assignment (choose one method):**
-- **`managerPersonID`** - Manager's National ID (**PREFERRED** - most reliable)
-- **`managerEmployeeId`** - Manager's Employee ID (alternative method)
-
-**🏢 Optional HRIS Integration Fields:**
-- `employeeId` - Company-assigned ID (EMP001, MGR001) for HRIS integration
-- `department` - Department/team name
-- `userType` - office (default) or operational
-- `companyCode` - Company identifier (defaults to current user's company)
-
-**📝 CSV Template Files:**
-- **`/public/user-import-template.csv`** - Clean import template
-- **`/public/user-import-instructions.md`** - Comprehensive import guide
-
-**💡 Best Practices:**
-- Always use `personID` as the primary identifier
-- Use `managerPersonID` for manager assignment (more reliable than employeeId)
-- Ensure PersonIDs are unique across your organization
-- Keep a backup mapping of PersonID to EmployeeID for reference
-
-### Server Actions Examples
-```typescript
-// User management via Server Actions (not REST APIs)
-import { createUser, updateUser, deleteUser } from '@/lib/actions/users'
-
-// Create user
-const newUser = await createUser({
-  name: "New User",
-  email: "new@demo.com", 
-  role: "employee",
-  companyId: "company-id"
-})
-
-// Update user  
-const updatedUser = await updateUser("user-id", {
-  department: "New Department"
-})
-
-// Delete user
-await deleteUser("user-id")
-```
-
-### Implementation Architecture
-**Server Actions (Preferred):**
-- Evaluation workflow uses Next.js Server Actions for form submissions
-- Better type safety and progressive enhancement
-- Located in `/src/lib/actions/` directory
-
-**Available REST APIs (Legacy/Integration):**
-```bash
-# Import users from CSV
-curl -X POST http://localhost:3000/api/admin/import \
-  -H "Content-Type: application/json" \
-  -d '{"users": [{"name":"User","email":"user@demo.com"}]}'
-
-# Get company data
-curl http://localhost:3000/api/admin/companies
-```
-
-## 🔐 Authentication
-
-**Mixed Workforce Support:**
-- **Office Workers**: Standard email/password authentication
-- **Operational Workers**: Simple username/PIN for non-email users
-- **HR Management**: Complete control over user accounts
-- **No AD Dependency**: Works independently (optional AD sync available)
-
-## 📈 Performance & Scale
-
-**Optimized for Enterprise:**
-- **SQLite Performance**: Handles 4K employees + 16K evaluations/year efficiently
-- **Mobile Optimization**: <1MB bundle size for operational workers
-- **Real-time Updates**: Instant completion tracking and analytics
-- **Company Isolation**: Zero data leakage between companies
-
-## 🐳 Deployment
-
-### Docker Deployment (Recommended for unRAID)
-
-**Build and Run:**
-```bash
-# Build container for production
-docker build --platform linux/amd64 -t sgd-performance-demo:latest .
-
-# Run with volume persistence
-docker run -p 3000:3000 -p 5555:5555 \
-  -v /mnt/user/appdata/sgd-performance-demo:/app/data \
-  -e NEXTAUTH_URL=https://your-domain.com \
-  -e NEXTAUTH_SECRET=your-secure-secret \
-  -e DATABASE_URL=file:/app/data/production.db \
-  sgd-performance-demo:latest
-```
-
-## 🚀 **Initial Setup & Demo Data**
-
-### **1. Container Startup**
-The container automatically:
-- Creates SQLite database with proper schema
-- Sets up proper UnRAID permissions (nobody:users)
-- Starts Next.js application on port 3000
-
-### **2. Initialize Comprehensive Demo Data**
-
-The production Docker image is kept lean, so seeding requires temporarily installing dependencies:
+Create `.env.local`:
 
 ```bash
-# Method 1: Copy seed file to container and run (Recommended)
-# Copy the comprehensive seed file to the container
-docker cp /path/to/src/lib/seed-comprehensive.ts <container-name>:/app/data/seed-comprehensive.ts
-
-# Install dependencies, run seed, then clean up (all as root to avoid permission issues)
-docker exec -u root -it <container-name> sh -c "
-yarn add bcryptjs tsx && \
-npx tsx /app/data/seed-comprehensive.ts && \
-yarn remove bcryptjs tsx && \
-yarn cache clean
-"
+DATABASE_URL="file:./dev.db"
+NEXTAUTH_SECRET="your-secret-here"
+NEXTAUTH_URL="http://localhost:3000"
 ```
 
-**Why run as root?** The production container runs as user `nextjs` (UID 99) for security, but installing/removing yarn packages requires root permissions to modify `node_modules/`.
+### Development Commands
 
-**Alternative: Get root shell and run commands separately**
+- `yarn dev` - Start development server with Turbo mode
+- `yarn build` - Production build
+- `yarn start` - Start production server
+- `yarn db:studio` - Open Prisma Studio database editor
+- `yarn db:reset` - Reset database and reseed
+- `yarn lint` - Run ESLint
+- `yarn tsc --noEmit` - Type checking
+
+## 🧪 Demo Data
+
+The seed script creates comprehensive demo data:
+
+**Companies:**
+
+- DEMO S.A. (40 employees across 5 departments)
+
+**User Roles:**
+
+- HR Director (super admin)
+- Department Managers (5 managers)
+- Employees (33 staff members)
+- Operational Workers (PIN-only authentication)
+
+**Evaluation Items:**
+
+- Company-wide OKRs and competencies
+- Department-specific goals
+- Manager-assigned objectives
+
+## 🌐 Deployment
+
+### Docker Deployment
+
 ```bash
-# Get root shell in container
-docker exec -u root -it <container-name> sh
+# Build Docker image
+docker build -t performance-mgmt .
 
-# Inside the root shell, run:
-yarn add bcryptjs tsx
-npx tsx /app/data/seed-comprehensive.ts  
-yarn remove bcryptjs tsx
-yarn cache clean
-exit
+# Run container
+docker run -p 3000:3000 performance-mgmt
 ```
 
-**Demo Data Includes:**
-- **4000+ employees** across 27 companies
-- **Complete org hierarchies** with manager relationships
-- **Performance cycles** (Annual/Quarterly) in various states
-- **Evaluation workflows** (draft → submitted → completed)
-- **Mixed workforce** (office + operational workers)
-- **Bilingual data** (English/Spanish examples)
-- **Evaluation items** at Company/Department/Manager levels
+### Production Environment
 
-### **3. Demo Login Credentials**
-After seeding, access the system with:
-- **HR Admin**: `hr@demo.com / password123`
-- **Manager**: `manager@demo.com / password123`  
-- **Employee**: `employee1@demo.com / password123`
-- **Operational**: `worker1 / 1234` (PIN login)
+**Environment Variables:**
 
-### **4. Prisma Studio (Database Admin)**
 ```bash
-# Start Prisma Studio for database management
-docker exec -it <container-name> npx --yes prisma studio --port 5555 --hostname 0.0.0.0
-
-# Access at: http://your-server-ip:5555
-# Shows all tables: User, Company, Evaluation, PerformanceCycle, etc.
+DATABASE_URL="file:./data/production.db"
+NEXTAUTH_SECRET="[32-byte-cryptographic-secret]"
+NEXTAUTH_URL="https://your-domain.com"
+NODE_ENV="production"
 ```
 
-**Prisma Studio Features:**
-- Browse all demo data visually
-- Real-time database inspection
-- Useful for troubleshooting during demos
-- Shows relationships between companies, users, evaluations
+**Security Checklist:**
 
-## 🔧 **UnRAID Configuration**
-
-### **Docker Template Settings:**
-```yaml
-Repository: yourusername/sgd-performance-demo:latest
-Ports:
-  - 3000:3000/tcp (Web Interface)
-  - 5555:5555/tcp (Prisma Studio - Optional)
-Volumes:
-  - /mnt/user/appdata/sgd-performance-demo:/app/data
-Environment:
-  - NODE_ENV=production
-  - NEXTAUTH_URL=https://sgdemo.ing-organizacional.com
-  - NEXTAUTH_SECRET=your-secure-secret
-  - DATABASE_URL=file:/app/data/production.db
-```
-
-### **Host Permissions Setup:**
-```bash
-# Standard UnRAID permissions
-mkdir -p /mnt/user/appdata/sgd-performance-demo
-chown -R nobody:users /mnt/user/appdata/sgd-performance-demo
-chmod -R 777 /mnt/user/appdata/sgd-performance-demo
-```
-
-## 📊 **Production Database Management**
-
-### **CSV Import in Docker:**
-1. **Access Templates**: Available at `/app/public/user-import-template.csv`
-2. **Upload via UI**: Login as HR → Users → Advanced → Upload CSV
-3. **Bulk Import**: Supports thousands of users with validation
-4. **Error Handling**: Complete import validation and error reporting
-
-### **Database Backup:**
-```bash
-# Backup database
-cp /mnt/user/appdata/sgd-performance-demo/production.db \
-   /mnt/user/backups/sgd-demo-$(date +%Y%m%d).db
-
-# Restore database  
-cp /mnt/user/backups/sgd-demo-20250807.db \
-   /mnt/user/appdata/sgd-performance-demo/production.db
-```
-
-**Windows Server Deployment:**
-- Node.js runtime
-- IIS with iisnode or standalone
-- File-based SQLite database
-- Simple backup (copy database file)
-
-## 📚 Documentation
-
-- `CLAUDE.md` - Development guidance for Claude Code
-- `USER_MANAGEMENT.md` - Complete user management guide
-- `example-users.csv` - CSV import template
-
-## 🎯 Use Cases
-
-**Perfect for:**
-- Manufacturing companies with mixed office/floor workers
-- Bilingual organizations (English/Spanish speaking workforces)
-- Multi-location organizations needing unified performance tracking
-- Companies requiring mobile-first manager experience
-- Organizations with 100-5000 employees across multiple entities
-- Businesses needing simple, audit-compliant performance management
-
-**Key Benefits:**
-- ⚡ **5-minute evaluation** per employee on mobile
-- 🌐 **Bilingual support** for English/Spanish workforces
-- 📊 **Real-time completion tracking** for HR
-- 🔒 **Complete data isolation** between companies
-- 📱 **Works offline** for operational environments
-- 🚀 **Enterprise scale** with consumer simplicity
-- 🔄 **Performance cycle control** with read-only enforcement
-- 📝 **Partial assessment flexibility** for HR corrections
-
-## 🔒 Security Status
-
-**Current Status**: ✅ **Production Ready** (with security configuration)
-
-**Recently Completed (August 2025):**
-- ✅ **Three-status evaluation workflow** implemented and tested
-- ✅ **Enhanced evaluation UX** with improved styling and bilingual support
-- ✅ **Comprehensive evaluation locking** for submitted evaluations
-- ✅ **Build system stability** - Clean TypeScript compilation and ESLint passes
-- ✅ **Server Actions architecture** reduces API surface and improves type safety
-- ✅ **Mobile-first responsive design** with bilingual support
-- ✅ **Performance cycle management** with read-only enforcement
-- ✅ **Complete audit trails** for all evaluation operations
-
-**Pre-Production Requirements:**
-1. **Change default secrets**: Generate secure `NEXTAUTH_SECRET` with `openssl rand -base64 32`
-2. **Review admin endpoints**: Ensure proper role-based access control for `/api/admin/*`
-3. **Environment configuration**: Remove demo credentials from production deployment
-
-**Security Features:**
-- ✅ Password hashing with bcryptjs (12 salt rounds)
-- ✅ NextAuth v5 JWT authentication
-- ✅ Company-based data isolation
-- ✅ Complete audit logging
-- ✅ Input validation and sanitization
-- ✅ Non-root Docker container
-- ✅ Clean TypeScript compilation
-- ✅ Proper type safety throughout
-
-**Production Checklist:**
-- [ ] Generate secure `NEXTAUTH_SECRET` with `openssl rand -base64 32`
-- [ ] Add role-based access control middleware
 - [ ] Configure HTTPS/SSL certificates
-- [ ] Set up database backups
-- [ ] Enable security headers
+- [x] Set up rate limiting (IMPLEMENTED)
+- [x] Enable security headers (CSP, X-Frame-Options implemented)
+- [ ] Configure database backups
+- [ ] Set up monitoring and logging
+- [ ] Remove demo seed data
+- [x] Update dependencies (ALL COMPLETED - August 9, 2025)
+- [x] Fix security vulnerabilities (CRITICAL ISSUES RESOLVED)
 
-See `CLAUDE.md` for detailed security audit findings and fixes.
+## 🧑‍💻 Development
 
-## 🎯 System Architecture
+### Architecture
 
-**Deployment Grade**: B+ (Good with room for improvement)
+- **Server Actions**: Primary data mutations (preferred over API routes)
+- **Next.js App Router**: File-based routing with layouts
+- **TypeScript**: Full type safety throughout
+- **Prisma**: Type-safe database operations
+- **Tailwind CSS**: Utility-first styling
 
-Built for HR managers who need ridiculously simple performance management that actually works.
+### Code Organization
 
-## 📋 Code Audit Results (August 2025)
+```text
+src/
+├── app/                 # Next.js App Router pages
+├── components/          # Reusable React components
+├── lib/                 # Business logic and utilities
+│   ├── actions/         # Server Actions
+│   ├── services/        # Business services
+│   └── utils/           # Helper functions
+├── hooks/               # Custom React hooks
+└── types/               # TypeScript type definitions
+```
 
-### Overall Assessment: B+ (Good with room for improvement)
+### Contributing Guidelines
 
-The codebase demonstrates solid architecture and follows many modern development practices. However, it requires immediate attention to security vulnerabilities and code quality issues before production deployment.
+- Use Server Actions for data mutations
+- Maintain company-based data isolation
+- Follow TypeScript strict mode
+- Test mobile-first responsive design
+- Update bilingual translations
+- Maintain audit trails for changes
 
-**Audit Date:** August 2025
+## 🔍 Testing
 
-### High Priority Issues (Security & Stability)
-1. **Security Vulnerabilities**:
-   - Hardcoded default passwords in `/src/app/api/admin/import/route.ts:232-234`
-   - Console.log statements leaking sensitive info in production code
-   - Missing CSRF protection and Content Security Policy
-   - No rate limiting on authentication endpoints
+### Manual Testing
 
-2. **Code Quality**:
-   - Type safety issues with unsafe type assertions
-   - Generic error handling losing specific error context
-   - N+1 query problems in team data fetching
-   - Large components (500+ lines) violating single responsibility
+1. **Authentication Flow**
+   - Test email/password login
+   - Test username/PIN login
+   - Test biometric authentication (on supported devices)
 
-### Medium Priority (Performance & Reliability)
-1. **Database Optimization**:
-   - Missing indexes on frequently queried fields
-   - N+1 queries in `/src/lib/actions/evaluations.ts:494-528`
-   - No caching strategy implemented
+2. **Evaluation Workflow**
+   - Create draft evaluation
+   - Submit as manager
+   - Approve as employee
+   - Unlock as HR (if needed)
 
-2. **Component Architecture**:
-   - Several components exceed 400+ lines
-   - Mixed UI and business logic concerns
-   - Some prop drilling through multiple levels
+3. **Performance Cycles**
+   - Create new cycle
+   - Close cycle (read-only enforcement)
+   - Reopen cycle
 
-### Low Priority (Enhancements)
-1. **Accessibility**: Missing ARIA labels and keyboard navigation
-2. **PWA Features**: No offline support or app manifest
-3. **Advanced Analytics**: No performance monitoring
+4. **Multi-company Isolation**
+   - Verify data separation between companies
+   - Test role-based access controls
 
-### Estimated Effort
-- **Critical fixes**: 2-3 weeks
-- **All recommendations**: 6-8 weeks
+### Browser Compatibility
 
-See full audit details in `SECURITY.md` and `API_AUDIT.md`.
+- **WebAuthn Support**: Chrome 67+, Firefox 60+, Safari 14+, Edge 18+
+- **Mobile Browsers**: iOS Safari, Chrome Mobile, Samsung Internet
+- **Desktop**: All modern browsers with JavaScript enabled
+
+## 📖 API Documentation
+
+### Server Actions (Preferred)
+
+- `evaluations.ts` - Evaluation workflow management
+- `users.ts` - User CRUD operations
+- `cycles.ts` - Performance cycle management
+- `team.ts` - Team data with 5-minute caching
+- `biometric.ts` - WebAuthn credential management
+- `csv-import.ts` - Enterprise CSV import with preview/execute
+- `scheduled-import.ts` - Automated import scheduling
+- `admin.ts` - Admin operations (database reset via Server Actions)
+
+### REST API Endpoints (Minimal)
+
+- `GET /api/health` - System health check
+- `POST /api/auth/[...nextauth]` - NextAuth handlers
+- `POST /api/auth/update-last-login` - Login timestamp tracking
+- `GET/PUT /api/evaluation-items` - Evaluation item management (2 endpoints)
+
+## 🤝 Support
+
+For issues and questions:
+
+- Check existing documentation
+- Review demo data and test workflows
+- Submit issues with detailed reproduction steps
+- Include browser/device information for UI issues
+
+## 📄 License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+---
+
+## 📥 Enterprise CSV Import System
+
+### Overview
+
+The **Enterprise CSV Import System** provides comprehensive data management capabilities for HR teams to efficiently manage employee data with enterprise-grade features including preview, validation, upsert operations, audit logging, and automated scheduling.
+
+### Manual CSV Import Features
+
+**Multi-Step Workflow:**
+
+1. **Upload & Validation** - Drag & drop CSV files with instant validation
+2. **Preview Changes** - Review all create/update operations before execution
+3. **Configuration** - Choose update strategies and validation rules
+4. **Execution** - Process imports with detailed progress tracking
+5. **Completion** - View results with rollback options
+
+**Enterprise Capabilities:**
+
+- **Upsert Operations**: Create new users and update existing ones intelligently
+- **Preview Mode**: See exactly what changes will be made before committing
+- **Selective Updates**: Choose which fields to update for existing users
+- **Error Recovery**: Detailed validation with actionable error messages
+- **Audit Logging**: Complete tracking of who imported what and when
+- **Rollback Support**: Undo imports if needed with full change history
+
+**Data Validation:**
+
+- Required fields validation (name, email/username, role)
+- Email format and uniqueness checking
+- Role validation against system roles
+- Manager relationship validation
+- Company code and department validation
+- Employee ID and Person ID uniqueness
+
+### Scheduled Imports
+
+**Automated Data Sync:**
+
+- **Multiple Data Sources**: URL/HTTP endpoints, REST APIs, SFTP servers
+- **Flexible Scheduling**: Daily, weekly, monthly with timezone support
+- **Authentication Support**: Basic Auth, Bearer tokens, API keys
+- **Notification System**: Email alerts for success/failure status
+- **Error Handling**: Automatic retry and detailed error reporting
+
+**Configuration Options:**
+
+```typescript
+{
+  name: "Daily HRIS Sync",
+  schedule: {
+    frequency: "daily",
+    time: "09:00",
+    timezone: "America/New_York"
+  },
+  source: {
+    type: "url",
+    url: "https://hris.company.com/employees.csv",
+    credentials: {
+      apiKey: "your-api-key"
+    }
+  },
+  importOptions: {
+    updateExisting: true,
+    createNew: true,
+    notificationEmails: ["hr@company.com"]
+  }
+}
+```
+
+### Usage Guide
+
+#### Manual Import Process
+
+1. **Access the Import System**
+   ```
+   Navigate to: /users/advanced → Manual Import tab
+   ```
+
+2. **Upload CSV File**
+   - Drag & drop or click to select CSV file
+   - System validates format and required columns
+   - View any validation errors immediately
+
+3. **Preview Changes**
+   - Review all users to be created (green rows)
+   - Review all users to be updated (blue rows)
+   - See validation errors for problematic rows (red rows)
+   - Verify manager relationships and department assignments
+
+4. **Configure Import Options**
+   - Choose whether to update existing users
+   - Choose whether to create new users
+   - Select which fields to update for existing users
+   - Set password requirements for new users
+
+5. **Execute Import**
+   - Click "Execute Import" to process changes
+   - Monitor progress with detailed status updates
+   - Review final results with creation/update counts
+
+6. **Post-Import Actions**
+   - View import history and audit logs
+   - Use rollback feature if changes need to be undone
+   - Export results for documentation
+
+#### Scheduled Import Setup
+
+1. **Create New Schedule**
+   ```
+   Navigate to: /users/advanced → Scheduled Imports tab → Create Schedule
+   ```
+
+2. **Basic Configuration**
+   - **Name**: "Daily HRIS Sync"
+   - **Description**: Optional description for the import
+   - **Schedule**: Set frequency, time, and timezone
+
+3. **Data Source Setup**
+   - **URL Source**: Direct HTTP/HTTPS endpoints
+   - **API Source**: REST APIs with JSON-to-CSV conversion
+   - **SFTP Source**: Secure file transfer (coming soon)
+   - **Authentication**: Username/password, API keys, bearer tokens
+
+4. **Import Options**
+   - Configure same upsert options as manual imports
+   - Set up email notifications for success/failure
+   - Choose validation levels and error handling
+
+5. **Activation & Monitoring**
+   - Enable the scheduled import
+   - Monitor execution history and status
+   - Receive email notifications for each run
+   - View detailed logs and error reports
+
+### CSV Format Requirements
+
+**Required Columns:**
+```csv
+name,email,role,department,position
+```
+
+**Complete Format Example:**
+```csv
+name,email,username,role,department,userType,employeeId,personID,managerPersonID,managerEmployeeId,companyCode,position,shift,password
+John Doe,john@company.com,johndoe,employee,Engineering,office,EMP001,ID123456,MGR789,EMP100,COMP01,Software Engineer,Day,temporaryPass123
+Jane Smith,jane@company.com,janesmith,manager,Engineering,office,EMP100,ID789012,,,,Engineering Manager,Day,temporaryPass456
+```
+
+**Optional Fields:**
+- `username` - For PIN-based authentication users
+- `employeeId` - Company employee number
+- `personID` - National ID number
+- `managerPersonID` - Manager's national ID for relationship mapping
+- `managerEmployeeId` - Manager's employee ID for relationship mapping
+- `companyCode` - Company identifier (defaults to user's company)
+- `position` - Job title
+- `shift` - Work shift information
+- `password` - Temporary password (auto-generated if not provided)
+
+### Technical Implementation
+
+#### Server Actions
+
+**Manual Import Actions:**
+```typescript
+// Preview import before execution
+const preview = await previewCSVImport(formData, options)
+
+// Execute the actual import
+const result = await executeCSVImport(formData, options)
+
+// View import history
+const history = await getImportHistory()
+
+// Rollback a previous import
+const rollback = await rollbackImport(importId)
+```
+
+**Scheduled Import Actions:**
+```typescript
+// Create new scheduled import
+const schedule = await createScheduledImport(config)
+
+// Update existing schedule
+const updated = await updateScheduledImport(id, changes)
+
+// Execute schedule manually
+const result = await executeScheduledImport(id)
+
+// Get all schedules
+const schedules = await getScheduledImports()
+```
+
+#### Database Schema
+
+**ScheduledImport Table:**
+```sql
+CREATE TABLE ScheduledImport (
+  id           TEXT PRIMARY KEY,
+  companyId    TEXT NOT NULL,
+  name         TEXT NOT NULL,
+  description  TEXT,
+  enabled      BOOLEAN DEFAULT true,
+  schedule     JSON NOT NULL,  -- {frequency, time, timezone}
+  source       JSON NOT NULL,  -- {type, url, credentials}
+  importOptions JSON NOT NULL, -- {updateExisting, createNew, notifications}
+  lastRun      DATETIME,
+  nextRun      DATETIME,
+  status       TEXT DEFAULT 'active',
+  errorMessage TEXT,
+  createdBy    TEXT NOT NULL,
+  createdAt    DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+### Security & Compliance
+
+**Data Protection:**
+- All imports are company-isolated (multi-tenant safe)
+- Credentials stored securely with encryption
+- Audit logs track all import activities
+- Role-based access (HR only)
+
+**Validation & Safety:**
+- Comprehensive input validation with Zod schemas
+- Preview-first approach prevents accidental data corruption
+- Rollback capability for error recovery
+- Rate limiting on API endpoints
+
+**Monitoring & Alerts:**
+- Email notifications for scheduled import status
+- Detailed error reporting and logging
+- Import history with searchable audit trails
+- Performance metrics and execution tracking
+
+### Best Practices
+
+**CSV File Preparation:**
+- Use UTF-8 encoding to support international characters
+- Include header row with exact column names
+- Validate data before upload (email formats, required fields)
+- Test with small batches before large imports
+
+**Scheduled Import Setup:**
+- Start with manual testing before scheduling
+- Use appropriate scheduling frequency (avoid overloading systems)
+- Set up monitoring notifications
+- Regularly review import logs and performance
+
+**Data Management:**
+- Regular backups before large imports
+- Use preview mode for all significant changes
+- Document import schedules and data sources
+- Monitor for data quality issues
+
+---
+
+## Built with ❤️ for enterprise performance management

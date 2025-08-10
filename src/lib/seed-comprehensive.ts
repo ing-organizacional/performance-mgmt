@@ -32,66 +32,66 @@ const hashPassword = async (password: string) => {
 //   // Total: 40
 // }
 
-// Popular movie/TV characters organized by department
+// Popular movie/TV characters organized by department with hospitality positions
 const employeeData = {
   'HR': {
-    manager: { name: 'Miranda Priestly', email: 'miranda.priestly@demo.com' }, // The Devil Wears Prada
+    manager: { name: 'Miranda Priestly', email: 'miranda.priestly@demo.com', position: 'HR Director' }, // The Devil Wears Prada
     employees: [
-      { name: 'Pam Beesly', email: 'pam.beesly@demo.com' }, // The Office
-      { name: 'Toby Flenderson', email: 'toby.flenderson@demo.com' } // The Office
+      { name: 'Pam Beesly', email: 'pam.beesly@demo.com', position: 'HR Coordinator' }, // The Office
+      { name: 'Toby Flenderson', email: 'toby.flenderson@demo.com', position: 'HR Specialist' } // The Office
     ]
   },
   'Rooms': {
-    manager: { name: 'Basil Fawlty', email: 'basil.fawlty@demo.com' }, // Fawlty Towers
+    manager: { name: 'Basil Fawlty', email: 'basil.fawlty@demo.com', position: 'Rooms Division Manager' }, // Fawlty Towers
     employees: [
-      { name: 'Polly Sherman', email: 'polly.sherman@demo.com' },
-      { name: 'Manuel Garcia', email: 'manuel.garcia@demo.com' },
-      { name: 'Lorelai Gilmore', email: 'lorelai.gilmore@demo.com' }, // Gilmore Girls
-      { name: 'Michel Gerard', email: 'michel.gerard@demo.com' },
-      { name: 'Sookie St. James', email: 'sookie.stjames@demo.com' },
-      { name: 'Lane Kim', email: 'lane.kim@demo.com' },
-      { name: 'Kirk Gleason', email: 'kirk.gleason@demo.com' },
-      { name: 'Caesar Augustus', email: 'caesar.augustus@demo.com' },
-      { name: 'Jackson Belleville', email: 'jackson.belleville@demo.com' }
+      { name: 'Polly Sherman', email: 'polly.sherman@demo.com', position: 'Front Desk Supervisor' },
+      { name: 'Manuel Garcia', email: 'manuel.garcia@demo.com', position: 'Bellhop' },
+      { name: 'Lorelai Gilmore', email: 'lorelai.gilmore@demo.com', position: 'Guest Relations Manager' }, // Gilmore Girls
+      { name: 'Michel Gerard', email: 'michel.gerard@demo.com', position: 'Concierge' },
+      { name: 'Sookie St. James', email: 'sookie.stjames@demo.com', position: 'Front Desk Agent' },
+      { name: 'Lane Kim', email: 'lane.kim@demo.com', position: 'Reservations Agent' },
+      { name: 'Kirk Gleason', email: 'kirk.gleason@demo.com', position: 'Night Auditor' },
+      { name: 'Caesar Augustus', email: 'caesar.augustus@demo.com', position: 'Housekeeping Supervisor' },
+      { name: 'Jackson Belleville', email: 'jackson.belleville@demo.com', position: 'Room Attendant' }
     ]
   },
   'Food & Beverage': {
-    manager: { name: 'Gordon Ramsay', email: 'gordon.ramsay@demo.com' }, // Hell's Kitchen
+    manager: { name: 'Gordon Ramsay', email: 'gordon.ramsay@demo.com', position: 'F&B Director' }, // Hell's Kitchen
     employees: [
-      { name: 'Monica Geller', email: 'monica.geller@demo.com' }, // Friends
-      { name: 'Sanji Vinsmoke', email: 'sanji.vinsmoke@demo.com' }, // One Piece
-      { name: 'Bob Belcher', email: 'bob.belcher@demo.com' }, // Bob's Burgers
-      { name: 'Linda Belcher', email: 'linda.belcher@demo.com' },
-      { name: 'Tina Belcher', email: 'tina.belcher@demo.com' },
-      { name: 'SpongeBob SquarePants', email: 'spongebob.squarepants@demo.com' }, // SpongeBob
-      { name: 'Squidward Tentacles', email: 'squidward.tentacles@demo.com' },
-      { name: 'Patrick Star', email: 'patrick.star@demo.com' },
-      { name: 'Remy Linguini', email: 'remy.linguini@demo.com' }, // Ratatouille
-      { name: 'Colette Tatou', email: 'colette.tatou@demo.com' },
-      { name: 'Auguste Gusteau', email: 'auguste.gusteau@demo.com' }
+      { name: 'Monica Geller', email: 'monica.geller@demo.com', position: 'Executive Chef' }, // Friends
+      { name: 'Sanji Vinsmoke', email: 'sanji.vinsmoke@demo.com', position: 'Sous Chef' }, // One Piece
+      { name: 'Bob Belcher', email: 'bob.belcher@demo.com', position: 'Line Cook' }, // Bob's Burgers
+      { name: 'Linda Belcher', email: 'linda.belcher@demo.com', position: 'Restaurant Supervisor' },
+      { name: 'Tina Belcher', email: 'tina.belcher@demo.com', position: 'Server' },
+      { name: 'SpongeBob SquarePants', email: 'spongebob.squarepants@demo.com', position: 'Prep Cook' }, // SpongeBob
+      { name: 'Squidward Tentacles', email: 'squidward.tentacles@demo.com', position: 'Cashier' },
+      { name: 'Patrick Star', email: 'patrick.star@demo.com', position: 'Dishwasher' },
+      { name: 'Remy Linguini', email: 'remy.linguini@demo.com', position: 'Pastry Chef' }, // Ratatouille
+      { name: 'Colette Tatou', email: 'colette.tatou@demo.com', position: 'Bartender' },
+      { name: 'Auguste Gusteau', email: 'auguste.gusteau@demo.com', position: 'Sommelier' }
     ]
   },
   'Finance': {
-    manager: { name: 'Ben Wyatt', email: 'ben.wyatt@demo.com' }, // Parks and Recreation
+    manager: { name: 'Ben Wyatt', email: 'ben.wyatt@demo.com', position: 'Finance Director' }, // Parks and Recreation
     employees: [
-      { name: 'Angela Martin', email: 'angela.martin@demo.com' }, // The Office
-      { name: 'Oscar Martinez', email: 'oscar.martinez@demo.com' },
-      { name: 'Kevin Malone', email: 'kevin.malone@demo.com' },
-      { name: 'Cyril Figgis', email: 'cyril.figgis@demo.com' }, // Archer
-      { name: 'Ted Mosby', email: 'ted.mosby@demo.com' }, // HIMYM
-      { name: 'Barney Stinson', email: 'barney.stinson@demo.com' }
+      { name: 'Angela Martin', email: 'angela.martin@demo.com', position: 'Senior Accountant' }, // The Office
+      { name: 'Oscar Martinez', email: 'oscar.martinez@demo.com', position: 'Financial Analyst' },
+      { name: 'Kevin Malone', email: 'kevin.malone@demo.com', position: 'Accounts Payable Clerk' },
+      { name: 'Cyril Figgis', email: 'cyril.figgis@demo.com', position: 'Budget Analyst' }, // Archer
+      { name: 'Ted Mosby', email: 'ted.mosby@demo.com', position: 'Cost Accountant' }, // HIMYM
+      { name: 'Barney Stinson', email: 'barney.stinson@demo.com', position: 'Revenue Manager' }
     ]
   },
   'Maintenance': {
-    manager: { name: 'Mike Ehrmantraut', email: 'mike.ehrmantraut@demo.com' }, // Breaking Bad
+    manager: { name: 'Mike Ehrmantraut', email: 'mike.ehrmantraut@demo.com', position: 'Facilities Manager' }, // Breaking Bad
     employees: [
-      { name: 'Janitor Glenn', email: 'janitor.glenn@demo.com' }, // Scrubs
-      { name: 'Carl Reed', email: 'carl.reed@demo.com' }, // The Simpsons
-      { name: 'Scruffy Scruffington', email: 'scruffy.scruffington@demo.com' }, // Futurama
-      { name: 'Charlie Kelly', email: 'charlie.kelly@demo.com' }, // Always Sunny
-      { name: 'Frank Reynolds', email: 'frank.reynolds@demo.com' },
-      { name: 'Argus Filch', email: 'argus.filch@demo.com' }, // Harry Potter
-      { name: 'Willie MacDougal', email: 'willie.macdougal@demo.com' } // The Simpsons
+      { name: 'Janitor Glenn', email: 'janitor.glenn@demo.com', position: 'Head Janitor' }, // Scrubs
+      { name: 'Carl Reed', email: 'carl.reed@demo.com', position: 'HVAC Technician' }, // The Simpsons
+      { name: 'Scruffy Scruffington', email: 'scruffy.scruffington@demo.com', position: 'Maintenance Technician' }, // Futurama
+      { name: 'Charlie Kelly', email: 'charlie.kelly@demo.com', position: 'General Maintenance' }, // Always Sunny
+      { name: 'Frank Reynolds', email: 'frank.reynolds@demo.com', position: 'Plumber' },
+      { name: 'Argus Filch', email: 'argus.filch@demo.com', position: 'Security Guard' }, // Harry Potter
+      { name: 'Willie MacDougal', email: 'willie.macdougal@demo.com', position: 'Groundskeeper' } // The Simpsons
     ]
   }
 }
@@ -130,6 +130,7 @@ async function seed() {
     data: {
       email: employeeData.HR.manager.email,
       name: employeeData.HR.manager.name,
+      position: employeeData.HR.manager.position,
       passwordHash: hashedPassword,
       role: 'hr', // HR role - can manage all evaluations
       department: 'HR',
@@ -162,6 +163,7 @@ async function seed() {
       data: {
         email: data.manager.email,
         name: data.manager.name,
+        position: data.manager.position,
         passwordHash: hashedPassword,
         role: 'manager',
         department: dept,
@@ -183,6 +185,7 @@ async function seed() {
         data: {
           email: emp.email,
           name: emp.name,
+          position: emp.position,
           passwordHash: hashedPassword,
           role: 'employee',
           department: dept,
