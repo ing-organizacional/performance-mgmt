@@ -39,7 +39,7 @@ export default function MyEvaluationsClient({ evaluations, userName, activeCycle
   const getStatusText = (status: string) => {
     switch (status) {
       case 'draft': return t.status.draft
-      case 'submitted': return t.nav.awaitingYourApproval
+      case 'submitted': return t.evaluations.awaitingEmployeeApproval
       case 'completed': return t.status.completed
       default: return status.charAt(0).toUpperCase() + status.slice(1)
     }
@@ -53,15 +53,17 @@ export default function MyEvaluationsClient({ evaluations, userName, activeCycle
     return t.nav.performanceNeedsWork                                // 1-1.4: Needs Work
   }
 
-  const getRatingStars = (rating: number | null) => {
-    if (!rating) return <span className="text-gray-400">{t.ratings.notRated}</span>
+  const getRatingStars = (rating: number | null, size: 'small' | 'large' = 'small') => {
+    if (!rating) return <span className="text-gray-400 text-base font-medium">{t.ratings.notRated}</span>
+    
+    const starSize = size === 'large' ? 'w-6 h-6' : 'w-5 h-5'
     
     return (
       <div className="flex">
         {[1, 2, 3, 4, 5].map((star) => (
           <svg
             key={star}
-            className={`w-4 h-4 ${star <= rating ? 'text-yellow-400' : 'text-gray-300'}`}
+            className={`${starSize} ${star <= rating ? 'text-yellow-500' : 'text-gray-300'}`}
             fill="currentColor"
             viewBox="0 0 20 20"
           >
@@ -74,17 +76,18 @@ export default function MyEvaluationsClient({ evaluations, userName, activeCycle
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
+      {/* Mobile-First Header */}
       <div className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-20">
-        <div className="px-4 py-3">
+        <div className="px-4 py-4">
           {/* Title Section */}
-          <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3 min-w-0 flex-1">
               {/* Back button only visible for HR and managers, not employees */}
               {userRole !== 'employee' && (
                 <button
                   onClick={() => router.back()}
-                  className="p-2 -ml-2 text-gray-600 hover:text-gray-900"
+                  className="flex items-center justify-center min-w-[44px] min-h-[44px] p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg active:scale-95 transition-all duration-150 touch-manipulation"
+                  aria-label={t.common.back}
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -92,40 +95,74 @@ export default function MyEvaluationsClient({ evaluations, userName, activeCycle
                 </button>
               )}
               <div className="min-w-0 flex-1">
-                <h1 className="text-lg font-semibold text-gray-900 truncate">{t.nav.myEvaluations}</h1>
-                <p className="text-xs text-gray-500 truncate">
+                <h1 className="text-xl font-bold text-gray-900 truncate">{t.nav.myEvaluations}</h1>
+                <p className="text-sm text-gray-600 truncate">
                   {t.nav.welcomeBack}, {userName}
                 </p>
               </div>
             </div>
-            <button
-              onClick={() => signOut({ callbackUrl: '/login' })}
-              className="flex items-center justify-center w-9 h-9 bg-red-600 text-white rounded-lg hover:bg-red-700 active:scale-95 transition-all duration-150 touch-manipulation ml-3"
-              title={t.auth.signOut}
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => router.push('/settings')}
+                className="flex items-center justify-center min-w-[44px] min-h-[44px] bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 active:scale-95 transition-all duration-150 touch-manipulation"
+                title={t.settings?.profile || 'Settings'}
+                aria-label={t.settings?.profile || 'Settings'}
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+              </button>
+              <button
+                onClick={() => signOut({ callbackUrl: '/login' })}
+                className="flex items-center justify-center min-w-[44px] min-h-[44px] bg-red-500 text-white rounded-lg hover:bg-red-600 active:scale-95 transition-all duration-150 touch-manipulation shadow-sm"
+                aria-label={t.auth.signOut}
+              >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
               </svg>
             </button>
+          </div>
           </div>
           
           {/* Actions Section */}
           <div className="flex items-center justify-between">
             <div className="opacity-50 pointer-events-none">
-              <span className="text-xs text-gray-500">{t.nav.performanceHistory}</span>
+              <span className="text-sm text-gray-500">{t.nav.performanceHistory}</span>
             </div>
             <LanguageSwitcher />
           </div>
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="px-4 py-6 space-y-6">
-        {/* Current Status */}
-        <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-gray-900">{t.nav.currentPeriod}</h2>
-            <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+      {/* Mobile-First Main Content */}
+      <div className="px-4 py-4 space-y-4">
+        {/* Show notification for evaluations awaiting acceptance - moved to top */}
+        {evaluations.filter(e => e.status === 'submitted').length > 0 && (
+          <div className="bg-amber-50 border border-amber-200 rounded-xl p-5">
+            <div className="flex items-start gap-3">
+              <div className="flex-shrink-0">
+                <AlertTriangle className="w-6 h-6 text-amber-500" />
+              </div>
+              <div className="flex-1">
+                <p className="text-base text-amber-700 leading-relaxed">
+                  {(() => {
+                    const count = evaluations.filter(e => e.status === 'submitted').length;
+                    return count === 1 
+                      ? `You have ${count} ${t.evaluations.evaluationAwaitingApproval} that needs your acceptance.`
+                      : `You have ${count} ${t.evaluations.evaluationsAwaitingApproval} that need your acceptance.`;
+                  })()}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Current Status Card */}
+        <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-bold text-gray-900">{t.nav.currentPeriod}</h2>
+            <span className={`px-3 py-1.5 rounded-lg text-sm font-semibold ${
               activeCycle 
                 ? activeCycle.status === 'active' 
                   ? 'bg-green-100 text-green-800' 
@@ -223,18 +260,31 @@ export default function MyEvaluationsClient({ evaluations, userName, activeCycle
                   <p className="text-gray-600 mb-4">
                     {t.nav.latestPerformanceEvaluation}
                   </p>
-                  <div className="flex items-center justify-center mb-2">
-                    {getRatingStars(latestEvaluation.overallRating)}
-                    <span className="ml-2 text-sm font-medium text-gray-700">
-                      {latestEvaluation.overallRating === 1 && t.ratings.needsImprovement}
-                      {latestEvaluation.overallRating === 2 && t.ratings.belowExpectations}
-                      {latestEvaluation.overallRating === 3 && t.ratings.meetsExpectations}
-                      {latestEvaluation.overallRating === 4 && t.ratings.exceedsExpectations}
-                      {latestEvaluation.overallRating === 5 && t.ratings.outstanding}
-                    </span>
+                  <div className="mb-4">
+                    <div className="flex items-center justify-center gap-3 mb-3">
+                      {getRatingStars(latestEvaluation.overallRating, 'large')}
+                      <span className="text-lg font-bold text-gray-900">
+                        ({latestEvaluation.overallRating}/5)
+                      </span>
+                    </div>
+                    <div className="flex justify-center">
+                      <div className={`inline-flex items-center px-4 py-2 rounded-lg font-semibold text-base ${
+                        latestEvaluation.overallRating === 1 ? 'bg-red-100 text-red-700' :
+                        latestEvaluation.overallRating === 2 ? 'bg-amber-100 text-amber-700' :
+                        latestEvaluation.overallRating === 3 ? 'bg-gray-100 text-gray-700' :
+                        latestEvaluation.overallRating === 4 ? 'bg-blue-100 text-blue-700' :
+                        'bg-green-100 text-green-700'
+                      }`}>
+                        {latestEvaluation.overallRating === 1 && t.ratings.needsImprovement}
+                        {latestEvaluation.overallRating === 2 && t.ratings.belowExpectations}
+                        {latestEvaluation.overallRating === 3 && t.ratings.meetsExpectations}
+                        {latestEvaluation.overallRating === 4 && t.ratings.exceedsExpectations}
+                        {latestEvaluation.overallRating === 5 && t.ratings.outstanding}
+                      </div>
+                    </div>
                   </div>
-                  <p className="text-sm text-gray-500">
-                    {t.nav.reviewedBy} {latestEvaluation.managerName}
+                  <p className="text-base text-gray-600">
+                    {t.nav.reviewedBy} <span className="font-semibold">{latestEvaluation.managerName}</span>
                   </p>
                 </div>
               )
@@ -247,7 +297,7 @@ export default function MyEvaluationsClient({ evaluations, userName, activeCycle
                     <Clock className="w-16 h-16 mx-auto text-amber-500" />
                   </div>
                   <h3 className="text-lg font-medium text-gray-900 mb-2">
-                    {t.nav.awaitingYourApproval}
+                    {t.evaluations.awaitingEmployeeApproval}
                   </h3>
                   <p className="text-gray-600 mb-4">
                     {t.nav.managerSubmittedEvaluation}
@@ -295,34 +345,34 @@ export default function MyEvaluationsClient({ evaluations, userName, activeCycle
 
         {/* Evaluation History */}
         {evaluations.filter(e => e.status !== 'draft').length > 0 && (
-          <div className="bg-white rounded-lg border border-gray-200 shadow-sm">
-            <div className="px-6 py-4 border-b border-gray-200">
-              <h2 className="text-lg font-semibold text-gray-900">{t.nav.evaluationHistory}</h2>
+          <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
+            <div className="px-6 py-5 border-b border-gray-200">
+              <h2 className="text-xl font-bold text-gray-900">{t.nav.evaluationHistory}</h2>
             </div>
             
             <div className="divide-y divide-gray-200">
               {evaluations.filter(e => e.status !== 'draft').map((evaluation) => (
-              <div key={evaluation.id} className="px-6 py-4 hover:bg-gray-50 transition-colors">
-                <div className="flex items-center justify-between">
+              <div key={evaluation.id} className="px-6 py-5 hover:bg-gray-50 transition-colors">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                   <div className="flex-1 min-w-0">
-                    <div className="mb-2">
-                      <h3 className="text-base font-medium text-gray-900">
+                    <div className="mb-3">
+                      <h3 className="text-lg font-bold text-gray-900">
                         {evaluation.period}
                       </h3>
                     </div>
                     
-                    <div className="mt-2 flex items-center">
+                    <div className="mb-3 flex items-center gap-3">
                       <div className="flex items-center">
                         {getRatingStars(evaluation.overallRating)}
                         {evaluation.overallRating && (
-                          <span className="ml-2 text-sm text-gray-600">
+                          <span className="ml-2 text-base font-semibold text-gray-700">
                             ({evaluation.overallRating}/5)
                           </span>
                         )}
                       </div>
                     </div>
                     
-                    <p className="text-sm text-gray-500 mt-1">
+                    <p className="text-base text-gray-600">
                       {t.nav.evaluatedBy
                         .replace('{manager}', evaluation.managerName)
                         .replace('{date}', evaluation.submittedAt ? new Date(evaluation.submittedAt).toLocaleDateString() : '')
@@ -330,15 +380,15 @@ export default function MyEvaluationsClient({ evaluations, userName, activeCycle
                     </p>
                   </div>
                   
-                  <div className="ml-4 flex items-center gap-2">
+                  <div className="flex items-center gap-3">
                     {evaluation.status === 'submitted' && (
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(evaluation.status)}`}>
+                      <span className={`px-3 py-1.5 rounded-lg text-sm font-semibold ${getStatusColor(evaluation.status)}`}>
                         {getStatusText(evaluation.status)}
                       </span>
                     )}
                     <button 
                       onClick={() => router.push(`/evaluation-summary/${evaluation.id}`)}
-                      className="px-3 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded-lg hover:bg-blue-200 transition-colors"
+                      className="px-4 py-2.5 min-h-[44px] bg-primary text-white text-sm font-semibold rounded-lg hover:bg-primary/90 active:scale-95 transition-all duration-150 touch-manipulation shadow-sm"
                     >
                       {t.nav.viewDetails}
                     </button>
@@ -384,29 +434,6 @@ export default function MyEvaluationsClient({ evaluations, userName, activeCycle
             </p>
           </div>
         </div>
-        )}
-        
-        {/* Show notification for evaluations awaiting approval */}
-        {evaluations.filter(e => e.status === 'submitted').length > 0 && (
-          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-            <div className="flex">
-              <div className="flex-shrink-0">
-                <svg className="h-5 w-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                </svg>
-              </div>
-              <div className="ml-3">
-                <p className="text-sm text-yellow-700">
-                  {(() => {
-                    const count = evaluations.filter(e => e.status === 'submitted').length;
-                    return count === 1 
-                      ? `${t.common.you} ${count} ${t.evaluations.evaluationAwaitingApproval}.`
-                      : `${t.common.you} ${count} ${t.evaluations.evaluationsAwaitingApproval}.`;
-                  })()}
-                </p>
-              </div>
-            </div>
-          </div>
         )}
       </div>
     </div>
