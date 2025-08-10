@@ -220,7 +220,7 @@ async function verifyBiometricSignature(
   signature: string,
   authenticatorData: string,
   clientDataJSON: string,
-  _expectedCounter?: number
+  _expectedCounter?: number // eslint-disable-line @typescript-eslint/no-unused-vars -- Reserved for future counter verification implementation
 ): Promise<boolean> {
   // This is a simplified implementation
   // In production, you would:

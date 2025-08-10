@@ -98,6 +98,16 @@ yarn tsc --noEmit && yarn lint
 - **Performance Analytics**: Rating distributions and trends
 - **Audit Reports**: Complete change tracking and compliance
 
+### CSV Import & Data Management
+
+- **Manual CSV Import**: Multi-step workflow with preview and validation
+- **Scheduled Imports**: Automated imports from external systems (HRIS, APIs, URLs)
+- **Enterprise Features**: Upsert operations, audit logging, rollback capability
+- **Data Sources**: Support for URL/HTTP, REST APIs, SFTP (coming soon)
+- **Preview Mode**: Review all changes before execution
+- **Error Recovery**: Detailed validation with selective fixes
+- **Notification System**: Email alerts for import success/failure
+
 ## 🔒 Security Features
 
 - **WebAuthn/FIDO2**: Face ID, Touch ID, Fingerprint authentication
@@ -111,7 +121,7 @@ yarn tsc --noEmit && yarn lint
 
 ## 📊 Database Schema
 
-**9 Core Tables:**
+**10 Core Tables:**
 
 - `Company` - Multi-tenant root with isolation
 - `User` - Employee data with role hierarchy
@@ -122,6 +132,7 @@ yarn tsc --noEmit && yarn lint
 - `PartialAssessment` - Granular rating tracking
 - `AuditLog` - Complete change history
 - `BiometricCredential` - WebAuthn credential storage
+- `ScheduledImport` - Automated CSV import configuration
 
 ## 🚀 Getting Started
 
@@ -302,6 +313,8 @@ src/
 - `cycles.ts` - Performance cycle management
 - `team.ts` - Team data with 5-minute caching
 - `biometric.ts` - WebAuthn credential management
+- `csv-import.ts` - Enterprise CSV import with preview/execute
+- `scheduled-import.ts` - Automated import scheduling
 
 ### REST API Endpoints (Legacy)
 
@@ -323,6 +336,263 @@ For issues and questions:
 ## 📄 License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
+
+---
+
+## 📥 Enterprise CSV Import System
+
+### Overview
+
+The **Enterprise CSV Import System** provides comprehensive data management capabilities for HR teams to efficiently manage employee data with enterprise-grade features including preview, validation, upsert operations, audit logging, and automated scheduling.
+
+### Manual CSV Import Features
+
+**Multi-Step Workflow:**
+
+1. **Upload & Validation** - Drag & drop CSV files with instant validation
+2. **Preview Changes** - Review all create/update operations before execution
+3. **Configuration** - Choose update strategies and validation rules
+4. **Execution** - Process imports with detailed progress tracking
+5. **Completion** - View results with rollback options
+
+**Enterprise Capabilities:**
+
+- **Upsert Operations**: Create new users and update existing ones intelligently
+- **Preview Mode**: See exactly what changes will be made before committing
+- **Selective Updates**: Choose which fields to update for existing users
+- **Error Recovery**: Detailed validation with actionable error messages
+- **Audit Logging**: Complete tracking of who imported what and when
+- **Rollback Support**: Undo imports if needed with full change history
+
+**Data Validation:**
+
+- Required fields validation (name, email/username, role)
+- Email format and uniqueness checking
+- Role validation against system roles
+- Manager relationship validation
+- Company code and department validation
+- Employee ID and Person ID uniqueness
+
+### Scheduled Imports
+
+**Automated Data Sync:**
+
+- **Multiple Data Sources**: URL/HTTP endpoints, REST APIs, SFTP servers
+- **Flexible Scheduling**: Daily, weekly, monthly with timezone support
+- **Authentication Support**: Basic Auth, Bearer tokens, API keys
+- **Notification System**: Email alerts for success/failure status
+- **Error Handling**: Automatic retry and detailed error reporting
+
+**Configuration Options:**
+
+```typescript
+{
+  name: "Daily HRIS Sync",
+  schedule: {
+    frequency: "daily",
+    time: "09:00",
+    timezone: "America/New_York"
+  },
+  source: {
+    type: "url",
+    url: "https://hris.company.com/employees.csv",
+    credentials: {
+      apiKey: "your-api-key"
+    }
+  },
+  importOptions: {
+    updateExisting: true,
+    createNew: true,
+    notificationEmails: ["hr@company.com"]
+  }
+}
+```
+
+### Usage Guide
+
+#### Manual Import Process
+
+1. **Access the Import System**
+   ```
+   Navigate to: /users/advanced → Manual Import tab
+   ```
+
+2. **Upload CSV File**
+   - Drag & drop or click to select CSV file
+   - System validates format and required columns
+   - View any validation errors immediately
+
+3. **Preview Changes**
+   - Review all users to be created (green rows)
+   - Review all users to be updated (blue rows)
+   - See validation errors for problematic rows (red rows)
+   - Verify manager relationships and department assignments
+
+4. **Configure Import Options**
+   - Choose whether to update existing users
+   - Choose whether to create new users
+   - Select which fields to update for existing users
+   - Set password requirements for new users
+
+5. **Execute Import**
+   - Click "Execute Import" to process changes
+   - Monitor progress with detailed status updates
+   - Review final results with creation/update counts
+
+6. **Post-Import Actions**
+   - View import history and audit logs
+   - Use rollback feature if changes need to be undone
+   - Export results for documentation
+
+#### Scheduled Import Setup
+
+1. **Create New Schedule**
+   ```
+   Navigate to: /users/advanced → Scheduled Imports tab → Create Schedule
+   ```
+
+2. **Basic Configuration**
+   - **Name**: "Daily HRIS Sync"
+   - **Description**: Optional description for the import
+   - **Schedule**: Set frequency, time, and timezone
+
+3. **Data Source Setup**
+   - **URL Source**: Direct HTTP/HTTPS endpoints
+   - **API Source**: REST APIs with JSON-to-CSV conversion
+   - **SFTP Source**: Secure file transfer (coming soon)
+   - **Authentication**: Username/password, API keys, bearer tokens
+
+4. **Import Options**
+   - Configure same upsert options as manual imports
+   - Set up email notifications for success/failure
+   - Choose validation levels and error handling
+
+5. **Activation & Monitoring**
+   - Enable the scheduled import
+   - Monitor execution history and status
+   - Receive email notifications for each run
+   - View detailed logs and error reports
+
+### CSV Format Requirements
+
+**Required Columns:**
+```csv
+name,email,role,department,position
+```
+
+**Complete Format Example:**
+```csv
+name,email,username,role,department,userType,employeeId,personID,managerPersonID,managerEmployeeId,companyCode,position,shift,password
+John Doe,john@company.com,johndoe,employee,Engineering,office,EMP001,ID123456,MGR789,EMP100,COMP01,Software Engineer,Day,temporaryPass123
+Jane Smith,jane@company.com,janesmith,manager,Engineering,office,EMP100,ID789012,,,,Engineering Manager,Day,temporaryPass456
+```
+
+**Optional Fields:**
+- `username` - For PIN-based authentication users
+- `employeeId` - Company employee number
+- `personID` - National ID number
+- `managerPersonID` - Manager's national ID for relationship mapping
+- `managerEmployeeId` - Manager's employee ID for relationship mapping
+- `companyCode` - Company identifier (defaults to user's company)
+- `position` - Job title
+- `shift` - Work shift information
+- `password` - Temporary password (auto-generated if not provided)
+
+### Technical Implementation
+
+#### Server Actions
+
+**Manual Import Actions:**
+```typescript
+// Preview import before execution
+const preview = await previewCSVImport(formData, options)
+
+// Execute the actual import
+const result = await executeCSVImport(formData, options)
+
+// View import history
+const history = await getImportHistory()
+
+// Rollback a previous import
+const rollback = await rollbackImport(importId)
+```
+
+**Scheduled Import Actions:**
+```typescript
+// Create new scheduled import
+const schedule = await createScheduledImport(config)
+
+// Update existing schedule
+const updated = await updateScheduledImport(id, changes)
+
+// Execute schedule manually
+const result = await executeScheduledImport(id)
+
+// Get all schedules
+const schedules = await getScheduledImports()
+```
+
+#### Database Schema
+
+**ScheduledImport Table:**
+```sql
+CREATE TABLE ScheduledImport (
+  id           TEXT PRIMARY KEY,
+  companyId    TEXT NOT NULL,
+  name         TEXT NOT NULL,
+  description  TEXT,
+  enabled      BOOLEAN DEFAULT true,
+  schedule     JSON NOT NULL,  -- {frequency, time, timezone}
+  source       JSON NOT NULL,  -- {type, url, credentials}
+  importOptions JSON NOT NULL, -- {updateExisting, createNew, notifications}
+  lastRun      DATETIME,
+  nextRun      DATETIME,
+  status       TEXT DEFAULT 'active',
+  errorMessage TEXT,
+  createdBy    TEXT NOT NULL,
+  createdAt    DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+### Security & Compliance
+
+**Data Protection:**
+- All imports are company-isolated (multi-tenant safe)
+- Credentials stored securely with encryption
+- Audit logs track all import activities
+- Role-based access (HR only)
+
+**Validation & Safety:**
+- Comprehensive input validation with Zod schemas
+- Preview-first approach prevents accidental data corruption
+- Rollback capability for error recovery
+- Rate limiting on API endpoints
+
+**Monitoring & Alerts:**
+- Email notifications for scheduled import status
+- Detailed error reporting and logging
+- Import history with searchable audit trails
+- Performance metrics and execution tracking
+
+### Best Practices
+
+**CSV File Preparation:**
+- Use UTF-8 encoding to support international characters
+- Include header row with exact column names
+- Validate data before upload (email formats, required fields)
+- Test with small batches before large imports
+
+**Scheduled Import Setup:**
+- Start with manual testing before scheduling
+- Use appropriate scheduling frequency (avoid overloading systems)
+- Set up monitoring notifications
+- Regularly review import logs and performance
+
+**Data Management:**
+- Regular backups before large imports
+- Use preview mode for all significant changes
+- Document import schedules and data sources
+- Monitor for data quality issues
 
 ---
 
