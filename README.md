@@ -126,7 +126,7 @@ yarn tsc --noEmit && yarn lint
 - `Company` - Multi-tenant root with isolation
 - `User` - Employee data with role hierarchy
 - `Evaluation` - Performance evaluation records
-- `EvaluationItem` - OKR/Competency definitions
+- `EvaluationItem` - OKR/Competency definitions (company/department levels only)
 - `EvaluationItemAssignment` - Individual assignments
 - `PerformanceCycle` - Time-based evaluation periods
 - `PartialAssessment` - Granular rating tracking
@@ -315,14 +315,14 @@ src/
 - `biometric.ts` - WebAuthn credential management
 - `csv-import.ts` - Enterprise CSV import with preview/execute
 - `scheduled-import.ts` - Automated import scheduling
+- `admin.ts` - Admin operations (database reset via Server Actions)
 
-### REST API Endpoints (Legacy)
+### REST API Endpoints (Minimal)
 
 - `GET /api/health` - System health check
 - `POST /api/auth/[...nextauth]` - NextAuth handlers
-- `GET /api/evaluation-items` - Evaluation item management
-- `POST /api/admin/import` - CSV user import
-- `POST /api/admin/reset-database` - Database reset (dev only)
+- `POST /api/auth/update-last-login` - Login timestamp tracking
+- `GET/PUT /api/evaluation-items` - Evaluation item management (2 endpoints)
 
 ## 🤝 Support
 

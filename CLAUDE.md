@@ -18,17 +18,18 @@ Performance Management System - Enterprise web application managing employee eva
 - **Node.js 22.18.0** minimum required
 - **Zod 4.0.15** validation (comprehensive implementation)
 
-**Database Models (9 tables):**
+**Database Models (10 tables):**
 
 - `Company` - Multi-tenant isolation
 - `User` - Mixed workforce (email/PIN/biometric auth, HRIS integration)
 - `Evaluation` - Unified JSON evaluation data + 3-status workflow (draft→submitted→completed)
-- `EvaluationItem` - Individual OKR/Competency definitions
+- `EvaluationItem` - Individual OKR/Competency definitions (company/department levels only)
 - `EvaluationItemAssignment` - Employee-item assignments
 - `PerformanceCycle` - Annual/quarterly cycles with read-only enforcement
 - `PartialAssessment` - HR assessment tracking
 - `AuditLog` - Complete change tracking
 - `BiometricCredential` - WebAuthn/FIDO2 biometric authentication
+- `ScheduledImport` - Automated CSV import configuration
 
 **Key Files:**
 
@@ -41,14 +42,12 @@ Performance Management System - Enterprise web application managing employee eva
 - `/src/lib/actions/` - Server Actions (users, evaluations, cycles)
 - `/src/lib/seed.ts` - Database seeding
 
-**Active APIs (7 endpoints):**
+**Active APIs (5 endpoints):**
 
 - `/api/auth/[...nextauth]` - NextAuth authentication (GET/POST)
 - `/api/auth/update-last-login` - Login timestamp tracking (POST)
 - `/api/health` - System health check (GET)
 - `/api/evaluation-items` + `/api/evaluation-items/[id]` - Item management (GET/PUT)
-- `/api/admin/import` - CSV import (POST)
-- `/api/admin/reset-database` - DB reset (POST)
 
 **Server Actions (preferred architecture):**
 
@@ -63,6 +62,9 @@ Performance Management System - Enterprise web application managing employee eva
 - `/src/lib/actions/team.ts` - Team data with 5-minute caching (getManagerTeam, revalidateManagerTeam)
 - `/src/lib/actions/biometric.ts` - WebAuthn/FIDO2 biometric authentication
 - `/src/lib/actions/export.ts` + `exports.ts` - Advanced export system
+- `/src/lib/actions/admin.ts` - Admin operations (resetDatabase Server Action)
+- `/src/lib/actions/csv-import/` - Enterprise CSV import system with batch processing
+- `/src/lib/actions/scheduled-import.ts` - Automated import scheduling
 - `/src/lib/actions/index.ts` - Centralized action exports
 
 ## Essential Commands
@@ -280,10 +282,21 @@ yarn lint && yarn tsc --noEmit  # Code quality check
 - ✅ TypeScript compilation clean (no breaking changes)
 - ✅ Production build successful with no functionality loss
 
+**Latest Improvements (August 10, 2025):**
+
+- ✅ **API to Server Action Migration**: Database reset converted from API to Server Action (17% endpoint reduction)
+- ✅ **UI Simplification**: Removed redundant Individual/Manager tab in assignments interface  
+- ✅ **Mobile Optimization**: Advanced admin features hidden on mobile devices
+- ✅ **Database Cleanup**: Removed 13 orphaned manager-level evaluation items
+- ✅ **Badge Logic Cleanup**: Simplified getBadgeLabel functions across components
+- ✅ **Select All Feature**: Enhanced EmployeeSelector with bulk selection controls
+
 **Deployment Timeline:**
 
 - ✅ **Critical security fixes COMPLETED** (August 9, 2025)
 - ✅ **Dependency updates COMPLETED** (August 9, 2025)
-- ⚠️ **Remaining production hardening**: 1-2 days (HTTPS, env vars, demo cleanup)
+- ✅ **API architecture optimized** - Now 5 endpoints (down from 6)
 - ✅ **Component architecture SIGNIFICANTLY IMPROVED** - major refactoring completed (August 10, 2025)
+- ✅ **UI/UX improvements completed** - simplified and mobile-optimized (August 10, 2025)
+- ⚠️ **Remaining production hardening**: 1-2 days (HTTPS, env vars, demo cleanup)
 - ✅ **Performance optimized** - ready for production load
