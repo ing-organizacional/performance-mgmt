@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { PDFExportCenter } from '@/components/features/dashboard'
 import { useLanguage } from '@/contexts/LanguageContext'
 import type { EvaluationCycle } from '@/types'
@@ -91,6 +91,20 @@ export default function DashboardClient({
 }: DashboardClientProps) {
   const { t } = useLanguage()
   const [isExportCenterOpen, setIsExportCenterOpen] = useState(false)
+  const [currentTime, setCurrentTime] = useState<string>('')
+
+  // Update time only on client-side to prevent hydration mismatch
+  useEffect(() => {
+    const updateTime = () => {
+      const now = new Date()
+      setCurrentTime(`${now.toLocaleDateString()} at ${now.toLocaleTimeString()}`)
+    }
+    
+    updateTime() // Set initial time
+    const interval = setInterval(updateTime, 60000) // Update every minute
+    
+    return () => clearInterval(interval)
+  }, [])
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20">
@@ -138,7 +152,7 @@ export default function DashboardClient({
           <div className="flex items-center justify-between">
             <div className="text-sm text-gray-600">
               <span className="font-medium">{t.dashboard.lastUpdated}: </span>
-              {new Date().toLocaleDateString()} at {new Date().toLocaleTimeString()}
+              {currentTime || 'Loading...'}
             </div>
             <div className="text-xs text-gray-500">
               © 2025 - <a 
