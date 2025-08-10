@@ -3,13 +3,59 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  
+  /* Primary Brand Colors */
+  --color-primary: #3b82f6;          /* Blue-500 - Main brand color */
+  --color-primary-hover: #2563eb;    /* Blue-600 - Hover states */
+  --color-primary-light: #dbeafe;    /* Blue-100 - Light backgrounds */
+  --color-primary-dark: #1d4ed8;     /* Blue-700 - Dark variants */
+  
+  /* Semantic Colors */
+  --color-success: #10b981;          /* Green-500 - Success states */
+  --color-success-light: #d1fae5;    /* Green-100 - Success backgrounds */
+  --color-success-dark: #047857;     /* Green-700 - Success text */
+  
+  --color-warning: #f59e0b;          /* Amber-500 - Warning states */
+  --color-warning-light: #fef3c7;    /* Amber-100 - Warning backgrounds */
+  --color-warning-dark: #d97706;     /* Amber-700 - Warning text */
+  
+  --color-error: #ef4444;            /* Red-500 - Error states */
+  --color-error-light: #fecaca;      /* Red-100 - Error backgrounds */
+  --color-error-dark: #dc2626;       /* Red-700 - Error text */
+  
+  /* Neutral Scale */
+  --color-gray-50: #f9fafb;          /* Light backgrounds */
+  --color-gray-100: #f3f4f6;         /* Subtle backgrounds */
+  --color-gray-200: #e5e7eb;         /* Borders */
+  --color-gray-300: #d1d5db;         /* Inactive elements */
+  --color-gray-400: #9ca3af;         /* Placeholders */
+  --color-gray-500: #6b7280;         /* Secondary text */
+  --color-gray-600: #4b5563;         /* Icons */
+  --color-gray-700: #374151;         /* Primary text alternative */
+  --color-gray-800: #1f2937;         /* Dark text */
+  --color-gray-900: #111827;         /* Primary text */
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  
+  /* Semantic Color Tokens for Tailwind */
+  --color-primary: var(--color-primary);
+  --color-primary-foreground: #ffffff;
+  --color-secondary: var(--color-gray-100);
+  --color-secondary-foreground: var(--color-gray-900);
+  --color-muted: var(--color-gray-100);
+  --color-muted-foreground: var(--color-gray-500);
+  --color-accent: var(--color-primary-light);
+  --color-accent-foreground: var(--color-primary-dark);
+  --color-destructive: var(--color-error);
+  --color-destructive-foreground: #ffffff;
+  --color-border: var(--color-gray-200);
+  --color-input: var(--color-gray-200);
+  --color-ring: var(--color-primary);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -22,5 +68,5 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
 }

@@ -1,5 +1,6 @@
 import { useLanguage } from '@/contexts/LanguageContext'
 import type { EditingItem } from '../types'
+import { Building2, User, Target, Star } from 'lucide-react'
 
 interface ItemEditorProps {
   editingItem: EditingItem | null
@@ -35,18 +36,18 @@ export function ItemEditor({
       case 'manager':
         return 'bg-yellow-100 text-yellow-700'
       default:
-        return 'bg-blue-100 text-blue-700'
+        return 'bg-primary/10 text-primary'
     }
   }
 
   const getBadgeIcon = (itemLevel: string) => {
     switch (itemLevel) {
       case 'department':
-        return '🏬'
+        return <Building2 className="h-4 w-4" />
       case 'manager':
-        return '👤'
+        return <User className="h-4 w-4" />
       default:
-        return '🏢'
+        return <Building2 className="h-4 w-4" />
     }
   }
 
@@ -66,10 +67,10 @@ export function ItemEditor({
       <div className="space-y-4">
         <div className="flex items-center space-x-3 mb-4">
           <span className="text-2xl">
-            {newItemType === 'okr' ? '🎯' : '⭐'}
+            {newItemType === 'okr' ? <Target className="h-6 w-6 text-primary" /> : <Star className="h-6 w-6 text-amber-500" />}
           </span>
           <div className="flex items-center space-x-2">
-            <span className="text-sm font-bold text-blue-700 uppercase tracking-wide">
+            <span className="text-sm font-bold text-primary uppercase tracking-wide">
               {newItemType === 'okr' ? t.evaluations.okr : t.evaluations.competency}
             </span>
             <span className={`text-xs px-2 py-1 rounded-full font-medium ${getBadgeStyles(level)}`}>

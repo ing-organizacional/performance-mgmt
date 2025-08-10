@@ -143,7 +143,7 @@ export default function DepartmentSelector({ onSelectionChange, companyId }: Dep
   if (loading) {
     return (
       <div className="flex items-center justify-center py-8">
-        <LoadingSpinner size="md" color="blue" />
+        <LoadingSpinner size="md" color="primary" />
         <span className="ml-3 text-sm text-gray-600">{t.common.loading}...</span>
       </div>
     )

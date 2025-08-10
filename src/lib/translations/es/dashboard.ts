@@ -25,9 +25,8 @@ export const dashboard: DashboardTranslations = {
   administrativeActions: 'Acciones Administrativas',
   generateReports: 'Generar Reportes',
   exportPDF: 'Exportar PDF',
-  pdfExportCenter: 'Descarga de reportes',
-  exportCenter: 'Centro de Exportación',
-  selectReportsToExport: 'Selecciona los reportes que deseas exportar',
+  pdfExportCenter: 'Centro de Reportes',
+  exportCenter: 'Centro de Reportes',
   selectReportsAndFormats: 'Elige reportes y formatos para exportar',
   companyOverview: 'Resumen de Empresa',
   allEmployeesAllDepartments: 'Todos los empleados de todos los departamentos',
@@ -74,11 +73,11 @@ export const dashboard: DashboardTranslations = {
   auditFilters: 'Filtros',
   allActions: 'Todas las Acciones',
   allTypes: 'Todos los Tipos',
-  clearFilters: 'Limpiar Filtros',
+  clearFilters: 'Limpiar',
   showDetails: 'Ver Detalles',
   hideDetails: 'Ocultar Detalles',
   auditDetails: 'Detalles del Registro',
-  exportExcel: 'Exportar Excel',
+  exportExcel: 'Exportar',
   showingOf: 'Mostrando',
   noAuditLogs: 'No se encontraron registros con los filtros aplicados',
   timestamp: 'Fecha y Hora',
@@ -218,5 +217,74 @@ export const dashboard: DashboardTranslations = {
   overdueItemsCount: 'elementos vencidos',
   daysOverdue: 'días vencidos',
   switchToEmployeeList: 'Lista Completa',
-  switchToManagerGroups: 'Agrupar por Jefatura'
+  switchToManagerGroups: 'Agrupar por Jefatura',
+  
+  // Export Center Modal
+  reportSelected: 'reporte seleccionado',
+  reportsSelectedPlural: 'reportes seleccionados',
+  selectReportsToExport: 'Seleccionar reportes para exportar',
+  selectEmployeesToExport: 'Seleccionar Empleados para Exportar:',
+  selectDepartmentsToExport: 'Seleccionar Departamentos para Exportar:',
+  employeesSelected: 'empleados seleccionados',
+  departmentsSelected: 'departamentos seleccionados',
+  selectReportsFirst: 'Seleccionar Reportes para Exportar',
+  selectEmployeesFirst: 'Seleccionar Empleados Primero',
+  selectDepartmentsFirst: 'Seleccionar Departamentos Primero',
+  exportFiles: 'Exportar {count} Archivo',
+  exportFilesPlural: 'Exportar {count} Archivos',
+  
+  // Administrative Actions Section
+  attentionRequired: 'Atención Requerida',
+  deadlines: 'Fechas Límite',
+  primaryManagement: 'Gestión Principal',
+  systemAdministration: 'Administración del Sistema',
+  monitoringAnalysis: 'Monitoreo y Análisis',
+  evaluationAssignments: 'Asignaciones de Evaluación',
+  manageOkrsCompetencies: 'Gestionar OKRs y Competencias',
+  generateReportsAnalysis: 'Generar reportes y análisis',
+  totalEmployeesHeader: 'Total de Empleados',
+  avgRatingHeader: 'Calificación Promedio',
+  noActivePerformanceCycle: 'Sin ciclo de desempeño activo',
+  
+  // Completion Status Card
+  clickToManagePending: 'Clic para gestionar evaluaciones pendientes',
+  completeStatus: 'Completo',
+  inProgressStatus: 'En Progreso',
+  
+  // Critical Actions
+  overdueEvaluationsCount: 'Evaluaciones Vencidas',
+  dueSoonCount: 'Por Vencer',
+  overdueText: 'vencidos',
+  daysOverdueText: 'días vencidos',
+  viewAllOverdue: 'Ver todos los {count} borradores vencidos →',
+  managerLabel: 'Jefatura',
+  
+  // Department Ratings specific
+  comprehensiveAnalysisDescription: 'Análisis integral de departamentos y métricas de desempeño',
+  requireImmediateAttention: 'Requieren atención inmediata',
+  total: 'total',
+  
+  // Pending Evaluations specific
+  employeeEvaluationManagement: 'Gestión de evaluaciones de empleados y seguimiento de progreso',
+  evaluationsFinished: 'Evaluaciones terminadas',
+  awaitingEvaluation: 'Esperando evaluación',
+  withPendingWork: 'Con trabajo pendiente',
+  employeeSingular: 'empleado',
+  employeesPlural: 'empleados',
+  awaitingEvaluationText: 'esperando evaluación',
+  reportsTo: 'Reporta a',
+  clearSearch: 'Limpiar búsqueda',
+  departmentsHeader: 'Departamentos',
+  pendingText: 'pendientes',
+  
+  // Action badges for audit logs
+  actionCreate: 'crear',
+  actionUpdate: 'actualizar', 
+  actionDelete: 'eliminar',
+  actionSubmit: 'enviar',
+  actionApprove: 'aprobar',
+  actionUnlock: 'desbloquear',
+  actionLogin: 'iniciar sesión',
+  actionExport: 'exportar',
+  actionImport: 'importar'
 }

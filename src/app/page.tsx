@@ -2,10 +2,12 @@
 
 import { useSession } from 'next-auth/react'
 import { useEffect } from 'react'
+import { useLanguage } from '@/contexts/LanguageContext'
 import { LoadingPage, RedirectingPage } from '@/components/ui'
 
 export default function HomePage() {
   const { data: session, status } = useSession()
+  const { t } = useLanguage()
 
   useEffect(() => {
     if (status === 'loading') return
@@ -29,16 +31,16 @@ export default function HomePage() {
   if (status === 'loading') {
     return (
       <LoadingPage 
-        message="Authenticating..."
-        subtitle="Please wait while we verify your credentials"
+        message={t.common.authenticating}
+        subtitle={t.common.authenticationSubtitle}
       />
     )
   }
 
   return (
     <RedirectingPage 
-      message="Welcome back!"
-      destination="your dashboard"
+      message={t.common.welcomeBack}
+      destination={t.common.yourDashboard}
     />
   )
 }

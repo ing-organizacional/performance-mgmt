@@ -43,11 +43,11 @@ export default async function AssignmentsPage() {
   const userId = session.user.id
   const userRole = session.user.role
 
-  // Fetch all evaluation items for the company
+  // Fetch all evaluation items for the company (including inactive ones to show assignments)
   const evaluationItems = await prisma.evaluationItem.findMany({
     where: {
-      companyId,
-      active: true
+      companyId
+      // Note: Including inactive items so we can display what employees are assigned to
     },
     include: {
       creator: {
@@ -97,6 +97,28 @@ export default async function AssignmentsPage() {
     }
   })
 
+  // Clean up any orphaned assignments for this company (assignments referencing non-existent evaluation items)
+  await prisma.evaluationItemAssignment.deleteMany({
+    where: {
+      companyId,
+      evaluationItemId: {
+        notIn: evaluationItems.map(item => item.id)
+      }
+    }
+  })
+
+  // Get assignments again after cleanup
+  const cleanAssignments = await prisma.evaluationItemAssignment.findMany({
+    where: {
+      companyId,
+      employeeId: { in: teamMembers.map(member => member.id) }
+    },
+    select: {
+      employeeId: true,
+      evaluationItemId: true
+    }
+  })
+
   // Format data for client component
   const formattedItems: EvaluationItem[] = evaluationItems.map(item => ({
     id: item.id,
@@ -118,7 +140,7 @@ export default async function AssignmentsPage() {
     email: member.email || undefined,
     username: member.username || undefined,
     department: member.department || '',
-    assignedItems: assignments
+    assignedItems: cleanAssignments
       .filter(assignment => assignment.employeeId === member.id)
       .map(assignment => assignment.evaluationItemId)
   }))

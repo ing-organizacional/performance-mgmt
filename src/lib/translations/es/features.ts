@@ -52,7 +52,10 @@ export const biometric: BiometricTranslations = {
 }
 
 export const settings: SettingsTranslations = {
+  title: 'Configuración',
+  subtitle: 'Gestiona tu perfil y configuración de seguridad',
   profile: 'Perfil',
+  profileDescription: 'Tu información personal y detalles de la cuenta',
   editProfile: 'Editar Perfil',
   changePassword: 'Cambiar Contraseña',
   currentPassword: 'Contraseña Actual',
@@ -63,7 +66,11 @@ export const settings: SettingsTranslations = {
   passwordSecurityNote: 'Nota de Seguridad: Su nueva contraseña debe tener al menos 8 caracteres e incluir una combinación de letras, números y símbolos.',
   currentPasswordPlaceholder: 'Ingrese su contraseña actual',
   newPasswordPlaceholder: 'Ingrese su nueva contraseña (mín 8 caracteres)',
-  confirmPasswordPlaceholder: 'Confirme su nueva contraseña'
+  confirmPasswordPlaceholder: 'Confirme su nueva contraseña',
+  noCredentials: 'Aún no se han configurado credenciales biométricas',
+  noCredentialsDescription: 'Configure la autenticación biométrica arriba para mejorar la seguridad de su cuenta',
+  failedToLoadCredentials: 'Error al cargar las credenciales',
+  failedToRemoveCredential: 'Error al eliminar la credencial'
 }
 
 export const assignments: AssignmentsTranslations = {

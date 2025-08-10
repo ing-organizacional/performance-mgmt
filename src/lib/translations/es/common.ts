@@ -45,7 +45,7 @@ export const common: CommonTranslations = {
   manager: 'Jefatura',
   createdBy: 'Creado por',
   saving: 'Guardando...',
-  approving: 'Aprobando...',
+  approving: 'Aceptando...',
   of: 'de',
   employees: 'empleados',
   departments: 'departamentos',
@@ -62,7 +62,7 @@ export const common: CommonTranslations = {
   hide: 'Ocultar',
   show: 'Mostrar',
   view: 'Ver',
-  approve: 'Aprobar',
+  approve: 'Aceptar',
   recall: 'Recuperar',
   unlock: 'Desbloquear',
   you: 'Tienes',
@@ -70,5 +70,13 @@ export const common: CommonTranslations = {
   never: 'Nunca',
   created: 'Creado',
   lastUsed: 'Último uso',
-  name: 'Nombre'
+  name: 'Nombre',
+  na: 'N/A',
+  authenticating: 'Autenticando...',
+  authenticationSubtitle: 'Por favor espera mientras verificamos tus credenciales',
+  welcomeBack: '¡Bienvenido de vuelta!',
+  yourDashboard: 'tu panel de control',
+  takingYouTo: 'Te estamos llevando a',
+  secondsRemaining: 'segundos restantes',
+  secondRemaining: 'segundo restante'
 }

@@ -38,7 +38,7 @@ export default function LoadingPage({
               </svg>
             </div>
             <h1 className="text-2xl font-bold text-gray-900 mb-2">
-              {t.common?.loading || 'Performance Management'}
+              Performance Management
             </h1>
           </div>
         )}
@@ -48,7 +48,7 @@ export default function LoadingPage({
           <div className="relative">
             {/* Main Spinner */}
             <div className="flex justify-center mb-6">
-              <LoadingSpinner size="xl" color="blue" />
+              <LoadingSpinner size="xl" color="primary" />
             </div>
             
             {/* Pulse Effect */}

@@ -1,6 +1,7 @@
 import { useLanguage } from '@/contexts/LanguageContext'
 import type { EvaluationItem, Employee, EditingItem, ActiveTab } from '../types'
 import { ItemEditor } from './ItemEditor'
+import { Target, Star, User, Edit } from 'lucide-react'
 
 interface AssignmentGridProps {
   items: EvaluationItem[]
@@ -48,11 +49,11 @@ export function AssignmentGrid({
   const getBadgeStyles = (level: string) => {
     switch (level) {
       case 'company':
-        return 'bg-purple-100 text-purple-700'
+        return 'bg-primary/10 text-primary'
       case 'department':
         return 'bg-green-100 text-green-700'
       default:
-        return 'bg-blue-100 text-blue-700'
+        return 'bg-primary/10 text-primary'
     }
   }
 
@@ -92,33 +93,47 @@ export function AssignmentGrid({
 
   if (activeTab === 'company') {
     return (
-      <div className="space-y-4">
+      <div className="space-y-3 md:space-y-6">
         {items.map((item) => (
-          <div key={item.id} className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
-            <div className="flex items-start justify-between mb-3">
-              <div className="flex items-center space-x-3">
-                <span className="text-2xl">
-                  {item.type === 'okr' ? '🎯' : '⭐'}
-                </span>
-                <div>
-                  <div className="flex items-center space-x-2 mb-1">
-                    <span className="text-sm font-bold text-blue-700 uppercase tracking-wide">
-                      {item.type === 'okr' ? t.evaluations.okr : t.evaluations.competency}
-                    </span>
-                    <span className={`flex items-center space-x-1 text-xs px-2 py-1 rounded-full font-medium ${getBadgeStyles(item.level)}`}>
-                      {getBadgeIcon(item.level)}
-                      <span>{getBadgeLabel(item.level)}</span>
-                    </span>
-                  </div>
-                  <h3 className="font-semibold text-gray-900">{item.title}</h3>
-                </div>
+          <div key={item.id} className="bg-white rounded-xl md:rounded-2xl border border-gray-200/60 p-3 md:p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
+            {/* Header Section with Icon and Type */}
+            <div className="flex items-center gap-3 md:gap-4 mb-3 md:mb-4">
+              <div className={`w-8 h-8 md:w-12 md:h-12 rounded-lg md:rounded-xl flex items-center justify-center ${
+                item.type === 'okr' ? 'bg-primary/10' : 'bg-amber-50'
+              }`}>
+                {item.type === 'okr' ? <Target className="h-4 w-4 md:h-6 md:w-6 text-primary" /> : <Star className="h-4 w-4 md:h-6 md:w-6 text-amber-500" />}
               </div>
-              <div className="text-xs text-gray-500 text-right">
-                <div>{t.common.createdBy} {item.createdBy}</div>
-                <div className="text-green-600 font-medium mt-1">{t.assignments.appliedToAllEmployees}</div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 md:gap-3 mb-1 md:mb-2">
+                  <span className="text-xs md:text-sm font-bold text-blue-700 uppercase tracking-wide">
+                    {item.type === 'okr' ? t.evaluations.okr : t.evaluations.competency}
+                  </span>
+                  <span className={`flex items-center gap-1 md:gap-1.5 text-xs px-2 md:px-3 py-0.5 md:py-1 rounded-full font-medium ${getBadgeStyles(item.level)}`}>
+                    {getBadgeIcon(item.level)}
+                    <span>{getBadgeLabel(item.level)}</span>
+                  </span>
+                </div>
+                <h3 className="text-sm md:text-lg font-bold text-gray-900 leading-tight">{item.title}</h3>
               </div>
             </div>
-            <p className="text-gray-600 text-sm ml-11">{item.description}</p>
+
+            {/* Description */}
+            <div className="mb-3 md:mb-4">
+              <p className="text-xs md:text-base text-gray-700 leading-relaxed">{item.description}</p>
+            </div>
+
+            {/* Footer Info */}
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 md:gap-3 pt-3 md:pt-4 border-t border-gray-100">
+              <div className="text-xs md:text-sm text-gray-500">
+                <span className="font-medium">{t.common.createdBy}:</span> {item.createdBy}
+              </div>
+              <div className="inline-flex items-center gap-1.5 md:gap-2 px-2 md:px-3 py-1 md:py-1.5 bg-green-50 text-green-700 rounded-full text-xs font-medium">
+                <svg className="w-3 h-3 md:w-3.5 md:h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+                <span className="text-xs">{t.assignments.appliedToAllEmployees}</span>
+              </div>
+            </div>
           </div>
         ))}
       </div>
@@ -127,9 +142,9 @@ export function AssignmentGrid({
 
   if (activeTab === 'department') {
     return (
-      <div className="space-y-4">
+      <div className="space-y-3 md:space-y-4">
         {items.map((item) => (
-          <div key={item.id} className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
+          <div key={item.id} className="bg-white rounded-xl md:rounded-2xl border border-gray-200 p-3 md:p-4 shadow-sm hover:shadow-md transition-shadow duration-200">
             {editingItem && editingItem.id === item.id ? (
               <ItemEditor
                 editingItem={editingItem}
@@ -146,50 +161,53 @@ export function AssignmentGrid({
               <div className="space-y-3">
                 <div className="flex items-start justify-between">
                   <div className="flex items-center space-x-3 flex-1">
-                    <span className="text-2xl">
-                      {item.type === 'okr' ? '🎯' : '⭐'}
-                    </span>
-                    <div className="flex-1">
-                      <div className="flex items-center space-x-2 mb-1">
-                        <span className="text-sm font-bold text-blue-700 uppercase tracking-wide">
+                    <div className={`w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl flex items-center justify-center flex-shrink-0 ${
+                      item.type === 'okr' ? 'bg-primary/10' : 'bg-amber-50'
+                    }`}>
+                      {item.type === 'okr' ? <Target className="h-4 w-4 md:h-5 md:w-5 text-primary" /> : <Star className="h-4 w-4 md:h-5 md:w-5 text-amber-500" />}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="mb-1">
+                        <span className="text-xs md:text-sm font-bold text-blue-700 uppercase tracking-wide">
                           {item.type === 'okr' ? t.evaluations.okr : t.evaluations.competency}
                         </span>
-                        <span className={`text-xs px-2 py-1 rounded-full font-medium ${getBadgeStyles(item.level)}`}>
-                          <span className="flex items-center space-x-1">
-                            {getBadgeIcon(item.level)}
-                            <span>{getBadgeLabel(item.level)}</span>
-                          </span>
+                      </div>
+                      <h3 className="font-semibold text-sm md:text-lg text-gray-900 leading-tight mb-1">{item.title}</h3>
+                      <div>
+                        <span className={`inline-flex items-center gap-1.5 text-xs px-2 py-0.5 md:py-1 rounded-full font-medium ${getBadgeStyles(item.level)}`}>
+                          {getBadgeIcon(item.level)}
+                          <span>{getBadgeLabel(item.level)}</span>
                         </span>
                       </div>
-                      <h3 className="font-semibold text-gray-900 text-lg leading-tight">{item.title}</h3>
                     </div>
                   </div>
                   <button
                     onClick={() => onEditItem(item)}
                     disabled={isPending}
-                    className="flex items-center space-x-1 px-4 py-3 min-h-[44px] bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 active:scale-95 active:bg-gray-300 disabled:bg-gray-200 disabled:cursor-not-allowed transition-all duration-150 flex-shrink-0 touch-manipulation"
+                    className="flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-2 md:py-3 min-h-[44px] bg-gray-100 text-gray-700 text-xs md:text-sm font-medium rounded-lg hover:bg-gray-200 hover:text-gray-900 active:scale-95 active:bg-gray-300 disabled:bg-gray-200 disabled:cursor-not-allowed transition-all duration-150 flex-shrink-0 touch-manipulation"
                   >
-                    <span>✏️</span>
+                    <Edit className="w-3.5 h-3.5 md:w-4 md:h-4" />
                     <span>{t.common.edit}</span>
                   </button>
                 </div>
                 
-                <p className="text-gray-600 text-sm ml-11 leading-relaxed">{item.description}</p>
+                <p className="text-xs md:text-sm text-gray-600 ml-11 md:ml-14 leading-relaxed">{item.description}</p>
                 
-                {/* Show current assignments for this item */}
+                {/* Show current assignments for this item - Compact mobile version */}
                 {getEmployeesWithItem(item.id).length > 0 && (
-                  <div className="ml-11 mt-3 p-3 bg-gray-50 rounded-lg">
-                    <h4 className="text-sm font-medium text-gray-700 mb-2">
+                  <div className="ml-11 md:ml-14 mt-2 md:mt-3 p-2 md:p-3 bg-gray-50 rounded-lg">
+                    <h4 className="text-xs md:text-sm font-medium text-gray-700 mb-1 md:mb-2">
                       {t.assignments.currentlyAssignedTo} ({getEmployeesWithItem(item.id).length}):
                     </h4>
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-wrap gap-1 md:gap-2">
                       {getEmployeesWithItem(item.id).map((employee) => (
-                        <div key={employee.id} className="inline-flex items-center gap-2 px-3 py-2 rounded-lg text-xs bg-green-100 text-green-700 border border-green-200">
-                          <span>👤 {employee.name}</span>
+                        <div key={employee.id} className="inline-flex items-center gap-1 md:gap-2 px-2 md:px-3 py-1 md:py-2 rounded text-xs bg-green-100 text-green-700 border border-green-200">
+                          <User className="h-2.5 w-2.5 md:h-3 md:w-3" />
+                          <span className="text-xs">{employee.name}</span>
                           <button
                             onClick={() => onUnassignFromEmployee(item.id, employee.id)}
                             disabled={isPending}
-                            className={`flex items-center justify-center w-5 h-5 min-w-[20px] min-h-[20px] text-white text-xs rounded-full active:scale-95 transition-all duration-150 touch-manipulation ${
+                            className={`flex items-center justify-center w-4 h-4 md:w-5 md:h-5 min-w-[16px] md:min-w-[20px] min-h-[16px] md:min-h-[20px] text-white text-xs rounded-full active:scale-95 transition-all duration-150 touch-manipulation ${
                               confirmingUnassign === `${item.id}-${employee.id}`
                                 ? 'bg-orange-500 hover:bg-orange-600 animate-pulse'
                                 : 'bg-red-500 hover:bg-red-600'
@@ -239,7 +257,7 @@ export function AssignmentGrid({
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center space-x-3">
                   <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
-                    <span className="text-lg">👤</span>
+                    <User className="h-5 w-5" />
                   </div>
                   <div>
                     <h3 className="font-semibold text-gray-900">{employee.name}</h3>
@@ -263,8 +281,8 @@ export function AssignmentGrid({
                     {employee.assignedItems.map((itemId) => {
                       const item = items.find(evalItem => evalItem.id === itemId)
                       return item ? (
-                        <div key={itemId} className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs bg-blue-100 text-blue-700 border border-blue-200">
-                          <span>{item.type === 'okr' ? '🎯' : '⭐'} {item.title.slice(0, 12)}...</span>
+                        <div key={itemId} className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs bg-primary/10 text-primary border border-primary/20">
+                          <span>{item.type === 'okr' ? <Target className="h-6 w-6 text-primary" /> : <Star className="h-6 w-6 text-amber-500" />} {item.title.slice(0, 12)}...</span>
                           <button
                             onClick={(e) => {
                               e.preventDefault()
@@ -302,7 +320,7 @@ export function AssignmentGrid({
                     <div key={item.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                       <div className="flex-1">
                         <div className="flex items-center space-x-2 mb-1">
-                          <span className="text-lg">{item.type === 'okr' ? '🎯' : '⭐'}</span>
+                          <span className="text-lg">{item.type === 'okr' ? <Target className="h-6 w-6 text-primary" /> : <Star className="h-6 w-6 text-amber-500" />}</span>
                           <span className="text-sm font-bold text-blue-700 uppercase tracking-wide">
                             {item.type === 'okr' ? t.evaluations.okr : t.evaluations.competency}
                           </span>

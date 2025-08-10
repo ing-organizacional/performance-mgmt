@@ -45,7 +45,7 @@ export const common: CommonTranslations = {
   manager: 'Manager',
   createdBy: 'Created by',
   saving: 'Saving...',
-  approving: 'Approving...',
+  approving: 'Accepting...',
   of: 'of',
   employees: 'employees',
   departments: 'departments',
@@ -62,7 +62,7 @@ export const common: CommonTranslations = {
   hide: 'Hide',
   show: 'Show',
   view: 'View',
-  approve: 'Approve',
+  approve: 'Accept',
   recall: 'Recall',
   unlock: 'Unlock',
   you: 'You have',
@@ -70,5 +70,13 @@ export const common: CommonTranslations = {
   never: 'Never',
   created: 'Created',
   lastUsed: 'Last used',
-  name: 'Name'
+  name: 'Name',
+  na: 'N/A',
+  authenticating: 'Authenticating...',
+  authenticationSubtitle: 'Please wait while we verify your credentials',
+  welcomeBack: 'Welcome back!',
+  yourDashboard: 'your dashboard',
+  takingYouTo: 'Taking you to',
+  secondsRemaining: 'seconds remaining',
+  secondRemaining: 'second remaining'
 }

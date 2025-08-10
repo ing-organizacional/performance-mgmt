@@ -106,16 +106,6 @@ export default function AssignmentsClient({
 
   const filteredItems = evaluationItems.filter(item => item.level === activeTab)
 
-  const getBadgeStyles = (level: string) => {
-    switch (level) {
-      case 'company':
-        return 'bg-purple-100 text-purple-700'
-      case 'department':
-        return 'bg-green-100 text-green-700'
-      default:
-        return 'bg-blue-100 text-blue-700'
-    }
-  }
 
   const getBadgeIcon = (level: string) => {
     switch (level) {
@@ -145,176 +135,204 @@ export default function AssignmentsClient({
   const isPending = assignmentHook.isPending || itemEditorHook.isPending
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white shadow-sm border-b border-gray-200 fixed top-0 left-0 right-0 z-20">
-        <div className="px-4 py-4">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20">
+      {/* Desktop-First Professional Header */}
+      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-gray-200/50 shadow-sm">
+        <div className="max-w-8xl mx-auto px-4 md:px-6 lg:px-8 py-4 md:py-6">
           <div className="flex items-center justify-between">
-            <button
-              onClick={() => router.back()}
-              className="p-2 -ml-2 text-gray-600"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-            </button>
-            <div className="text-center">
-              <h1 className="text-lg font-semibold text-gray-900">
-                {t.assignments.assignmentManager}
-              </h1>
-              <p className="text-sm text-gray-600">
-                {t.assignments.manageOKRsCompetencies}
-              </p>
+            {/* Left Section - Navigation & Title */}
+            <div className="flex items-center gap-3 md:gap-6">
+              <button
+                onClick={() => router.back()}
+                className="flex items-center justify-center min-w-[44px] min-h-[44px] bg-gray-100 text-gray-600 rounded-xl hover:bg-gray-200 hover:scale-105 active:scale-95 transition-all duration-200 touch-manipulation shadow-sm"
+                title={t.common?.back || 'Go back'}
+                aria-label={t.common?.back || 'Go back'}
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+              
+              <div className="min-w-0">
+                <h1 className="text-lg md:text-2xl lg:text-3xl font-bold text-gray-900">
+                  {t.assignments.assignmentManager || 'Assignment Manager'}
+                </h1>
+                <p className="text-xs md:text-sm text-gray-600 mt-0.5 md:mt-1 hidden sm:block">
+                  {t.assignments.manageOKRsCompetencies || 'Manage OKRs and competencies for your team'}
+                </p>
+              </div>
             </div>
-            <LanguageSwitcher />
+
+            {/* Right Section - Language Switcher */}
+            <div className="flex items-center gap-4">
+              <LanguageSwitcher />
+            </div>
           </div>
         </div>
-      </div>
+      </header>
 
       {/* Tab Navigation */}
       <AssignmentTabs activeTab={activeTab} setActiveTab={setActiveTab} />
 
       {/* Error Display */}
       {error && (
-        <div className="fixed top-32 left-4 right-4 z-30 bg-red-50 border border-red-200 rounded-lg p-3">
-          <div className="flex items-center">
-            <div className="flex-shrink-0">
-              <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-              </svg>
-            </div>
-            <div className="ml-3">
-              <p className="text-sm text-red-800">{error}</p>
-            </div>
-            <div className="ml-auto pl-3">
-              <button
-                onClick={() => {
-                  assignmentHook.setError(null)
-                  itemEditorHook.setError(null)
-                }}
-                className="inline-flex text-red-400 hover:text-red-600"
-              >
-                <span className="sr-only">Dismiss</span>
-                <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+        <div className="max-w-8xl mx-auto px-6 lg:px-8 mt-4">
+          <div className="bg-red-50 border border-red-200 rounded-xl p-4 shadow-sm">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <svg className="h-6 w-6 text-red-500" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
                 </svg>
-              </button>
+              </div>
+              <div className="ml-4">
+                <p className="text-sm font-semibold text-red-800">{error}</p>
+              </div>
+              <div className="ml-auto">
+                <button
+                  onClick={() => {
+                    assignmentHook.setError(null)
+                    itemEditorHook.setError(null)
+                  }}
+                  className="flex items-center justify-center min-w-[32px] min-h-[32px] text-red-400 hover:text-red-600 hover:bg-red-100 rounded-lg transition-all duration-200 touch-manipulation"
+                >
+                  <span className="sr-only">Dismiss</span>
+                  <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                  </svg>
+                </button>
+              </div>
             </div>
           </div>
         </div>
       )}
 
-      {/* Content */}
-      <div className={`px-4 py-6 pt-36 min-h-[400px] touch-pan-y ${isPending ? 'opacity-50 pointer-events-none' : ''}`}>
+      {/* Main Content */}
+      <main className={`max-w-8xl mx-auto px-4 md:px-6 lg:px-8 py-4 md:py-8 min-h-[400px] ${isPending ? 'opacity-50 pointer-events-none' : ''}`}>
         
         {/* Company Tab - Read Only */}
         {activeTab === 'company' && (
-          <div className="space-y-4 animate-in fade-in duration-300">
-            <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
-              <div className="flex items-center space-x-2 mb-2">
-                {getBadgeIcon('company')}
-                <h3 className="font-semibold text-blue-900">{t.assignments.companyWideItems}</h3>
+          <div className="space-y-4 md:space-y-8 animate-in fade-in duration-300">
+            <div className="bg-white rounded-xl md:rounded-2xl border border-gray-200/60 shadow-sm p-4 md:p-8">
+              <div className="flex items-center gap-3 md:gap-4 mb-4 md:mb-6">
+                <div className="w-8 h-8 md:w-12 md:h-12 bg-primary/10 rounded-lg md:rounded-xl flex items-center justify-center">
+                  {getBadgeIcon('company')}
+                </div>
+                <div>
+                  <h3 className="text-lg md:text-xl font-bold text-gray-900">{t.assignments.companyWideItems || 'Company-Wide Items'}</h3>
+                  <p className="text-xs md:text-sm text-gray-600 mt-0.5 md:mt-1">
+                    {t.assignments.companyWideDescription || 'Manage company-wide OKRs and competencies'}
+                  </p>
+                </div>
               </div>
-              <p className="text-sm text-blue-700">
-                {t.assignments.companyWideDescription}
-              </p>
+              <AssignmentGrid
+                items={filteredItems}
+                employees={employees}
+                activeTab={activeTab}
+                editingItem={itemEditorHook.editingItem}
+                newItemType={itemEditorHook.newItemType}
+                isPending={isPending}
+                selectedEmployees={selectedEmployees}
+                confirmingUnassign={assignmentHook.confirmingUnassign}
+                canEditDeadline={canEditDeadline}
+                getEmployeesWithItem={assignmentHook.getEmployeesWithItem}
+                onEditItem={itemEditorHook.handleEditItem}
+                onSaveEdit={itemEditorHook.handleSaveEdit}
+                onCancelEdit={itemEditorHook.handleCancelEdit}
+                onUpdateEditingItem={itemEditorHook.updateEditingItem}
+                onBulkAssignment={handleBulkAssignment}
+                onUnassignFromEmployee={assignmentHook.handleUnassignFromEmployee}
+                onIndividualAssignment={assignmentHook.handleIndividualAssignment}
+                employeeHasItem={assignmentHook.employeeHasItem}
+              />
             </div>
-            <AssignmentGrid
-              items={filteredItems}
-              employees={employees}
-              activeTab={activeTab}
-              editingItem={itemEditorHook.editingItem}
-              newItemType={itemEditorHook.newItemType}
-              isPending={isPending}
-              selectedEmployees={selectedEmployees}
-              confirmingUnassign={assignmentHook.confirmingUnassign}
-              canEditDeadline={canEditDeadline}
-              getEmployeesWithItem={assignmentHook.getEmployeesWithItem}
-              onEditItem={itemEditorHook.handleEditItem}
-              onSaveEdit={itemEditorHook.handleSaveEdit}
-              onCancelEdit={itemEditorHook.handleCancelEdit}
-              onUpdateEditingItem={itemEditorHook.updateEditingItem}
-              onBulkAssignment={handleBulkAssignment}
-              onUnassignFromEmployee={assignmentHook.handleUnassignFromEmployee}
-              onIndividualAssignment={assignmentHook.handleIndividualAssignment}
-              employeeHasItem={assignmentHook.employeeHasItem}
-            />
           </div>
         )}
 
         {/* Department Tab - Batch Assignment */}
         {activeTab === 'department' && (
-          <div className="space-y-6 animate-in fade-in duration-300">
-            <div className="bg-green-50 rounded-lg p-4 border border-green-200">
-              <div className="flex items-center space-x-2 mb-2">
-                {getBadgeIcon('department')}
-                <h3 className="font-semibold text-green-900">{t.assignments.departmentLevelAssignments}</h3>
+          <div className="space-y-4 md:space-y-8 animate-in fade-in duration-300">
+            <div className="bg-white rounded-xl md:rounded-2xl border border-gray-200/60 shadow-sm p-4 md:p-8">
+              <div className="flex items-center gap-3 md:gap-4 mb-4 md:mb-6">
+                <div className="w-8 h-8 md:w-12 md:h-12 bg-green-50 rounded-lg md:rounded-xl flex items-center justify-center">
+                  {getBadgeIcon('department')}
+                </div>
+                <div>
+                  <h3 className="text-lg md:text-xl font-bold text-gray-900">{t.assignments.departmentLevelAssignments || 'Department-Level Assignments'}</h3>
+                  <p className="text-xs md:text-sm text-gray-600 mt-0.5 md:mt-1">
+                    {t.assignments.departmentDescription || 'Create and assign department-specific items'}
+                  </p>
+                </div>
               </div>
-              <p className="text-sm text-green-700">
-                {t.assignments.departmentDescription}
-              </p>
+
+              {/* Create New Section */}
+              <div className="mb-4 md:mb-8">
+                <BulkActions
+                  selectedEmployeesCount={selectedEmployees.length}
+                  isPending={isPending}
+                  onCreateNew={handleCreateNew}
+                />
+              </div>
             </div>
 
-            {/* Create New Section */}
-            <BulkActions
-              selectedEmployeesCount={selectedEmployees.length}
-              isPending={isPending}
-              onCreateNew={handleCreateNew}
-            />
-            
             {/* Create New Form */}
             {itemEditorHook.creatingNew && itemEditorHook.editingItem && itemEditorHook.editingItem.id === 'new' && (
-              <ItemEditor
-                editingItem={itemEditorHook.editingItem}
-                newItemType={itemEditorHook.newItemType}
-                isCreatingNew={true}
-                level="department"
-                canSetDeadline={canSetDeadlineForLevel('department')}
-                isPending={isPending}
-                onUpdateItem={itemEditorHook.updateEditingItem}
-                onSave={handleSaveNew}
-                onCancel={itemEditorHook.handleCancelNew}
-              />
+              <div className="bg-white rounded-xl md:rounded-2xl border border-gray-200/60 shadow-sm p-4 md:p-8">
+                <ItemEditor
+                  editingItem={itemEditorHook.editingItem}
+                  newItemType={itemEditorHook.newItemType}
+                  isCreatingNew={true}
+                  level="department"
+                  canSetDeadline={canSetDeadlineForLevel('department')}
+                  isPending={isPending}
+                  onUpdateItem={itemEditorHook.updateEditingItem}
+                  onSave={handleSaveNew}
+                  onCancel={itemEditorHook.handleCancelNew}
+                />
+              </div>
             )}
             
             {/* Employee Selection */}
-            <EmployeeSelector
-              employees={employees}
-              evaluationItems={evaluationItems}
-              selectedEmployees={selectedEmployees}
-              confirmingUnassign={assignmentHook.confirmingUnassign}
-              isPending={isPending}
-              onEmployeeSelection={handleEmployeeSelection}
-              onUnassignFromEmployee={assignmentHook.handleUnassignFromEmployee}
-              onSelectAll={handleSelectAll}
-              onDeselectAll={handleDeselectAll}
-            />
+            <div className="bg-white rounded-xl md:rounded-2xl border border-gray-200/60 shadow-sm p-4 md:p-8">
+              <EmployeeSelector
+                employees={employees}
+                evaluationItems={evaluationItems}
+                selectedEmployees={selectedEmployees}
+                confirmingUnassign={assignmentHook.confirmingUnassign}
+                isPending={isPending}
+                onEmployeeSelection={handleEmployeeSelection}
+                onUnassignFromEmployee={assignmentHook.handleUnassignFromEmployee}
+                onSelectAll={handleSelectAll}
+                onDeselectAll={handleDeselectAll}
+              />
+            </div>
 
             {/* Department Items */}
-            <AssignmentGrid
-              items={filteredItems}
-              employees={employees}
-              activeTab={activeTab}
-              editingItem={itemEditorHook.editingItem}
-              newItemType={itemEditorHook.newItemType}
-              isPending={isPending}
-              selectedEmployees={selectedEmployees}
-              confirmingUnassign={assignmentHook.confirmingUnassign}
-              canEditDeadline={canEditDeadline}
-              getEmployeesWithItem={assignmentHook.getEmployeesWithItem}
-              onEditItem={itemEditorHook.handleEditItem}
-              onSaveEdit={itemEditorHook.handleSaveEdit}
-              onCancelEdit={itemEditorHook.handleCancelEdit}
-              onUpdateEditingItem={itemEditorHook.updateEditingItem}
-              onBulkAssignment={handleBulkAssignment}
-              onUnassignFromEmployee={assignmentHook.handleUnassignFromEmployee}
-              onIndividualAssignment={assignmentHook.handleIndividualAssignment}
-              employeeHasItem={assignmentHook.employeeHasItem}
-            />
+            <div className="bg-white rounded-xl md:rounded-2xl border border-gray-200/60 shadow-sm p-4 md:p-8">
+              <AssignmentGrid
+                items={filteredItems}
+                employees={employees}
+                activeTab={activeTab}
+                editingItem={itemEditorHook.editingItem}
+                newItemType={itemEditorHook.newItemType}
+                isPending={isPending}
+                selectedEmployees={selectedEmployees}
+                confirmingUnassign={assignmentHook.confirmingUnassign}
+                canEditDeadline={canEditDeadline}
+                getEmployeesWithItem={assignmentHook.getEmployeesWithItem}
+                onEditItem={itemEditorHook.handleEditItem}
+                onSaveEdit={itemEditorHook.handleSaveEdit}
+                onCancelEdit={itemEditorHook.handleCancelEdit}
+                onUpdateEditingItem={itemEditorHook.updateEditingItem}
+                onBulkAssignment={handleBulkAssignment}
+                onUnassignFromEmployee={assignmentHook.handleUnassignFromEmployee}
+                onIndividualAssignment={assignmentHook.handleIndividualAssignment}
+                employeeHasItem={assignmentHook.employeeHasItem}
+              />
+            </div>
           </div>
         )}
 
-      </div>
+      </main>
     </div>
   )
 }

@@ -25,9 +25,8 @@ export const dashboard: DashboardTranslations = {
   administrativeActions: 'Administrative Actions',
   generateReports: 'Generate Reports',
   exportPDF: 'Export PDF',
-  pdfExportCenter: 'Report Downloads',
-  exportCenter: 'Export Center',
-  selectReportsToExport: 'Select the reports you want to export',
+  pdfExportCenter: 'Report Hub',
+  exportCenter: 'Report Hub',
   selectReportsAndFormats: 'Choose reports and formats to export',
   companyOverview: 'Company Overview',
   allEmployeesAllDepartments: 'All employees across all departments',
@@ -74,11 +73,11 @@ export const dashboard: DashboardTranslations = {
   auditFilters: 'Filters',
   allActions: 'All Actions',
   allTypes: 'All Types',
-  clearFilters: 'Clear Filters',
+  clearFilters: 'Clear',
   showDetails: 'Show Details',
   hideDetails: 'Hide Details',
   auditDetails: 'Audit Log Details',
-  exportExcel: 'Export Excel',
+  exportExcel: 'Export',
   showingOf: 'Showing',
   noAuditLogs: 'No audit logs found matching your filters',
   timestamp: 'Timestamp',
@@ -218,5 +217,74 @@ export const dashboard: DashboardTranslations = {
   overdueItemsCount: 'overdue items',
   daysOverdue: 'days overdue',
   switchToEmployeeList: 'Complete List',
-  switchToManagerGroups: 'Group by Manager'
+  switchToManagerGroups: 'Group by Manager',
+  
+  // Export Center Modal
+  reportSelected: 'report selected',
+  reportsSelectedPlural: 'reports selected',
+  selectReportsToExport: 'Select reports to export',
+  selectEmployeesToExport: 'Select Employees to Export:',
+  selectDepartmentsToExport: 'Select Departments to Export:',
+  employeesSelected: 'employees selected',
+  departmentsSelected: 'departments selected',
+  selectReportsFirst: 'Select Reports to Export',
+  selectEmployeesFirst: 'Select Employees First',
+  selectDepartmentsFirst: 'Select Departments First',
+  exportFiles: 'Export {count} File',
+  exportFilesPlural: 'Export {count} Files',
+  
+  // Administrative Actions Section
+  attentionRequired: 'Attention Required',
+  deadlines: 'Deadlines',
+  primaryManagement: 'Primary Management',
+  systemAdministration: 'System Administration',
+  monitoringAnalysis: 'Monitoring & Analysis',
+  evaluationAssignments: 'Evaluation Assignments',
+  manageOkrsCompetencies: 'Manage OKRs and Competencies',
+  generateReportsAnalysis: 'Generate reports and analysis',
+  totalEmployeesHeader: 'Total Employees',
+  avgRatingHeader: 'Avg Rating',
+  noActivePerformanceCycle: 'No active performance cycle',
+  
+  // Completion Status Card
+  clickToManagePending: 'Click to manage pending evaluations',
+  completeStatus: 'Complete',
+  inProgressStatus: 'In Progress',
+  
+  // Critical Actions
+  overdueEvaluationsCount: 'Overdue Evaluations',
+  dueSoonCount: 'Due Soon',
+  overdueText: 'overdue',
+  daysOverdueText: 'days overdue',
+  viewAllOverdue: 'View all {count} overdue drafts →',
+  managerLabel: 'Manager',
+  
+  // Department Ratings specific
+  comprehensiveAnalysisDescription: 'Comprehensive department analysis and performance metrics',
+  requireImmediateAttention: 'Require immediate attention',
+  total: 'total',
+  
+  // Pending Evaluations specific
+  employeeEvaluationManagement: 'Employee evaluation management and progress tracking',
+  evaluationsFinished: 'Evaluations finished',
+  awaitingEvaluation: 'Awaiting evaluation',
+  withPendingWork: 'With pending work',
+  employeeSingular: 'employee',
+  employeesPlural: 'employees',
+  awaitingEvaluationText: 'awaiting evaluation',
+  reportsTo: 'Reports to',
+  clearSearch: 'Clear search',
+  departmentsHeader: 'Departments',
+  pendingText: 'pending',
+  
+  // Action badges for audit logs
+  actionCreate: 'create',
+  actionUpdate: 'update', 
+  actionDelete: 'delete',
+  actionSubmit: 'submit',
+  actionApprove: 'approve',
+  actionUnlock: 'unlock',
+  actionLogin: 'login',
+  actionExport: 'export',
+  actionImport: 'import'
 }

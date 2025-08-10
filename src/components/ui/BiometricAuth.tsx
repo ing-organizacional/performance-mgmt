@@ -208,7 +208,7 @@ export default function BiometricAuth({
   if (isChecking) {
     return (
       <div className={`flex items-center justify-center p-4 ${className}`}>
-        <LoadingSpinner size="md" color="blue" />
+        <LoadingSpinner size="md" color="primary" />
       </div>
     )
   }
@@ -230,7 +230,7 @@ export default function BiometricAuth({
           } ${className}`}
         >
           {isLoading ? (
-            <LoadingSpinner size="md" color="blue" />
+            <LoadingSpinner size="md" color="primary" />
           ) : (
             <div className="text-blue-600">
               {getBiometricIcon()}
@@ -251,7 +251,7 @@ export default function BiometricAuth({
       } ${className}`}
     >
       {isLoading ? (
-        <LoadingSpinner size="lg" color="blue" />
+        <LoadingSpinner size="lg" color="primary" />
       ) : (
         <div className="text-blue-600 mb-3">
           <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>

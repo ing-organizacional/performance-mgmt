@@ -5,6 +5,7 @@ import { useState } from 'react'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { LanguageSwitcher } from '@/components/layout'
 import { createEvaluationItem } from '@/lib/actions/evaluations'
+import { Building2 } from 'lucide-react'
 
 interface CompanyEvaluationItem {
   id: string
@@ -227,12 +228,12 @@ export default function CompanyItemsClient({ initialItems }: CompanyItemsClientP
       {/* Content */}
       <div className="px-4 py-4 pt-20">
         {/* Info Banner */}
-        <div className="bg-purple-50 rounded-xl p-4 border border-purple-200 shadow-sm mb-4">
+        <div className="bg-primary/5 rounded-xl p-4 border border-primary/20 shadow-sm mb-4">
           <div className="flex items-center space-x-2 mb-2">
-            <span className="text-xl">🏢</span>
-            <h3 className="font-semibold text-purple-900">{t.companyItems.infoTitle}</h3>
+            <Building2 className="h-5 w-5 text-primary" />
+            <h3 className="font-semibold text-primary">{t.companyItems.infoTitle}</h3>
           </div>
-          <p className="text-sm text-purple-700">
+          <p className="text-sm text-primary/80">
             {t.companyItems.infoDescription}
           </p>
         </div>
@@ -250,7 +251,7 @@ export default function CompanyItemsClient({ initialItems }: CompanyItemsClientP
             </button>
             <button
               onClick={() => handleCreateNew('competency')}
-              className="flex items-center space-x-2 px-6 py-3 min-h-[44px] bg-purple-600 text-white text-sm font-medium rounded-lg hover:bg-purple-700 active:scale-95 active:bg-purple-800 transition-all duration-150 touch-manipulation"
+              className="flex items-center space-x-2 px-6 py-3 min-h-[44px] bg-primary text-white text-sm font-medium rounded-lg hover:bg-primary/90 active:scale-95 transition-all duration-150 touch-manipulation"
             >
               <span>⭐</span>
               <span>{t.companyItems.newCompanyCompetency}</span>
@@ -270,8 +271,9 @@ export default function CompanyItemsClient({ initialItems }: CompanyItemsClientP
                   <span className="text-sm font-bold text-blue-700 uppercase tracking-wide">
                     {newItemType === 'okr' ? t.companyItems.companyOKR : t.companyItems.companyCompetency}
                   </span>
-                  <span className="text-xs px-2 py-1 rounded-full font-medium bg-purple-100 text-purple-700">
-                    🏢 {t.companyItems.companyWide}
+                  <span className="text-xs px-2 py-1 rounded-full font-medium bg-primary/10 text-primary">
+                    <Building2 className="h-3 w-3 mr-1" />
+                    {t.companyItems.companyWide}
                   </span>
                 </div>
               </div>
@@ -369,8 +371,9 @@ export default function CompanyItemsClient({ initialItems }: CompanyItemsClientP
                       <span className="text-sm font-bold text-blue-700 uppercase tracking-wide">
                         {item.type === 'okr' ? t.companyItems.companyOKR : t.companyItems.companyCompetency}
                       </span>
-                      <span className="text-xs px-2 py-1 rounded-full font-medium bg-purple-100 text-purple-700">
-                        🏢 {t.companyItems.companyWide}
+                      <span className="text-xs px-2 py-1 rounded-full font-medium bg-primary/10 text-primary">
+                        <Building2 className="h-3 w-3 mr-1" />
+                    {t.companyItems.companyWide}
                       </span>
                     </div>
                   </div>
@@ -451,8 +454,9 @@ export default function CompanyItemsClient({ initialItems }: CompanyItemsClientP
                           <span className="text-sm font-bold text-blue-700 uppercase tracking-wide">
                             {item.type === 'okr' ? t.companyItems.companyOKR : t.companyItems.companyCompetency}
                           </span>
-                          <span className="text-xs px-2 py-1 rounded-full font-medium bg-purple-100 text-purple-700">
-                            🏢 {t.companyItems.companyWide}
+                          <span className="text-xs px-2 py-1 rounded-full font-medium bg-primary/10 text-primary">
+                            <Building2 className="h-3 w-3 mr-1" />
+                    {t.companyItems.companyWide}
                           </span>
                           <span className={`text-xs px-2 py-1 rounded-full font-medium ${
                             item.active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'
@@ -497,7 +501,7 @@ export default function CompanyItemsClient({ initialItems }: CompanyItemsClientP
             
             {companyItems.length === 0 && (
               <div className="text-center py-12">
-                <span className="text-4xl mb-4 block">🏢</span>
+                <Building2 className="h-16 w-16 text-gray-400 mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-gray-900 mb-2">
                   {t.companyItems.noItemsTitle}
                 </h3>

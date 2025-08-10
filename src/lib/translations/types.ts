@@ -71,6 +71,14 @@ export interface CommonTranslations {
   created: string
   lastUsed: string
   name: string
+  na: string
+  authenticating: string
+  authenticationSubtitle: string
+  welcomeBack: string
+  yourDashboard: string
+  takingYouTo: string
+  secondsRemaining: string
+  secondRemaining: string
 }
 
 export interface AuthTranslations {
@@ -217,7 +225,10 @@ export interface BiometricTranslations {
 }
 
 export interface SettingsTranslations {
+  title: string
+  subtitle: string
   profile: string
+  profileDescription: string
   editProfile: string
   changePassword: string
   currentPassword: string
@@ -229,6 +240,10 @@ export interface SettingsTranslations {
   currentPasswordPlaceholder: string
   newPasswordPlaceholder: string
   confirmPasswordPlaceholder: string
+  noCredentials: string
+  noCredentialsDescription: string
+  failedToLoadCredentials: string
+  failedToRemoveCredential: string
 }
 
 export interface AssignmentsTranslations {
@@ -318,7 +333,6 @@ export interface DashboardTranslations {
   exportPDF: string
   pdfExportCenter: string
   exportCenter: string
-  selectReportsToExport: string
   selectReportsAndFormats: string
   companyOverview: string
   allEmployeesAllDepartments: string
@@ -510,6 +524,75 @@ export interface DashboardTranslations {
   daysOverdue: string
   switchToEmployeeList: string
   switchToManagerGroups: string
+  
+  // Export Center Modal
+  reportSelected: string
+  reportsSelectedPlural: string
+  selectReportsToExport: string
+  selectEmployeesToExport: string
+  selectDepartmentsToExport: string
+  employeesSelected: string
+  departmentsSelected: string
+  selectReportsFirst: string
+  selectEmployeesFirst: string
+  selectDepartmentsFirst: string
+  exportFiles: string
+  exportFilesPlural: string
+  
+  // Administrative Actions Section
+  attentionRequired: string
+  deadlines: string
+  primaryManagement: string
+  systemAdministration: string
+  monitoringAnalysis: string
+  evaluationAssignments: string
+  manageOkrsCompetencies: string
+  generateReportsAnalysis: string
+  totalEmployeesHeader: string
+  avgRatingHeader: string
+  noActivePerformanceCycle: string
+  
+  // Completion Status Card
+  clickToManagePending: string
+  completeStatus: string
+  inProgressStatus: string
+  
+  // Critical Actions
+  overdueEvaluationsCount: string
+  dueSoonCount: string
+  overdueText: string
+  daysOverdueText: string
+  viewAllOverdue: string
+  managerLabel: string
+  
+  // Department Ratings specific
+  comprehensiveAnalysisDescription: string
+  requireImmediateAttention: string
+  total: string
+  
+  // Pending Evaluations specific
+  employeeEvaluationManagement: string
+  evaluationsFinished: string
+  awaitingEvaluation: string
+  withPendingWork: string
+  employeeSingular: string
+  employeesPlural: string
+  awaitingEvaluationText: string
+  reportsTo: string
+  clearSearch: string
+  departmentsHeader: string
+  pendingText: string
+  
+  // Action badges for audit logs
+  actionCreate: string
+  actionUpdate: string
+  actionDelete: string
+  actionSubmit: string
+  actionApprove: string
+  actionUnlock: string
+  actionLogin: string
+  actionExport: string
+  actionImport: string
 }
 
 export interface UsersTranslations {
@@ -668,6 +751,45 @@ export interface UsersTranslations {
   failedToDeleteScheduledImport: string
   importExecutedSuccessfully: string
   failedToExecuteScheduledImport: string
+  
+  // Additional keys for refactored components
+  goBack: string
+  signOut: string
+  searchUsersByNameEmail: string
+  user: string
+  users: string
+  found: string
+  total: string
+  managersLabel: string
+  employees: string
+  tryAdjustingSearch: string
+  noUsersCreated: string
+  noContact: string
+  noCompany: string
+  id: string
+  report: string
+  evaluation: string
+  enterFullName: string
+  enterEmailAddress: string
+  enterUsername: string
+  enterDepartment: string
+  enterPosition: string
+  enterEmployeeId: string
+  enterPersonId: string
+  qrCode: string
+  enterShift: string
+  enterFourDigitPin: string
+  cancel: string
+  saving: string
+  closeModal: string
+  updateUserInformation: string
+  createNewUserAccount: string
+  deleteUserWarning: string
+  areYouSureDelete: string
+  thisWillPermanently: string
+  deleteAllUserData: string
+  removeEvaluationRecords: string
+  unassignDirectReports: string
 }
 
 export interface Translations {
