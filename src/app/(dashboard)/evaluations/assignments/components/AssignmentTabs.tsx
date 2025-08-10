@@ -43,16 +43,6 @@ export function AssignmentTabs({ activeTab, setActiveTab }: AssignmentTabsProps)
     preventDefaultTouchmoveEvent: true
   })
 
-  const getBadgeStyles = (level: string) => {
-    switch (level) {
-      case 'company':
-        return 'bg-primary/10 text-primary'
-      case 'department':
-        return 'bg-green-100 text-green-700'
-      default:
-        return 'bg-primary/10 text-primary'
-    }
-  }
 
   const getBadgeIcon = (level: string) => {
     switch (level) {
@@ -89,20 +79,20 @@ export function AssignmentTabs({ activeTab, setActiveTab }: AssignmentTabsProps)
   }
 
   return (
-    <div ref={elementRef as React.RefObject<HTMLDivElement>} className="bg-white border-b border-gray-200 fixed top-20 left-0 right-0 z-10">
-      <div className="px-4">
-        <div className="flex space-x-1 relative">
-          {/* Swipe indicator */}
-          <div className="absolute -bottom-3 left-1/2 transform -translate-x-1/2 text-xs text-gray-400 opacity-50 animate-pulse">
+    <div ref={elementRef as React.RefObject<HTMLDivElement>} className="bg-white/90 backdrop-blur-md border-b border-gray-200/50 sticky top-24 z-40 shadow-sm">
+      <div className="max-w-8xl mx-auto px-6 lg:px-8">
+        <div className="flex justify-center lg:justify-start space-x-2 relative py-4">
+          {/* Swipe indicator - only show on mobile */}
+          <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 text-xs text-gray-400/70 animate-pulse lg:hidden">
             ← Swipe to navigate →
           </div>
           
           {/* Tab position indicator */}
           <div 
-            className="absolute bottom-0 h-0.5 bg-blue-600 transition-all duration-300 ease-out"
+            className="absolute bottom-0 h-1 bg-gradient-to-r from-primary/80 to-primary rounded-full transition-all duration-300 ease-out"
             style={{
-              width: '33.333%',
-              left: `${tabs.indexOf(activeTab) * 33.333}%`
+              width: `${100 / tabs.length}%`,
+              left: `${tabs.indexOf(activeTab) * (100 / tabs.length)}%`
             }}
           />
           
@@ -110,15 +100,15 @@ export function AssignmentTabs({ activeTab, setActiveTab }: AssignmentTabsProps)
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`flex-1 py-2 px-2 min-h-[44px] text-xs font-medium rounded-t-lg transition-all duration-300 active:scale-95 touch-manipulation ${
+              className={`flex items-center gap-3 px-6 py-3 min-h-[44px] font-semibold rounded-xl transition-all duration-200 active:scale-95 touch-manipulation shadow-sm border ${
                 activeTab === tab
-                  ? 'bg-blue-50 text-blue-700 shadow-sm transform scale-105'
-                  : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50 active:bg-gray-100'
+                  ? 'bg-primary text-white shadow-lg shadow-primary/25 border-primary scale-105'
+                  : 'bg-white text-gray-600 hover:text-primary hover:bg-primary/5 hover:border-primary/20 hover:shadow-md border-gray-200'
               }`}
             >
-              <div className="flex flex-col items-center justify-center space-y-0.5">
+              <div className="flex items-center gap-2">
                 {getBadgeIcon(tab)}
-                <span className="capitalize text-center leading-tight">{getBadgeLabel(tab)}</span>
+                <span className="capitalize whitespace-nowrap text-sm lg:text-base">{getBadgeLabel(tab)}</span>
               </div>
             </button>
           ))}
