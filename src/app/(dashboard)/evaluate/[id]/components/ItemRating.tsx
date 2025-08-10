@@ -296,11 +296,11 @@ export function ItemRating({
                 ref={commentTextareaRef}
                 value={item.comment}
                 onChange={(value) => !isEvaluationLocked && onCommentChange(value)}
-                placeholder={isEvaluationLocked ? "" : (t.evaluations?.commentPlaceholder || 'Share specific examples of performance, achievements, and areas for development...')}
+                placeholder={isEvaluationLocked ? "" : (t.evaluations?.commentPlaceholder || 'Share specific examples of performance, achievements, and areas for development. Touch the microphone to dictate.')}
                 disabled={isEvaluationLocked}
                 rows={6}
                 maxLength={1000}
-                showCharCount={true}
+                showCharCount={false}
                 className={`w-full px-3 py-3 text-base leading-relaxed border-2 rounded-lg shadow-sm transition-all duration-200 resize-none focus:outline-none ${
                   isEvaluationLocked 
                     ? 'bg-gray-50 border-gray-300 cursor-not-allowed text-gray-500'

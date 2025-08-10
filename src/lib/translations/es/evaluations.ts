@@ -41,6 +41,6 @@ export const evaluations: EvaluationsTranslations = {
   comments: 'Comentarios',
   minimumCharacters: 'Mínimo {count} caracteres',
   tapToRate: 'Toca una estrella para calificar',
-  commentPlaceholder: 'Proporciona comentarios específicos y ejemplos...',
+  commentPlaceholder: 'Proporciona comentarios específicos y ejemplos. Toca el micrófono para dictar.',
   commentGuidance: 'Incluye ejemplos específicos y sugerencias prácticas.'
 }
