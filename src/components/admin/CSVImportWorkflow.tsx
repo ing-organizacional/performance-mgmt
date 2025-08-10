@@ -213,7 +213,7 @@ export function CSVImportWorkflow({ onImportComplete }: CSVImportWorkflowProps) 
             </div>
             <button
               onClick={loadImportHistory}
-              className="flex items-center gap-1 px-3 py-2 bg-purple-600 text-white rounded-lg text-xs font-medium hover:bg-purple-700"
+              className="flex items-center gap-1 px-3 py-2 bg-primary text-white rounded-lg text-xs font-medium hover:bg-primary/90"
             >
               <History className="h-4 w-4" />
               {t.users.viewHistory}

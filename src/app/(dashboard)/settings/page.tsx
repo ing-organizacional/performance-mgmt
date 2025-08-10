@@ -51,7 +51,7 @@ export default async function SettingsPage() {
         
         <Suspense fallback={
           <div className="flex items-center justify-center p-8">
-            <LoadingSpinner size="lg" color="blue" />
+            <LoadingSpinner size="lg" color="primary" />
           </div>
         }>
           <SettingsClient user={user} />

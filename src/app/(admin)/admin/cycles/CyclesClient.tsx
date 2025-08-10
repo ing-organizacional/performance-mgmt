@@ -8,6 +8,7 @@ import { LanguageSwitcher } from '@/components/layout'
 import { ToastContainer } from '@/components/ui'
 import { useToast } from '@/hooks/useToast'
 import { createCycle, updateCycleStatus, deleteCycle } from '@/lib/actions/cycles'
+import { CheckCircle, XCircle, Archive, Circle } from 'lucide-react'
 
 interface PerformanceCycle {
   id: string
@@ -99,19 +100,19 @@ export default function CyclesClient({ cycles: initialCycles }: CyclesClientProp
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'active': return 'bg-green-100 text-green-800'
-      case 'closed': return 'bg-red-100 text-red-800'
-      case 'archived': return 'bg-gray-100 text-gray-800'
-      default: return 'bg-gray-100 text-gray-800'
+      case 'active': return 'bg-green-100 text-green-700'
+      case 'closed': return 'bg-red-100 text-red-700'
+      case 'archived': return 'bg-gray-100 text-gray-700'
+      default: return 'bg-gray-100 text-gray-700'
     }
   }
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'active': return '🟢'
-      case 'closed': return '🔴'
-      case 'archived': return '⚫'
-      default: return '⚪'
+      case 'active': return <CheckCircle className="h-6 w-6 text-green-500" />
+      case 'closed': return <XCircle className="h-6 w-6 text-red-500" />
+      case 'archived': return <Archive className="h-6 w-6 text-gray-500" />
+      default: return <Circle className="h-6 w-6 text-gray-400" />
     }
   }
 
@@ -157,7 +158,7 @@ export default function CyclesClient({ cycles: initialCycles }: CyclesClientProp
               <button
                 onClick={() => setShowCreateForm(true)}
                 disabled={isPending}
-                className="flex items-center justify-center space-x-1 px-3 py-2 bg-blue-600 text-white text-xs font-medium rounded-lg hover:bg-blue-700 active:scale-95 transition-all duration-150 touch-manipulation whitespace-nowrap disabled:opacity-50"
+                className="flex items-center justify-center space-x-1 px-3 py-2 bg-primary text-white text-xs font-medium rounded-lg hover:bg-primary/90 active:scale-95 transition-all duration-150 touch-manipulation whitespace-nowrap disabled:opacity-50"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -186,9 +187,7 @@ export default function CyclesClient({ cycles: initialCycles }: CyclesClientProp
                   <div className="flex items-center gap-4 flex-1 min-w-0">
                     {/* Status Icon */}
                     <div className="flex-shrink-0">
-                      <div className="text-2xl">
-                        {getStatusIcon(cycle.status)}
-                      </div>
+                      {getStatusIcon(cycle.status)}
                     </div>
                     
                     {/* Cycle Info */}
@@ -310,7 +309,7 @@ export default function CyclesClient({ cycles: initialCycles }: CyclesClientProp
                   type="text"
                   required
                   placeholder="e.g., 2025 Annual Review"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                 />
               </div>
 
@@ -320,7 +319,7 @@ export default function CyclesClient({ cycles: initialCycles }: CyclesClientProp
                   name="startDate"
                   type="date"
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                 />
               </div>
 
@@ -330,7 +329,7 @@ export default function CyclesClient({ cycles: initialCycles }: CyclesClientProp
                   name="endDate"
                   type="date"
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                 />
               </div>
 
@@ -346,7 +345,7 @@ export default function CyclesClient({ cycles: initialCycles }: CyclesClientProp
                 <button
                   type="submit"
                   disabled={isPending}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
+                  className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50"
                 >
                   {isPending ? t.dashboard.creating : t.dashboard.createCycle}
                 </button>

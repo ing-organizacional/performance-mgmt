@@ -284,7 +284,7 @@ export default function PDFExportCenter({ isOpen, onClose, companyId }: PDFExpor
       
       {/* Modal Container - Mobile First */}
       <div className="relative min-h-screen flex items-end sm:items-center justify-center p-0 sm:p-4">
-        <div className="relative bg-white rounded-t-xl sm:rounded-lg shadow-xl w-full sm:max-w-2xl h-[95vh] sm:h-[90vh] flex flex-col overflow-hidden transform transition-all">
+        <div className="relative bg-white rounded-t-2xl sm:rounded-xl shadow-2xl w-full sm:max-w-3xl lg:max-w-4xl h-[95vh] sm:h-[90vh] flex flex-col overflow-hidden transform transition-all duration-300">
           {/* Header - Fixed */}
           <div className="flex-shrink-0 flex items-center justify-between p-4 sm:p-6 border-b border-gray-200 bg-white">
             <div>
@@ -297,7 +297,7 @@ export default function PDFExportCenter({ isOpen, onClose, companyId }: PDFExpor
             </div>
             <button
               onClick={onClose}
-              className="flex items-center justify-center w-8 h-8 rounded-lg hover:bg-gray-100 active:scale-95 transition-all duration-150 touch-manipulation"
+              className="flex items-center justify-center w-10 h-10 rounded-lg hover:bg-gray-100 active:scale-95 transition-all duration-150 touch-manipulation"
             >
               <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -331,34 +331,39 @@ export default function PDFExportCenter({ isOpen, onClose, companyId }: PDFExpor
             )}
 
             {/* Quick Action Buttons */}
-            <div className="bg-gray-50 rounded-lg p-4 mb-6">
-              <h3 className="text-sm font-medium text-gray-900 mb-3">{t.dashboard.quickActions}</h3>
-              <div className="flex flex-wrap gap-2">
+            <div className="bg-gradient-to-r from-gray-50 to-gray-100/50 rounded-xl p-5 mb-6 border border-gray-200/50">
+              <h3 className="text-base font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+                {t.dashboard.quickActions}
+              </h3>
+              <div className="flex flex-wrap gap-3">
                 <button
                   onClick={() => handleBulkAction('pdf')}
-                  className="flex items-center gap-2 px-3 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors text-sm font-medium"
+                  className="flex items-center gap-2 px-4 py-2.5 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 active:scale-95 transition-all duration-150 text-sm font-medium touch-manipulation min-h-[40px]"
                 >
                   {getFormatIcon('pdf')}
                   {t.dashboard.exportAllPDF}
                 </button>
                 <button
                   onClick={() => handleBulkAction('excel')}
-                  className="flex items-center gap-2 px-3 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors text-sm font-medium"
+                  className="flex items-center gap-2 px-4 py-2.5 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 active:scale-95 transition-all duration-150 text-sm font-medium touch-manipulation min-h-[40px]"
                 >
                   {getFormatIcon('excel')}
                   {t.dashboard.exportAllExcel}
                 </button>
                 <button
                   onClick={() => setSelectedExports([])}
-                  className="px-3 py-2 text-gray-600 hover:bg-gray-200 rounded-lg transition-colors text-sm"
+                  className="px-4 py-2.5 text-gray-600 hover:bg-gray-200 active:scale-95 rounded-lg transition-all duration-150 text-sm font-medium touch-manipulation min-h-[40px]"
                 >
                   {t.dashboard.clearAll}
                 </button>
               </div>
             </div>
 
-            {/* Report Options - Compact Grid */}
-            <div className="grid gap-3">
+            {/* Report Options - Enhanced Grid */}
+            <div className="grid gap-4">
               {exportOptions.map((option) => {
                 const selected = isSelected(option.id)
                 const selectedFormat = getSelectedFormat(option.id)
@@ -368,10 +373,10 @@ export default function PDFExportCenter({ isOpen, onClose, companyId }: PDFExpor
                 return (
                   <div key={option.id}>
                     <div
-                      className={`rounded-lg border-2 p-3 transition-all duration-150 cursor-pointer ${
+                      className={`rounded-lg border-2 p-4 transition-all duration-150 cursor-pointer touch-manipulation ${
                         selected
-                          ? 'border-blue-200 bg-blue-50'
-                          : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                          ? 'border-primary/30 bg-primary/5'
+                          : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50 active:scale-[0.98]'
                       }`}
                       onClick={() => toggleOption(option.id)}
                     >
@@ -381,18 +386,18 @@ export default function PDFExportCenter({ isOpen, onClose, companyId }: PDFExpor
                             type="checkbox"
                             checked={selected}
                             onChange={() => toggleOption(option.id)}
-                            className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+                            className="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary focus:ring-2"
                             onClick={(e) => e.stopPropagation()}
                           />
                           <div className="flex items-center gap-2">
                             {getIcon(option.icon)}
                             <div>
-                              <h3 className="text-sm font-medium text-gray-900">{option.label}</h3>
-                              <p className="text-xs text-gray-600">
+                              <h3 className="text-base font-semibold text-gray-900">{option.label}</h3>
+                              <p className="text-sm text-gray-600 mt-1">
                                 {isCustomSelection && selectedEmployeeIds.length > 0 
-                                  ? `${selectedEmployeeIds.length} employees selected`
+                                  ? `${selectedEmployeeIds.length} ${t.dashboard.employeesSelected}`
                                   : isDepartmentSelection && selectedDepartments.length > 0
-                                  ? `${selectedDepartments.length} departments selected`
+                                  ? `${selectedDepartments.length} ${t.dashboard.departmentsSelected}`
                                   : option.description
                                 }
                               </p>
@@ -403,15 +408,15 @@ export default function PDFExportCenter({ isOpen, onClose, companyId }: PDFExpor
                         {/* Format Toggle - Only show when selected */}
                         {selected && (
                           <div 
-                            className="flex items-center bg-white rounded-lg border border-gray-200 p-1"
+                            className="flex items-center bg-white rounded-lg border border-gray-200 p-1 shadow-sm"
                             onClick={(e) => e.stopPropagation()}
                           >
                             <button
                               onClick={() => toggleFormat(option.id, 'pdf')}
-                              className={`flex items-center gap-1 px-2 py-1 rounded text-xs font-medium transition-colors ${
+                              className={`flex items-center gap-1.5 px-3 py-2 rounded-md text-sm font-medium transition-all duration-150 touch-manipulation min-h-[36px] ${
                                 selectedFormat === 'pdf'
-                                  ? 'bg-red-100 text-red-700'
-                                  : 'text-gray-600 hover:bg-gray-100'
+                                  ? 'bg-red-100 text-red-700 shadow-sm'
+                                  : 'text-gray-600 hover:bg-gray-100 active:scale-95'
                               }`}
                             >
                               {getFormatIcon('pdf')}
@@ -419,10 +424,10 @@ export default function PDFExportCenter({ isOpen, onClose, companyId }: PDFExpor
                             </button>
                             <button
                               onClick={() => toggleFormat(option.id, 'excel')}
-                              className={`flex items-center gap-1 px-2 py-1 rounded text-xs font-medium transition-colors ${
+                              className={`flex items-center gap-1.5 px-3 py-2 rounded-md text-sm font-medium transition-all duration-150 touch-manipulation min-h-[36px] ${
                                 selectedFormat === 'excel'
-                                  ? 'bg-green-100 text-green-700'
-                                  : 'text-gray-600 hover:bg-gray-100'
+                                  ? 'bg-green-100 text-green-700 shadow-sm'
+                                  : 'text-gray-600 hover:bg-gray-100 active:scale-95'
                               }`}
                             >
                               {getFormatIcon('excel')}
@@ -435,8 +440,8 @@ export default function PDFExportCenter({ isOpen, onClose, companyId }: PDFExpor
 
                     {/* Custom Employee Selection - Show when custom selection is active */}
                     {isCustomSelection && showCustomSelection && (
-                      <div className="mt-3 rounded-lg border border-blue-200 bg-blue-50 p-3">
-                        <h4 className="text-sm font-medium text-gray-900 mb-2">Select Employees to Export:</h4>
+                      <div className="mt-3 rounded-lg border border-primary/30 bg-primary/5 p-4">
+                        <h4 className="text-sm font-semibold text-gray-900 mb-3">{t.dashboard.selectEmployeesToExport}</h4>
                         <EmployeeSelector 
                           onSelectionChange={setSelectedEmployeeIds}
                           companyId={companyId}
@@ -446,8 +451,8 @@ export default function PDFExportCenter({ isOpen, onClose, companyId }: PDFExpor
 
                     {/* Department Selection - Show when department summary is active */}
                     {isDepartmentSelection && showDepartmentSelection && (
-                      <div className="mt-3 rounded-lg border border-blue-200 bg-blue-50 p-3">
-                        <h4 className="text-sm font-medium text-gray-900 mb-2">Select Departments to Export:</h4>
+                      <div className="mt-3 rounded-lg border border-primary/30 bg-primary/5 p-4">
+                        <h4 className="text-sm font-semibold text-gray-900 mb-3">{t.dashboard.selectDepartmentsToExport}</h4>
                         <DepartmentSelector 
                           onSelectionChange={setSelectedDepartments}
                           companyId={companyId}
@@ -465,24 +470,28 @@ export default function PDFExportCenter({ isOpen, onClose, companyId }: PDFExpor
             <div className="text-sm text-gray-600">
               {selectedExports.length > 0 ? (
                 <>
-                  {selectedExports.length} {selectedExports.length === 1 ? 'report selected' : 'reports selected'}
-                  <div className="text-xs text-gray-500 mt-1 flex items-center gap-3">
-                    <span className="flex items-center gap-1">
-                      {getFormatIcon('excel')} {selectedExports.filter(exp => exp.format === 'excel').length}
+                  <div className="font-medium text-gray-900">
+                    {selectedExports.length} {selectedExports.length === 1 ? t.dashboard.reportSelected : t.dashboard.reportsSelectedPlural}
+                  </div>
+                  <div className="text-xs text-gray-500 mt-1 flex items-center gap-4">
+                    <span className="flex items-center gap-1.5 px-2 py-1 bg-green-50 rounded-md">
+                      {getFormatIcon('excel')} 
+                      <span className="font-medium">{selectedExports.filter(exp => exp.format === 'excel').length}</span>
                     </span>
-                    <span className="flex items-center gap-1">  
-                      {getFormatIcon('pdf')} {selectedExports.filter(exp => exp.format === 'pdf').length}
+                    <span className="flex items-center gap-1.5 px-2 py-1 bg-red-50 rounded-md">  
+                      {getFormatIcon('pdf')} 
+                      <span className="font-medium">{selectedExports.filter(exp => exp.format === 'pdf').length}</span>
                     </span>
                   </div>
                 </>
               ) : (
-                'Select reports to export'
+                <span className="text-gray-500">{t.dashboard.selectReportsToExport}</span>
               )}
             </div>
             <div className="flex items-center gap-3">
               <button
                 onClick={onClose}
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                className="px-5 py-2.5 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 active:scale-95 transition-all duration-150 touch-manipulation min-h-[44px]"
               >
                 {t.common.cancel}
               </button>
@@ -491,30 +500,33 @@ export default function PDFExportCenter({ isOpen, onClose, companyId }: PDFExpor
                 disabled={selectedExports.length === 0 || isExporting || 
                   (showCustomSelection && selectedEmployeeIds.length === 0) ||
                   (showDepartmentSelection && selectedDepartments.length === 0)}
-                className={`px-4 py-2 text-sm font-medium text-white rounded-lg transition-colors ${
+                className={`px-5 py-2.5 text-sm font-medium text-white rounded-lg transition-all duration-150 touch-manipulation min-h-[44px] ${
                   selectedExports.length === 0 || isExporting || 
                   (showCustomSelection && selectedEmployeeIds.length === 0) ||
                   (showDepartmentSelection && selectedDepartments.length === 0)
                     ? 'bg-gray-400 cursor-not-allowed'
-                    : 'bg-blue-600 hover:bg-blue-700'
+                    : 'bg-primary hover:bg-primary/90 active:scale-95 shadow-sm'
                 }`}
               >
                 {isExporting ? (
                   <div className="flex items-center gap-2">
-                    <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                      <path className="opacity-75" fill="currentColor" d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 714 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                    </svg>
-                    {t.dashboard.exporting || 'Exporting...'}
+                    <div className="relative">
+                      <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-20" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 714 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                      </svg>
+                      <div className="absolute inset-0 rounded-full bg-primary/10 animate-pulse"></div>
+                    </div>
+                    <span className="animate-pulse">{t.dashboard.exporting || 'Exporting...'}</span>
                   </div>
                 ) : (
                   selectedExports.length === 0 
-                    ? 'Select Reports to Export'
+                    ? t.dashboard.selectReportsFirst
                     : showCustomSelection && selectedEmployeeIds.length === 0
-                    ? 'Select Employees First'
+                    ? t.dashboard.selectEmployeesFirst
                     : showDepartmentSelection && selectedDepartments.length === 0
-                    ? 'Select Departments First'
-                    : `Export ${selectedExports.length} File${selectedExports.length !== 1 ? 's' : ''}`
+                    ? t.dashboard.selectDepartmentsFirst
+                    : selectedExports.length === 1 ? t.dashboard.exportFiles.replace('{count}', selectedExports.length.toString()) : t.dashboard.exportFilesPlural.replace('{count}', selectedExports.length.toString())
                 )}
               </button>
             </div>

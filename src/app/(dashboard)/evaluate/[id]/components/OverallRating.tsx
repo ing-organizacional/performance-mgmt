@@ -2,6 +2,7 @@ import { useLanguage } from '@/contexts/LanguageContext'
 import { SpeechTextarea, StarRating } from '@/components/ui'
 import type { EvaluationStatus } from '../types'
 import { MIN_COMMENT_LENGTH } from '../types'
+import { BarChart3 } from 'lucide-react'
 
 interface OverallRatingProps {
   overallRating: number | null
@@ -26,7 +27,7 @@ export function OverallRating({
       <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
         <div className="mb-6">
           <div className="flex items-center mb-2">
-            <span className="text-2xl mr-2">📊</span>
+            <BarChart3 className="h-5 w-5 mr-2 text-primary" />
             <span className="text-xs font-medium text-blue-600 uppercase tracking-wide">
               {t.evaluations?.overallRating || 'Overall Rating'}
             </span>

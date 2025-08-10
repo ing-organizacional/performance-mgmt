@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { LanguageSwitcher } from '@/components/layout'
 import { exportAuditLogsToExcel } from '@/lib/services/audit-export'
+import { FileText, User, RotateCcw, Edit3, CheckCircle, BarChart3, File } from 'lucide-react'
 
 interface AuditLog {
   id: string
@@ -82,7 +83,7 @@ export default function AuditDashboard({
       create: 'bg-green-100 text-green-800',
       update: 'bg-blue-100 text-blue-800',
       delete: 'bg-red-100 text-red-800',
-      submit: 'bg-purple-100 text-purple-800',
+      submit: 'bg-primary/10 text-primary',
       approve: 'bg-green-100 text-green-800',
       unlock: 'bg-yellow-100 text-yellow-800',
       login: 'bg-gray-100 text-gray-800',
@@ -93,15 +94,15 @@ export default function AuditDashboard({
   }
 
   const getEntityTypeIcon = (type: string) => {
-    const icons: Record<string, string> = {
-      evaluation: '📋',
-      user: '👤',
-      cycle: '🔄',
-      item: '📝',
-      assignment: '✅',
-      report: '📊'
+    const iconComponents: Record<string, React.ReactElement> = {
+      evaluation: <FileText className="h-4 w-4" />,
+      user: <User className="h-4 w-4" />,
+      cycle: <RotateCcw className="h-4 w-4" />,
+      item: <Edit3 className="h-4 w-4" />,
+      assignment: <CheckCircle className="h-4 w-4" />,
+      report: <BarChart3 className="h-4 w-4" />
     }
-    return icons[type] || '📄'
+    return iconComponents[type] || <File className="h-4 w-4" />
   }
 
   const formatDate = (dateString: string) => {

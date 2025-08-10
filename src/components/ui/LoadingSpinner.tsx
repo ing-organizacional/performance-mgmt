@@ -2,12 +2,12 @@
 
 interface LoadingSpinnerProps {
   size?: 'sm' | 'md' | 'lg' | 'xl'
-  color?: 'blue' | 'green' | 'orange' | 'purple' | 'gray' | 'red'
+  color?: 'primary' | 'green' | 'orange' | 'gray' | 'red'
 }
 
 export default function LoadingSpinner({ 
   size = 'md', 
-  color = 'blue' 
+  color = 'primary' 
 }: LoadingSpinnerProps) {
   const sizeClasses = {
     sm: 'w-4 h-4',
@@ -17,12 +17,11 @@ export default function LoadingSpinner({
   }
   
   const colorClasses = {
-    blue: 'border-blue-600',
-    green: 'border-green-600',
-    orange: 'border-orange-600', 
-    purple: 'border-purple-600',
+    primary: 'border-primary',
+    green: 'border-green-500',
+    orange: 'border-amber-500',
     gray: 'border-gray-600',
-    red: 'border-red-600'
+    red: 'border-red-500'
   }
 
   return (

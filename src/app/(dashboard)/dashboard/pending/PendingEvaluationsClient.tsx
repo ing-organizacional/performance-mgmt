@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { LanguageSwitcher } from '@/components/layout'
 import { SearchFilterBar } from '@/components/ui'
 import { useLanguage } from '@/contexts/LanguageContext'
+import { User, Building2, AlertCircle } from 'lucide-react'
 
 interface PendingEmployee {
   id: string
@@ -129,7 +130,7 @@ export default function PendingEvaluationsClient({
             <div className="mt-4 pt-4 border-t border-orange-400/30">
               <div className="flex items-center justify-between text-sm">
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-yellow-300 rounded-full"></div>
+                  <AlertCircle className="h-4 w-4 text-yellow-200" />
                   <span className="text-orange-100">
                     {pendingEmployees.length} {t.dashboard.employeesWithoutEvaluations}
                   </span>
@@ -173,7 +174,7 @@ export default function PendingEvaluationsClient({
                               {employee.department || t.common.unassigned}
                             </span>
                             {employee.role === 'manager' && (
-                              <span className="px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full text-xs font-medium shrink-0">
+                              <span className="px-2 py-0.5 bg-amber-100 text-amber-700 rounded-full text-xs font-medium shrink-0">
                                 {t.common.manager}
                               </span>
                             )}
@@ -181,20 +182,20 @@ export default function PendingEvaluationsClient({
                           <div className="text-xs text-gray-600">
                             {employee.manager ? (
                               <div className="flex items-center gap-1">
-                                <div className="w-1.5 h-1.5 rounded-full bg-blue-500 shrink-0"></div>
+                                <User className="h-3 w-3 text-primary shrink-0" />
                                 <span className="truncate">{t.common.manager}: {employee.manager.name}</span>
                               </div>
                             ) : (
                               <div className="flex items-center gap-1">
-                                <div className="w-1.5 h-1.5 rounded-full bg-orange-500 shrink-0"></div>
-                                <span className="text-orange-600 truncate">{t.dashboard.noManagerAssigned || `No ${t.common.manager.toLowerCase()} assigned`}</span>
+                                <Building2 className="h-3 w-3 text-amber-500 shrink-0" />
+                                <span className="text-amber-500 truncate">{t.dashboard.noManagerAssigned || `No ${t.common.manager.toLowerCase()} assigned`}</span>
                               </div>
                             )}
                           </div>
                         </div>
                         <button
                           onClick={() => router.push(`/evaluate/${employee.id}`)}
-                          className="px-3 py-2 bg-blue-100 text-blue-700 text-xs font-medium rounded-lg hover:bg-blue-200 active:scale-95 transition-all duration-150 touch-manipulation shrink-0 ml-3"
+                          className="px-3 py-2 bg-primary/10 text-primary text-xs font-medium rounded-lg hover:bg-primary/20 active:scale-95 transition-all duration-150 touch-manipulation shrink-0 ml-3"
                         >
                           {t.dashboard.startEvaluation}
                         </button>

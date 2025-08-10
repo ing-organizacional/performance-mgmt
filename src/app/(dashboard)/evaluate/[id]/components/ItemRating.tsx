@@ -63,7 +63,7 @@ export function ItemRating({
                 </span>
                 {item.level && (
                   <span className={`text-xs px-2 py-1 rounded-full font-medium flex items-center gap-1 ${
-                    item.level === 'company' ? 'bg-purple-100 text-purple-700' :
+                    item.level === 'company' ? 'bg-primary/10 text-primary' :
                     item.level === 'department' ? 'bg-green-100 text-green-700' :
                     'bg-blue-100 text-blue-700'
                   }`}>

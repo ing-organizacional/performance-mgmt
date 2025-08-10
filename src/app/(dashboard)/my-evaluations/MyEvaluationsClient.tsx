@@ -5,6 +5,7 @@ import { signOut } from 'next-auth/react'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { LanguageSwitcher } from '@/components/layout'
 import type { EvaluationCycle } from '@/types'
+import { FileText, Target, Clock, Edit, AlertTriangle } from 'lucide-react'
 
 interface Evaluation {
   id: string
@@ -141,7 +142,9 @@ export default function MyEvaluationsClient({ evaluations, userName, activeCycle
             if (evaluations.length === 0) {
               return (
                 <div className="text-center py-8">
-                  <div className="text-6xl mb-4">📋</div>
+                  <div className="mb-4">
+                    <FileText className="w-16 h-16 mx-auto text-gray-400" />
+                  </div>
                   <h3 className="text-lg font-medium text-gray-900 mb-2">
                     {t.nav.noEvaluationsYet}
                   </h3>
@@ -197,7 +200,9 @@ export default function MyEvaluationsClient({ evaluations, userName, activeCycle
               // No evaluation for current cycle
               return (
                 <div className="text-center py-8">
-                  <div className="text-6xl mb-4">📋</div>
+                  <div className="mb-4">
+                    <FileText className="w-16 h-16 mx-auto text-gray-400" />
+                  </div>
                   <h3 className="text-lg font-medium text-gray-900 mb-2">
                     {t.nav.noEvaluationsYet}
                   </h3>
@@ -209,7 +214,9 @@ export default function MyEvaluationsClient({ evaluations, userName, activeCycle
             } else if (latestEvaluation.status === 'completed') {
               return (
                 <div className="text-center py-8">
-                  <div className="text-6xl mb-4">🎯</div>
+                  <div className="mb-4">
+                    <Target className="w-16 h-16 mx-auto text-green-500" />
+                  </div>
                   <h3 className="text-lg font-medium text-gray-900 mb-2">
                     {t.nav.evaluationComplete}
                   </h3>
@@ -236,7 +243,9 @@ export default function MyEvaluationsClient({ evaluations, userName, activeCycle
             if (latestEvaluation.status === 'submitted') {
               return (
                 <div className="text-center py-8">
-                  <div className="text-6xl mb-4">⏳</div>
+                  <div className="mb-4">
+                    <Clock className="w-16 h-16 mx-auto text-amber-500" />
+                  </div>
                   <h3 className="text-lg font-medium text-gray-900 mb-2">
                     {t.nav.awaitingYourApproval}
                   </h3>
@@ -253,7 +262,9 @@ export default function MyEvaluationsClient({ evaluations, userName, activeCycle
             if (latestEvaluation.status === 'draft') {
               return (
                 <div className="text-center py-8">
-                  <div className="text-6xl mb-4">📝</div>
+                  <div className="mb-4">
+                    <Edit className="w-16 h-16 mx-auto text-primary" />
+                  </div>
                   <h3 className="text-lg font-medium text-gray-900 mb-2">
                     {t.nav.evaluationInProgress}
                   </h3>

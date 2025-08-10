@@ -1,5 +1,6 @@
 import { useLanguage } from '@/contexts/LanguageContext'
 import type { Employee, EvaluationItem } from '../types'
+import { Target, Star } from 'lucide-react'
 
 interface EmployeeSelectorProps {
   employees: Employee[]
@@ -110,8 +111,8 @@ export function EmployeeSelector({
                   {employee.assignedItems.slice(0, 3).map((itemId) => {
                     const item = evaluationItems.find(evalItem => evalItem.id === itemId)
                     return item ? (
-                      <div key={itemId} className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs bg-blue-100 text-blue-700 border border-blue-200">
-                        <span>{item.type === 'okr' ? '🎯' : '⭐'} {item.title.slice(0, 12)}...</span>
+                      <div key={itemId} className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs bg-primary/10 text-primary border border-primary/20">
+                        <span className="flex items-center gap-1">{item.type === 'okr' ? <Target className="h-3 w-3 text-primary" /> : <Star className="h-3 w-3 text-amber-500" />} {item.title.slice(0, 12)}...</span>
                         <button
                           onClick={(e) => {
                             e.preventDefault()

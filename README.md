@@ -11,6 +11,7 @@ Enterprise performance management system handling **4000+ employees across 27 co
 - **Bilingual support** (English/Spanish) with instant language switching
 - **Multi-modal authentication** (email + password / username + PIN / biometric)
 - **WebAuthn/FIDO2 biometric authentication** (Face ID, Touch ID, Fingerprint)
+- **Enterprise SSO ready** (Microsoft Active Directory & Google Workspace) - [📋 Integration Guide](SSO_INTEGRATION.md)
 - **Performance cycle management** with read-only enforcement during closed periods
 - **Server Actions architecture** for improved type safety and performance
 - **Complete audit trails** and multi-company data isolation
@@ -60,9 +61,18 @@ yarn tsc --noEmit && yarn lint
 ### Authentication & Security
 
 - **Multi-modal Authentication**: Email/password, username/PIN, biometric (WebAuthn/FIDO2)
+- **Enterprise SSO Support**: Microsoft Active Directory & Google Workspace integration
 - **Role-based Access Control**: HR, Manager, Employee permissions
-- **Company Data Isolation**: Complete multi-tenant architecture
+- **Company Data Isolation**: Complete multi-tenant architecture  
 - **Audit Logging**: Every action tracked with user, timestamp, and changes
+
+#### Enterprise SSO Features
+- **Microsoft Azure AD/Entra ID**: Corporate directory integration with group-based role mapping
+- **Google Workspace**: GSuite integration with domain restrictions
+- **Hybrid Authentication**: SSO + traditional methods for mixed environments
+- **Automatic Provisioning**: New employees get immediate access via corporate directory
+- **Centralized Deactivation**: Terminated employees immediately lose access
+- **📋 [Complete SSO Integration Guide](SSO_INTEGRATION.md)**: Comprehensive implementation plan
 
 ### Evaluation Management
 
@@ -324,11 +334,20 @@ src/
 - `POST /api/auth/update-last-login` - Login timestamp tracking
 - `GET/PUT /api/evaluation-items` - Evaluation item management (2 endpoints)
 
+## 📚 Additional Documentation
+
+- **[📋 SSO Integration Guide](SSO_INTEGRATION.md)** - Comprehensive Microsoft Active Directory & Google Workspace integration
+- **[📖 Versioning Guidelines](VERSIONING.md)** - Semantic versioning and release management
+- **[🔒 Security Documentation](SECURITY.md)** - Security features, compliance, and risk assessment
+- **[🚀 Deployment Guide](DEPLOYMENT.md)** - Production deployment with Docker and security hardening
+- **[👥 User Management Guide](USER_MANAGEMENT.md)** - Managing users via Prisma Studio, CSV import, and Server Actions
+- **[🔍 API Audit](API_AUDIT.md)** - Complete audit of API endpoints and Server Actions migration
+
 ## 🤝 Support
 
 For issues and questions:
 
-- Check existing documentation
+- Check existing documentation above
 - Review demo data and test workflows
 - Submit issues with detailed reproduction steps
 - Include browser/device information for UI issues

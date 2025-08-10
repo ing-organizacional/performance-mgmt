@@ -25,9 +25,8 @@ export const dashboard: DashboardTranslations = {
   administrativeActions: 'Acciones Administrativas',
   generateReports: 'Generar Reportes',
   exportPDF: 'Exportar PDF',
-  pdfExportCenter: 'Descarga de reportes',
-  exportCenter: 'Centro de Exportación',
-  selectReportsToExport: 'Selecciona los reportes que deseas exportar',
+  pdfExportCenter: 'Centro de Reportes',
+  exportCenter: 'Centro de Reportes',
   selectReportsAndFormats: 'Elige reportes y formatos para exportar',
   companyOverview: 'Resumen de Empresa',
   allEmployeesAllDepartments: 'Todos los empleados de todos los departamentos',
@@ -218,5 +217,45 @@ export const dashboard: DashboardTranslations = {
   overdueItemsCount: 'elementos vencidos',
   daysOverdue: 'días vencidos',
   switchToEmployeeList: 'Lista Completa',
-  switchToManagerGroups: 'Agrupar por Jefatura'
+  switchToManagerGroups: 'Agrupar por Jefatura',
+  
+  // Export Center Modal
+  reportSelected: 'reporte seleccionado',
+  reportsSelectedPlural: 'reportes seleccionados',
+  selectReportsToExport: 'Seleccionar reportes para exportar',
+  selectEmployeesToExport: 'Seleccionar Empleados para Exportar:',
+  selectDepartmentsToExport: 'Seleccionar Departamentos para Exportar:',
+  employeesSelected: 'empleados seleccionados',
+  departmentsSelected: 'departamentos seleccionados',
+  selectReportsFirst: 'Seleccionar Reportes para Exportar',
+  selectEmployeesFirst: 'Seleccionar Empleados Primero',
+  selectDepartmentsFirst: 'Seleccionar Departamentos Primero',
+  exportFiles: 'Exportar {count} Archivo',
+  exportFilesPlural: 'Exportar {count} Archivos',
+  
+  // Administrative Actions Section
+  attentionRequired: 'Atención Requerida',
+  deadlines: 'Fechas Límite',
+  primaryManagement: 'Gestión Principal',
+  systemAdministration: 'Administración del Sistema',
+  monitoringAnalysis: 'Monitoreo y Análisis',
+  evaluationAssignments: 'Asignaciones de Evaluación',
+  manageOkrsCompetencies: 'Gestionar OKRs y Competencias',
+  generateReportsAnalysis: 'Generar reportes y análisis',
+  totalEmployeesHeader: 'Total de Empleados',
+  avgRatingHeader: 'Calificación Promedio',
+  noActivePerformanceCycle: 'Sin ciclo de desempeño activo',
+  
+  // Completion Status Card
+  clickToManagePending: 'Clic para gestionar evaluaciones pendientes',
+  completeStatus: 'Completo',
+  inProgressStatus: 'En Progreso',
+  
+  // Critical Actions
+  overdueEvaluationsCount: 'Evaluaciones Vencidas',
+  dueSoonCount: 'Por Vencer',
+  overdueText: 'vencidos',
+  daysOverdueText: 'días vencidos',
+  viewAllOverdue: 'Ver todos los {count} borradores vencidos →',
+  managerLabel: 'Jefatura'
 }

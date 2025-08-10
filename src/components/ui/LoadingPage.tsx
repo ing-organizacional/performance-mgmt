@@ -48,7 +48,7 @@ export default function LoadingPage({
           <div className="relative">
             {/* Main Spinner */}
             <div className="flex justify-center mb-6">
-              <LoadingSpinner size="xl" color="blue" />
+              <LoadingSpinner size="xl" color="primary" />
             </div>
             
             {/* Pulse Effect */}

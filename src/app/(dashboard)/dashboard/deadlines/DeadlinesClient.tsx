@@ -5,7 +5,7 @@ import { useState } from 'react'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { LanguageSwitcher } from '@/components/layout'
 import { SearchFilterBar } from '@/components/ui'
-import { Filter, Users, ChevronDown } from 'lucide-react'
+import { Filter, Users, ChevronDown, Target, Star } from 'lucide-react'
 
 interface EmployeeEvaluationStatus {
   employeeId: string
@@ -170,7 +170,7 @@ export default function DeadlinesClient({
           onClick={() => setViewMode(viewMode === 'managers' ? 'list' : 'managers')}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
             viewMode === 'managers' 
-              ? 'bg-blue-100 text-blue-600 hover:bg-blue-200' 
+              ? 'bg-primary/10 text-primary hover:bg-primary/20' 
               : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
           }`}
         >
@@ -186,15 +186,15 @@ export default function DeadlinesClient({
         {/* Statistics Overview */}
         <div className="grid grid-cols-3 gap-4">
           <div className="bg-white rounded-lg border border-gray-200 p-4 text-center">
-            <div className="text-2xl font-bold text-blue-600">{stats.totalManagers}</div>
+            <div className="text-2xl font-bold text-primary">{stats.totalManagers}</div>
             <div className="text-xs text-gray-600">{t.dashboard.managersWithIssues}</div>
           </div>
           <div className="bg-white rounded-lg border border-gray-200 p-4 text-center">
-            <div className="text-2xl font-bold text-red-600">{stats.totalOverdueEmployees}</div>
+            <div className="text-2xl font-bold text-red-500">{stats.totalOverdueEmployees}</div>
             <div className="text-xs text-gray-600">{t.dashboard.employeesBehind}</div>
           </div>
           <div className="bg-white rounded-lg border border-gray-200 p-4 text-center">
-            <div className="text-2xl font-bold text-orange-600">{stats.totalOverdueItems}</div>
+            <div className="text-2xl font-bold text-amber-500">{stats.totalOverdueItems}</div>
             <div className="text-xs text-gray-600">{t.dashboard.overdueItems}</div>
           </div>
         </div>
@@ -223,10 +223,10 @@ export default function DeadlinesClient({
                         </p>
                       </div>
                       <div className="flex items-center gap-4 text-xs">
-                        <span className="text-red-600 font-medium">
+                        <span className="text-red-500 font-medium">
                           {manager.totalOverdueEmployees} {t.dashboard.employeesBehindEvaluations}
                         </span>
-                        <span className="text-orange-600 font-medium">
+                        <span className="text-amber-500 font-medium">
                           {manager.totalOverdueItems} {t.dashboard.overdueItemsCount}
                         </span>
                       </div>
@@ -277,9 +277,10 @@ export default function DeadlinesClient({
                                     <div className="flex items-start justify-between">
                                       <div className="flex-1 min-w-0">
                                         <div className="flex items-center gap-1.5 mb-1">
-                                          <span className={`w-1.5 h-1.5 rounded-full ${
-                                            item.type === 'okr' ? 'bg-blue-500' : 'bg-purple-500'
-                                          }`} />
+                                          {item.type === 'okr' ? 
+                                            <Target className="h-4 w-4 text-primary" /> : 
+                                            <Star className="h-4 w-4 text-amber-500" />
+                                          }
                                           <span className="text-xs font-medium text-gray-900 truncate">
                                             {item.title}
                                           </span>
@@ -374,9 +375,10 @@ export default function DeadlinesClient({
                                 <div className="flex items-start justify-between">
                                   <div className="flex-1 min-w-0">
                                     <div className="flex items-center gap-1.5 mb-1">
-                                      <span className={`w-1.5 h-1.5 rounded-full ${
-                                        item.type === 'okr' ? 'bg-blue-500' : 'bg-purple-500'
-                                      }`} />
+                                      {item.type === 'okr' ? 
+                                        <Target className="h-4 w-4 text-primary" /> : 
+                                        <Star className="h-4 w-4 text-amber-500" />
+                                      }
                                       <span className="text-xs font-medium text-gray-900 truncate">
                                         {item.title}
                                       </span>

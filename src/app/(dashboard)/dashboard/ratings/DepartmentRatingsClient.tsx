@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { LanguageSwitcher } from '@/components/layout'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { useExport } from '@/hooks/useExport'
+import { User, Users, AlertTriangle } from 'lucide-react'
 
 interface DepartmentRating {
   department: string
@@ -72,7 +73,7 @@ function DepartmentRatingCard({ department }: { department: DepartmentRating }) 
   const status = getDepartmentStatus()
   const statusStyling = {
     urgent: 'border-l-red-500 bg-red-50',
-    attention: 'border-l-orange-500 bg-orange-50', 
+    attention: 'border-l-amber-500 bg-amber-50', 
     complete: 'border-l-green-500 bg-green-50',
     normal: 'border-l-gray-300 bg-white'
   }
@@ -84,7 +85,7 @@ function DepartmentRatingCard({ department }: { department: DepartmentRating }) 
         <div className="flex-1">
           <h3 className="text-lg font-bold text-gray-900 mb-1">{department.department}</h3>
           <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+            <User className="h-4 w-4 text-primary" />
             <span className="text-sm font-medium text-gray-700">
               {department.manager ? department.manager.name : t.dashboard.noManager}
             </span>
@@ -131,8 +132,8 @@ function DepartmentRatingCard({ department }: { department: DepartmentRating }) 
           <div className="text-base font-bold text-green-600">{department.employees.evaluated}</div>
           <div className="text-xs text-gray-600 font-medium">{t.dashboard.evaluated}</div>
         </div>
-        <div className="bg-orange-50 rounded-lg p-2 text-center border border-orange-100">
-          <div className="text-base font-bold text-orange-600">{department.employees.pending}</div>
+        <div className="bg-amber-50 rounded-lg p-2 text-center border border-amber-100">
+          <div className="text-base font-bold text-amber-600">{department.employees.pending}</div>
           <div className="text-xs text-gray-600 font-medium">{t.dashboard.pending}</div>
         </div>
       </div>
@@ -156,7 +157,7 @@ function DepartmentRatingCard({ department }: { department: DepartmentRating }) 
             )}
             {department.ratings.exceeds > 0 && (
               <div 
-                className="bg-blue-500 h-full" 
+                className="bg-primary h-full" 
                 style={{ width: `${getPercentage(department.ratings.exceeds)}%` }}
                 title={`${t.dashboard.exceedsShort}: ${department.ratings.exceeds} (${getPercentage(department.ratings.exceeds)}%)`}
               />
@@ -170,7 +171,7 @@ function DepartmentRatingCard({ department }: { department: DepartmentRating }) 
             )}
             {department.ratings.below > 0 && (
               <div 
-                className="bg-orange-500 h-full" 
+                className="bg-amber-500 h-full" 
                 style={{ width: `${getPercentage(department.ratings.below)}%` }}
                 title={`${t.dashboard.belowShort}: ${department.ratings.below} (${getPercentage(department.ratings.below)}%)`}
               />
@@ -188,16 +189,16 @@ function DepartmentRatingCard({ department }: { department: DepartmentRating }) 
           <div className="flex justify-between items-center mt-3">
             <div className="flex items-center gap-4 text-xs">
               <div className="flex items-center gap-1">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                <div className="w-3 h-3 bg-green-500 rounded-full"></div>
                 <span className="text-gray-600">{department.ratings.outstanding} {t.dashboard.outstandingShort}</span>
               </div>
               <div className="flex items-center gap-1">
-                <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                <div className="w-3 h-3 bg-red-500 rounded-full"></div>
                 <span className="text-gray-600">{department.ratings.needs} {t.dashboard.needsImprovementShort}</span>
               </div>
             </div>
             {(department.ratings.needs > 0 || department.ratings.below > 0) && (
-              <div className="text-xs text-orange-600 font-medium">
+              <div className="text-xs text-amber-600 font-medium">
                 {department.ratings.needs + department.ratings.below} {t.dashboard.needAttention}
               </div>
             )}
@@ -210,7 +211,7 @@ function DepartmentRatingCard({ department }: { department: DepartmentRating }) 
                 onClick={() => setShowDetails(!showDetails)}
                 className="flex items-center justify-between w-full text-left hover:bg-gray-50 rounded-lg p-2 -m-2 transition-colors"
               >
-                <span className="text-sm font-medium text-blue-600">
+                <span className="text-sm font-medium text-primary">
                   {t.dashboard.viewCompletedEvaluations ? 
                     t.dashboard.viewCompletedEvaluations.replace('{count}', department.allEmployees.length.toString()) :
                     `Ver las ${department.allEmployees.length} evaluaciones completas`
@@ -243,11 +244,11 @@ function DepartmentRatingCard({ department }: { department: DepartmentRating }) 
                         employee.rating === 5 
                           ? 'bg-green-50 border-green-100 hover:bg-green-100' 
                           : employee.rating === 4
-                          ? 'bg-blue-50 border-blue-100 hover:bg-blue-100'
+                          ? 'bg-primary/5 border-primary/20 hover:bg-primary/10'
                           : employee.rating === 3
                           ? 'bg-gray-50 border-gray-100 hover:bg-gray-100'
                           : employee.rating === 2
-                          ? 'bg-orange-50 border-orange-100 hover:bg-orange-100'
+                          ? 'bg-amber-50 border-amber-100 hover:bg-amber-100'
                           : 'bg-red-50 border-red-100 hover:bg-red-100'
                       }`}
                     >
@@ -255,7 +256,7 @@ function DepartmentRatingCard({ department }: { department: DepartmentRating }) 
                         <div className="flex items-center gap-1">
                           <span className="text-sm font-medium text-gray-900 truncate">{employee.name}</span>
                           {employee.isManager && (
-                            <div className="flex items-center gap-1 px-1.5 py-0.5 bg-purple-100 text-purple-700 rounded-full text-xs font-medium flex-shrink-0">
+                            <div className="flex items-center gap-1 px-1.5 py-0.5 bg-amber-100 text-amber-700 rounded-full text-xs font-medium flex-shrink-0">
                               <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
                               </svg>
@@ -275,11 +276,11 @@ function DepartmentRatingCard({ department }: { department: DepartmentRating }) 
                           employee.rating === 5 
                             ? 'bg-green-100 text-green-700' 
                             : employee.rating === 4
-                            ? 'bg-blue-100 text-blue-700'
+                            ? 'bg-primary/10 text-primary'
                             : employee.rating === 3
                             ? 'bg-gray-100 text-gray-700'
                             : employee.rating === 2
-                            ? 'bg-orange-100 text-orange-700'
+                            ? 'bg-amber-100 text-amber-700'
                             : 'bg-red-100 text-red-700'
                         }`}>
                           <span>{employee.rating}/5</span>
@@ -293,7 +294,7 @@ function DepartmentRatingCard({ department }: { department: DepartmentRating }) 
                   
                   {/* Critical employees hint */}
                   {department.criticalEmployees.length > 0 && (
-                    <div className="text-xs text-orange-600 text-center pt-1 border-t border-gray-100 flex items-center justify-center gap-1">
+                    <div className="text-xs text-amber-600 text-center pt-1 border-t border-gray-100 flex items-center justify-center gap-1">
                       <svg className="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
                       </svg>
@@ -347,10 +348,10 @@ export default function DepartmentRatingsClient({ departments }: DepartmentRatin
               <button
                 onClick={() => exportCompany('pdf')}
                 disabled={isExporting}
-                className={`flex items-center space-x-1 px-2 py-2 text-blue-700 text-xs font-medium rounded-lg active:scale-95 transition-all duration-150 touch-manipulation whitespace-nowrap tracking-tighter leading-none ${
+                className={`flex items-center space-x-1 px-2 py-2 text-primary text-xs font-medium rounded-lg active:scale-95 transition-all duration-150 touch-manipulation whitespace-nowrap tracking-tighter leading-none ${
                   isExporting 
                     ? 'bg-gray-400 text-white cursor-not-allowed' 
-                    : 'bg-blue-100 hover:bg-blue-200'
+                    : 'bg-primary/10 hover:bg-primary/20'
                 }`}
                 title={`Export All Departments - ${t.dashboard.departmentRatings}`}
               >
@@ -429,7 +430,7 @@ export default function DepartmentRatingsClient({ departments }: DepartmentRatin
             <div className="mt-4 pt-4 border-t border-blue-400/30">
               <div className="flex items-center justify-between text-sm">
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-yellow-300 rounded-full"></div>
+                  <AlertTriangle className="h-4 w-4 text-yellow-200" />
                   <span className="text-blue-100">
                     {departments.filter(dept => {
                       const needsAttention = dept.ratings.needs + dept.ratings.below

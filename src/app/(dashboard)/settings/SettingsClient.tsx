@@ -202,7 +202,7 @@ export default function SettingsClient({ user }: SettingsClientProps) {
         <div className="px-4 py-4">
           {loading ? (
             <div className="flex items-center justify-center p-4">
-              <LoadingSpinner size="sm" color="blue" />
+              <LoadingSpinner size="sm" color="primary" />
             </div>
           ) : (
             <div className="space-y-4">

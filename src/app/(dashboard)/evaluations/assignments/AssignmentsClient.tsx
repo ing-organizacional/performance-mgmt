@@ -109,7 +109,7 @@ export default function AssignmentsClient({
   const getBadgeStyles = (level: string) => {
     switch (level) {
       case 'company':
-        return 'bg-purple-100 text-purple-700'
+        return 'bg-primary/10 text-primary'
       case 'department':
         return 'bg-green-100 text-green-700'
       default:

@@ -318,7 +318,6 @@ export interface DashboardTranslations {
   exportPDF: string
   pdfExportCenter: string
   exportCenter: string
-  selectReportsToExport: string
   selectReportsAndFormats: string
   companyOverview: string
   allEmployeesAllDepartments: string
@@ -510,6 +509,46 @@ export interface DashboardTranslations {
   daysOverdue: string
   switchToEmployeeList: string
   switchToManagerGroups: string
+  
+  // Export Center Modal
+  reportSelected: string
+  reportsSelectedPlural: string
+  selectReportsToExport: string
+  selectEmployeesToExport: string
+  selectDepartmentsToExport: string
+  employeesSelected: string
+  departmentsSelected: string
+  selectReportsFirst: string
+  selectEmployeesFirst: string
+  selectDepartmentsFirst: string
+  exportFiles: string
+  exportFilesPlural: string
+  
+  // Administrative Actions Section
+  attentionRequired: string
+  deadlines: string
+  primaryManagement: string
+  systemAdministration: string
+  monitoringAnalysis: string
+  evaluationAssignments: string
+  manageOkrsCompetencies: string
+  generateReportsAnalysis: string
+  totalEmployeesHeader: string
+  avgRatingHeader: string
+  noActivePerformanceCycle: string
+  
+  // Completion Status Card
+  clickToManagePending: string
+  completeStatus: string
+  inProgressStatus: string
+  
+  // Critical Actions
+  overdueEvaluationsCount: string
+  dueSoonCount: string
+  overdueText: string
+  daysOverdueText: string
+  viewAllOverdue: string
+  managerLabel: string
 }
 
 export interface UsersTranslations {

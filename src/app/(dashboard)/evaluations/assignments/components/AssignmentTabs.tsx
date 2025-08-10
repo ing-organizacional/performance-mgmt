@@ -46,11 +46,11 @@ export function AssignmentTabs({ activeTab, setActiveTab }: AssignmentTabsProps)
   const getBadgeStyles = (level: string) => {
     switch (level) {
       case 'company':
-        return 'bg-purple-100 text-purple-700'
+        return 'bg-primary/10 text-primary'
       case 'department':
         return 'bg-green-100 text-green-700'
       default:
-        return 'bg-blue-100 text-blue-700'
+        return 'bg-primary/10 text-primary'
     }
   }
 

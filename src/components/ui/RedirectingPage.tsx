@@ -75,7 +75,7 @@ export default function RedirectingPage({
 
         {/* Loading Spinner */}
         <div className="flex items-center justify-center animate-in slide-in-from-bottom-4 duration-500 delay-600">
-          <LoadingSpinner size="md" color={showSuccess ? 'green' : 'blue'} />
+          <LoadingSpinner size="md" color={showSuccess ? 'green' : 'primary'} />
           <span className="ml-3 text-sm text-gray-500">
             {t.evaluations?.redirecting || 'Redirecting...'}
           </span>
