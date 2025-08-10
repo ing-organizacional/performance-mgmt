@@ -1,13 +1,14 @@
 # Performance Management System
 
-A **secure, mobile-first** web application for managing employee OKRs and competency evaluations across multiple companies. Enterprise-grade security with **all critical vulnerabilities resolved** and comprehensive audit trails. Designed for mixed workforce environments (office workers + operational workers).
+A **secure, hybrid-design** web application for managing employee OKRs and competency evaluations across multiple companies. Features **desktop-first dashboard** for HR professionals and **mobile-first application pages** for managers and employees. Enterprise-grade security with **all critical vulnerabilities resolved** and comprehensive audit trails.
 
 ## 🎯 Overview
 
-Enterprise performance management system handling **4000+ employees across 27 companies** with:
+Enterprise performance management system handling **4000+ employees across 27 companies** with hybrid UX design:
 
 - **Three-status evaluation workflow**: draft → submitted → completed
-- **Mobile-first responsive design** optimized for managers and HR
+- **Hybrid responsive design**: Desktop-first dashboard for HR, mobile-first application pages
+- **Professional component architecture** with 80%+ size reductions and single responsibility principle
 - **Bilingual support** (English/Spanish) with instant language switching
 - **Multi-modal authentication** (email + password / username + PIN / biometric)
 - **WebAuthn/FIDO2 biometric authentication** (Face ID, Touch ID, Fingerprint)
@@ -68,6 +69,7 @@ yarn tsc --noEmit && yarn lint
 - **Bilingual Interface**: Complete English/Spanish translation with instant language switching
 
 #### Enterprise SSO Features
+
 - **Microsoft Azure AD/Entra ID**: Corporate directory integration with group-based role mapping
 - **Google Workspace**: GSuite integration with domain restrictions
 - **Hybrid Authentication**: SSO + traditional methods for mixed environments
@@ -89,11 +91,13 @@ yarn tsc --noEmit && yarn lint
 - **HR Management**: Create, close, reopen cycles with complete control
 - **Visual Indicators**: Clear status banners and notifications
 
-### Mobile-First UX
+### Hybrid UX Design System
 
-- **Touch Optimized**: 44px minimum touch targets throughout
+- **Dashboard Pages**: Desktop-first with professional gradient backgrounds and enhanced visual hierarchy
+- **Application Pages**: Mobile-first with touch-optimized interactions for field use
+- **Touch Optimized**: 44px minimum touch targets throughout all pages
 - **Progressive Disclosure**: One decision per screen approach
-- **Gesture Support**: Swipe navigation and touch interactions
+- **Component Architecture**: Single responsibility principle with custom hooks for business logic
 - **Responsive Design**: Seamless experience across all device sizes
 
 ### Internationalization
@@ -218,6 +222,33 @@ The seed script creates comprehensive demo data:
 - Department-specific goals
 - Manager-assigned objectives
 
+## 🎨 UX/UI Design System
+
+### Hybrid Design Approach
+
+**Dashboard Pages (`/dashboard/*`):**
+
+- Desktop-first professional interface for HR users
+- Gradient backgrounds with backdrop blur effects
+- Enhanced visual hierarchy with glass morphism design
+- Professional statistics cards and modal patterns
+- Optimized for data analysis and administrative tasks
+
+**Application Pages (`/evaluations`, `/users`, `/settings`):**
+
+- Mobile-first touch-optimized interface for field use
+- Clean, simple interfaces prioritizing usability
+- Touch-friendly interactions with 44px minimum targets
+- Progressive disclosure for focused task completion
+- Optimized for managers and employees on mobile devices
+
+**Universal Standards:**
+
+- 44px minimum touch targets on all pages
+- Comprehensive bilingual support (English/Spanish)
+- Single responsibility component architecture
+- Consistent modal patterns and user interactions
+
 ## 🌐 Deployment
 
 ### Docker Deployment
@@ -231,6 +262,14 @@ docker run -p 3000:3000 performance-mgmt
 ```
 
 ### Production Environment
+
+**Recent UX/UI Achievements (August 2025):**
+
+- ✅ **Dashboard Transformation**: Professional desktop-first interface with gradient backgrounds
+- ✅ **Component Architecture**: 80-87% size reductions through focused component extraction  
+- ✅ **Bilingual Enhancement**: Comprehensive translation support across all new components
+- ✅ **Design System Clarity**: Dashboard = desktop-first, Application = mobile-first
+- ✅ **Touch Target Compliance**: 100% adherence to 44px minimum across all pages
 
 **Environment Variables:**
 
@@ -284,22 +323,38 @@ src/
 
 ### Component Architecture Excellence
 
-**Recent Major Refactoring (August 2025):**
-- **84% size reduction** in main components through focused component extraction
+**Major Refactoring Completed (August 2025):**
+
+- **80-87% size reduction** in main components through focused component extraction
 - **Single responsibility principle** applied throughout
 - **Reusable modal components** for consistent UX patterns
 - **Custom hooks** for business logic separation
-- **Desktop-first UX design** with mobile compatibility
+- **Hybrid UX design**: Desktop-first dashboard, mobile-first application pages
 
 **Examples of Improved Architecture:**
+
+**Dashboard Module Refactoring (Desktop-First):**
+
 ```typescript
-// Before: Monolithic 527-line CyclesClient.tsx
-// After: Clean 84-line orchestration component + focused components
-- CyclesHeader.tsx (74 lines) - Navigation and actions
-- CyclesList.tsx (220 lines) - Enhanced list with status management
-- CreateCycleModal.tsx (74 lines) - Reusable creation modal
-- DeleteCycleModal.tsx (108 lines) - Confirmation modal
-- useCycles.ts (80 lines) - Complete business logic hook
+// DepartmentRatingsClient: 538 → 80 lines (85% reduction)
+- DepartmentRatingCard.tsx (285 lines) - Main functionality
+- RatingsHeader.tsx (47 lines) - Desktop navigation with export
+- OverviewSection.tsx (65 lines) - Performance insights
+- useDepartmentRatings.ts (25 lines) - Business logic hook
+
+// PendingEvaluationsClient: Complete desktop-first redesign
+- Professional gradient backgrounds with backdrop blur
+- Enhanced employee cards with avatar integration
+- 11 new bilingual translation keys
+```
+
+**Application Module Refactoring (Mobile-First Maintained):**
+```typescript
+// UsersClient: 856 → 115 lines (87% reduction)
+- UsersHeader.tsx - Mobile-optimized navigation
+- UsersList.tsx - Touch-friendly user cards
+- UserFormModal.tsx - Mobile-first form design
+- useUsers.ts - Complete state management
 ```
 
 ### Contributing Guidelines
@@ -307,12 +362,15 @@ src/
 - Use Server Actions for data mutations (preferred over API routes)
 - Maintain company-based data isolation
 - Follow TypeScript strict mode with comprehensive type safety
-- Test mobile-first responsive design with 44px minimum touch targets
+- **Apply mobile-first design** for application pages (evaluations, users, settings)
+- **Apply desktop-first design** ONLY for dashboard pages (/dashboard/*)
+- **Ensure 44px minimum touch targets** on all pages regardless of design approach
 - Update bilingual translations (English/Spanish) for all new features
 - Maintain audit trails for changes and user actions
 - Apply single responsibility principle - extract components when exceeding 200 lines
 - Use custom hooks for business logic separation
-- Implement desktop-first design for administrative features
+- **Dashboard pages**: Implement gradient backgrounds and glass morphism effects
+- **Application pages**: Maintain clean, simple mobile-first interfaces
 
 ## 🔍 Testing
 
@@ -606,18 +664,21 @@ CREATE TABLE ScheduledImport (
 ### Security & Compliance
 
 **Data Protection:**
+
 - All imports are company-isolated (multi-tenant safe)
 - Credentials stored securely with encryption
 - Audit logs track all import activities
 - Role-based access (HR only)
 
 **Validation & Safety:**
+
 - Comprehensive input validation with Zod schemas
 - Preview-first approach prevents accidental data corruption
 - Rollback capability for error recovery
 - Rate limiting on API endpoints
 
 **Monitoring & Alerts:**
+
 - Email notifications for scheduled import status
 - Detailed error reporting and logging
 - Import history with searchable audit trails
@@ -626,18 +687,21 @@ CREATE TABLE ScheduledImport (
 ### Best Practices
 
 **CSV File Preparation:**
+
 - Use UTF-8 encoding to support international characters
 - Include header row with exact column names
 - Validate data before upload (email formats, required fields)
 - Test with small batches before large imports
 
 **Scheduled Import Setup:**
+
 - Start with manual testing before scheduling
 - Use appropriate scheduling frequency (avoid overloading systems)
 - Set up monitoring notifications
 - Regularly review import logs and performance
 
 **Data Management:**
+
 - Regular backups before large imports
 - Use preview mode for all significant changes
 - Document import schedules and data sources
