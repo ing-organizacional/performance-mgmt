@@ -138,10 +138,10 @@ export default function AssignmentsClient({
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20">
       {/* Desktop-First Professional Header */}
       <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-gray-200/50 shadow-sm">
-        <div className="max-w-8xl mx-auto px-6 lg:px-8 py-6">
+        <div className="max-w-8xl mx-auto px-4 md:px-6 lg:px-8 py-4 md:py-6">
           <div className="flex items-center justify-between">
             {/* Left Section - Navigation & Title */}
-            <div className="flex items-center gap-6">
+            <div className="flex items-center gap-3 md:gap-6">
               <button
                 onClick={() => router.back()}
                 className="flex items-center justify-center min-w-[44px] min-h-[44px] bg-gray-100 text-gray-600 rounded-xl hover:bg-gray-200 hover:scale-105 active:scale-95 transition-all duration-200 touch-manipulation shadow-sm"
@@ -154,10 +154,10 @@ export default function AssignmentsClient({
               </button>
               
               <div className="min-w-0">
-                <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">
+                <h1 className="text-lg md:text-2xl lg:text-3xl font-bold text-gray-900">
                   {t.assignments.assignmentManager || 'Assignment Manager'}
                 </h1>
-                <p className="text-sm text-gray-600 mt-1">
+                <p className="text-xs md:text-sm text-gray-600 mt-0.5 md:mt-1 hidden sm:block">
                   {t.assignments.manageOKRsCompetencies || 'Manage OKRs and competencies for your team'}
                 </p>
               </div>
@@ -207,19 +207,19 @@ export default function AssignmentsClient({
       )}
 
       {/* Main Content */}
-      <main className={`max-w-8xl mx-auto px-6 lg:px-8 py-8 min-h-[400px] ${isPending ? 'opacity-50 pointer-events-none' : ''}`}>
+      <main className={`max-w-8xl mx-auto px-4 md:px-6 lg:px-8 py-4 md:py-8 min-h-[400px] ${isPending ? 'opacity-50 pointer-events-none' : ''}`}>
         
         {/* Company Tab - Read Only */}
         {activeTab === 'company' && (
-          <div className="space-y-8 animate-in fade-in duration-300">
-            <div className="bg-white rounded-2xl border border-gray-200/60 shadow-sm p-8">
-              <div className="flex items-center gap-4 mb-6">
-                <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">
+          <div className="space-y-4 md:space-y-8 animate-in fade-in duration-300">
+            <div className="bg-white rounded-xl md:rounded-2xl border border-gray-200/60 shadow-sm p-4 md:p-8">
+              <div className="flex items-center gap-3 md:gap-4 mb-4 md:mb-6">
+                <div className="w-8 h-8 md:w-12 md:h-12 bg-primary/10 rounded-lg md:rounded-xl flex items-center justify-center">
                   {getBadgeIcon('company')}
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-gray-900">{t.assignments.companyWideItems || 'Company-Wide Items'}</h3>
-                  <p className="text-sm text-gray-600 mt-1">
+                  <h3 className="text-lg md:text-xl font-bold text-gray-900">{t.assignments.companyWideItems || 'Company-Wide Items'}</h3>
+                  <p className="text-xs md:text-sm text-gray-600 mt-0.5 md:mt-1">
                     {t.assignments.companyWideDescription || 'Manage company-wide OKRs and competencies'}
                   </p>
                 </div>
@@ -250,22 +250,22 @@ export default function AssignmentsClient({
 
         {/* Department Tab - Batch Assignment */}
         {activeTab === 'department' && (
-          <div className="space-y-8 animate-in fade-in duration-300">
-            <div className="bg-white rounded-2xl border border-gray-200/60 shadow-sm p-8">
-              <div className="flex items-center gap-4 mb-6">
-                <div className="w-12 h-12 bg-green-50 rounded-xl flex items-center justify-center">
+          <div className="space-y-4 md:space-y-8 animate-in fade-in duration-300">
+            <div className="bg-white rounded-xl md:rounded-2xl border border-gray-200/60 shadow-sm p-4 md:p-8">
+              <div className="flex items-center gap-3 md:gap-4 mb-4 md:mb-6">
+                <div className="w-8 h-8 md:w-12 md:h-12 bg-green-50 rounded-lg md:rounded-xl flex items-center justify-center">
                   {getBadgeIcon('department')}
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-gray-900">{t.assignments.departmentLevelAssignments || 'Department-Level Assignments'}</h3>
-                  <p className="text-sm text-gray-600 mt-1">
+                  <h3 className="text-lg md:text-xl font-bold text-gray-900">{t.assignments.departmentLevelAssignments || 'Department-Level Assignments'}</h3>
+                  <p className="text-xs md:text-sm text-gray-600 mt-0.5 md:mt-1">
                     {t.assignments.departmentDescription || 'Create and assign department-specific items'}
                   </p>
                 </div>
               </div>
 
               {/* Create New Section */}
-              <div className="mb-8">
+              <div className="mb-4 md:mb-8">
                 <BulkActions
                   selectedEmployeesCount={selectedEmployees.length}
                   isPending={isPending}
@@ -276,7 +276,7 @@ export default function AssignmentsClient({
 
             {/* Create New Form */}
             {itemEditorHook.creatingNew && itemEditorHook.editingItem && itemEditorHook.editingItem.id === 'new' && (
-              <div className="bg-white rounded-2xl border border-gray-200/60 shadow-sm p-8">
+              <div className="bg-white rounded-xl md:rounded-2xl border border-gray-200/60 shadow-sm p-4 md:p-8">
                 <ItemEditor
                   editingItem={itemEditorHook.editingItem}
                   newItemType={itemEditorHook.newItemType}
@@ -292,7 +292,7 @@ export default function AssignmentsClient({
             )}
             
             {/* Employee Selection */}
-            <div className="bg-white rounded-2xl border border-gray-200/60 shadow-sm p-8">
+            <div className="bg-white rounded-xl md:rounded-2xl border border-gray-200/60 shadow-sm p-4 md:p-8">
               <EmployeeSelector
                 employees={employees}
                 evaluationItems={evaluationItems}
@@ -307,7 +307,7 @@ export default function AssignmentsClient({
             </div>
 
             {/* Department Items */}
-            <div className="bg-white rounded-2xl border border-gray-200/60 shadow-sm p-8">
+            <div className="bg-white rounded-xl md:rounded-2xl border border-gray-200/60 shadow-sm p-4 md:p-8">
               <AssignmentGrid
                 items={filteredItems}
                 employees={employees}

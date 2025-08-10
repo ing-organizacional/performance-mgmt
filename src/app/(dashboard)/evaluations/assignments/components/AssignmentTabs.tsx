@@ -79,14 +79,9 @@ export function AssignmentTabs({ activeTab, setActiveTab }: AssignmentTabsProps)
   }
 
   return (
-    <div ref={elementRef as React.RefObject<HTMLDivElement>} className="bg-white/90 backdrop-blur-md border-b border-gray-200/50 sticky top-24 z-40 shadow-sm">
-      <div className="max-w-8xl mx-auto px-6 lg:px-8">
-        <div className="flex justify-center lg:justify-start space-x-2 relative py-4">
-          {/* Swipe indicator - only show on mobile */}
-          <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 text-xs text-gray-400/70 animate-pulse lg:hidden">
-            ← Swipe to navigate →
-          </div>
-          
+    <div ref={elementRef as React.RefObject<HTMLDivElement>} className="bg-white/90 backdrop-blur-md border-b border-gray-200/50 sticky top-[76px] md:top-[100px] z-40 shadow-sm">
+      <div className="max-w-8xl mx-auto px-4 md:px-6 lg:px-8">
+        <div className="flex justify-center lg:justify-start space-x-2 relative py-3 md:py-4">
           {/* Tab position indicator */}
           <div 
             className="absolute bottom-0 h-1 bg-gradient-to-r from-primary/80 to-primary rounded-full transition-all duration-300 ease-out"
