@@ -257,5 +257,10 @@ export const dashboard: DashboardTranslations = {
   overdueText: 'vencidos',
   daysOverdueText: 'días vencidos',
   viewAllOverdue: 'Ver todos los {count} borradores vencidos →',
-  managerLabel: 'Jefatura'
+  managerLabel: 'Jefatura',
+  
+  // Department Ratings specific
+  comprehensiveAnalysisDescription: 'Análisis integral de departamentos y métricas de desempeño',
+  requireImmediateAttention: 'Requieren atención inmediata',
+  total: 'total'
 }

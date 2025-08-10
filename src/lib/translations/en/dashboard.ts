@@ -257,5 +257,10 @@ export const dashboard: DashboardTranslations = {
   overdueText: 'overdue',
   daysOverdueText: 'days overdue',
   viewAllOverdue: 'View all {count} overdue drafts →',
-  managerLabel: 'Manager'
+  managerLabel: 'Manager',
+  
+  // Department Ratings specific
+  comprehensiveAnalysisDescription: 'Comprehensive department analysis and performance metrics',
+  requireImmediateAttention: 'Require immediate attention',
+  total: 'total'
 }

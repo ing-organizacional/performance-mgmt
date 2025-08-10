@@ -557,6 +557,11 @@ export interface DashboardTranslations {
   daysOverdueText: string
   viewAllOverdue: string
   managerLabel: string
+  
+  // Department Ratings specific
+  comprehensiveAnalysisDescription: string
+  requireImmediateAttention: string
+  total: string
 }
 
 export interface UsersTranslations {
