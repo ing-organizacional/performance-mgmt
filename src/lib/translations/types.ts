@@ -715,6 +715,45 @@ export interface UsersTranslations {
   failedToDeleteScheduledImport: string
   importExecutedSuccessfully: string
   failedToExecuteScheduledImport: string
+  
+  // Additional keys for refactored components
+  goBack: string
+  signOut: string
+  searchUsersByNameEmail: string
+  user: string
+  users: string
+  found: string
+  total: string
+  managersLabel: string
+  employees: string
+  tryAdjustingSearch: string
+  noUsersCreated: string
+  noContact: string
+  noCompany: string
+  id: string
+  report: string
+  evaluation: string
+  enterFullName: string
+  enterEmailAddress: string
+  enterUsername: string
+  enterDepartment: string
+  enterPosition: string
+  enterEmployeeId: string
+  enterPersonId: string
+  qrCode: string
+  enterShift: string
+  enterFourDigitPin: string
+  cancel: string
+  saving: string
+  closeModal: string
+  updateUserInformation: string
+  createNewUserAccount: string
+  deleteUserWarning: string
+  areYouSureDelete: string
+  thisWillPermanently: string
+  deleteAllUserData: string
+  removeEvaluationRecords: string
+  unassignDirectReports: string
 }
 
 export interface Translations {
