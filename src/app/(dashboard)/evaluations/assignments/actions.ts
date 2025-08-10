@@ -26,8 +26,7 @@ export async function assignItemsToEmployees(itemId: string, employeeIds: string
       evaluationItemId: itemId,
       employeeId,
       companyId,
-      assignedBy: session.user.id,
-      assignedAt: new Date()
+      assignedBy: session.user.id
     }))
 
     await prisma.evaluationItemAssignment.createMany({
