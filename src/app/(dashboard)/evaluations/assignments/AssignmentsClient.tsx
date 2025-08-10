@@ -80,6 +80,14 @@ export default function AssignmentsClient({
     )
   }
 
+  const handleSelectAll = () => {
+    setSelectedEmployees(employees.map(emp => emp.id))
+  }
+
+  const handleDeselectAll = () => {
+    setSelectedEmployees([])
+  }
+
   const handleBulkAssignment = (itemId: string) => {
     assignmentHook.handleBulkAssignment(itemId, selectedEmployees, () => {
       setSelectedEmployees([]) // Clear selection on success
@@ -89,14 +97,11 @@ export default function AssignmentsClient({
   const handleCreateNew = (type: 'okr' | 'competency') => {
     if (activeTab === 'department') {
       itemEditorHook.handleCreateNew(type, 'department')
-    } else if (activeTab === 'individual') {
-      itemEditorHook.handleCreateNew(type, 'manager')
     }
   }
 
   const handleSaveNew = () => {
-    const level = activeTab === 'department' ? 'department' : 'manager'
-    itemEditorHook.handleSaveNew(level)
+    itemEditorHook.handleSaveNew('department')
   }
 
   const filteredItems = evaluationItems.filter(item => item.level === activeTab)
@@ -281,6 +286,8 @@ export default function AssignmentsClient({
               isPending={isPending}
               onEmployeeSelection={handleEmployeeSelection}
               onUnassignFromEmployee={assignmentHook.handleUnassignFromEmployee}
+              onSelectAll={handleSelectAll}
+              onDeselectAll={handleDeselectAll}
             />
 
             {/* Department Items */}
@@ -307,64 +314,6 @@ export default function AssignmentsClient({
           </div>
         )}
 
-        {/* Individual Tab - Employee-Specific Assignment */}
-        {activeTab === 'individual' && (
-          <div className="space-y-6 animate-in fade-in duration-300">
-            <div className="bg-yellow-50 rounded-lg p-4 border border-yellow-200">
-              <div className="flex items-center space-x-2 mb-2">
-                {getBadgeIcon('individual')}
-                <h3 className="font-semibold text-yellow-900">{t.assignments.individualAssignments}</h3>
-              </div>
-              <p className="text-sm text-yellow-700">
-                {t.assignments.individualDescription}
-              </p>
-            </div>
-
-            {/* Create New Individual Items Section */}
-            <BulkActions
-              selectedEmployeesCount={0}
-              isPending={isPending}
-              onCreateNew={handleCreateNew}
-            />
-
-            {/* Create New Individual Item Form */}
-            {itemEditorHook.creatingNew && itemEditorHook.editingItem && itemEditorHook.editingItem.id === 'new-individual' && (
-              <ItemEditor
-                editingItem={itemEditorHook.editingItem}
-                newItemType={itemEditorHook.newItemType}
-                isCreatingNew={true}
-                level="manager"
-                canSetDeadline={canSetDeadlineForLevel('manager')}
-                isPending={isPending}
-                onUpdateItem={itemEditorHook.updateEditingItem}
-                onSave={handleSaveNew}
-                onCancel={itemEditorHook.handleCancelNew}
-              />
-            )}
-
-            {/* Employee List for Individual Assignment */}
-            <AssignmentGrid
-              items={evaluationItems}
-              employees={employees}
-              activeTab={activeTab}
-              editingItem={itemEditorHook.editingItem}
-              newItemType={itemEditorHook.newItemType}
-              isPending={isPending}
-              selectedEmployees={selectedEmployees}
-              confirmingUnassign={assignmentHook.confirmingUnassign}
-              canEditDeadline={canEditDeadline}
-              getEmployeesWithItem={assignmentHook.getEmployeesWithItem}
-              onEditItem={itemEditorHook.handleEditItem}
-              onSaveEdit={itemEditorHook.handleSaveEdit}
-              onCancelEdit={itemEditorHook.handleCancelEdit}
-              onUpdateEditingItem={itemEditorHook.updateEditingItem}
-              onBulkAssignment={handleBulkAssignment}
-              onUnassignFromEmployee={assignmentHook.handleUnassignFromEmployee}
-              onIndividualAssignment={assignmentHook.handleIndividualAssignment}
-              employeeHasItem={assignmentHook.employeeHasItem}
-            />
-          </div>
-        )}
       </div>
     </div>
   )

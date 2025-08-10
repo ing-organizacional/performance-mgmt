@@ -78,3 +78,8 @@ export {
   deleteScheduledImport,
   executeScheduledImport
 } from './scheduled-import'
+
+// Admin actions
+export {
+  resetDatabase
+} from './admin'

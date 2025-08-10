@@ -28,7 +28,7 @@ export interface EditingItem {
   evaluationDeadline?: string
 }
 
-export type ActiveTab = 'company' | 'department' | 'individual'
+export type ActiveTab = 'company' | 'department'
 
 export interface AssignmentsClientProps {
   evaluationItems: EvaluationItem[]

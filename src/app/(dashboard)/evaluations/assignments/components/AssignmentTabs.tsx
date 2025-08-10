@@ -11,7 +11,7 @@ export function AssignmentTabs({ activeTab, setActiveTab }: AssignmentTabsProps)
   const { t } = useLanguage()
   
   // Tab navigation with swipe support
-  const tabs: ActiveTab[] = ['company', 'department', 'individual']
+  const tabs: ActiveTab[] = ['company', 'department']
   
   const handleSwipeLeft = () => {
     const currentIndex = tabs.indexOf(activeTab)
@@ -84,7 +84,7 @@ export function AssignmentTabs({ activeTab, setActiveTab }: AssignmentTabsProps)
       case 'department':
         return t.common.department
       default:
-        return t.common.manager
+        return t.common.department // Fallback to department for any remaining items
     }
   }
 

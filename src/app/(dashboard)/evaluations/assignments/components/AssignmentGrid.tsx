@@ -86,7 +86,7 @@ export function AssignmentGrid({
       case 'department':
         return t.common.department
       default:
-        return t.common.manager
+        return t.common.department // Fallback to department for any remaining items
     }
   }
 

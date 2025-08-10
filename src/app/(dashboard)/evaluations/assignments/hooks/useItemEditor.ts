@@ -42,18 +42,18 @@ export function useItemEditor() {
     setEditingItem(null)
   }
 
-  const handleCreateNew = (type: 'okr' | 'competency', level: 'department' | 'manager' = 'department') => {
+  const handleCreateNew = (type: 'okr' | 'competency', level: 'department' = 'department') => {
     setNewItemType(type)
     setCreatingNew(true)
     setEditingItem({
-      id: level === 'manager' ? 'new-individual' : 'new',
+      id: 'new',
       title: '',
       description: '',
       evaluationDeadline: ''
     })
   }
 
-  const handleSaveNew = async (level: 'department' | 'manager' = 'department', onSuccess?: () => void) => {
+  const handleSaveNew = async (level: 'department' = 'department', onSuccess?: () => void) => {
     if (!editingItem || !editingItem.title.trim() || !editingItem.description.trim()) return
 
     setError(null)

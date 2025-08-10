@@ -9,6 +9,8 @@ interface EmployeeSelectorProps {
   isPending: boolean
   onEmployeeSelection: (employeeId: string) => void
   onUnassignFromEmployee: (itemId: string, employeeId: string) => void
+  onSelectAll: () => void
+  onDeselectAll: () => void
 }
 
 export function EmployeeSelector({
@@ -18,13 +20,68 @@ export function EmployeeSelector({
   confirmingUnassign,
   isPending,
   onEmployeeSelection,
-  onUnassignFromEmployee
+  onUnassignFromEmployee,
+  onSelectAll,
+  onDeselectAll
 }: EmployeeSelectorProps) {
   const { t } = useLanguage()
 
+  const allSelected = employees.length > 0 && selectedEmployees.length === employees.length
+  const someSelected = selectedEmployees.length > 0 && selectedEmployees.length < employees.length
+
   return (
     <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
-      <h3 className="font-semibold text-gray-900 mb-3">{t.assignments.selectEmployeesForBatch}</h3>
+      <div className="flex items-center justify-between mb-3">
+        <h3 className="font-semibold text-gray-900">{t.assignments.selectEmployeesForBatch}</h3>
+        <div className="flex items-center space-x-2">
+          <span className="text-sm text-gray-600">{selectedEmployees.length} {t.common.selected}</span>
+          {employees.length > 1 && (
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={allSelected ? onDeselectAll : onSelectAll}
+                disabled={isPending}
+                className="px-3 py-1.5 text-xs font-medium rounded-lg border transition-all duration-150 touch-manipulation disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{
+                  backgroundColor: allSelected ? '#fee2e2' : '#f0f9ff',
+                  borderColor: allSelected ? '#fca5a5' : '#93c5fd',
+                  color: allSelected ? '#dc2626' : '#2563eb'
+                }}
+              >
+                {allSelected ? t.common.deselectAll : t.common.selectAll}
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+      
+      {/* Select All Checkbox */}
+      {employees.length > 1 && (
+        <label className="flex items-center space-x-4 p-3 mb-2 rounded-lg bg-gray-50 border border-gray-200 cursor-pointer transition-all duration-150 touch-manipulation">
+          <div className="relative">
+            <input
+              type="checkbox"
+              checked={allSelected}
+              onChange={allSelected ? onDeselectAll : onSelectAll}
+              className="w-5 h-5 text-blue-600 border-2 border-gray-300 rounded focus:ring-blue-500 focus:ring-2 transition-all duration-150"
+              disabled={isPending}
+            />
+            {(allSelected || someSelected) && (
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                <span className="text-white text-xs font-bold">{allSelected ? '✓' : '−'}</span>
+              </div>
+            )}
+          </div>
+          <div className="flex-1">
+            <div className="font-medium text-gray-700">
+              {allSelected ? t.common.deselectAll : t.common.selectAll}
+            </div>
+            <div className="text-sm text-gray-500">
+              {employees.length} {t.common.employees}
+            </div>
+          </div>
+        </label>
+      )}
+
       <div className="space-y-2">
         {employees.map((employee) => (
           <label key={employee.id} className="flex items-center space-x-4 p-4 min-h-[60px] rounded-lg hover:bg-gray-50 active:bg-gray-100 cursor-pointer transition-all duration-150 touch-manipulation">

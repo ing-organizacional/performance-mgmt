@@ -10,6 +10,7 @@ import { ConfirmDialog } from '@/components/ui'
 import { useToast } from '@/hooks/useToast'
 import { useConfirm } from '@/hooks/useConfirm'
 import { exportUsersToExcel } from '@/lib/actions/export'
+import { resetDatabase } from '@/lib/actions/admin'
 import { CSVImportWorkflow } from '@/components/admin/CSVImportWorkflow'
 import { ScheduledImportManager } from '@/components/admin/ScheduledImportManager'
 
@@ -61,27 +62,26 @@ export default function AdvancedAdminPage() {
 
     setResetting(true)
     try {
-      const response = await fetch('/api/admin/reset-database', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ confirm: 'RESET' }),
-      })
-
-      if (response.ok) {
-        success(t.users.resetSuccess)
-        setResetConfirmText('')
-        // Redirect to login since all data is wiped
-        setTimeout(() => {
-          signOut({ callbackUrl: '/login' })
-        }, 2000)
+      const formData = new FormData()
+      formData.append('confirm', 'RESET')
+      
+      await resetDatabase(formData)
+      
+      // Server Action handles success/error via redirects
+      success(t.users.resetSuccess)
+      setResetConfirmText('')
+      
+      // Redirect to login since all data is wiped
+      setTimeout(() => {
+        signOut({ callbackUrl: '/login' })
+      }, 2000)
+      
+    } catch (err: unknown) {
+      if (err instanceof Error && err.message) {
+        error(`${t.users.resetFailed}: ${err.message}`)
       } else {
-        const errorData = await response.json()
-        error(`${t.users.resetFailed}: ${errorData.error}`)
+        error(t.users.resetFailed)
       }
-    } catch {
-      error(t.users.resetFailed)
     } finally {
       setResetting(false)
     }
