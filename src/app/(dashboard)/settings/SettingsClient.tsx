@@ -44,7 +44,7 @@ export default function SettingsClient({ user }: SettingsClientProps) {
     } finally {
       setLoading(false)
     }
-  }, [showError])
+  }, [showError, t.settings?.failedToLoadCredentials])
 
   useEffect(() => {
     loadCredentials()
