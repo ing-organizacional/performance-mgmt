@@ -38,7 +38,7 @@ export default function LoadingPage({
               </svg>
             </div>
             <h1 className="text-2xl font-bold text-gray-900 mb-2">
-              {t.common?.loading || 'Performance Management'}
+              Performance Management
             </h1>
           </div>
         )}

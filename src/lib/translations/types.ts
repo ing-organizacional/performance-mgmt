@@ -72,6 +72,13 @@ export interface CommonTranslations {
   lastUsed: string
   name: string
   na: string
+  authenticating: string
+  authenticationSubtitle: string
+  welcomeBack: string
+  yourDashboard: string
+  takingYouTo: string
+  secondsRemaining: string
+  secondRemaining: string
 }
 
 export interface AuthTranslations {

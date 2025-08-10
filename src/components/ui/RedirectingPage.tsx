@@ -57,7 +57,7 @@ export default function RedirectingPage({
         {/* Destination */}
         {destination && (
           <p className="text-gray-600 mb-6 animate-in slide-in-from-bottom-4 duration-500 delay-400">
-            Taking you to {destination}
+            {t.common.takingYouTo} {destination}
           </p>
         )}
 
@@ -68,7 +68,7 @@ export default function RedirectingPage({
               {countdown}
             </div>
             <div className="text-sm text-gray-500">
-              {countdown === 1 ? 'second' : 'seconds'} remaining
+              {countdown === 1 ? t.common.secondRemaining : t.common.secondsRemaining}
             </div>
           </div>
         )}

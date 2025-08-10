@@ -71,5 +71,12 @@ export const common: CommonTranslations = {
   created: 'Created',
   lastUsed: 'Last used',
   name: 'Name',
-  na: 'N/A'
+  na: 'N/A',
+  authenticating: 'Authenticating...',
+  authenticationSubtitle: 'Please wait while we verify your credentials',
+  welcomeBack: 'Welcome back!',
+  yourDashboard: 'your dashboard',
+  takingYouTo: 'Taking you to',
+  secondsRemaining: 'seconds remaining',
+  secondRemaining: 'second remaining'
 }
