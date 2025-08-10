@@ -65,6 +65,7 @@ yarn tsc --noEmit && yarn lint
 - **Role-based Access Control**: HR, Manager, Employee permissions
 - **Company Data Isolation**: Complete multi-tenant architecture  
 - **Audit Logging**: Every action tracked with user, timestamp, and changes
+- **Bilingual Interface**: Complete English/Spanish translation with instant language switching
 
 #### Enterprise SSO Features
 - **Microsoft Azure AD/Entra ID**: Corporate directory integration with group-based role mapping
@@ -266,23 +267,52 @@ NODE_ENV="production"
 ```text
 src/
 ├── app/                 # Next.js App Router pages
+│   ├── (dashboard)/     # Dashboard routes with shared layout
+│   │   ├── components/  # Focused UI components
+│   │   └── hooks/       # Custom business logic hooks
+│   └── (admin)/         # Admin routes with specialized components
 ├── components/          # Reusable React components
 ├── lib/                 # Business logic and utilities
-│   ├── actions/         # Server Actions
+│   ├── actions/         # Server Actions (preferred architecture)
+│   │   └── evaluations/ # Modular evaluation system
+│   ├── translations/    # Bilingual translation system
 │   ├── services/        # Business services
 │   └── utils/           # Helper functions
-├── hooks/               # Custom React hooks
+├── hooks/               # Global custom React hooks
 └── types/               # TypeScript type definitions
+```
+
+### Component Architecture Excellence
+
+**Recent Major Refactoring (August 2025):**
+- **84% size reduction** in main components through focused component extraction
+- **Single responsibility principle** applied throughout
+- **Reusable modal components** for consistent UX patterns
+- **Custom hooks** for business logic separation
+- **Desktop-first UX design** with mobile compatibility
+
+**Examples of Improved Architecture:**
+```typescript
+// Before: Monolithic 527-line CyclesClient.tsx
+// After: Clean 84-line orchestration component + focused components
+- CyclesHeader.tsx (74 lines) - Navigation and actions
+- CyclesList.tsx (220 lines) - Enhanced list with status management
+- CreateCycleModal.tsx (74 lines) - Reusable creation modal
+- DeleteCycleModal.tsx (108 lines) - Confirmation modal
+- useCycles.ts (80 lines) - Complete business logic hook
 ```
 
 ### Contributing Guidelines
 
-- Use Server Actions for data mutations
+- Use Server Actions for data mutations (preferred over API routes)
 - Maintain company-based data isolation
-- Follow TypeScript strict mode
-- Test mobile-first responsive design
-- Update bilingual translations
-- Maintain audit trails for changes
+- Follow TypeScript strict mode with comprehensive type safety
+- Test mobile-first responsive design with 44px minimum touch targets
+- Update bilingual translations (English/Spanish) for all new features
+- Maintain audit trails for changes and user actions
+- Apply single responsibility principle - extract components when exceeding 200 lines
+- Use custom hooks for business logic separation
+- Implement desktop-first design for administrative features
 
 ## 🔍 Testing
 
