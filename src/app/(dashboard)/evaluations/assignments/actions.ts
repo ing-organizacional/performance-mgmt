@@ -3,6 +3,7 @@
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma-client'
 import { revalidatePath } from 'next/cache'
+import { CycleService } from '@/lib/services/cycle-service'
 
 // Server action to assign evaluation items to employees
 export async function assignItemsToEmployees(itemId: string, employeeIds: string[]) {
@@ -140,6 +141,9 @@ export async function createEvaluationItem(formData: {
       assignedTo = userId
     }
 
+    // Get the active performance cycle
+    const activeCycle = await CycleService.getActiveCycle(companyId)
+
     // Get the next sort order
     const lastItem = await prisma.evaluationItem.findFirst({
       where: { companyId },
@@ -151,6 +155,7 @@ export async function createEvaluationItem(formData: {
     await prisma.evaluationItem.create({
       data: {
         companyId,
+        cycleId: activeCycle?.id || null,
         title: title.trim(),
         description: description.trim(),
         type,
