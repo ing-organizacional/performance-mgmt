@@ -78,15 +78,12 @@ export function useEvaluation({
   const isOverall = currentStep >= evaluationItems.length
   const isOKR = currentItem?.type === 'okr'
 
-  // Check if current item has valid rating and comment
+  // Allow navigation between items without validation (items can be completed later)
   const isCurrentItemValid = useCallback(() => {
-    if (isOverall) {
-      return Boolean(overallRating && overallComment.trim().length >= MIN_COMMENT_LENGTH)
-    } else if (currentItem) {
-      return Boolean(currentItem.rating && currentItem.comment.trim().length >= MIN_COMMENT_LENGTH)
-    }
-    return false
-  }, [isOverall, overallRating, overallComment, currentItem])
+    // Always allow navigation between items
+    // Validation will be enforced only when submitting the entire evaluation
+    return true
+  }, [])
 
   // Handle item editing
   const handleSaveItemEdit = useCallback(async () => {
