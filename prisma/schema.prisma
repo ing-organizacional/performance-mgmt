@@ -23,6 +23,7 @@ model Company {
   performanceCycles         PerformanceCycle[]
   partialAssessments        PartialAssessment[]
   auditLogs                 AuditLog[]
+  scheduledImports          ScheduledImport[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -68,6 +69,7 @@ model User {
   partialAssessmentsAsEmployee PartialAssessment[]        @relation("PartialAssessmentEmployee")
   partialAssessmentsAsAssessor PartialAssessment[]        @relation("PartialAssessmentAssessor")
   biometricCredentials         BiometricCredential[]      @relation("UserBiometricCredentials")
+  createdScheduledImports      ScheduledImport[]          @relation("ScheduledImportCreatedBy")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -295,4 +297,41 @@ model BiometricCredential {
   updatedAt DateTime @updatedAt
 
   @@unique([userId, credentialId])
+}
+
+model ScheduledImport {
+  id           String    @id @default(cuid())
+  companyId    String
+  name         String    // "Daily HRIS Sync", "Weekly Employee Import"
+  description  String?   // Optional description
+  enabled      Boolean   @default(true)
+  
+  // Schedule configuration
+  schedule     Json      // { frequency, time, dayOfWeek, dayOfMonth, timezone }
+  
+  // Source configuration  
+  source       Json      // { type, url, credentials, headers }
+  
+  // Import options
+  importOptions Json     // UpsertOptions + notificationEmails, validateOnly
+  
+  // Execution tracking
+  lastRun      DateTime?
+  nextRun      DateTime?
+  status       String    @default("active") // "active" | "paused" | "error" | "disabled"
+  errorMessage String?
+  
+  // Metadata
+  createdBy    String
+  
+  // Relations
+  company        Company @relation(fields: [companyId], references: [id])
+  createdByUser  User    @relation("ScheduledImportCreatedBy", fields: [createdBy], references: [id])
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@unique([companyId, name])
+  @@index([nextRun, enabled])
+  @@index([companyId, status])
 }
