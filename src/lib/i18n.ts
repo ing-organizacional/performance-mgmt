@@ -53,6 +53,8 @@ export interface Translations {
     of: string
     employees: string
     departments: string
+    unknownError: string
+    error: string
     found: string
     selected: string
     unassigned: string
@@ -629,6 +631,69 @@ export interface Translations {
     positionPlaceholder: string
     personIdPlaceholder: string
     shiftPlaceholder: string
+    // CSV Import Workflow - minimal essential keys
+    csvImportWorkflow: string
+    step: string
+    chooseFileOrDrag: string
+    selectCSVFileDescription: string
+    importGuide: string
+    downloadTemplate: string
+    previewImport: string
+    analyzing: string
+    configureImport: string
+    executeImport: string
+    importing: string
+    importAnotherFile: string
+    viewHistory: string
+    importHistory: string
+    backToImport: string
+    clickToChangeFile: string
+    csvFilesUpTo: string
+    manualImport: string
+    scheduledImports: string
+    // CSV Requirements
+    csvRequirements: string
+    requiredFields: string
+    officeUsers: string
+    operationalUsers: string
+    managers: string
+    encoding: string
+    // Scheduled Import Manager
+    automateCSVImports: string
+    createSchedule: string
+    editScheduledImport: string
+    createNewScheduledImport: string
+    configureAutomatedImports: string
+    importName: string
+    description: string
+    schedule: string
+    frequency: string
+    time: string
+    timezone: string
+    dataSource: string
+    sourceType: string
+    authenticationOptional: string
+    lastRun: string
+    nextRun: string
+    noScheduledImports: string
+    createFirstScheduleDescription: string
+    createFirstSchedule: string
+    executeNow: string
+    pause: string
+    enable: string
+    update: string
+    create: string
+    // Toast messages for Scheduled Imports
+    failedToLoadScheduledImports: string
+    fillAllRequiredFields: string
+    scheduledImportCreated: string
+    failedToCreateScheduledImport: string
+    scheduledImportUpdated: string
+    failedToUpdateScheduledImport: string
+    scheduledImportDeleted: string
+    failedToDeleteScheduledImport: string
+    importExecutedSuccessfully: string
+    failedToExecuteScheduledImport: string
   }
 }
 
@@ -681,6 +746,8 @@ export const translations: Record<Language, Translations> = {
       of: 'of',
       employees: 'employees',
       departments: 'departments',
+      unknownError: 'Unknown error',
+      error: 'Error',
       found: 'found',
       selected: 'selected',
       unassigned: 'Unassigned',
@@ -1234,7 +1301,70 @@ export const translations: Record<Language, Translations> = {
       employeeIdPlaceholder: 'EMP001, MGR002...',
       positionPlaceholder: 'Executive Chef, Front Desk Agent, Manager...',
       personIdPlaceholder: 'Cédula, DNI, National ID...',
-      shiftPlaceholder: 'Morning, Night, Rotating...'
+      shiftPlaceholder: 'Morning, Night, Rotating...',
+      // CSV Import Workflow - minimal essential keys
+      csvImportWorkflow: 'CSV Import Workflow',
+      step: 'Step',
+      chooseFileOrDrag: 'Choose CSV file or drag and drop',
+      selectCSVFileDescription: 'Select a CSV file containing user data to import. Use our template for the correct format.',
+      importGuide: 'Import Guide',
+      downloadTemplate: 'Download Template',
+      previewImport: 'Preview Import',
+      analyzing: 'Analyzing...',
+      configureImport: 'Configure Import',
+      executeImport: 'Execute Import',
+      importing: 'Importing...',
+      importAnotherFile: 'Import Another File',
+      viewHistory: 'View History',
+      importHistory: 'Import History',
+      backToImport: 'Back to Import',
+      clickToChangeFile: 'Click to change file',
+      csvFilesUpTo: 'CSV files up to 10MB',
+      manualImport: 'Manual Import',
+      scheduledImports: 'Scheduled Imports',
+      // CSV Requirements
+      csvRequirements: 'CSV Requirements',
+      requiredFields: 'Required fields: name, role, personID',
+      officeUsers: 'Office users: email or username + password',
+      operationalUsers: 'Operational users: username + PIN (userType: operational)',
+      managers: 'Managers: Link via managerPersonID or managerEmployeeId',
+      encoding: 'Encoding: UTF-8 with comma separators',
+      // Scheduled Import Manager
+      automateCSVImports: 'Automate CSV imports from external systems (HRIS, APIs, URLs)',
+      createSchedule: 'Create Schedule',
+      editScheduledImport: 'Edit Scheduled Import',
+      createNewScheduledImport: 'Create New Scheduled Import',
+      configureAutomatedImports: 'Configure automated imports from external data sources',
+      importName: 'Import Name',
+      description: 'Description',
+      schedule: 'Schedule',
+      frequency: 'Frequency',
+      time: 'Time',
+      timezone: 'Timezone',
+      dataSource: 'Data Source',
+      sourceType: 'Source Type',
+      authenticationOptional: 'Authentication (Optional)',
+      lastRun: 'Last run',
+      nextRun: 'Next run',
+      noScheduledImports: 'No Scheduled Imports',
+      createFirstScheduleDescription: 'Create your first scheduled import to automate CSV imports from external systems.',
+      createFirstSchedule: 'Create First Schedule',
+      executeNow: 'Execute Now',
+      pause: 'Pause',
+      enable: 'Enable',
+      update: 'Update',
+      create: 'Create',
+      // Toast messages for Scheduled Imports
+      failedToLoadScheduledImports: 'Failed to load scheduled imports',
+      fillAllRequiredFields: 'Please fill in all required fields',
+      scheduledImportCreated: 'Scheduled import created successfully',
+      failedToCreateScheduledImport: 'Failed to create scheduled import',
+      scheduledImportUpdated: 'Scheduled import updated successfully',
+      failedToUpdateScheduledImport: 'Failed to update scheduled import',
+      scheduledImportDeleted: 'Scheduled import deleted successfully',
+      failedToDeleteScheduledImport: 'Failed to delete scheduled import',
+      importExecutedSuccessfully: 'Import executed successfully',
+      failedToExecuteScheduledImport: 'Failed to execute scheduled import'
     }
   },
   es: {
@@ -1285,6 +1415,8 @@ export const translations: Record<Language, Translations> = {
       of: 'de',
       employees: 'empleados',
       departments: 'departamentos',
+      unknownError: 'Error desconocido',
+      error: 'Error',
       found: 'encontrados',
       selected: 'seleccionados',
       unassigned: 'Sin Asignar',
@@ -1838,7 +1970,70 @@ export const translations: Record<Language, Translations> = {
       employeeIdPlaceholder: 'EMP001, MGR002...',
       positionPlaceholder: 'Chef Ejecutivo, Recepcionista, Gerente...',
       personIdPlaceholder: 'Cédula, DNI, ID Nacional...',
-      shiftPlaceholder: 'Mañana, Noche, Rotativo...'
+      shiftPlaceholder: 'Mañana, Noche, Rotativo...',
+      // CSV Import Workflow - minimal essential keys
+      csvImportWorkflow: 'Flujo de Importación CSV',
+      step: 'Paso',
+      chooseFileOrDrag: 'Elige archivo CSV o arrastra y suelta',
+      selectCSVFileDescription: 'Selecciona un archivo CSV con datos de usuario para importar. Usa nuestra plantilla para el formato correcto.',
+      importGuide: 'Guía de Importación',
+      downloadTemplate: 'Descargar Plantilla',
+      previewImport: 'Vista Previa de Importación',
+      analyzing: 'Analizando...',
+      configureImport: 'Configurar Importación',
+      executeImport: 'Ejecutar Importación',
+      importing: 'Importando...',
+      importAnotherFile: 'Importar Otro Archivo',
+      viewHistory: 'Ver Historial',
+      importHistory: 'Historial de Importaciones',
+      backToImport: 'Volver a Importar',
+      clickToChangeFile: 'Clic para cambiar archivo',
+      csvFilesUpTo: 'Archivos CSV hasta 10MB',
+      manualImport: 'Importación Manual',
+      scheduledImports: 'Importaciones Programadas',
+      // CSV Requirements
+      csvRequirements: 'Requisitos del CSV',
+      requiredFields: 'Campos obligatorios: nombre, rol, personID',
+      officeUsers: 'Usuarios de oficina: email o usuario + contraseña',
+      operationalUsers: 'Usuarios operativos: usuario + PIN (userType: operational)',
+      managers: 'Gerentes: Vincular vía managerPersonID o managerEmployeeId',
+      encoding: 'Codificación: UTF-8 con separadores de coma',
+      // Scheduled Import Manager
+      automateCSVImports: 'Automatizar importaciones CSV desde sistemas externos (HRIS, APIs, URLs)',
+      createSchedule: 'Crear Programación',
+      editScheduledImport: 'Editar Importación Programada',
+      createNewScheduledImport: 'Crear Nueva Importación Programada',
+      configureAutomatedImports: 'Configurar importaciones automatizadas desde fuentes de datos externas',
+      importName: 'Nombre de Importación',
+      description: 'Descripción',
+      schedule: 'Programación',
+      frequency: 'Frecuencia',
+      time: 'Hora',
+      timezone: 'Zona Horaria',
+      dataSource: 'Fuente de Datos',
+      sourceType: 'Tipo de Fuente',
+      authenticationOptional: 'Autenticación (Opcional)',
+      lastRun: 'Última ejecución',
+      nextRun: 'Próxima ejecución',
+      noScheduledImports: 'Sin Importaciones Programadas',
+      createFirstScheduleDescription: 'Crea tu primera importación programada para automatizar importaciones CSV desde sistemas externos.',
+      createFirstSchedule: 'Crear Primera Programación',
+      executeNow: 'Ejecutar Ahora',
+      pause: 'Pausar',
+      enable: 'Habilitar',
+      update: 'Actualizar',
+      create: 'Crear',
+      // Toast messages for Scheduled Imports
+      failedToLoadScheduledImports: 'Error al cargar importaciones programadas',
+      fillAllRequiredFields: 'Por favor complete todos los campos requeridos',
+      scheduledImportCreated: 'Importación programada creada exitosamente',
+      failedToCreateScheduledImport: 'Error al crear importación programada',
+      scheduledImportUpdated: 'Importación programada actualizada exitosamente',
+      failedToUpdateScheduledImport: 'Error al actualizar importación programada',
+      scheduledImportDeleted: 'Importación programada eliminada exitosamente',
+      failedToDeleteScheduledImport: 'Error al eliminar importación programada',
+      importExecutedSuccessfully: 'Importación ejecutada exitosamente',
+      failedToExecuteScheduledImport: 'Error al ejecutar importación programada'
     }
   }
 }

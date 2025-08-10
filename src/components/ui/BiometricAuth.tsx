@@ -36,7 +36,7 @@ export default function BiometricAuth({
     isSupported,
     isCreating,
     isAuthenticating,
-    error: _error,
+    error: _error, // eslint-disable-line @typescript-eslint/no-unused-vars -- Intentionally unused to prevent runaway loops in biometric error handling
     createCredential,
     authenticate,
     checkSupport
