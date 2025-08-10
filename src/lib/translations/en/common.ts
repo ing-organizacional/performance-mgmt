@@ -70,5 +70,6 @@ export const common: CommonTranslations = {
   never: 'Never',
   created: 'Created',
   lastUsed: 'Last used',
-  name: 'Name'
+  name: 'Name',
+  na: 'N/A'
 }

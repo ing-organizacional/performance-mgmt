@@ -71,6 +71,7 @@ export interface CommonTranslations {
   created: string
   lastUsed: string
   name: string
+  na: string
 }
 
 export interface AuthTranslations {
@@ -217,7 +218,10 @@ export interface BiometricTranslations {
 }
 
 export interface SettingsTranslations {
+  title: string
+  subtitle: string
   profile: string
+  profileDescription: string
   editProfile: string
   changePassword: string
   currentPassword: string
@@ -229,6 +233,10 @@ export interface SettingsTranslations {
   currentPasswordPlaceholder: string
   newPasswordPlaceholder: string
   confirmPasswordPlaceholder: string
+  noCredentials: string
+  noCredentialsDescription: string
+  failedToLoadCredentials: string
+  failedToRemoveCredential: string
 }
 
 export interface AssignmentsTranslations {

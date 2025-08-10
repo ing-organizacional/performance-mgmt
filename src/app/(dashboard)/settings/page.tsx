@@ -1,10 +1,7 @@
-import { Suspense } from 'react'
 import { auth } from '@/auth'
 import { redirect } from 'next/navigation'
 import { prisma } from '@/lib/prisma-client'
-import SettingsClient from './SettingsClient'
-import BackButton from './BackButton'
-import { LoadingSpinner } from '@/components/ui'
+import SettingsPageContent from './SettingsPageContent'
 
 export default async function SettingsPage() {
   const session = await auth()
@@ -42,21 +39,6 @@ export default async function SettingsPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-6">
-      <div className="max-w-3xl mx-auto">
-        <div className="flex items-center gap-4 mb-6">
-          <BackButton />
-          <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
-        </div>
-        
-        <Suspense fallback={
-          <div className="flex items-center justify-center p-8">
-            <LoadingSpinner size="lg" color="primary" />
-          </div>
-        }>
-          <SettingsClient user={user} />
-        </Suspense>
-      </div>
-    </div>
+    <SettingsPageContent user={user} />
   )
 }
