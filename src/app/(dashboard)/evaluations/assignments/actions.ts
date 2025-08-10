@@ -3,7 +3,6 @@
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma-client'
 import { revalidatePath } from 'next/cache'
-import { CycleService } from '@/lib/services/cycle-service'
 
 // Server action to assign evaluation items to employees
 export async function assignItemsToEmployees(itemId: string, employeeIds: string[]) {
@@ -141,8 +140,17 @@ export async function createEvaluationItem(formData: {
       assignedTo = userId
     }
 
-    // Get the active performance cycle
-    const activeCycle = await CycleService.getActiveCycle(companyId)
+    // Get the active performance cycle (required for all evaluation items)
+    const activeCycle = await prisma.performanceCycle.findFirst({
+      where: {
+        companyId,
+        status: 'active'
+      }
+    })
+
+    if (!activeCycle) {
+      return { success: false, error: 'No active performance cycle found. Please contact HR to create one.' }
+    }
 
     // Get the next sort order
     const lastItem = await prisma.evaluationItem.findFirst({
@@ -155,7 +163,7 @@ export async function createEvaluationItem(formData: {
     await prisma.evaluationItem.create({
       data: {
         companyId,
-        cycleId: activeCycle?.id || null,
+        cycleId: activeCycle.id,
         title: title.trim(),
         description: description.trim(),
         type,
