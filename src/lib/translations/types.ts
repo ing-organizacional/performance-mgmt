@@ -562,6 +562,19 @@ export interface DashboardTranslations {
   comprehensiveAnalysisDescription: string
   requireImmediateAttention: string
   total: string
+  
+  // Pending Evaluations specific
+  employeeEvaluationManagement: string
+  evaluationsFinished: string
+  awaitingEvaluation: string
+  withPendingWork: string
+  employeeSingular: string
+  employeesPlural: string
+  awaitingEvaluationText: string
+  reportsTo: string
+  clearSearch: string
+  departmentsHeader: string
+  pendingText: string
 }
 
 export interface UsersTranslations {

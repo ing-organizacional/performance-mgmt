@@ -262,5 +262,18 @@ export const dashboard: DashboardTranslations = {
   // Department Ratings specific
   comprehensiveAnalysisDescription: 'Análisis integral de departamentos y métricas de desempeño',
   requireImmediateAttention: 'Requieren atención inmediata',
-  total: 'total'
+  total: 'total',
+  
+  // Pending Evaluations specific
+  employeeEvaluationManagement: 'Gestión de evaluaciones de empleados y seguimiento de progreso',
+  evaluationsFinished: 'Evaluaciones terminadas',
+  awaitingEvaluation: 'Esperando evaluación',
+  withPendingWork: 'Con trabajo pendiente',
+  employeeSingular: 'empleado',
+  employeesPlural: 'empleados',
+  awaitingEvaluationText: 'esperando evaluación',
+  reportsTo: 'Reporta a',
+  clearSearch: 'Limpiar búsqueda',
+  departmentsHeader: 'Departamentos',
+  pendingText: 'pendientes'
 }
