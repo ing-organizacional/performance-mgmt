@@ -42,11 +42,14 @@ async function getPendingEvaluations(companyId: string) {
     ]
   })
 
-  // Get all completed evaluations
+  // Get all completed evaluations for active employees
   const completedEvaluations = await prisma.evaluation.findMany({
     where: {
       companyId,
-      status: 'completed'
+      status: 'completed',
+      employee: {
+        active: true  // Only include evaluations for active employees
+      }
     },
     select: {
       id: true,

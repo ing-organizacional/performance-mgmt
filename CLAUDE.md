@@ -51,8 +51,15 @@ yarn lint && yarn tsc --noEmit    # Code quality check
 - **HR Controls**: Create/close/reopen cycles
 - **Partial Assessments**: HR can rate individual items with custom dates
 
+**Employee Archive System:**
+- **Complete Lifecycle Management**: Soft-delete with evaluation history preservation
+- **Archive Interface**: `/users/archive` → search, filter, restore, or permanently delete
+- **Business Rules**: Manager dependency validation, self-archiving protection
+- **Dashboard Integration**: Archived employees excluded from all statistics
+- **Bilingual Support**: Professional confirmation modals in English/Spanish
+
 **Role-Based Access:**
-- **HR**: `/dashboard` → cycle management, team overview, deadline tracking
+- **HR**: `/dashboard` → cycle management, team overview, deadline tracking, user archive management
 - **Managers**: `/evaluations` → team evaluation list, evaluation forms
 - **Employees**: `/my-evaluations` → view received evaluations, approve pending ones
 
@@ -91,7 +98,7 @@ yarn lint && yarn tsc --noEmit    # Code quality check
 - ✅ All dependencies updated and secure
 - ⚠️ Remove demo credentials before production deployment
 
-## Current System State (August 10, 2025)
+## Current System State (August 11, 2025)
 
 **Production Readiness: ENTERPRISE-READY** 🚀
 
@@ -101,6 +108,7 @@ yarn lint && yarn tsc --noEmit    # Code quality check
 **Architecture Status:** ✅ Component refactoring complete with 80%+ size reductions
 
 **Major Achievements:**
+- ✅ **Employee Archive System**: Complete lifecycle management with evaluation history preservation
 - ✅ **Component Architecture Excellence**: Single responsibility principle applied throughout
 - ✅ **Desktop-First Dashboard**: Professional gradient backgrounds with glass morphism
 - ✅ **Mobile-First Applications**: Touch-optimized with 100% accessibility compliance
