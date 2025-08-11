@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Upload, Eye, Download, FileText } from 'lucide-react'
@@ -24,6 +24,42 @@ export function CSVUploadStep({
   t 
 }: CSVUploadStepProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const [isDragOver, setIsDragOver] = useState(false)
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDragOver(true)
+  }
+
+  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDragOver(false)
+  }
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDragOver(false)
+    
+    const files = e.dataTransfer.files
+    if (files.length > 0) {
+      const file = files[0]
+      
+      // Check if it's a CSV file
+      if (!file.name.toLowerCase().endsWith('.csv')) {
+        return // Let the parent handle the error
+      }
+      
+      // Create a synthetic event to match the expected onFileSelect signature
+      const syntheticEvent = {
+        target: { files }
+      } as React.ChangeEvent<HTMLInputElement>
+      
+      onFileSelect(syntheticEvent)
+    }
+  }
 
   const downloadTemplate = () => {
     const template = [
@@ -74,8 +110,15 @@ export function CSVUploadStep({
         </div>
 
         <div 
-          className="border-2 border-dashed border-gray-300 rounded p-4 text-center hover:border-gray-400 transition-colors cursor-pointer"
+          className={`border-2 border-dashed rounded p-4 text-center transition-colors cursor-pointer ${
+            isDragOver 
+              ? 'border-blue-400 bg-blue-50' 
+              : 'border-gray-300 hover:border-gray-400'
+          }`}
           onClick={() => fileInputRef.current?.click()}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
         >
           <Upload className="mx-auto h-6 w-6 text-gray-600 mb-2" />
           <p className="text-sm font-medium mb-1 text-gray-900">

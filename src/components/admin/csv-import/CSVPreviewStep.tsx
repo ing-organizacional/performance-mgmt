@@ -14,14 +14,16 @@ import {
   UserCheck 
 } from 'lucide-react'
 import type { ImportPreviewResult } from '@/lib/actions/csv-import'
+import type { Translations } from '@/lib/i18n'
 
 interface CSVPreviewStepProps {
   previewResult: ImportPreviewResult
   onConfigure: () => void
   onBack: () => void
+  t: Translations
 }
 
-export function CSVPreviewStep({ previewResult, onConfigure, onBack }: CSVPreviewStepProps) {
+export function CSVPreviewStep({ previewResult, onConfigure, onBack, t }: CSVPreviewStepProps) {
   if (!previewResult.success) {
     return (
       <Card>
@@ -39,7 +41,7 @@ export function CSVPreviewStep({ previewResult, onConfigure, onBack }: CSVPrevie
           </Alert>
           <div className="mt-4">
             <Button variant="outline" onClick={onBack}>
-              Back to Upload
+              {t.users.back} to Upload
             </Button>
           </div>
         </CardContent>
@@ -55,10 +57,10 @@ export function CSVPreviewStep({ previewResult, onConfigure, onBack }: CSVPrevie
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center gap-2 text-gray-900 text-lg">
           <Eye className="h-4 w-4" />
-          Step 2: Preview Results
+          {t.users.step} 2: {t.users.previewResults}
         </CardTitle>
         <CardDescription className="text-gray-600 text-sm">
-          Review the analysis of your CSV file before importing
+          {t.users.reviewAnalysisBeforeImporting}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -67,22 +69,22 @@ export function CSVPreviewStep({ previewResult, onConfigure, onBack }: CSVPrevie
           <div className="text-center p-3 bg-blue-50 rounded">
             <Users className="h-4 w-4 text-blue-600 mx-auto mb-1" />
             <div className="text-lg font-bold text-blue-600">{previewResult.totalRows}</div>
-            <div className="text-xs font-medium text-blue-700">Total</div>
+            <div className="text-xs font-medium text-blue-700">{t.users.totalLabel}</div>
           </div>
           <div className="text-center p-3 bg-green-50 rounded">
             <CheckCircle className="h-4 w-4 text-green-600 mx-auto mb-1" />
             <div className="text-lg font-bold text-green-600">{previewResult.validRows}</div>
-            <div className="text-xs font-medium text-green-700">Valid</div>
+            <div className="text-xs font-medium text-green-700">{t.users.validLabel}</div>
           </div>
           <div className="text-center p-3 bg-blue-50 rounded">
             <UserPlus className="h-4 w-4 text-blue-600 mx-auto mb-1" />
             <div className="text-lg font-bold text-blue-600">{previewResult.createCount}</div>
-            <div className="text-xs font-medium text-blue-700">New</div>
+            <div className="text-xs font-medium text-blue-700">{t.users.newLabel}</div>
           </div>
           <div className="text-center p-3 bg-amber-50 rounded">
             <UserCheck className="h-4 w-4 text-amber-600 mx-auto mb-1" />
             <div className="text-lg font-bold text-amber-600">{previewResult.updateCount}</div>
-            <div className="text-xs font-medium text-amber-700">Updates</div>
+            <div className="text-xs font-medium text-amber-700">{t.users.updatesLabel}</div>
           </div>
         </div>
 
@@ -91,7 +93,17 @@ export function CSVPreviewStep({ previewResult, onConfigure, onBack }: CSVPrevie
           <Alert>
             <AlertCircle className="h-4 w-4" />
             <AlertDescription>
-              <strong>{previewResult.invalidRows} rows have validation errors</strong> and will be skipped unless auto-fixed during import.
+              <strong>{previewResult.invalidRows} {t.users.validationErrorsWillBeSkipped}</strong>
+              <div className="mt-2 text-xs">
+                <div className="font-medium mb-1">{t.users.commonIssuesToCheck}</div>
+                <ul className="list-disc list-inside space-y-0.5 text-gray-700">
+                  <li>{t.users.missingRequiredFields}</li>
+                  <li>{t.users.invalidPasswordFormat}</li>
+                  <li>{t.users.managerReferencesNotExist}</li>
+                  <li>{t.users.invalidEmailFormats}</li>
+                  <li>{t.users.bomCharacterIssue}</li>
+                </ul>
+              </div>
             </AlertDescription>
           </Alert>
         )}
@@ -99,7 +111,7 @@ export function CSVPreviewStep({ previewResult, onConfigure, onBack }: CSVPrevie
         {/* Valid Users Preview */}
         {validUsersForDisplay.length > 0 && (
           <div>
-            <h4 className="font-medium mb-2 text-green-800 text-sm">Valid Users (Preview)</h4>
+            <h4 className="font-medium mb-2 text-green-800 text-sm">{t.users.validUsersPreview}</h4>
             <div className="bg-green-50 border border-green-200 rounded p-3">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
                 {validUsersForDisplay.map((user, index) => (
@@ -107,12 +119,12 @@ export function CSVPreviewStep({ previewResult, onConfigure, onBack }: CSVPrevie
                     <div className="flex-1 min-w-0">
                       <div className="font-medium truncate">{user.name}</div>
                       <div className="text-gray-600 truncate">
-                        {user.email || user.username} • {user.role} • {user.department || 'No dept'}
+                        {user.email || user.username} • {user.role} • {user.department || t.users.noDept}
                       </div>
                     </div>
                     <div className="flex items-center gap-1 ml-2">
                       <Badge variant={user.action === 'create' ? 'default' : 'secondary'} className="text-xs px-1">
-                        {user.action === 'create' ? 'New' : 'Upd'}
+                        {user.action === 'create' ? t.users.newBadge : t.users.updBadge}
                       </Badge>
                     </div>
                   </div>
@@ -120,7 +132,7 @@ export function CSVPreviewStep({ previewResult, onConfigure, onBack }: CSVPrevie
               </div>
               {previewResult.validRows > 5 && (
                 <div className="text-xs text-gray-600 text-center pt-2 border-t border-green-300 mt-2">
-                  ... and {previewResult.validRows - 5} more valid users
+                  {t.users.andMoreValidUsers.replace('{count}', String(previewResult.validRows - 5))}
                 </div>
               )}
             </div>
@@ -130,24 +142,46 @@ export function CSVPreviewStep({ previewResult, onConfigure, onBack }: CSVPrevie
         {/* Invalid Users Preview */}
         {invalidUsersForDisplay.length > 0 && (
           <div>
-            <h4 className="font-medium mb-2 text-red-800 text-sm">Users with Errors (Preview)</h4>
+            <h4 className="font-medium mb-2 text-red-800 text-sm">
+              {t.users.usersWithErrors} - {previewResult.invalidRows} {t.users.totalErrors}
+            </h4>
             <div className="bg-red-50 border border-red-200 rounded p-3">
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {invalidUsersForDisplay.map((user, index) => (
-                  <div key={index} className="flex items-start justify-between p-2 bg-white rounded text-xs">
-                    <div className="flex-1 min-w-0">
-                      <div className="font-medium">{user.name}</div>
-                      <div className="text-red-600 text-xs mt-1">
-                        {user.validationErrors.slice(0, 2).join(', ')}
-                        {user.validationErrors.length > 2 && ' ...'}
+                  <div key={index} className="p-3 bg-white rounded border border-red-200">
+                    <div className="flex items-start justify-between mb-2">
+                      <div className="flex-1 min-w-0">
+                        <div className="font-medium text-sm">{user.name}</div>
+                        <div className="text-gray-600 text-xs">
+                          {user.email || user.username || t.users.noIdentifier} • {t.users.rowNumber} {index + 1}
+                        </div>
                       </div>
+                      <Badge variant="destructive" className="text-xs px-2 py-1">
+                        {user.validationErrors.length} {user.validationErrors.length !== 1 ? t.users.errors : t.users.error}
+                      </Badge>
                     </div>
-                    <Badge variant="destructive" className="text-xs px-1 ml-2">Error</Badge>
+                    
+                    {/* Show all validation errors */}
+                    <div className="space-y-1">
+                      {user.validationErrors.map((error, errorIndex) => (
+                        <div key={errorIndex} className="flex items-start gap-2 text-xs">
+                          <AlertCircle className="h-3 w-3 text-red-500 mt-0.5 flex-shrink-0" />
+                          <span className="text-red-700">{error}</span>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Show user data for context */}
+                    <div className="mt-2 pt-2 border-t border-red-100 text-xs text-gray-600">
+                      <span className="font-medium">{t.users.dataContext}:</span> {user.role} • {user.userType} • {user.department || t.users.noDept}
+                      {user.employeeId && ` • ID: ${user.employeeId}`}
+                      {user.personID && ` • PersonID: ${user.personID}`}
+                    </div>
                   </div>
                 ))}
                 {previewResult.invalidRows > 5 && (
-                  <div className="text-xs text-gray-600 text-center pt-2 border-t border-red-300 mt-2">
-                    ... and {previewResult.invalidRows - 5} more users with errors
+                  <div className="text-xs text-gray-600 text-center pt-2 border-t border-red-300 mt-3">
+                    ... and {previewResult.invalidRows - 5} {t.users.moreUsersWithErrors}
                   </div>
                 )}
               </div>
@@ -158,7 +192,7 @@ export function CSVPreviewStep({ previewResult, onConfigure, onBack }: CSVPrevie
         {/* Action Buttons */}
         <div className="flex gap-2 pt-2 border-t">
           <button onClick={onBack} className="px-3 py-2 bg-gray-600 text-white rounded-lg text-xs font-medium hover:bg-gray-700">
-            Back
+            {t.users.back}
           </button>
           <button 
             onClick={onConfigure}
@@ -166,7 +200,7 @@ export function CSVPreviewStep({ previewResult, onConfigure, onBack }: CSVPrevie
             className="flex items-center gap-1 px-3 py-2 bg-blue-600 text-white rounded-lg text-xs font-medium hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed disabled:text-gray-600"
           >
             <Settings className="h-3 w-3" />
-            Configure Import
+            {t.users.configureImport}
           </button>
         </div>
       </CardContent>

@@ -6,6 +6,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Separator } from '@/components/ui/separator'
 import { Settings, ArrowLeft, Play } from 'lucide-react'
 import type { UpsertOptions } from '@/lib/actions/csv-import'
+import type { Translations } from '@/lib/i18n'
 
 interface CSVConfigurationStepProps {
   upsertOptions: UpsertOptions
@@ -13,28 +14,30 @@ interface CSVConfigurationStepProps {
   onExecute: () => void
   onBack: () => void
   isLoading: boolean
+  t: Translations
 }
-
-const fieldOptions = [
-  { id: 'name', label: 'Name', required: true },
-  { id: 'email', label: 'Email' },
-  { id: 'username', label: 'Username' },
-  { id: 'role', label: 'Role', required: true },
-  { id: 'department', label: 'Department' },
-  { id: 'userType', label: 'User Type' },
-  { id: 'employeeId', label: 'Employee ID' },
-  { id: 'position', label: 'Position' },
-  { id: 'shift', label: 'Shift' },
-  { id: 'password', label: 'Password' }
-]
 
 export function CSVConfigurationStep({ 
   upsertOptions, 
   onOptionsChange, 
   onExecute, 
   onBack, 
-  isLoading 
+  isLoading,
+  t
 }: CSVConfigurationStepProps) {
+  
+  const fieldOptions = [
+    { id: 'name', label: t.users.name, required: true },
+    { id: 'email', label: t.users.email },
+    { id: 'username', label: t.users.username },
+    { id: 'role', label: t.users.role, required: true },
+    { id: 'department', label: t.users.department },
+    { id: 'userType', label: t.users.userType },
+    { id: 'employeeId', label: t.users.employeeId },
+    { id: 'position', label: t.users.position },
+    { id: 'shift', label: t.users.shift },
+    { id: 'password', label: t.users.password }
+  ]
   
   const handleFieldToggle = (fieldId: string, checked: boolean) => {
     const currentFields = upsertOptions.selectedFields || []
@@ -60,17 +63,17 @@ export function CSVConfigurationStep({
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center gap-2 text-gray-900 text-lg">
           <Settings className="h-4 w-4" />
-          Step 3: Configure Import Options
+          {t.users.step} 3: {t.users.configureImportOptions}
         </CardTitle>
         <CardDescription className="text-gray-600 text-sm">
-          Choose which fields to import and configure import behavior
+          {t.users.chooseFieldsAndBehavior}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         
         {/* Import Actions */}
         <div>
-          <h4 className="font-medium mb-2 text-gray-900 text-sm">Import Actions</h4>
+          <h4 className="font-medium mb-2 text-gray-900 text-sm">{t.users.importActions}</h4>
           <div className="grid grid-cols-2 gap-3">
             <div className="flex items-center space-x-2">
               <Checkbox
@@ -80,10 +83,10 @@ export function CSVConfigurationStep({
               />
               <div>
                 <label htmlFor="createNew" className="text-sm font-medium">
-                  Create new users
+                  {t.users.createNewUsers}
                 </label>
                 <div className="text-xs text-gray-600">
-                  Import users that don&apos;t exist
+                  {t.users.importUsersDontExist}
                 </div>
               </div>
             </div>
@@ -96,10 +99,10 @@ export function CSVConfigurationStep({
               />
               <div>
                 <label htmlFor="updateExisting" className="text-sm font-medium">
-                  Update existing users
+                  {t.users.updateExistingUsers}
                 </label>
                 <div className="text-xs text-gray-600">
-                  Update existing users
+                  {t.users.updateExistingUsersDesc}
                 </div>
               </div>
             </div>
@@ -110,7 +113,7 @@ export function CSVConfigurationStep({
 
         {/* Field Selection */}
         <div>
-          <h4 className="font-medium mb-3 text-gray-900">Fields to Import/Update</h4>
+          <h4 className="font-medium mb-3 text-gray-900">{t.users.fieldsToImportUpdate}</h4>
           <div className="grid grid-cols-2 gap-3">
             {fieldOptions.map((field) => {
               const isSelected = (upsertOptions.selectedFields || []).includes(field.id)
@@ -131,7 +134,7 @@ export function CSVConfigurationStep({
             })}
           </div>
           <p className="text-xs text-gray-600 mt-2">
-            * Required fields are always imported
+            {t.users.requiredFieldsAlwaysImported}
           </p>
         </div>
 
@@ -139,7 +142,7 @@ export function CSVConfigurationStep({
 
         {/* Error Handling Options */}
         <div>
-          <h4 className="font-medium mb-3 text-gray-900">Error Handling</h4>
+          <h4 className="font-medium mb-3 text-gray-900">{t.users.errorHandling}</h4>
           <div className="space-y-3">
             <div className="flex items-center space-x-2">
               <Checkbox
@@ -148,10 +151,10 @@ export function CSVConfigurationStep({
                 onCheckedChange={(checked) => handleOptionChange('skipOnError', Boolean(checked))}
               />
               <label htmlFor="skipOnError" className="text-sm font-medium">
-                Skip rows with errors
+                {t.users.skipRowsWithErrors}
               </label>
               <span className="text-xs text-gray-600 ml-2">
-                Continue import even if some rows fail
+                {t.users.continueImportEvenFail}
               </span>
             </div>
             
@@ -162,10 +165,10 @@ export function CSVConfigurationStep({
                 onCheckedChange={(checked) => handleOptionChange('continueOnValidationError', Boolean(checked))}
               />
               <label htmlFor="continueOnValidationError" className="text-sm font-medium">
-                Continue on validation errors
+                {t.users.continueOnValidationErrors}
               </label>
               <span className="text-xs text-gray-600 ml-2">
-                Process valid rows even if some have validation issues
+                {t.users.processValidRowsEvenIssues}
               </span>
             </div>
             
@@ -176,10 +179,10 @@ export function CSVConfigurationStep({
                 onCheckedChange={(checked) => handleOptionChange('autoFixPasswords', Boolean(checked))}
               />
               <label htmlFor="autoFixPasswords" className="text-sm font-medium">
-                Auto-fix weak passwords
+                {t.users.autoFixWeakPasswords}
               </label>
               <span className="text-xs text-gray-600 ml-2">
-                Automatically strengthen passwords that don&apos;t meet requirements
+                {t.users.autoStrengthenPasswords}
               </span>
             </div>
           </div>
@@ -189,7 +192,7 @@ export function CSVConfigurationStep({
 
         {/* Performance Options */}
         <div>
-          <h4 className="font-medium mb-3 text-gray-900">Performance Options</h4>
+          <h4 className="font-medium mb-3 text-gray-900">{t.users.performanceOptions}</h4>
           <div className="space-y-3">
             <div className="flex items-center space-x-2">
               <Checkbox
@@ -198,10 +201,10 @@ export function CSVConfigurationStep({
                 onCheckedChange={(checked) => handleOptionChange('useBatching', Boolean(checked))}
               />
               <label htmlFor="useBatching" className="text-sm font-medium">
-                Enable batch processing
+                {t.users.enableBatchProcessing}
               </label>
               <span className="text-xs text-gray-600 ml-2">
-                Process large imports in batches for better performance
+                {t.users.processLargeImportsBatches}
               </span>
             </div>
           </div>
@@ -209,7 +212,7 @@ export function CSVConfigurationStep({
           {upsertOptions.useBatching && (
             <div className="ml-6 mt-2">
               <label className="text-sm text-gray-700">
-                Batch size: {upsertOptions.batchSize || 200} users per batch
+                {t.users.batchSizeUsers.replace('{size}', String(upsertOptions.batchSize || 200))}
               </label>
             </div>
           )}
@@ -217,12 +220,12 @@ export function CSVConfigurationStep({
 
         {/* Summary */}
         <div className="bg-gray-50 p-4 rounded-lg border">
-          <h4 className="font-medium mb-2">Import Summary</h4>
+          <h4 className="font-medium mb-2">{t.users.importSummary}</h4>
           <div className="text-sm text-gray-700 space-y-1">
-            <div>• Actions: {upsertOptions.createNew ? 'Create new' : ''} {upsertOptions.createNew && upsertOptions.updateExisting ? '& ' : ''}{upsertOptions.updateExisting ? 'Update existing' : ''}</div>
-            <div>• Fields: {(upsertOptions.selectedFields || []).length} selected</div>
-            <div>• Error handling: {upsertOptions.skipOnError ? 'Skip errors' : 'Stop on errors'}</div>
-            <div>• Performance: {upsertOptions.useBatching ? `Batch processing (${upsertOptions.batchSize || 200})` : 'Standard processing'}</div>
+            <div>{t.users.actionsLabel} {upsertOptions.createNew ? t.users.createNew : ''} {upsertOptions.createNew && upsertOptions.updateExisting ? '& ' : ''}{upsertOptions.updateExisting ? t.users.updateExisting : ''}</div>
+            <div>{t.users.fieldsSelected.replace('{count}', String((upsertOptions.selectedFields || []).length))}</div>
+            <div>{t.users.errorHandlingLabel} {upsertOptions.skipOnError ? t.users.skipErrors : t.users.stopOnErrors}</div>
+            <div>{t.users.performanceLabel} {upsertOptions.useBatching ? t.users.batchProcessing.replace('{size}', String(upsertOptions.batchSize || 200)) : t.users.standardProcessing}</div>
           </div>
         </div>
 
@@ -230,7 +233,7 @@ export function CSVConfigurationStep({
         <div className="flex gap-2 pt-4 border-t">
           <Button variant="outline" onClick={onBack}>
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Preview
+            {t.users.backToPreview}
           </Button>
           <Button 
             onClick={onExecute}
@@ -238,7 +241,7 @@ export function CSVConfigurationStep({
             className="flex items-center gap-2 disabled:bg-gray-300 disabled:cursor-not-allowed disabled:text-gray-600"
           >
             <Play className="h-4 w-4" />
-            {isLoading ? 'Importing...' : 'Execute Import'}
+            {isLoading ? t.users.importing : t.users.executeImport}
           </Button>
         </div>
       </CardContent>

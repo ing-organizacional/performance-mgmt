@@ -7,6 +7,7 @@ import bcrypt from 'bcryptjs'
 import { z } from 'zod'
 import { auditUserManagement } from '@/lib/services/audit-service'
 
+
 // Validation schemas
 const userSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -71,6 +72,7 @@ export async function createUser(formData: FormData) {
       return {
         success: false,
         errors: result.error.flatten().fieldErrors,
+        messageKey: 'validationFailed',
         message: 'Validation failed'
       }
     }
@@ -91,6 +93,7 @@ export async function createUser(formData: FormData) {
     if (existingUser) {
       return {
         success: false,
+        messageKey: 'userWithEmailExists',
         message: 'User with this email or username already exists',
         errors: {}
       }
@@ -142,12 +145,14 @@ export async function createUser(formData: FormData) {
     revalidatePath('/users')
     return {
       success: true,
+      messageKey: 'userCreatedSuccessfully',
       message: 'User created successfully'
     }
   } catch (error) {
     console.error('Error creating user:', error)
     return {
       success: false,
+      messageKey: 'failedToCreateUser',
       message: 'Failed to create user',
       errors: {}
     }
@@ -179,6 +184,7 @@ export async function updateUser(userId: string, formData: FormData) {
       return {
         success: false,
         errors: result.error.flatten().fieldErrors,
+        messageKey: 'validationFailed',
         message: 'Validation failed'
       }
     }
@@ -200,6 +206,7 @@ export async function updateUser(userId: string, formData: FormData) {
     if (existingUser) {
       return {
         success: false,
+        messageKey: 'userWithEmailExists',
         message: 'User with this email or username already exists',
         errors: {}
       }
@@ -249,12 +256,14 @@ export async function updateUser(userId: string, formData: FormData) {
     revalidatePath('/users')
     return {
       success: true,
+      messageKey: 'userUpdatedSuccessfully',
       message: 'User updated successfully'
     }
   } catch (error) {
     console.error('Error updating user:', error)
     return {
       success: false,
+      messageKey: 'failedToUpdateUser',
       message: 'Failed to update user',
       errors: {}
     }
@@ -276,6 +285,7 @@ export async function deleteUser(userId: string) {
     if (!userToDelete) {
       return {
         success: false,
+        messageKey: 'userNotFound',
         message: 'User not found'
       }
     }
@@ -288,24 +298,107 @@ export async function deleteUser(userId: string) {
     if (dependentCount > 0) {
       return {
         success: false,
+        messageKey: 'cannotDeleteUserManagesEmployees',
+        messageData: { count: dependentCount },
         message: `Cannot delete user - they manage ${dependentCount} employee(s). Please reassign their reports first.`
       }
     }
 
-    // Delete user
+    // Check for evaluations where user is the employee
+    const employeeEvaluationsCount = await prisma.evaluation.count({
+      where: { employeeId: userId }
+    })
+
+    // Check for evaluations where user is the manager
+    const managerEvaluationsCount = await prisma.evaluation.count({
+      where: { managerId: userId }
+    })
+
+    // Check for evaluation item assignments
+    const evaluationAssignmentsCount = await prisma.evaluationItemAssignment.count({
+      where: { 
+        OR: [
+          { employeeId: userId },
+          { assignedBy: userId }
+        ]
+      }
+    })
+
+    // Check for partial assessments
+    const partialAssessmentsCount = await prisma.partialAssessment.count({
+      where: {
+        OR: [
+          { employeeId: userId },
+          { assessedBy: userId }
+        ]
+      }
+    })
+
+    // If user has evaluation-related data, provide detailed error message
+    if (employeeEvaluationsCount > 0 || managerEvaluationsCount > 0 || evaluationAssignmentsCount > 0 || partialAssessmentsCount > 0) {
+      const evaluationDetails = {
+        employeeEvaluationsCount,
+        managerEvaluationsCount,
+        evaluationAssignmentsCount,
+        partialAssessmentsCount
+      }
+
+      return {
+        success: false,
+        messageKey: 'cannotDeleteUserHasEvaluations',
+        messageData: evaluationDetails,
+        message: `Cannot delete user - they have evaluation data. These evaluation records must be handled first to maintain data integrity.`
+      }
+    }
+
+    // Store user data for audit log before deletion
+    const userDataForAudit = {
+      name: userToDelete.name,
+      email: userToDelete.email,
+      username: userToDelete.username,
+      role: userToDelete.role,
+      department: userToDelete.department,
+      employeeId: userToDelete.employeeId
+    }
+
+    // Delete user (BiometricCredentials will cascade due to onDelete: Cascade)
     await prisma.user.delete({
       where: { id: userId }
     })
 
+    // Audit the user deletion
+    await auditUserManagement(
+      currentUser.id,
+      currentUser.role,
+      currentUser.companyId,
+      'delete',
+      userId,
+      userDataForAudit,
+      undefined,
+      'User deleted by HR'
+    )
+
     revalidatePath('/users')
     return {
       success: true,
+      messageKey: 'userDeletedSuccessfully',
       message: 'User deleted successfully'
     }
   } catch (error) {
     console.error('Error deleting user:', error)
+    
+    // Check if it's a foreign key constraint error
+    if (error instanceof Error && error.message.includes('foreign key constraint')) {
+      return {
+        success: false,
+        messageKey: 'cannotDeleteDueToConstraints',
+        message: 'Cannot delete user due to existing evaluation data. Please contact your system administrator.'
+      }
+    }
+    
     return {
       success: false,
+      messageKey: 'failedToDeleteUser',
       message: 'Failed to delete user'
     }
   }
@@ -393,6 +486,127 @@ export async function changePassword(formData: FormData) {
     return {
       success: false,
       message: 'Failed to update password'
+    }
+  }
+}
+
+// Advanced function for force deleting users with evaluations (HR only)
+export async function forceDeleteUser(userId: string, reason: string) {
+  try {
+    const currentUser = await requireHRAccess()
+
+    // Check if user exists and belongs to the same company
+    const userToDelete = await prisma.user.findFirst({
+      where: {
+        id: userId,
+        companyId: currentUser.companyId
+      }
+    })
+
+    if (!userToDelete) {
+      return {
+        success: false,
+        message: 'User not found'
+      }
+    }
+
+    // Store user data for audit log before deletion
+    const userDataForAudit = {
+      name: userToDelete.name,
+      email: userToDelete.email,
+      username: userToDelete.username,
+      role: userToDelete.role,
+      department: userToDelete.department,
+      employeeId: userToDelete.employeeId
+    }
+
+    // Get counts for audit purposes
+    const [employeeEvaluationsCount, managerEvaluationsCount, evaluationAssignmentsCount, partialAssessmentsCount, dependentCount] = await Promise.all([
+      prisma.evaluation.count({ where: { employeeId: userId } }),
+      prisma.evaluation.count({ where: { managerId: userId } }),
+      prisma.evaluationItemAssignment.count({ where: { OR: [{ employeeId: userId }, { assignedBy: userId }] } }),
+      prisma.partialAssessment.count({ where: { OR: [{ employeeId: userId }, { assessedBy: userId }] } }),
+      prisma.user.count({ where: { managerId: userId } })
+    ])
+
+    // Use a transaction to handle all deletions
+    await prisma.$transaction(async (tx) => {
+      // 1. Reassign employees to no manager (set managerId to null)
+      if (dependentCount > 0) {
+        await tx.user.updateMany({
+          where: { managerId: userId },
+          data: { managerId: null }
+        })
+      }
+
+      // 2. Delete partial assessments
+      await tx.partialAssessment.deleteMany({
+        where: {
+          OR: [
+            { employeeId: userId },
+            { assessedBy: userId }
+          ]
+        }
+      })
+
+      // 3. Delete evaluation item assignments
+      await tx.evaluationItemAssignment.deleteMany({
+        where: {
+          OR: [
+            { employeeId: userId },
+            { assignedBy: userId }
+          ]
+        }
+      })
+
+      // 4. Delete evaluations where user is involved
+      await tx.evaluation.deleteMany({
+        where: {
+          OR: [
+            { employeeId: userId },
+            { managerId: userId }
+          ]
+        }
+      })
+
+      // 5. Delete the user (BiometricCredentials will cascade)
+      await tx.user.delete({
+        where: { id: userId }
+      })
+    })
+
+    // Audit the forced user deletion with detailed information
+    await auditUserManagement(
+      currentUser.id,
+      currentUser.role,
+      currentUser.companyId,
+      'delete',
+      userId,
+      userDataForAudit,
+      {
+        action: 'force_delete',
+        reason,
+        deletedData: {
+          employeeEvaluations: employeeEvaluationsCount,
+          managerEvaluations: managerEvaluationsCount,
+          evaluationAssignments: evaluationAssignmentsCount,
+          partialAssessments: partialAssessmentsCount,
+          managedEmployees: dependentCount
+        }
+      },
+      `Force deleted user with evaluation data. Reason: ${reason}`
+    )
+
+    revalidatePath('/users')
+    return {
+      success: true,
+      message: 'User and all related evaluation data deleted successfully'
+    }
+  } catch (error) {
+    console.error('Error force deleting user:', error)
+    return {
+      success: false,
+      message: 'Failed to delete user and evaluation data'
     }
   }
 }

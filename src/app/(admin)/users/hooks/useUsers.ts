@@ -27,6 +27,7 @@ export function useUsers({ initialUsers }: UseUsersProps) {
   // Search and filter state
   const [searchTerm, setSearchTerm] = useState('')
   const [filterRole, setFilterRole] = useState('')
+  const [filterDepartment, setFilterDepartment] = useState('')
   
   // Modal state
   const [showUserForm, setShowUserForm] = useState(false)
@@ -48,14 +49,22 @@ export function useUsers({ initialUsers }: UseUsersProps) {
     }
   }
 
+  // Get unique departments from users
+  const departments = Array.from(
+    new Set(initialUsers
+      .map(user => user.department)
+      .filter(Boolean))
+  ).sort()
+
   const filteredUsers = initialUsers.filter(user => {
     const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.username?.toLowerCase().includes(searchTerm.toLowerCase())
     
     const matchesRole = filterRole === '' || user.role === filterRole
+    const matchesDepartment = filterDepartment === '' || user.department === filterDepartment
     
-    return matchesSearch && matchesRole
+    return matchesSearch && matchesRole && matchesDepartment
   })
 
   // Event handlers
@@ -66,13 +75,15 @@ export function useUsers({ initialUsers }: UseUsersProps) {
         : await createUser(formData)
 
       if (result.success) {
-        success(result.message)
+        const message = result.messageKey ? t.users[result.messageKey as keyof typeof t.users] : result.message
+        success(message)
         setShowUserForm(false)
         setEditingUser(undefined)
         setRequiresPinOnly(false)
         router.refresh() // Refresh server data
       } else {
-        error(result.message)
+        const errorMessage = result.messageKey ? t.users[result.messageKey as keyof typeof t.users] || result.message : result.message
+        error(errorMessage)
       }
     })
   }
@@ -84,11 +95,41 @@ export function useUsers({ initialUsers }: UseUsersProps) {
       const result = await deleteUser(userId)
       
       if (result.success) {
-        success(result.message)
+        const message = result.messageKey ? t.users[result.messageKey as keyof typeof t.users] : result.message
+        success(message)
         setShowDeleteConfirm(null)
         router.refresh() // Refresh server data
       } else {
-        error(result.message)
+        let errorMessage = result.message
+        
+        // Translate error message if messageKey is provided
+        if (result.messageKey) {
+          if (result.messageKey === 'cannotDeleteUserManagesEmployees' && result.messageData) {
+            errorMessage = t.users.cannotDeleteUserManagesEmployees.replace('{count}', String(result.messageData.count))
+          } else if (result.messageKey === 'cannotDeleteUserHasEvaluations' && result.messageData) {
+            const issues = []
+            const data = result.messageData
+            
+            if (data.employeeEvaluationsCount > 0) {
+              issues.push(t.users.evaluationsAsEmployee.replace('{count}', String(data.employeeEvaluationsCount)))
+            }
+            if (data.managerEvaluationsCount > 0) {
+              issues.push(t.users.evaluationsAsManager.replace('{count}', String(data.managerEvaluationsCount)))
+            }
+            if (data.evaluationAssignmentsCount > 0) {
+              issues.push(t.users.evaluationAssignments.replace('{count}', String(data.evaluationAssignmentsCount)))
+            }
+            if (data.partialAssessmentsCount > 0) {
+              issues.push(t.users.partialAssessments.replace('{count}', String(data.partialAssessmentsCount)))
+            }
+            
+            errorMessage = t.users.cannotDeleteUserHasEvaluations.replace('{details}', issues.join(', '))
+          } else {
+            errorMessage = t.users[result.messageKey as keyof typeof t.users] || result.message
+          }
+        }
+        
+        error(errorMessage)
       }
     })
   }
@@ -125,6 +166,9 @@ export function useUsers({ initialUsers }: UseUsersProps) {
     setSearchTerm,
     filterRole,
     setFilterRole,
+    filterDepartment,
+    setFilterDepartment,
+    departments,
     showUserForm,
     editingUser,
     showDeleteConfirm,

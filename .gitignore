@@ -47,3 +47,4 @@ next-env.d.ts
 prisma-studio.log
 
 certificates
+.claude/settings.local.json

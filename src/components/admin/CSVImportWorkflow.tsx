@@ -33,6 +33,7 @@ export function CSVImportWorkflow({ onImportComplete }: CSVImportWorkflowProps) 
   const { t } = useLanguage()
   const [currentStep, setCurrentStep] = useState<ImportStep>('upload')
   const [file, setFile] = useState<File | null>(null)
+  const [originalFormData, setOriginalFormData] = useState<FormData | null>(null)
   const [previewResult, setPreviewResult] = useState<ImportPreviewResult | null>(null)
   const [executionResult, setExecutionResult] = useState<ImportExecutionResult | null>(null)
   const [isLoading, setIsLoading] = useState(false)
@@ -103,6 +104,9 @@ export function CSVImportWorkflow({ onImportComplete }: CSVImportWorkflowProps) 
       const formData = new FormData()
       formData.append('file', file)
       
+      // Store original FormData for retry functionality
+      setOriginalFormData(formData)
+      
       const result = await executeCSVImport(formData, upsertOptions)
       setExecutionResult(result)
       
@@ -122,6 +126,7 @@ export function CSVImportWorkflow({ onImportComplete }: CSVImportWorkflowProps) 
   const handleReset = () => {
     setCurrentStep('upload')
     setFile(null)
+    setOriginalFormData(null)
     setPreviewResult(null)
     setExecutionResult(null)
     setError('')
@@ -239,6 +244,7 @@ export function CSVImportWorkflow({ onImportComplete }: CSVImportWorkflowProps) 
           previewResult={previewResult}
           onConfigure={handleConfigure}
           onBack={() => setCurrentStep('upload')}
+          t={t}
         />
       )}
 
@@ -249,14 +255,17 @@ export function CSVImportWorkflow({ onImportComplete }: CSVImportWorkflowProps) 
           onExecute={handleExecute}
           onBack={() => setCurrentStep('preview')}
           isLoading={isLoading}
+          t={t}
         />
       )}
 
       {currentStep === 'complete' && executionResult && (
         <CSVExecutionStep
           executionResult={executionResult}
+          originalFormData={originalFormData}
           onReset={handleReset}
           onImportComplete={onImportComplete}
+          t={t}
         />
       )}
     </div>

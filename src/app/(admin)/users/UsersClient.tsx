@@ -37,6 +37,9 @@ export default function UsersClient({ users: initialUsers, companies, managers }
     setSearchTerm,
     filterRole,
     setFilterRole,
+    filterDepartment,
+    setFilterDepartment,
+    departments,
     showUserForm,
     editingUser,
     showDeleteConfirm,
@@ -70,6 +73,9 @@ export default function UsersClient({ users: initialUsers, companies, managers }
         setSearchTerm={setSearchTerm}
         filterRole={filterRole}
         setFilterRole={setFilterRole}
+        filterDepartment={filterDepartment}
+        setFilterDepartment={setFilterDepartment}
+        departments={departments}
         filteredUsers={filteredUsers}
       />
 

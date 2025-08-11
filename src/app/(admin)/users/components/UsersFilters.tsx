@@ -6,6 +6,9 @@ interface UsersFiltersProps {
   setSearchTerm: (term: string) => void
   filterRole: string
   setFilterRole: (role: string) => void
+  filterDepartment: string
+  setFilterDepartment: (department: string) => void
+  departments: string[]
   filteredUsers: User[]
 }
 
@@ -14,6 +17,9 @@ export function UsersFilters({
   setSearchTerm,
   filterRole,
   setFilterRole,
+  filterDepartment,
+  setFilterDepartment,
+  departments,
   filteredUsers
 }: UsersFiltersProps) {
   const { t } = useLanguage()
@@ -63,6 +69,27 @@ export function UsersFilters({
               <option value="hr">{t.auth.hr}</option>
               <option value="manager">{t.auth.manager}</option>
               <option value="employee">{t.auth.employee}</option>
+            </select>
+            <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
+              <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
+          </div>
+          
+          {/* Department Filter */}
+          <div className="relative">
+            <select
+              value={filterDepartment}
+              onChange={(e) => setFilterDepartment(e.target.value)}
+              className="appearance-none px-6 py-3 pr-10 min-h-[44px] min-w-[160px] text-base text-gray-900 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary/50 transition-all duration-200 shadow-sm hover:shadow-md hover:border-gray-300 cursor-pointer touch-manipulation"
+            >
+              <option value="">{t.dashboard.allDepartments}</option>
+              {departments.map(dept => (
+                <option key={dept} value={dept}>
+                  {dept}
+                </option>
+              ))}
             </select>
             <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
               <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

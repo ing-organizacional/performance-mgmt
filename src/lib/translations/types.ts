@@ -616,7 +616,6 @@ export interface UsersTranslations {
   noUsersFound: string
   uploadingProcessing: string
   successfullyImported: string
-  importFailed: string
   uploadFailed: string
   basicExampleCSV: string
   advancedExampleCSV: string
@@ -703,7 +702,6 @@ export interface UsersTranslations {
   configureImport: string
   executeImport: string
   importing: string
-  importAnotherFile: string
   viewHistory: string
   importHistory: string
   backToImport: string
@@ -790,6 +788,150 @@ export interface UsersTranslations {
   deleteAllUserData: string
   removeEvaluationRecords: string
   unassignDirectReports: string
+  
+  // CSV Error Messages
+  usersWithErrors: string
+  totalErrors: string
+  errors: string
+  error: string
+  rowNumber: string
+  noIdentifier: string
+  dataContext: string
+  noDept: string
+  moreUsersWithErrors: string
+  validationErrorsWillBeSkipped: string
+  commonIssuesToCheck: string
+  missingRequiredFields: string
+  invalidPasswordFormat: string
+  managerReferencesNotExist: string
+  invalidEmailFormats: string
+  bomCharacterIssue: string
+  
+  // CSV Preview Step
+  previewResults: string
+  reviewAnalysisBeforeImporting: string
+  totalLabel: string
+  validLabel: string
+  newLabel: string
+  updatesLabel: string
+  validUsersPreview: string
+  newBadge: string
+  updBadge: string
+  andMoreValidUsers: string
+  back: string
+  
+  // CSV Configuration Step
+  configureImportOptions: string
+  chooseFieldsAndBehavior: string
+  importActions: string
+  createNewUsers: string
+  importUsersDontExist: string
+  updateExistingUsers: string
+  updateExistingUsersDesc: string
+  fieldsToImportUpdate: string
+  requiredFieldsAlwaysImported: string
+  errorHandling: string
+  skipRowsWithErrors: string
+  continueImportEvenFail: string
+  continueOnValidationErrors: string
+  processValidRowsEvenIssues: string
+  autoFixWeakPasswords: string
+  autoStrengthenPasswords: string
+  performanceOptions: string
+  enableBatchProcessing: string
+  processLargeImportsBatches: string
+  batchSizeUsers: string
+  importSummary: string
+  actionsLabel: string
+  createNew: string
+  updateExisting: string
+  fieldsSelected: string
+  errorHandlingLabel: string
+  skipErrors: string
+  stopOnErrors: string
+  performanceLabel: string
+  batchProcessing: string
+  standardProcessing: string
+  backToPreview: string
+  
+  // CSV Execution Step
+  importCompleted: string
+  importFailed: string
+  usersCreated: string
+  usersUpdated: string
+  failed: string
+  importCompletedSuccessfully: string
+  usersWereCreated: string
+  usersFailedToImport: string
+  importPartiallyCompleted: string
+  someUsersProcessed: string
+  importFailedMessage: string
+  importErrors: string
+  downloadErrorReport: string
+  andMoreErrors: string
+  recoverableErrors: string
+  suggestedFix: string
+  canRetry: string
+  andMoreRecoverableErrors: string
+  criticalErrors: string
+  requiresAdminAction: string
+  importAnotherFile: string
+  viewUsers: string
+  nextSteps: string
+  reviewImportedUsers: string
+  verifyManagerRelationships: string
+  testLoginCredentials: string
+  updateAdditionalSettings: string
+  partialSuccessActionRequired: string
+  reviewAndFixErrors: string
+  reimportCorrectedFile: string
+  checkImportedUsers: string
+  considerErrorRecovery: string
+  importErrorReport: string
+  generated: string
+  summaryLabel: string
+  totalErrorsReport: string
+  createdUsersReport: string
+  updatedUsersReport: string
+  failedUsersReport: string
+  errorsLabel: string
+  
+  // Retry Functionality
+  retryThis: string
+  retryAll: string
+  retryingErrors: string
+  autoFixAvailable: string
+  manualFixRequired: string
+  applyAutoFixes: string
+  manuallyFix: string
+  retryComplete: string
+  retryFailed: string
+  retriedRows: string
+  stillFailed: string
+  allErrorsFixed: string
+  someErrorsRemain: string
+  retryInProgress: string
+  processingFixes: string
+
+  // User deletion error messages
+  userNotFound: string
+  cannotDeleteUserManagesEmployees: string
+  cannotDeleteUserHasEvaluations: string
+  cannotDeleteDueToConstraints: string
+  userDeletedSuccessfully: string
+  failedToDeleteUser: string
+  userCreatedSuccessfully: string
+  failedToCreateUser: string
+  userUpdatedSuccessfully: string
+  failedToUpdateUser: string
+  userWithEmailExists: string
+  validationFailed: string
+
+  // Evaluation details for deletion errors
+  evaluationsAsEmployee: string
+  evaluationsAsManager: string
+  evaluationAssignments: string
+  partialAssessments: string
 }
 
 export interface Translations {
