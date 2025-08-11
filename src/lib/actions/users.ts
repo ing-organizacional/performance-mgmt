@@ -64,7 +64,7 @@ export async function createUser(formData: FormData) {
       position: formData.get('position'),
       employeeId: formData.get('employeeId'),
       password: formData.get('password'),
-      pinCode: formData.get('pinCode'),
+      pinCode: formData.get('pinCode') || '',
       active: formData.get('active') === 'on' ? true : formData.get('active') === null ? true : false
     }
 
@@ -197,18 +197,13 @@ export async function updateUser(userId: string, formData: FormData) {
       position: formData.get('position'),
       employeeId: formData.get('employeeId'),
       password: formData.get('password'),
-      pinCode: formData.get('pinCode'),
+      pinCode: formData.get('pinCode') || '',
       active: formData.get('active') === 'on' ? true : formData.get('active') === null ? false : false
     }
-
-    // Check if this is an archival request (active changing from true to false)
-    const isArchivalRequest = existingUser.active === true && rawData.active === false
 
     const result = editUserSchema.safeParse(rawData)
     
     if (!result.success) {
-      console.error('Validation failed:', result.error.flatten().fieldErrors)
-      console.error('Raw data:', rawData)
       return {
         success: false,
         errors: result.error.flatten().fieldErrors,
@@ -218,38 +213,6 @@ export async function updateUser(userId: string, formData: FormData) {
     }
 
     const userData = result.data
-
-    // If this is an archival request, use the existing archiveUser function
-    if (isArchivalRequest) {
-      // Check if user manages other employees (can't archive managers with active reports)
-      const activeReportsCount = await prisma.user.count({
-        where: {
-          managerId: userId,
-          active: true
-        }
-      })
-
-      if (activeReportsCount > 0) {
-        return {
-          success: false,
-          messageKey: 'cannotArchiveManagerWithActiveReports',
-          message: `Cannot archive manager with active reports. Please reassign or archive their ${activeReportsCount} report(s) first.`
-        }
-      }
-
-      // Use the archiveUser function with automatic reason
-      const archiveResult = await archiveUser(userId, 'User deactivated via edit form')
-      
-      if (archiveResult.success) {
-        return {
-          success: true,
-          messageKey: 'employeeArchivedSuccessfully',
-          message: 'Employee archived successfully'
-        }
-      } else {
-        return archiveResult
-      }
-    }
 
     // Check for existing email/username (excluding current user)
     const duplicateUser = await prisma.user.findFirst({

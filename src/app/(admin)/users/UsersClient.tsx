@@ -12,7 +12,8 @@ import {
   UsersFilters, 
   UsersList, 
   UserFormModal, 
-  DeleteUserModal 
+  DeleteUserModal,
+  ArchiveUserModal
 } from './components'
 
 interface UserWithDetails extends User {
@@ -43,6 +44,7 @@ export default function UsersClient({ users: initialUsers, companies, managers }
     showUserForm,
     editingUser,
     showDeleteConfirm,
+    showArchiveConfirm,
     requiresPinOnly,
     setRequiresPinOnly,
     isPending,
@@ -50,11 +52,13 @@ export default function UsersClient({ users: initialUsers, companies, managers }
     filteredUsers,
     handleFormSubmit,
     handleDeleteUser,
+    handleArchiveUser,
     handleEditUser,
     handleAddUser,
     handleDeleteUserClick,
     handleCloseUserForm,
     handleCloseDeleteConfirm,
+    handleCloseArchiveConfirm,
     removeToast,
     getRoleDisplayName
   } = useUsers({ initialUsers })
@@ -112,6 +116,16 @@ export default function UsersClient({ users: initialUsers, companies, managers }
         isPending={isPending}
         onClose={handleCloseDeleteConfirm}
         onConfirm={handleDeleteUser}
+        getRoleDisplayName={getRoleDisplayName}
+      />
+
+      {/* Archive Confirmation Modal */}
+      <ArchiveUserModal
+        isOpen={!!showArchiveConfirm}
+        user={showArchiveConfirm?.user}
+        isPending={isPending}
+        onClose={handleCloseArchiveConfirm}
+        onConfirm={handleArchiveUser}
         getRoleDisplayName={getRoleDisplayName}
       />
 

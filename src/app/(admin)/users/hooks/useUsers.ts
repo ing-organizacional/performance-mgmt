@@ -33,6 +33,7 @@ export function useUsers({ initialUsers }: UseUsersProps) {
   const [showUserForm, setShowUserForm] = useState(false)
   const [editingUser, setEditingUser] = useState<UserWithDetails | undefined>(undefined)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<{ user: UserWithDetails } | null>(null)
+  const [showArchiveConfirm, setShowArchiveConfirm] = useState<{ user: UserWithDetails, formData: FormData } | null>(null)
   const [requiresPinOnly, setRequiresPinOnly] = useState(false)
 
   // Helper functions
@@ -69,6 +70,17 @@ export function useUsers({ initialUsers }: UseUsersProps) {
 
   // Event handlers
   const handleFormSubmit = async (formData: FormData) => {
+    // Check if this is an archive request (editing user and unchecking active)
+    const isArchiveRequest = editingUser && 
+      editingUser.active === true && 
+      formData.get('active') !== 'on'
+
+    if (isArchiveRequest) {
+      // Show archive confirmation modal instead of submitting directly
+      setShowArchiveConfirm({ user: editingUser, formData })
+      return
+    }
+
     startTransition(async () => {
       const result = editingUser 
         ? await updateUser(editingUser.id, formData)
@@ -165,6 +177,33 @@ export function useUsers({ initialUsers }: UseUsersProps) {
     setShowDeleteConfirm(null)
   }
 
+  const handleArchiveUser = async (reason?: string) => {
+    if (!showArchiveConfirm) return
+
+    startTransition(async () => {
+      // Use the dedicated archiveUser function instead of updateUser
+      const { archiveUser } = await import('@/lib/actions/users')
+      const result = await archiveUser(showArchiveConfirm.user.id, reason)
+      
+      if (result.success) {
+        const message = result.messageKey ? t.users[result.messageKey as keyof typeof t.users] : result.message
+        success(message)
+        setShowUserForm(false)
+        setEditingUser(undefined)
+        setRequiresPinOnly(false)
+        setShowArchiveConfirm(null)
+        router.refresh() // Refresh server data
+      } else {
+        const errorMessage = result.messageKey ? t.users[result.messageKey as keyof typeof t.users] || result.message : result.message
+        error(errorMessage)
+      }
+    })
+  }
+
+  const handleCloseArchiveConfirm = () => {
+    setShowArchiveConfirm(null)
+  }
+
   return {
     // State
     searchTerm,
@@ -177,6 +216,7 @@ export function useUsers({ initialUsers }: UseUsersProps) {
     showUserForm,
     editingUser,
     showDeleteConfirm,
+    showArchiveConfirm,
     requiresPinOnly,
     setRequiresPinOnly,
     isPending,
@@ -186,11 +226,13 @@ export function useUsers({ initialUsers }: UseUsersProps) {
     // Handlers
     handleFormSubmit,
     handleDeleteUser,
+    handleArchiveUser,
     handleEditUser,
     handleAddUser,
     handleDeleteUserClick,
     handleCloseUserForm,
     handleCloseDeleteConfirm,
+    handleCloseArchiveConfirm,
     removeToast,
     getRoleDisplayName
   }
