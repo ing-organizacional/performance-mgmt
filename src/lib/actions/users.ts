@@ -166,6 +166,25 @@ export async function updateUser(userId: string, formData: FormData) {
   try {
     await requireHRAccess()
 
+    // Get current user data to detect if archiving is needed
+    const existingUser = await prisma.user.findUnique({
+      where: { id: userId },
+      include: {
+        company: true,
+        manager: {
+          select: { name: true, email: true }
+        }
+      }
+    })
+
+    if (!existingUser) {
+      return {
+        success: false,
+        messageKey: 'userNotFound',
+        message: 'User not found'
+      }
+    }
+
     const rawData = {
       name: formData.get('name'),
       email: formData.get('email'),
@@ -182,6 +201,9 @@ export async function updateUser(userId: string, formData: FormData) {
       active: formData.get('active') === 'on' ? true : formData.get('active') === null ? false : false
     }
 
+    // Check if this is an archival request (active changing from true to false)
+    const isArchivalRequest = existingUser.active === true && rawData.active === false
+
     const result = editUserSchema.safeParse(rawData)
     
     if (!result.success) {
@@ -195,8 +217,40 @@ export async function updateUser(userId: string, formData: FormData) {
 
     const userData = result.data
 
+    // If this is an archival request, use the existing archiveUser function
+    if (isArchivalRequest) {
+      // Check if user manages other employees (can't archive managers with active reports)
+      const activeReportsCount = await prisma.user.count({
+        where: {
+          managerId: userId,
+          active: true
+        }
+      })
+
+      if (activeReportsCount > 0) {
+        return {
+          success: false,
+          messageKey: 'cannotArchiveManagerWithActiveReports',
+          message: `Cannot archive manager with active reports. Please reassign or archive their ${activeReportsCount} report(s) first.`
+        }
+      }
+
+      // Use the archiveUser function with automatic reason
+      const archiveResult = await archiveUser(userId, 'User deactivated via edit form')
+      
+      if (archiveResult.success) {
+        return {
+          success: true,
+          messageKey: 'employeeArchivedSuccessfully',
+          message: 'Employee archived successfully'
+        }
+      } else {
+        return archiveResult
+      }
+    }
+
     // Check for existing email/username (excluding current user)
-    const existingUser = await prisma.user.findFirst({
+    const duplicateUser = await prisma.user.findFirst({
       where: {
         companyId: userData.companyId,
         id: { not: userId },
@@ -207,7 +261,7 @@ export async function updateUser(userId: string, formData: FormData) {
       }
     })
 
-    if (existingUser) {
+    if (duplicateUser) {
       return {
         success: false,
         messageKey: 'userWithEmailExists',
