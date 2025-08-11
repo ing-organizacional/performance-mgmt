@@ -207,6 +207,8 @@ export async function updateUser(userId: string, formData: FormData) {
     const result = editUserSchema.safeParse(rawData)
     
     if (!result.success) {
+      console.error('Validation failed:', result.error.flatten().fieldErrors)
+      console.error('Raw data:', rawData)
       return {
         success: false,
         errors: result.error.flatten().fieldErrors,
