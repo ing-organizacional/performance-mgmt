@@ -55,7 +55,7 @@ export default function UsersClient({ users: initialUsers, companies, managers }
     handleArchiveUser,
     handleEditUser,
     handleAddUser,
-    handleDeleteUserClick,
+    handleArchiveUserClick,
     handleCloseUserForm,
     handleCloseDeleteConfirm,
     handleCloseArchiveConfirm,
@@ -92,7 +92,7 @@ export default function UsersClient({ users: initialUsers, companies, managers }
         isPending={isPending}
         onAddUser={handleAddUser}
         onEditUser={handleEditUser}
-        onDeleteUser={handleDeleteUserClick}
+        onArchiveUser={handleArchiveUserClick}
         getRoleDisplayName={getRoleDisplayName}
       />
 

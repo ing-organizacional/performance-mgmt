@@ -768,6 +768,7 @@ export interface UsersTranslations {
   id: string
   report: string
   evaluation: string
+  delete: string
   enterFullName: string
   enterEmailAddress: string
   enterUsername: string
@@ -941,8 +942,14 @@ export interface UsersTranslations {
   archiveSelectedEmployees: string
   unarchiveEmployee: string
   archiveReason: string
+  archiveEmployeeTitle: string
+  archiveEmployeeDescription: string
+  archiveReasonPlaceholder: string
+  archiveReasonNote: string
+  archiving: string
   archivingEmployee: string
   archivingSelectedEmployees: string
+  close: string
   unarchivingEmployee: string
   employeeArchivedSuccessfully: string
   employeesArchivedSuccessfully: string
@@ -951,6 +958,9 @@ export interface UsersTranslations {
   failedToArchiveEmployees: string
   failedToUnarchiveEmployee: string
   cannotArchiveManagerWithActiveReports: string
+  cannotArchiveManager: string
+  activeEmployees: string
+  noDataCanBeDeleted: string
   archivedOn: string
   archivedBy: string
   archiveDetails: string

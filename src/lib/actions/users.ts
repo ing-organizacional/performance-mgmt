@@ -27,7 +27,7 @@ const userSchema = z.object({
   active: z.boolean().default(true)
 })
 
-const editUserSchema = userSchema.extend({
+const editUserSchema = userSchema.omit({ active: true }).extend({
   password: z.string().min(6, 'Password must be at least 6 characters').optional().or(z.literal(''))
 })
 
@@ -197,8 +197,7 @@ export async function updateUser(userId: string, formData: FormData) {
       position: formData.get('position'),
       employeeId: formData.get('employeeId'),
       password: formData.get('password'),
-      pinCode: formData.get('pinCode') || '',
-      active: formData.get('active') === 'on' ? true : formData.get('active') === null ? false : false
+      pinCode: formData.get('pinCode') || ''
     }
 
     const result = editUserSchema.safeParse(rawData)
@@ -249,7 +248,6 @@ export async function updateUser(userId: string, formData: FormData) {
       employeeId: string | null
       pinCode: string | null
       requiresPinOnly: boolean
-      active: boolean
       passwordHash?: string
     } = {
       name: userData.name,
@@ -263,8 +261,7 @@ export async function updateUser(userId: string, formData: FormData) {
       position: userData.position || null,
       employeeId: userData.employeeId || null,
       pinCode: userData.pinCode || null,
-      requiresPinOnly: userData.userType === 'operational' && !!userData.pinCode,
-      active: userData.active
+      requiresPinOnly: userData.userType === 'operational' && !!userData.pinCode
     }
 
     // Hash password if provided

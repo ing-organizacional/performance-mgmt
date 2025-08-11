@@ -70,17 +70,6 @@ export function useUsers({ initialUsers }: UseUsersProps) {
 
   // Event handlers
   const handleFormSubmit = async (formData: FormData) => {
-    // Check if this is an archive request (editing user and unchecking active)
-    const isArchiveRequest = editingUser && 
-      editingUser.active === true && 
-      formData.get('active') !== 'on'
-
-    if (isArchiveRequest) {
-      // Show archive confirmation modal instead of submitting directly
-      setShowArchiveConfirm({ user: editingUser, formData })
-      return
-    }
-
     startTransition(async () => {
       const result = editingUser 
         ? await updateUser(editingUser.id, formData)
@@ -163,8 +152,14 @@ export function useUsers({ initialUsers }: UseUsersProps) {
     setShowUserForm(true)
   }
 
-  const handleDeleteUserClick = (user: UserWithDetails) => {
-    setShowDeleteConfirm({ user })
+  const handleArchiveUserClick = (user: UserWithDetails) => {
+    // Check if manager has active direct reports
+    if (user.role === 'manager' && user._count.employees > 0) {
+      error(`${t.users.cannotArchiveManager} - ${t.users.manages} ${user._count.employees} ${t.users.activeEmployees}`)
+      return
+    }
+    // Show archive confirmation modal
+    setShowArchiveConfirm({ user, formData: new FormData() })
   }
 
   const handleCloseUserForm = () => {
@@ -229,7 +224,7 @@ export function useUsers({ initialUsers }: UseUsersProps) {
     handleArchiveUser,
     handleEditUser,
     handleAddUser,
-    handleDeleteUserClick,
+    handleArchiveUserClick,
     handleCloseUserForm,
     handleCloseDeleteConfirm,
     handleCloseArchiveConfirm,

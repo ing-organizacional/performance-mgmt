@@ -7,8 +7,8 @@ import { useLanguage } from '@/contexts/LanguageContext'
 import { LanguageSwitcher } from '@/components/layout'
 import { useToast } from '@/hooks/useToast'
 import { ToastContainer } from '@/components/ui'
-import { unarchiveUser } from '@/lib/actions/users'
-import { ChevronLeft, Archive, Search, X, History, RotateCcw, CheckCircle } from 'lucide-react'
+import { unarchiveUser, deleteUser } from '@/lib/actions/users'
+import { ChevronLeft, Archive, Search, X, History, RotateCcw, CheckCircle, Trash2 } from 'lucide-react'
 import type { User, Company } from '@/types'
 
 interface ArchivedUserWithDetails extends User {
@@ -93,6 +93,30 @@ export default function ArchiveClient({
         error(result.message)
       }
     })
+  }
+
+  const handleDeleteUser = (user: ArchivedUserWithDetails) => {
+    if (!confirm(`${t.users.areYouSureDelete} ${t.users.thisWillPermanently}.`)) {
+      return
+    }
+
+    startTransition(async () => {
+      const result = await deleteUser(user.id)
+      
+      if (result.success) {
+        const message = result.messageKey ? t.users[result.messageKey as keyof typeof t.users] : result.message
+        success(message)
+        router.refresh()
+      } else {
+        const errorMessage = result.messageKey ? t.users[result.messageKey as keyof typeof t.users] || result.message : result.message
+        error(errorMessage)
+      }
+    })
+  }
+
+  // Check if user can be safely deleted (no evaluation data)
+  const canBeDeleted = (user: ArchivedUserWithDetails) => {
+    return user._count.evaluationsReceived === 0 && user._count.employees === 0
   }
 
   const getRoleDisplayName = (role: string) => {
@@ -302,29 +326,41 @@ export default function ArchiveClient({
                         <RotateCcw className="w-3 h-3" />
                         <span>{isPending ? t.users.unarchivingEmployee : t.users.unarchiveEmployee}</span>
                       </button>
+
+                      {canBeDeleted(user) && (
+                        <button
+                          onClick={() => handleDeleteUser(user)}
+                          disabled={isPending}
+                          className="flex items-center gap-1 px-3 py-2 min-h-[36px] bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition-all duration-200 shadow-sm touch-manipulation disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+                          title={t.users.noDataCanBeDeleted}
+                        >
+                          <Trash2 className="w-3 h-3" />
+                          <span>{t.users.delete}</span>
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>
 
-                {/* Expanded Evaluation History */}
+                {/* Expanded Evaluation History - Compact */}
                 {expandedUser === user.id && (
-                  <div className="px-6 py-6 border-t border-orange-200/60 bg-white">
-                    <h4 className="text-lg font-bold text-gray-900 mb-4">
+                  <div className="px-4 py-4 border-t border-orange-200/60 bg-white">
+                    <h4 className="text-base font-bold text-gray-900 mb-3">
                       {t.users.evaluationHistory} ({user._count.evaluationsReceived})
                     </h4>
                     
                     {user.evaluationsReceived.length === 0 ? (
-                      <p className="text-gray-600 py-4">{t.users.noEvaluations}.</p>
+                      <p className="text-sm text-gray-600 py-2">{t.users.noEvaluations}.</p>
                     ) : (
-                      <div className="space-y-4">
+                      <div className="space-y-2">
                         {user.evaluationsReceived.slice(0, 10).map(evaluation => (
-                          <div key={evaluation.id} className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-                            <div className="flex items-center justify-between mb-2">
-                              <div className="flex items-center gap-3">
-                                <span className="font-medium text-gray-900">
+                          <div key={evaluation.id} className="bg-gray-50/80 rounded-lg p-3 border border-gray-200/60">
+                            <div className="flex items-center justify-between mb-1.5">
+                              <div className="flex items-center gap-2 flex-1 min-w-0">
+                                <span className="font-medium text-gray-900 text-sm truncate">
                                   {evaluation.periodType} {evaluation.periodDate}
                                 </span>
-                                <span className={`px-2 py-1 rounded-lg text-xs font-medium ${
+                                <span className={`px-1.5 py-0.5 rounded text-xs font-medium shrink-0 ${
                                   evaluation.status === 'completed' 
                                     ? 'bg-green-100 text-green-700'
                                     : evaluation.status === 'submitted'
@@ -334,30 +370,30 @@ export default function ArchiveClient({
                                   {evaluation.status}
                                 </span>
                                 {evaluation.overallRating && (
-                                  <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded-lg text-xs font-medium">
-                                    Rating: {evaluation.overallRating}/5
+                                  <span className="px-1.5 py-0.5 bg-amber-100 text-amber-700 rounded text-xs font-medium shrink-0">
+                                    {evaluation.overallRating}/5
                                   </span>
                                 )}
                               </div>
-                              <span className="text-sm text-gray-500">
+                              <span className="text-xs text-gray-500 shrink-0 ml-2">
                                 {formatDate(evaluation.createdAt)}
                               </span>
                             </div>
                             
-                            <div className="text-sm text-gray-600 mb-2">
-                              <strong>Manager:</strong> {evaluation.manager.name}
+                            <div className="flex items-center gap-4 text-xs text-gray-600 mb-1.5">
+                              <span><strong>Manager:</strong> {evaluation.manager.name}</span>
                             </div>
                             
                             {evaluation.managerComments && (
-                              <div className="text-sm text-gray-700 bg-white rounded-lg p-3 border">
-                                <strong>Comments:</strong> {evaluation.managerComments}
+                              <div className="text-xs text-gray-700 bg-white/60 rounded p-2 border border-gray-200/40">
+                                <span className="font-medium">Comments:</span> {evaluation.managerComments.length > 120 ? evaluation.managerComments.substring(0, 120) + '...' : evaluation.managerComments}
                               </div>
                             )}
                           </div>
                         ))}
                         
                         {user.evaluationsReceived.length > 10 && (
-                          <p className="text-sm text-gray-600 text-center py-2">
+                          <p className="text-xs text-gray-600 text-center py-1 bg-gray-50/50 rounded">
                             ... and {user.evaluationsReceived.length - 10} more evaluations
                           </p>
                         )}

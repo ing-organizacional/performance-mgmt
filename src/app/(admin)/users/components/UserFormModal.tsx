@@ -236,18 +236,6 @@ export function UserFormModal({
             </div>
 
             <div>
-              <label className="flex items-center space-x-3 cursor-pointer">
-                <input
-                  name="active"
-                  type="checkbox"
-                  defaultChecked={editingUser?.active ?? true}
-                  className="w-5 h-5 text-primary border-gray-300 rounded focus:ring-primary focus:ring-2 transition-colors touch-manipulation"
-                />
-                <span className="text-sm font-bold text-gray-900">{t.users.activeUser}</span>
-              </label>
-            </div>
-
-            <div>
               <label className="block text-sm font-bold text-gray-900 mb-3">
                 {editingUser ? t.users.newPassword : `${t.users.password} *`}
               </label>
