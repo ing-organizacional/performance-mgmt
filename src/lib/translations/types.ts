@@ -675,6 +675,7 @@ export interface UsersTranslations {
   deleteConfirmMessage: string
   actionCannotBeUndone: string
   deleting: string
+  deleteUserWarning: string
   manageUsersDescription: string
   clearSearch: string
   usersCount: string
@@ -784,7 +785,6 @@ export interface UsersTranslations {
   closeModal: string
   updateUserInformation: string
   createNewUserAccount: string
-  deleteUserWarning: string
   areYouSureDelete: string
   thisWillPermanently: string
   deleteAllUserData: string
@@ -959,6 +959,7 @@ export interface UsersTranslations {
   failedToUnarchiveEmployee: string
   cannotArchiveManagerWithActiveReports: string
   cannotArchiveManager: string
+  cannotArchiveSelf: string
   activeEmployees: string
   noDataCanBeDeleted: string
   archivedOn: string

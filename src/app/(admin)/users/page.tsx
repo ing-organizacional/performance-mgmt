@@ -18,7 +18,11 @@ async function getUsersData(companyId: string) {
       },
       _count: {
         select: {
-          employees: true,
+          employees: {
+            where: {
+              active: true
+            }
+          },
           evaluationsReceived: true
         }
       }
@@ -88,6 +92,7 @@ export default async function UsersPage() {
       }))}
       companies={companies}
       managers={managers}
+      currentUserId={session.user.id}
     />
   )
 }

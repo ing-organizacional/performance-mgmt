@@ -9,6 +9,7 @@ import { useToast } from '@/hooks/useToast'
 import { ToastContainer } from '@/components/ui'
 import { unarchiveUser, deleteUser } from '@/lib/actions/users'
 import { ChevronLeft, Archive, Search, X, History, RotateCcw, CheckCircle, Trash2 } from 'lucide-react'
+import { DeleteArchivedUserModal } from './components'
 import type { User, Company } from '@/types'
 
 interface ArchivedUserWithDetails extends User {
@@ -24,12 +25,12 @@ interface ArchivedUserWithDetails extends User {
   archivedCompanyName: string | null
   evaluationsReceived: Array<{
     id: string
+    status: string
+    overallRating?: number | null
     periodType: string
     periodDate: string
-    overallRating: number | null
-    managerComments: string | null
-    status: string
-    createdAt: Date
+    createdAt: string
+    managerComments?: string | null
     manager: {
       name: string
       email: string | null
@@ -57,6 +58,8 @@ export default function ArchiveClient({
   const [searchTerm, setSearchTerm] = useState('')
   const [filterDepartment, setFilterDepartment] = useState('')
   const [expandedUser, setExpandedUser] = useState<string | null>(null)
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [userToDelete, setUserToDelete] = useState<ArchivedUserWithDetails | null>(null)
 
   // Get unique departments from archived users
   const departments = Array.from(
@@ -96,22 +99,32 @@ export default function ArchiveClient({
   }
 
   const handleDeleteUser = (user: ArchivedUserWithDetails) => {
-    if (!confirm(`${t.users.areYouSureDelete} ${t.users.thisWillPermanently}.`)) {
-      return
-    }
+    setUserToDelete(user)
+    setShowDeleteConfirm(true)
+  }
+
+  const handleConfirmDelete = () => {
+    if (!userToDelete) return
 
     startTransition(async () => {
-      const result = await deleteUser(user.id)
+      const result = await deleteUser(userToDelete.id)
       
       if (result.success) {
         const message = result.messageKey ? t.users[result.messageKey as keyof typeof t.users] : result.message
         success(message)
+        setShowDeleteConfirm(false)
+        setUserToDelete(null)
         router.refresh()
       } else {
         const errorMessage = result.messageKey ? t.users[result.messageKey as keyof typeof t.users] || result.message : result.message
         error(errorMessage)
       }
     })
+  }
+
+  const handleCloseDeleteConfirm = () => {
+    setShowDeleteConfirm(false)
+    setUserToDelete(null)
   }
 
   // Check if user can be safely deleted (no evaluation data)
@@ -408,6 +421,15 @@ export default function ArchiveClient({
       </main>
 
       <ToastContainer toasts={toasts} onRemoveToast={removeToast} />
+
+      {/* Delete Confirmation Modal */}
+      <DeleteArchivedUserModal
+        isOpen={showDeleteConfirm}
+        user={userToDelete}
+        isPending={isPending}
+        onClose={handleCloseDeleteConfirm}
+        onConfirm={handleConfirmDelete}
+      />
     </div>
   )
 }

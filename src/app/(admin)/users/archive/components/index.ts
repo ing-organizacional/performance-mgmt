@@ -1,0 +1,1 @@
+export { DeleteArchivedUserModal } from './DeleteArchivedUserModal'

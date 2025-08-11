@@ -29,9 +29,10 @@ interface UsersClientProps {
   users: UserWithDetails[]
   companies: Company[]
   managers: Pick<User, 'id' | 'name' | 'email'>[]
+  currentUserId: string
 }
 
-export default function UsersClient({ users: initialUsers, companies, managers }: UsersClientProps) {
+export default function UsersClient({ users: initialUsers, companies, managers, currentUserId }: UsersClientProps) {
   // Custom hook for all business logic
   const {
     searchTerm,
@@ -94,6 +95,7 @@ export default function UsersClient({ users: initialUsers, companies, managers }
         onEditUser={handleEditUser}
         onArchiveUser={handleArchiveUserClick}
         getRoleDisplayName={getRoleDisplayName}
+        currentUserId={currentUserId}
       />
 
       {/* Desktop-First User Form Modal */}

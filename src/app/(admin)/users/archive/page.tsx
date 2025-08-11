@@ -98,7 +98,11 @@ export default async function ArchivePage() {
       archivedUsers={archivedUsers.map(user => ({
         ...user,
         role: user.role as 'employee' | 'manager' | 'hr',
-        userType: user.userType as 'office' | 'operational'
+        userType: user.userType as 'office' | 'operational',
+        evaluationsReceived: user.evaluationsReceived.map(evaluation => ({
+          ...evaluation,
+          createdAt: evaluation.createdAt.toISOString()
+        }))
       }))}
       companies={companies}
       managers={managers}

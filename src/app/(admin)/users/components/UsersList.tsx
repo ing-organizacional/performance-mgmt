@@ -21,6 +21,7 @@ interface UsersListProps {
   onEditUser: (user: UserWithDetails) => void
   onArchiveUser: (user: UserWithDetails) => void
   getRoleDisplayName: (role: string) => string
+  currentUserId: string
 }
 
 export function UsersList({
@@ -32,7 +33,8 @@ export function UsersList({
   onAddUser,
   onEditUser,
   onArchiveUser,
-  getRoleDisplayName
+  getRoleDisplayName,
+  currentUserId
 }: UsersListProps) {
   const { t } = useLanguage()
 
@@ -220,11 +222,15 @@ export function UsersList({
                     </button>
                     <button
                       onClick={() => onArchiveUser(user)}
-                      disabled={isPending || (user.role === 'manager' && user._count.employees > 0)}
+                      disabled={isPending || (user.role === 'manager' && user._count.employees > 0) || user.id === currentUserId}
                       className="flex items-center justify-center min-w-[36px] min-h-[36px] p-2 text-gray-600 bg-white border border-gray-200 rounded-lg hover:text-orange-600 hover:bg-orange-50 hover:border-orange-200 hover:scale-105 active:scale-95 transition-all duration-200 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation"
-                      title={user.role === 'manager' && user._count.employees > 0 
-                        ? `${t.users.cannotArchiveManager} - ${t.users.manages} ${user._count.employees} ${t.users.activeEmployees}`
-                        : t.users.archiveEmployee}
+                      title={
+                        user.id === currentUserId 
+                          ? t.users.cannotArchiveSelf
+                          : user.role === 'manager' && user._count.employees > 0 
+                            ? `${t.users.cannotArchiveManager} - ${t.users.manages} ${user._count.employees} ${t.users.activeEmployees}`
+                            : t.users.archiveEmployee
+                      }
                       aria-label={t.users.archiveEmployee}
                     >
                       <Archive className="w-4 h-4" />
