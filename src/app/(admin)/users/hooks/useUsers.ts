@@ -53,7 +53,7 @@ export function useUsers({ initialUsers }: UseUsersProps) {
   const departments = Array.from(
     new Set(initialUsers
       .map(user => user.department)
-      .filter(Boolean))
+      .filter((dept): dept is string => dept !== null && dept !== undefined))
   ).sort()
 
   const filteredUsers = initialUsers.filter(user => {
@@ -105,10 +105,15 @@ export function useUsers({ initialUsers }: UseUsersProps) {
         // Translate error message if messageKey is provided
         if (result.messageKey) {
           if (result.messageKey === 'cannotDeleteUserManagesEmployees' && result.messageData) {
-            errorMessage = t.users.cannotDeleteUserManagesEmployees.replace('{count}', String(result.messageData.count))
+            errorMessage = t.users.cannotDeleteUserManagesEmployees.replace('{count}', String((result.messageData as { count: number }).count))
           } else if (result.messageKey === 'cannotDeleteUserHasEvaluations' && result.messageData) {
             const issues = []
-            const data = result.messageData
+            const data = result.messageData as {
+              employeeEvaluationsCount: number
+              managerEvaluationsCount: number
+              evaluationAssignmentsCount: number
+              partialAssessmentsCount: number
+            }
             
             if (data.employeeEvaluationsCount > 0) {
               issues.push(t.users.evaluationsAsEmployee.replace('{count}', String(data.employeeEvaluationsCount)))

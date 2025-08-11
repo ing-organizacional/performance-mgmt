@@ -52,6 +52,7 @@ export const dashboard: DashboardTranslations = {
   managerOrHrRequired: 'Access denied - Manager or HR role required',
   allPeriods: 'All Periods',
   manageUsers: 'Manage Users',
+  archivedEmployees: 'Archived Employees',
   startEvaluating: 'Start Evaluating',
   lastUpdated: 'Last updated',
   newCycle: 'New Cycle',

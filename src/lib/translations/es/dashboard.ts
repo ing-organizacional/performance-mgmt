@@ -52,6 +52,7 @@ export const dashboard: DashboardTranslations = {
   managerOrHrRequired: 'Acceso denegado - Se requiere rol de Jefatura o RRHH',
   allPeriods: 'Todos los Períodos',
   manageUsers: 'Gestionar Usuarios',
+  archivedEmployees: 'Empleados Archivados',
   startEvaluating: 'Comenzar Evaluación',
   lastUpdated: 'Última actualización',
   newCycle: 'Nuevo Ciclo',

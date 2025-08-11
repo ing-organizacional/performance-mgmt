@@ -1,20 +1,28 @@
 import { auth } from '@/auth'
 import { redirect } from 'next/navigation'
 import { prisma } from '@/lib/prisma-client'
-import UsersClient from './UsersClient'
+import ArchiveClient from './ArchiveClient'
 import type { Company } from '@/types'
 
-async function getUsersData(companyId: string) {
-  // Get all active users with detailed information
-  const users = await prisma.user.findMany({
+async function getArchivedUsersData(companyId: string) {
+  // Get all archived users with detailed information
+  const archivedUsers = await prisma.user.findMany({
     where: {
       companyId,
-      active: true
+      active: false
     },
     include: {
       company: true,
       manager: {
         select: { name: true, email: true }
+      },
+      evaluationsReceived: {
+        include: {
+          manager: {
+            select: { name: true, email: true }
+          }
+        },
+        orderBy: { createdAt: 'desc' }
       },
       _count: {
         select: {
@@ -24,12 +32,12 @@ async function getUsersData(companyId: string) {
       }
     },
     orderBy: [
-      { company: { name: 'asc' } },
+      { archivedAt: 'desc' },
       { name: 'asc' }
     ]
   })
 
-  // Get all companies (for the form)
+  // Get all companies (for potential unarchive form)
   const companies = await prisma.company.findMany({
     where: { active: true },
     select: {
@@ -43,23 +51,29 @@ async function getUsersData(companyId: string) {
     orderBy: { name: 'asc' }
   })
 
-  // Get managers (users with manager or HR role for the form)
-  const managers = users
-    .filter(user => user.role === 'manager' || user.role === 'hr')
-    .map(user => ({
-      id: user.id,
-      name: user.name,
-      email: user.email
-    }))
+  // Get active managers for potential reassignment
+  const managers = await prisma.user.findMany({
+    where: {
+      companyId,
+      active: true,
+      role: { in: ['manager', 'hr'] }
+    },
+    select: {
+      id: true,
+      name: true,
+      email: true
+    },
+    orderBy: { name: 'asc' }
+  })
 
   return {
-    users: users as (typeof users), // Type assertion needed due to Prisma include complexity
+    archivedUsers,
     companies: companies as Company[],
     managers
   }
 }
 
-export default async function UsersPage() {
+export default async function ArchivePage() {
   const session = await auth()
   
   if (!session?.user?.id) {
@@ -76,12 +90,12 @@ export default async function UsersPage() {
     redirect('/login')
   }
 
-  // Fetch users data directly from database
-  const { users, companies, managers } = await getUsersData(companyId)
+  // Fetch archived users data
+  const { archivedUsers, companies, managers } = await getArchivedUsersData(companyId)
 
   return (
-    <UsersClient 
-      users={users.map(user => ({
+    <ArchiveClient 
+      archivedUsers={archivedUsers.map(user => ({
         ...user,
         role: user.role as 'employee' | 'manager' | 'hr',
         userType: user.userType as 'office' | 'operational'

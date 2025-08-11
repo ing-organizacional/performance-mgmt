@@ -54,6 +54,15 @@ model User {
   shift      String?
   lastLogin  DateTime?
 
+  // Archive snapshot fields
+  archivedAt          DateTime? // When the user was archived
+  archivedReason      String?   // Optional reason for archiving (future HRIS integration)
+  archivedManagerName String?   // Manager name at time of archiving
+  archivedManagerEmail String?  // Manager email at time of archiving
+  archivedDepartment  String?   // Department at time of archiving
+  archivedPosition    String?   // Position at time of archiving
+  archivedCompanyName String?   // Company name at time of archiving
+
   company                      Company                    @relation(fields: [companyId], references: [id])
   manager                      User?                      @relation("ManagerEmployee", fields: [managerId], references: [id])
   employees                    User[]                     @relation("ManagerEmployee")
@@ -88,6 +97,7 @@ model User {
   @@index([companyId, active])
   @@index([managerId, active])
   @@index([companyId, role, active])
+  @@index([companyId, active, archivedAt]) // Archive queries optimization
 }
 
 model Evaluation {
