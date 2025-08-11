@@ -1,8 +1,9 @@
 # Employee Directory - DEMO S.A.
-**Updated:** 2025-08-07  
+**Updated:** 2025-08-11  
 **Company:** DEMO S.A.  
-**Total Employees:** 40  
+**Total Active Employees:** 40 (excludes archived)  
 **Universal Password:** `a`
+**Archive System:** Complete employee lifecycle management available
 
 ---
 
@@ -10,9 +11,28 @@
 
 | Role | Email | Department | Purpose |
 |------|-------|------------|---------|
-| **HR Admin** | miranda.priestly@demo.com | HR | Super user - full system access |
+| **HR Admin** | miranda.priestly@demo.com | HR | Super user - full system access + archive management |
 | **Manager** | gordon.ramsay@demo.com | Food & Beverage | Manager with 11 direct reports |
 | **Employee** | monica.geller@demo.com | Food & Beverage | Regular employee |
+
+## 🗃️ Employee Archive System
+
+**Archive Access:** HR users can access `/users/archive` for complete employee lifecycle management
+
+**Key Features:**
+- **Soft-delete approach**: Employees marked as inactive instead of permanent deletion
+- **Evaluation preservation**: Complete performance history maintained during archive
+- **Restore capability**: Archived employees can be restored to active status
+- **Manager protection**: Cannot archive managers with active direct reports
+- **Self-protection**: Users cannot archive themselves
+- **Bilingual interface**: Complete English/Spanish support
+
+**Testing Archive System:**
+1. **Login as HR**: miranda.priestly@demo.com / a
+2. **Navigate to**: User Management → Select any employee
+3. **Archive**: Uncheck "Active User" → Provide reason → Confirm
+4. **View Archived**: Navigate to Archive page → Search and filter
+5. **Restore**: Click restore button → Employee returns to active status
 
 ---
 
@@ -204,6 +224,10 @@ yarn dev
 - [ ] See overdue items
 - [ ] Unlock submitted evaluations
 - [ ] View completion statistics
+- [ ] Archive employees (uncheck Active User)
+- [ ] View archived employees (/users/archive)
+- [ ] Restore archived employees
+- [ ] Delete users without evaluation data
 
 ### Workflow Rules
 - [ ] Draft → Submitted (one-way)

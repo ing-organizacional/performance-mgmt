@@ -102,6 +102,36 @@ AssignmentsClient.tsx
     └── useItemEditor.ts        - Item editing logic
 ```
 
+### Employee Archive System Architecture (August 2025)
+
+**New Feature - Complete Employee Lifecycle Management**
+
+```typescript
+// Main archive interface (435 lines)
+ArchiveClient.tsx
+
+// Focused archive components  
+├── components/
+│   ├── DeleteArchivedUserModal.tsx   (138 lines) - Bilingual delete confirmation
+│   └── index.ts                      (1 line)    - Component exports
+
+// User management enhancements
+├── UsersList.tsx                     - Enhanced with archive functionality
+├── ArchiveUserModal.tsx              - Archive confirmation with reason capture
+└── UsersClient.tsx                   - Integrated archive workflow
+
+// Server-side components
+├── page.tsx (archive)                - Server component with date serialization
+└── page.tsx (users)                  - Enhanced manager count validation
+```
+
+**Architecture Benefits:**
+- **Soft-delete pattern**: Complete evaluation history preservation
+- **Bilingual UI components**: English/Spanish professional modals  
+- **Business rule validation**: Manager dependency and self-archive protection
+- **Dashboard integration**: Automatic exclusion of archived employees
+- **Type safety**: Proper serialization between server and client components
+
 ---
 
 ## 🎨 Component Patterns
@@ -234,11 +264,21 @@ src/app/feature/
 ├── components/                 # Feature-specific components
 │   ├── FeatureHeader.tsx
 │   ├── FeatureList.tsx
-│   └── FeatureModal.tsx
+│   ├── FeatureModal.tsx        # Bilingual modal with glass morphism
+│   └── index.ts                # Clean component exports
 ├── hooks/                      # Business logic hooks
 │   ├── useFeature.ts
 │   └── useFeatureLogic.ts
 └── types.ts                    # Feature-specific types
+
+# Example: Employee Archive System
+src/app/(admin)/users/archive/
+├── ArchiveClient.tsx           # Main archive interface
+├── components/
+│   ├── DeleteArchivedUserModal.tsx  # Bilingual delete confirmation
+│   └── index.ts
+├── page.tsx                    # Server component with data serialization
+└── types.ts                    # Archive-specific interfaces
 ```
 
 ---
@@ -294,5 +334,5 @@ src/app/feature/
 ---
 
 **Document Created**: August 10, 2025  
-**Last Updated**: August 10, 2025  
-**Status**: Active - Reflects current architecture patterns
+**Last Updated**: August 11, 2025  
+**Status**: Active - Reflects current architecture including Employee Archive System

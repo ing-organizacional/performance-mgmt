@@ -2,13 +2,26 @@
 
 import { useLanguage } from '@/contexts/LanguageContext'
 
-export default function LanguageSwitcher() {
+interface LanguageSwitcherProps {
+  variant?: 'default' | 'orange-header'
+}
+
+export default function LanguageSwitcher({ variant = 'default' }: LanguageSwitcherProps) {
   const { language, toggleLanguage } = useLanguage()
+
+  const getStyleClasses = () => {
+    switch (variant) {
+      case 'orange-header':
+        return "flex items-center space-x-1 px-1 py-1 text-xs font-normal text-white/70 hover:text-white transition-colors duration-150 touch-manipulation focus:outline-none"
+      default:
+        return "flex items-center space-x-1 px-1 py-1 text-xs font-normal text-gray-400 hover:text-gray-600 transition-colors duration-150 touch-manipulation focus:outline-none"
+    }
+  }
 
   return (
     <button
       onClick={toggleLanguage}
-      className="flex items-center space-x-1 px-1 py-1 text-xs font-normal text-gray-400 hover:text-gray-600 transition-colors duration-150 touch-manipulation focus:outline-none"
+      className={getStyleClasses()}
       title={language === 'en' ? 'Cambiar a Español' : 'Switch to English'}
     >
       <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">

@@ -31,6 +31,12 @@ async function getDashboardData(companyId: string) {
       status: 'draft',
       createdAt: {
         lt: sevenDaysAgo
+      },
+      employee: {
+        active: true  // Only include evaluations for active employees
+      },
+      manager: {
+        active: true  // Only include evaluations from active managers
       }
     },
     include: {
@@ -55,7 +61,13 @@ async function getDashboardData(companyId: string) {
   const pendingApprovals = await prisma.evaluation.findMany({
     where: {
       companyId,
-      status: 'submitted'
+      status: 'submitted',
+      employee: {
+        active: true  // Only include evaluations for active employees
+      },
+      manager: {
+        active: true  // Only include evaluations from active managers
+      }
     },
     include: {
       employee: {
@@ -133,7 +145,15 @@ async function getDashboardData(companyId: string) {
     : { companyId }
 
   const evaluations = await prisma.evaluation.findMany({
-    where: evaluationWhere,
+    where: {
+      ...evaluationWhere,
+      employee: {
+        active: true  // Only include evaluations for active employees
+      },
+      manager: {
+        active: true  // Only include evaluations from active managers
+      }
+    },
     select: {
       id: true,
       status: true,

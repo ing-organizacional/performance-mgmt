@@ -5,7 +5,7 @@ import { signOut } from 'next-auth/react'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { LanguageSwitcher } from '@/components/layout'
 import { CycleStatusBanner } from '@/components/features/cycles'
-import { CheckCircle, RotateCcw, Circle } from 'lucide-react'
+import { CheckCircle, RotateCcw, Circle, ChevronLeft, Settings, LogOut, AlertTriangle, RefreshCw, ChevronRight } from 'lucide-react'
 
 interface Employee {
   id: string
@@ -64,9 +64,7 @@ export default function EvaluationsClient({
               className="flex items-center justify-center min-w-[44px] min-h-[44px] p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg active:scale-95 transition-all duration-150 touch-manipulation"
               aria-label={t.common.back}
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
+              <ChevronLeft className="w-5 h-5" />
             </button>
             <div className="flex-1 min-w-0">
               <h1 className="text-xl font-bold text-gray-900 truncate">{t.nav.employeeEvaluations}</h1>
@@ -81,9 +79,7 @@ export default function EvaluationsClient({
               onClick={() => router.push('/evaluations/assignments')}
               className="flex items-center gap-2 px-3 py-2 min-h-[44px] bg-primary text-white font-medium rounded-lg hover:bg-primary/90 active:scale-95 transition-all duration-150 touch-manipulation"
             >
-              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd" />
-              </svg>
+              <Settings className="w-4 h-4" />
               <span className="text-sm">{t.nav.assignments}</span>
             </button>
             
@@ -94,10 +90,7 @@ export default function EvaluationsClient({
                 title={t.settings?.profile || 'Settings'}
                 aria-label={t.settings?.profile || 'Settings'}
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
+                <Settings className="w-5 h-5" />
               </button>
               <button
                 onClick={() => signOut({ callbackUrl: '/login' })}
@@ -105,9 +98,7 @@ export default function EvaluationsClient({
                 title={t.auth.signOut}
                 aria-label={t.auth.signOut}
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                </svg>
+                <LogOut className="w-5 h-5" />
               </button>
             </div>
           </div>
@@ -127,9 +118,7 @@ export default function EvaluationsClient({
         <div className="px-4 pt-3">
           <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
             <div className="flex items-center">
-              <svg className="w-5 h-5 text-amber-600 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
-              </svg>
+              <AlertTriangle className="w-5 h-5 text-amber-600 mr-3 flex-shrink-0" />
               <div className="flex-1">
                 <span className="text-amber-900 text-sm font-medium">
                   {t.evaluations.newCompanyItemsAdded} - {reopenedEvaluationsCount} {reopenedEvaluationsCount > 1 ? t.evaluations.employeesNeedReEvaluation : t.evaluations.employeeNeedReEvaluation}
@@ -195,9 +184,7 @@ export default function EvaluationsClient({
                 return { 
                   status: 'reopened', 
                   icon: (
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                    </svg>
+                    <RefreshCw className="w-4 h-4" />
                   ), 
                   color: 'text-primary', 
                   label: t.status.draftReopened 
@@ -241,9 +228,7 @@ export default function EvaluationsClient({
                   </div>
                 </div>
                 <div className="flex-shrink-0 ml-4">
-                  <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
+                  <ChevronRight className="w-6 h-6 text-gray-400" />
                 </div>
               </div>
             </button>

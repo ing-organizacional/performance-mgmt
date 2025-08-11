@@ -37,6 +37,7 @@ yarn lint && yarn tsc --noEmit  # Verify code quality
 
 ### Core Functionality
 - **3-status evaluation workflow**: Draft → Submit → Complete
+- **Employee lifecycle management**: Full archive system with evaluation history preservation
 - **Performance cycle management**: Active/closed/archived with read-only enforcement
 - **Multi-modal authentication**: Email/password, username/PIN, biometric
 - **Enterprise SSO ready**: Microsoft AD & Google Workspace integration
@@ -51,6 +52,7 @@ yarn lint && yarn tsc --noEmit  # Verify code quality
 - **Multi-tenant isolation**: Complete company data separation
 
 ### Enterprise Data Management
+- **Employee Archive System**: Soft-delete with complete evaluation history preservation
 - **CSV import system**: Preview, validate, execute with rollback capability
 - **Scheduled imports**: Automated sync from HRIS/APIs
 - **Export capabilities**: PDF/Excel reports with role-based access
@@ -191,6 +193,62 @@ For issues and questions:
 ## 📄 License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
+
+---
+
+## 🗃️ Employee Archive System
+
+**Complete employee lifecycle management** with evaluation history preservation and secure deletion capabilities.
+
+### Archive Features
+
+**Workflow**: Archive → View History → Restore or Permanent Delete
+
+**Capabilities**: Soft-delete with data preservation, complete evaluation history retention, manager dependency validation, bilingual confirmation modals
+
+**Safety Measures**: Cannot archive active managers, self-archiving protection, permanent delete confirmation for users without evaluation data
+
+### Archive Management
+
+**Archive Process**: Users marked as inactive (`active: false`) with timestamp and reason tracking
+
+**Data Preservation**: All evaluation history, manager relationships, and audit trails maintained during archive
+
+**Dashboard Integration**: Archived employees automatically excluded from all dashboard statistics and listings
+
+### Archive Interface
+
+**Location**: `/users/archive` - Dedicated archive management interface
+
+**Features**: Search and filter archived employees, view complete evaluation history, restore to active status, permanent deletion for data-free users
+
+**Access Control**: HR-only access with comprehensive bilingual support
+
+### Technical Implementation
+
+**Database Design**: Soft-delete pattern using `active` boolean field with archive metadata (timestamp, reason, manager snapshot)
+
+**Query Filtering**: All active queries enhanced to exclude archived users (`WHERE active = true`)
+
+**Bilingual UI**: Complete English/Spanish support with professional delete confirmation modals
+
+### Usage
+
+**Archive Employee**: Uncheck "Active User" checkbox in user management → Provide optional reason → Confirm archive
+
+**View Archived**: Navigate to archive page → Search/filter → View evaluation history
+
+**Restore Employee**: Click restore button → Employee returns to active status
+
+**Permanent Delete**: Only available for users without evaluation data → Bilingual confirmation modal
+
+### Safety & Compliance
+
+**Business Rules**: Active managers cannot be archived until reports are reassigned, users cannot archive themselves, evaluation data is preserved during archive
+
+**Audit Trail**: All archive/restore operations logged with user, timestamp, and reason
+
+**Data Integrity**: Dashboard and statistics automatically exclude archived employees, ensuring accurate reporting
 
 ---
 

@@ -358,6 +358,7 @@ export interface DashboardTranslations {
   managerOrHrRequired: string
   allPeriods: string
   manageUsers: string
+  archivedEmployees: string
   startEvaluating: string
   lastUpdated: string
   newCycle: string
@@ -674,6 +675,7 @@ export interface UsersTranslations {
   deleteConfirmMessage: string
   actionCannotBeUndone: string
   deleting: string
+  deleteUserWarning: string
   manageUsersDescription: string
   clearSearch: string
   usersCount: string
@@ -767,6 +769,7 @@ export interface UsersTranslations {
   id: string
   report: string
   evaluation: string
+  delete: string
   enterFullName: string
   enterEmailAddress: string
   enterUsername: string
@@ -782,7 +785,6 @@ export interface UsersTranslations {
   closeModal: string
   updateUserInformation: string
   createNewUserAccount: string
-  deleteUserWarning: string
   areYouSureDelete: string
   thisWillPermanently: string
   deleteAllUserData: string
@@ -932,6 +934,48 @@ export interface UsersTranslations {
   evaluationsAsManager: string
   evaluationAssignments: string
   partialAssessments: string
+
+  // Archive functionality
+  archivedEmployees: string
+  viewArchivedEmployees: string
+  archiveEmployee: string
+  archiveSelectedEmployees: string
+  unarchiveEmployee: string
+  archiveReason: string
+  archiveEmployeeTitle: string
+  archiveEmployeeDescription: string
+  archiveReasonPlaceholder: string
+  archiveReasonNote: string
+  archiving: string
+  archivingEmployee: string
+  archivingSelectedEmployees: string
+  close: string
+  unarchivingEmployee: string
+  employeeArchivedSuccessfully: string
+  employeesArchivedSuccessfully: string
+  employeeUnarchivedSuccessfully: string
+  failedToArchiveEmployee: string
+  failedToArchiveEmployees: string
+  failedToUnarchiveEmployee: string
+  cannotArchiveManagerWithActiveReports: string
+  cannotArchiveManager: string
+  cannotArchiveSelf: string
+  activeEmployees: string
+  noDataCanBeDeleted: string
+  archivedOn: string
+  archivedBy: string
+  archiveDetails: string
+  archivedManager: string
+  archivedDepartment: string
+  archivedPosition: string
+  noArchivedEmployees: string
+  noArchivedEmployeesDescription: string
+  noArchivedEmployeesFound: string
+  noArchivedEmployeesFoundDescription: string
+  evaluationHistory: string
+  showEvaluationHistory: string
+  hideEvaluationHistory: string
+  noEvaluations: string
 }
 
 export interface Translations {

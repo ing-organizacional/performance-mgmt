@@ -12,7 +12,8 @@ import {
   UsersFilters, 
   UsersList, 
   UserFormModal, 
-  DeleteUserModal 
+  DeleteUserModal,
+  ArchiveUserModal
 } from './components'
 
 interface UserWithDetails extends User {
@@ -28,9 +29,10 @@ interface UsersClientProps {
   users: UserWithDetails[]
   companies: Company[]
   managers: Pick<User, 'id' | 'name' | 'email'>[]
+  currentUserId: string
 }
 
-export default function UsersClient({ users: initialUsers, companies, managers }: UsersClientProps) {
+export default function UsersClient({ users: initialUsers, companies, managers, currentUserId }: UsersClientProps) {
   // Custom hook for all business logic
   const {
     searchTerm,
@@ -43,6 +45,7 @@ export default function UsersClient({ users: initialUsers, companies, managers }
     showUserForm,
     editingUser,
     showDeleteConfirm,
+    showArchiveConfirm,
     requiresPinOnly,
     setRequiresPinOnly,
     isPending,
@@ -50,11 +53,13 @@ export default function UsersClient({ users: initialUsers, companies, managers }
     filteredUsers,
     handleFormSubmit,
     handleDeleteUser,
+    handleArchiveUser,
     handleEditUser,
     handleAddUser,
-    handleDeleteUserClick,
+    handleArchiveUserClick,
     handleCloseUserForm,
     handleCloseDeleteConfirm,
+    handleCloseArchiveConfirm,
     removeToast,
     getRoleDisplayName
   } = useUsers({ initialUsers })
@@ -88,8 +93,9 @@ export default function UsersClient({ users: initialUsers, companies, managers }
         isPending={isPending}
         onAddUser={handleAddUser}
         onEditUser={handleEditUser}
-        onDeleteUser={handleDeleteUserClick}
+        onArchiveUser={handleArchiveUserClick}
         getRoleDisplayName={getRoleDisplayName}
+        currentUserId={currentUserId}
       />
 
       {/* Desktop-First User Form Modal */}
@@ -112,6 +118,16 @@ export default function UsersClient({ users: initialUsers, companies, managers }
         isPending={isPending}
         onClose={handleCloseDeleteConfirm}
         onConfirm={handleDeleteUser}
+        getRoleDisplayName={getRoleDisplayName}
+      />
+
+      {/* Archive Confirmation Modal */}
+      <ArchiveUserModal
+        isOpen={!!showArchiveConfirm}
+        user={showArchiveConfirm?.user}
+        isPending={isPending}
+        onClose={handleCloseArchiveConfirm}
+        onConfirm={handleArchiveUser}
         getRoleDisplayName={getRoleDisplayName}
       />
 

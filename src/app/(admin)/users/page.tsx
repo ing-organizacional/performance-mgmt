@@ -5,10 +5,11 @@ import UsersClient from './UsersClient'
 import type { Company } from '@/types'
 
 async function getUsersData(companyId: string) {
-  // Get all users with detailed information
+  // Get all active users with detailed information
   const users = await prisma.user.findMany({
     where: {
-      companyId
+      companyId,
+      active: true
     },
     include: {
       company: true,
@@ -17,7 +18,11 @@ async function getUsersData(companyId: string) {
       },
       _count: {
         select: {
-          employees: true,
+          employees: {
+            where: {
+              active: true
+            }
+          },
           evaluationsReceived: true
         }
       }
@@ -87,6 +92,7 @@ export default async function UsersPage() {
       }))}
       companies={companies}
       managers={managers}
+      currentUserId={session.user.id}
     />
   )
 }

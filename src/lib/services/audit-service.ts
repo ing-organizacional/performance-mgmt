@@ -22,6 +22,9 @@ export type AuditAction =
   | 'import'
   | 'bulk_update'
   | 'role_change'
+  | 'archive'
+  | 'bulk_archive'
+  | 'unarchive'
 
 export type EntityType = 
   | 'evaluation' 

@@ -1,6 +1,6 @@
 # User Management Guide
 
-This guide covers all three methods for managing employees in the performance management system.
+This guide covers all four methods for managing employees in the performance management system, including the comprehensive employee archive system.
 
 ## 🎯 Quick Start
 
@@ -23,7 +23,7 @@ yarn db:import example-users.csv
 ### Method 3: Server Actions (Programmatic Access)
 ```typescript
 // Import from actions
-import { createUser, updateUser, deleteUser } from '@/lib/actions/users'
+import { createUser, updateUser, deleteUser, archiveUser, unarchiveUser } from '@/lib/actions/users'
 
 // Create single user
 const newUser = await createUser({
@@ -33,6 +33,17 @@ const newUser = await createUser({
   companyId: "company-id"
 })
 ```
+
+### Method 4: Employee Archive System (Enterprise Lifecycle Management)
+```bash
+# Access via web interface
+Navigate to /users → Uncheck "Active User" → Provide reason → Archive
+Navigate to /users/archive → View, search, restore, or permanently delete
+```
+- **Soft-delete approach**: Complete evaluation history preservation
+- **Bilingual interface**: English/Spanish support with professional modals
+- **Business rule protection**: Cannot archive active managers or self-archive
+- **Dashboard integration**: Archived employees excluded from all statistics
 
 ## 📊 CSV Import Format
 
@@ -103,7 +114,13 @@ const updatedUser = await updateUser("user-id", {
   active: true
 })
 
-// Deactivate user (soft delete)
+// Archive user (soft delete with evaluation history preservation)
+await archiveUser("user-id", "Employee resigned")
+
+// Unarchive user (restore to active status)
+await unarchiveUser("user-id")
+
+// Permanent delete (only for users without evaluation data)
 await deleteUser("user-id")
 ```
 
@@ -128,6 +145,119 @@ Content-Type: application/json
       "password": "password123"
     }
   ]
+}
+```
+
+## 🗃️ Employee Archive Management
+
+### Archive System Overview
+
+The Employee Archive System provides enterprise-grade employee lifecycle management with complete evaluation history preservation.
+
+#### Key Features
+- **Soft-delete approach**: Users marked as `active: false` instead of permanent deletion
+- **Evaluation history preservation**: All performance data maintained during archive
+- **Manager dependency validation**: Cannot archive managers with active direct reports  
+- **Self-archiving protection**: Users cannot archive themselves
+- **Bilingual interface**: Complete English/Spanish support
+- **Dashboard integration**: Archived employees excluded from all statistics
+
+#### Archive Workflow
+1. **Archive**: Uncheck "Active User" in user management → Optional reason → Confirm
+2. **View**: Navigate to `/users/archive` → Search and filter archived employees  
+3. **Restore**: Click restore button → Employee returns to active status
+4. **Delete**: Permanent deletion available only for users without evaluation data
+
+### Archive Operations
+
+#### Archive Employee
+```typescript
+// Via Server Action
+import { archiveUser } from '@/lib/actions/users'
+
+await archiveUser("user-id", "Employee resigned - end of contract")
+```
+
+#### View Archived Employees  
+```typescript
+// Database query for archived users
+const archivedUsers = await prisma.user.findMany({
+  where: { 
+    companyId: "company-id",
+    active: false 
+  },
+  include: {
+    evaluationsReceived: true,
+    manager: { select: { name: true, email: true } }
+  }
+})
+```
+
+#### Restore Employee
+```typescript  
+// Via Server Action
+import { unarchiveUser } from '@/lib/actions/users'
+
+await unarchiveUser("user-id")
+```
+
+#### Permanent Delete (Data-Free Users Only)
+```typescript
+// Only available for users with no evaluation history
+import { deleteUser } from '@/lib/actions/users'
+
+await deleteUser("user-id") // Bilingual confirmation modal required
+```
+
+### Archive Business Rules
+
+#### Cannot Archive If:
+- **Active Manager**: User manages active employees (must reassign or archive reports first)
+- **Self-Archiving**: Users cannot archive themselves (system protection)
+- **Missing Permissions**: Only HR users can perform archive operations
+
+#### Data Preservation During Archive:
+- **Evaluation History**: All received evaluations maintained
+- **Manager Relationships**: Historical manager assignments preserved
+- **Audit Trail**: Complete action history retained
+- **Archive Metadata**: Timestamp, reason, and archiving user tracked
+
+#### Dashboard Impact:
+- **Statistics Excluded**: Archived employees removed from all counts and metrics
+- **Query Filtering**: All dashboard queries enhanced with `WHERE active = true`
+- **Historical Data**: Past evaluation data remains visible but user excluded from current reporting
+
+### Technical Implementation
+
+#### Database Schema
+```sql
+-- Users table with soft-delete fields
+active BOOLEAN DEFAULT true
+archivedAt DATETIME NULL
+archivedReason TEXT NULL  
+archivedBy VARCHAR(255) NULL
+```
+
+#### Query Pattern
+```typescript
+// All user queries enhanced to exclude archived
+const activeUsers = await prisma.user.findMany({
+  where: {
+    companyId,
+    active: true  // Critical filter for all active operations
+  }
+})
+```
+
+#### Manager Count Validation  
+```typescript
+// Enhanced employee count for archive validation
+_count: {
+  select: {
+    employees: {
+      where: { active: true }  // Only count active reports
+    }
+  }
 }
 ```
 
@@ -165,7 +295,21 @@ const newWorker = await createUser({
 })
 ```
 
-### Scenario 3: Bulk Import from HR System
+### Scenario 3: Employee Departure (Archive with History Preservation)
+```typescript
+import { archiveUser } from '@/lib/actions/users'
+
+// Archive departing employee with reason
+const archivedUser = await archiveUser("user-id", "Employee resigned - relocated to different city")
+
+// Employee data preserved:
+// - All evaluation history maintained  
+// - Manager relationships preserved
+// - Excluded from dashboard statistics
+// - Can be restored if needed
+```
+
+### Scenario 4: Bulk Import from HR System
 1. Export from HR system to CSV
 2. Match columns to our format
 3. Run: `yarn db:import hr-export.csv`
@@ -196,6 +340,9 @@ yarn db:push
 2. **Manager not found**: Ensure manager exists before creating employee
 3. **Company not found**: Verify company code in CSV
 4. **Invalid role**: Must be 'employee', 'manager', or 'hr'
+5. **Cannot archive manager**: Manager has active direct reports - reassign or archive them first
+6. **Archive button disabled**: Check if user is trying to self-archive (not allowed)
+7. **Delete button missing**: User has evaluation data - only archive is available
 
 ### Debug Tips:
 - Use Prisma Studio to verify data
@@ -203,4 +350,4 @@ yarn db:push
 - CSV import shows line-by-line results
 - All operations are logged with detailed feedback
 
-This system handles all your user management needs from quick edits to bulk operations across 27 companies and 4000+ employees.
+This system handles all your user management needs from quick edits to bulk operations and complete employee lifecycle management across 27 companies and 4000+ employees.

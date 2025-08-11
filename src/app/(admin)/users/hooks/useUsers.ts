@@ -33,6 +33,7 @@ export function useUsers({ initialUsers }: UseUsersProps) {
   const [showUserForm, setShowUserForm] = useState(false)
   const [editingUser, setEditingUser] = useState<UserWithDetails | undefined>(undefined)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<{ user: UserWithDetails } | null>(null)
+  const [showArchiveConfirm, setShowArchiveConfirm] = useState<{ user: UserWithDetails, formData: FormData } | null>(null)
   const [requiresPinOnly, setRequiresPinOnly] = useState(false)
 
   // Helper functions
@@ -53,7 +54,7 @@ export function useUsers({ initialUsers }: UseUsersProps) {
   const departments = Array.from(
     new Set(initialUsers
       .map(user => user.department)
-      .filter(Boolean))
+      .filter((dept): dept is string => dept !== null && dept !== undefined))
   ).sort()
 
   const filteredUsers = initialUsers.filter(user => {
@@ -105,10 +106,15 @@ export function useUsers({ initialUsers }: UseUsersProps) {
         // Translate error message if messageKey is provided
         if (result.messageKey) {
           if (result.messageKey === 'cannotDeleteUserManagesEmployees' && result.messageData) {
-            errorMessage = t.users.cannotDeleteUserManagesEmployees.replace('{count}', String(result.messageData.count))
+            errorMessage = t.users.cannotDeleteUserManagesEmployees.replace('{count}', String((result.messageData as { count: number }).count))
           } else if (result.messageKey === 'cannotDeleteUserHasEvaluations' && result.messageData) {
             const issues = []
-            const data = result.messageData
+            const data = result.messageData as {
+              employeeEvaluationsCount: number
+              managerEvaluationsCount: number
+              evaluationAssignmentsCount: number
+              partialAssessmentsCount: number
+            }
             
             if (data.employeeEvaluationsCount > 0) {
               issues.push(t.users.evaluationsAsEmployee.replace('{count}', String(data.employeeEvaluationsCount)))
@@ -146,8 +152,14 @@ export function useUsers({ initialUsers }: UseUsersProps) {
     setShowUserForm(true)
   }
 
-  const handleDeleteUserClick = (user: UserWithDetails) => {
-    setShowDeleteConfirm({ user })
+  const handleArchiveUserClick = (user: UserWithDetails) => {
+    // Check if manager has active direct reports
+    if (user.role === 'manager' && user._count.employees > 0) {
+      error(`${t.users.cannotArchiveManager} - ${t.users.manages} ${user._count.employees} ${t.users.activeEmployees}`)
+      return
+    }
+    // Show archive confirmation modal
+    setShowArchiveConfirm({ user, formData: new FormData() })
   }
 
   const handleCloseUserForm = () => {
@@ -158,6 +170,33 @@ export function useUsers({ initialUsers }: UseUsersProps) {
 
   const handleCloseDeleteConfirm = () => {
     setShowDeleteConfirm(null)
+  }
+
+  const handleArchiveUser = async (reason?: string) => {
+    if (!showArchiveConfirm) return
+
+    startTransition(async () => {
+      // Use the dedicated archiveUser function instead of updateUser
+      const { archiveUser } = await import('@/lib/actions/users')
+      const result = await archiveUser(showArchiveConfirm.user.id, reason)
+      
+      if (result.success) {
+        const message = result.messageKey ? t.users[result.messageKey as keyof typeof t.users] : result.message
+        success(message)
+        setShowUserForm(false)
+        setEditingUser(undefined)
+        setRequiresPinOnly(false)
+        setShowArchiveConfirm(null)
+        router.refresh() // Refresh server data
+      } else {
+        const errorMessage = result.messageKey ? t.users[result.messageKey as keyof typeof t.users] || result.message : result.message
+        error(errorMessage)
+      }
+    })
+  }
+
+  const handleCloseArchiveConfirm = () => {
+    setShowArchiveConfirm(null)
   }
 
   return {
@@ -172,6 +211,7 @@ export function useUsers({ initialUsers }: UseUsersProps) {
     showUserForm,
     editingUser,
     showDeleteConfirm,
+    showArchiveConfirm,
     requiresPinOnly,
     setRequiresPinOnly,
     isPending,
@@ -181,11 +221,13 @@ export function useUsers({ initialUsers }: UseUsersProps) {
     // Handlers
     handleFormSubmit,
     handleDeleteUser,
+    handleArchiveUser,
     handleEditUser,
     handleAddUser,
-    handleDeleteUserClick,
+    handleArchiveUserClick,
     handleCloseUserForm,
     handleCloseDeleteConfirm,
+    handleCloseArchiveConfirm,
     removeToast,
     getRoleDisplayName
   }
