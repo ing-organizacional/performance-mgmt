@@ -4,9 +4,11 @@ import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useLanguage } from '@/contexts/LanguageContext'
+import { LanguageSwitcher } from '@/components/layout'
 import { useToast } from '@/hooks/useToast'
 import { ToastContainer } from '@/components/ui'
 import { unarchiveUser } from '@/lib/actions/users'
+import { ChevronLeft, Archive, Search, X, History, RotateCcw, CheckCircle } from 'lucide-react'
 import type { User, Company } from '@/types'
 
 interface ArchivedUserWithDetails extends User {
@@ -53,20 +55,31 @@ export default function ArchiveClient({
   const { toasts, success, error, removeToast } = useToast()
   const [isPending, startTransition] = useTransition()
   const [searchTerm, setSearchTerm] = useState('')
+  const [filterDepartment, setFilterDepartment] = useState('')
   const [expandedUser, setExpandedUser] = useState<string | null>(null)
 
-  // Filter archived users by search term
+  // Get unique departments from archived users
+  const departments = Array.from(
+    new Set(archivedUsers
+      .map(user => user.archivedDepartment || user.department)
+      .filter((dept): dept is string => dept !== null && dept !== undefined))
+  ).sort()
+
+  // Filter archived users by search term and department
   const filteredUsers = archivedUsers.filter(user => {
     const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.archivedDepartment?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.archivedManagerName?.toLowerCase().includes(searchTerm.toLowerCase())
     
-    return matchesSearch
+    const matchesDepartment = !filterDepartment || 
+      (user.archivedDepartment || user.department) === filterDepartment
+    
+    return matchesSearch && matchesDepartment
   })
 
   const handleUnarchiveUser = (userId: string) => {
-    if (!confirm('Are you sure you want to unarchive this user? They will be restored to active status.')) {
+    if (!confirm(`${t.users.areYouSureDelete.replace('delete', 'unarchive')} ${t.users.thisWillPermanently.replace('delete all user data', 'restore them to active status')}.`)) {
       return
     }
 
@@ -118,40 +131,36 @@ export default function ArchiveClient({
                 className="flex items-center justify-center min-w-[44px] min-h-[44px] bg-white/20 text-white rounded-xl hover:bg-white/30 hover:scale-105 active:scale-95 transition-all duration-200 touch-manipulation shadow-sm"
                 title={t.common.back}
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                </svg>
+                <ChevronLeft className="w-5 h-5" />
               </Link>
               
               <div className="min-w-0">
                 <div className="flex items-center gap-3 mb-1">
                   <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
-                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                    </svg>
+                    <Archive className="w-5 h-5 text-white" />
                   </div>
                   <h1 className="text-2xl lg:text-3xl font-bold text-white">
-                    Employee Archive
+                    {t.users.archivedEmployees}
                   </h1>
-                  <div className="px-3 py-1 bg-white/20 rounded-full">
-                    <span className="text-sm font-medium text-white">ARCHIVED</span>
-                  </div>
                 </div>
                 <p className="text-sm text-orange-100">
-                  {filteredUsers.length} archived employees - Historical records only
+                  {filteredUsers.length} {filteredUsers.length === 1 ? t.users.user : t.users.users} - {t.users.noArchivedEmployeesDescription.replace('All employees are currently active. Archived employees will appear here.', 'Historical records only')}
                 </p>
               </div>
             </div>
 
-            {/* Right Section - User Count */}
+            {/* Right Section - Language Toggle & User Count */}
             <div className="hidden lg:flex items-center gap-4">
               <div className="text-right">
                 <div className="text-2xl font-bold text-white">
                   {archivedUsers.length}
                 </div>
                 <div className="text-sm text-orange-100">
-                  Total Archived
+                  {t.users.totalLabel} {t.status.archived}
                 </div>
+              </div>
+              <div className="border-l border-orange-500/30 pl-4">
+                <LanguageSwitcher variant="orange-header" />
               </div>
             </div>
           </div>
@@ -166,13 +175,11 @@ export default function ArchiveClient({
             <div className="flex-1 relative">
               <div className="relative">
                 <div className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400">
-                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                  </svg>
+                  <Search className="w-5 h-5" />
                 </div>
                 <input
                   type="text"
-                  placeholder="Search archived employees..."
+                  placeholder={t.users.searchUsers}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-full pl-12 pr-12 py-3 min-h-[44px] text-base text-gray-900 placeholder-gray-500 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500/50 transition-all duration-200 shadow-sm hover:shadow-md hover:border-gray-300 touch-manipulation"
@@ -182,18 +189,30 @@ export default function ArchiveClient({
                     onClick={() => setSearchTerm('')}
                     className="absolute right-3 top-1/2 transform -translate-y-1/2 p-2 min-w-[32px] min-h-[32px] text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-all duration-200 touch-manipulation"
                   >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
+                    <X className="w-4 h-4" />
                   </button>
                 )}
               </div>
+            </div>
+
+            {/* Department Filter */}
+            <div className="w-full lg:w-48">
+              <select
+                value={filterDepartment}
+                onChange={(e) => setFilterDepartment(e.target.value)}
+                className="w-full px-4 py-3 min-h-[44px] text-base text-gray-900 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500/50 transition-all duration-200 shadow-sm hover:shadow-md hover:border-gray-300 touch-manipulation cursor-pointer"
+              >
+                <option value="">{t.users.department}</option>
+                {departments.map(dept => (
+                  <option key={dept} value={dept}>{dept}</option>
+                ))}
+              </select>
             </div>
             
             {/* Results Count */}
             <div className="flex items-center px-4 py-3 bg-orange-50 border border-orange-200 rounded-xl">
               <span className="text-sm font-medium text-orange-700">
-                {filteredUsers.length} archived {filteredUsers.length === 1 ? 'employee' : 'employees'}
+                {filteredUsers.length} {filteredUsers.length === 1 ? t.users.user : t.users.users}
               </span>
             </div>
           </div>
@@ -207,102 +226,81 @@ export default function ArchiveClient({
             {searchTerm ? (
               <>
                 <div className="w-20 h-20 mx-auto mb-6 bg-gray-100 rounded-full flex items-center justify-center">
-                  <svg className="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                  </svg>
+                  <Search className="w-10 h-10 text-gray-400" />
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-3">No archived employees found</h3>
-                <p className="text-gray-600">Try adjusting your search terms or clear the search to see all archived employees.</p>
+                <h3 className="text-xl font-bold text-gray-900 mb-3">{t.users.noArchivedEmployeesFound}</h3>
+                <p className="text-gray-600">{t.users.noArchivedEmployeesFoundDescription}</p>
               </>
             ) : (
               <>
                 <div className="w-20 h-20 mx-auto mb-6 bg-green-100 rounded-full flex items-center justify-center">
-                  <svg className="w-10 h-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
+                  <CheckCircle className="w-10 h-10 text-green-600" />
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-3">No archived employees</h3>
-                <p className="text-gray-600">All employees are currently active. Archived employees will appear here.</p>
+                <h3 className="text-xl font-bold text-gray-900 mb-3">{t.users.noArchivedEmployees}</h3>
+                <p className="text-gray-600">{t.users.noArchivedEmployeesDescription}</p>
               </>
             )}
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-3">
             {filteredUsers.map(user => (
               <div key={user.id} className="bg-white/90 backdrop-blur-md rounded-2xl border border-orange-200/60 shadow-sm overflow-hidden">
-                {/* User Header */}
-                <div className="p-6 bg-gradient-to-r from-orange-50/80 to-red-50/80">
+                {/* User Header - Compact */}
+                <div className="p-4 bg-gradient-to-r from-orange-50/80 to-red-50/80">
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-6 flex-1 min-w-0">
-                      {/* Employee Avatar */}
+                    <div className="flex items-center gap-4 flex-1 min-w-0">
+                      {/* Employee Avatar - Smaller */}
                       <div className="flex-shrink-0">
-                        <div className="w-14 h-14 bg-gradient-to-br from-gray-400 to-gray-600 rounded-2xl flex items-center justify-center text-white font-bold text-lg shadow-sm opacity-60">
+                        <div className="w-10 h-10 bg-gradient-to-br from-gray-400 to-gray-600 rounded-xl flex items-center justify-center text-white font-bold text-sm shadow-sm opacity-60">
                           {user.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
                         </div>
                       </div>
                       
                       {/* Employee Info */}
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-3 mb-2">
-                          <h3 className="text-lg font-bold text-gray-900 truncate">{user.name}</h3>
-                          <span className="px-3 py-1 bg-orange-100 text-orange-700 rounded-xl text-xs font-medium border border-orange-200 shrink-0">
-                            ARCHIVED
+                        <div className="flex items-center gap-2 mb-1">
+                          <h3 className="text-base font-bold text-gray-900 truncate">{user.name}</h3>
+                          <span className="px-2 py-0.5 bg-orange-100 text-orange-700 rounded-lg text-xs font-medium border border-orange-200 shrink-0">
+                            {t.status.archived.toUpperCase()}
                           </span>
-                          <span className="px-3 py-1 bg-gray-100 text-gray-600 rounded-xl text-xs font-medium border border-gray-200 shrink-0">
+                          <span className="px-2 py-0.5 bg-gray-100 text-gray-600 rounded-lg text-xs font-medium border border-gray-200 shrink-0">
                             {getRoleDisplayName(user.role)}
                           </span>
                         </div>
                         
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-gray-600">
-                          <div className="flex items-center gap-2">
-                            <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                            </svg>
-                            <span>{user.email || user.username || 'No contact'}</span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-4m-5 0H3m2 0h3M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 4h1m4 0h1M9 16h1" />
-                            </svg>
-                            <span>{user.archivedDepartment || 'No department'}</span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            <span>Archived: {formatDate(user.archivedAt)}</span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                            </svg>
-                            <span>Manager: {user.archivedManagerName || 'No manager'}</span>
-                          </div>
+                        <div className="flex items-center gap-4 text-xs text-gray-600">
+                          <span>{user.email || user.username || t.users.noContact}</span>
+                          <span>•</span>
+                          <span>{user.archivedDepartment || t.users.noDept}</span>
+                          <span>•</span>
+                          <span>{t.users.archivedOn}: {formatDate(user.archivedAt)}</span>
+                          {user.archivedManagerName && (
+                            <>
+                              <span>•</span>
+                              <span>{t.users.manager}: {user.archivedManagerName}</span>
+                            </>
+                          )}
                         </div>
                       </div>
                     </div>
                     
-                    {/* Action Buttons */}
-                    <div className="flex items-center gap-3 ml-6">
+                    {/* Action Buttons - Compact */}
+                    <div className="flex items-center gap-2 ml-4">
                       <button
                         onClick={() => toggleUserExpansion(user.id)}
-                        className="flex items-center gap-2 px-4 py-2 min-h-[44px] bg-white text-gray-700 font-medium rounded-xl hover:bg-gray-50 hover:scale-105 active:scale-95 transition-all duration-200 shadow-sm touch-manipulation border border-gray-200"
+                        className="flex items-center gap-1 px-3 py-2 min-h-[36px] bg-white text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-all duration-200 shadow-sm touch-manipulation border border-gray-200 text-sm"
                       >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
-                        <span>{expandedUser === user.id ? 'Hide' : 'View'} History</span>
+                        <History className="w-3 h-3" />
+                        <span>{expandedUser === user.id ? t.users.hideEvaluationHistory : t.users.showEvaluationHistory}</span>
                       </button>
                       
                       <button
                         onClick={() => handleUnarchiveUser(user.id)}
                         disabled={isPending}
-                        className="flex items-center gap-2 px-4 py-2 min-h-[44px] bg-green-600 text-white font-medium rounded-xl hover:bg-green-700 hover:scale-105 active:scale-95 transition-all duration-200 shadow-sm touch-manipulation disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="flex items-center gap-1 px-3 py-2 min-h-[36px] bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition-all duration-200 shadow-sm touch-manipulation disabled:opacity-50 disabled:cursor-not-allowed text-sm"
                       >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                        </svg>
-                        <span>{isPending ? 'Restoring...' : 'Unarchive'}</span>
+                        <RotateCcw className="w-3 h-3" />
+                        <span>{isPending ? t.users.unarchivingEmployee : t.users.unarchiveEmployee}</span>
                       </button>
                     </div>
                   </div>
@@ -312,11 +310,11 @@ export default function ArchiveClient({
                 {expandedUser === user.id && (
                   <div className="px-6 py-6 border-t border-orange-200/60 bg-white">
                     <h4 className="text-lg font-bold text-gray-900 mb-4">
-                      Evaluation History ({user._count.evaluationsReceived})
+                      {t.users.evaluationHistory} ({user._count.evaluationsReceived})
                     </h4>
                     
                     {user.evaluationsReceived.length === 0 ? (
-                      <p className="text-gray-600 py-4">No evaluations on record.</p>
+                      <p className="text-gray-600 py-4">{t.users.noEvaluations}.</p>
                     ) : (
                       <div className="space-y-4">
                         {user.evaluationsReceived.slice(0, 10).map(evaluation => (

@@ -367,7 +367,7 @@ export const users: UsersTranslations = {
   noArchivedEmployeesFound: 'No se encontraron empleados archivados',
   noArchivedEmployeesFoundDescription: 'Intente ajustar sus términos de búsqueda o limpie la búsqueda para ver todos los empleados archivados.',
   evaluationHistory: 'Historial de Evaluaciones',
-  showEvaluationHistory: 'Mostrar historial de evaluaciones',
-  hideEvaluationHistory: 'Ocultar historial de evaluaciones',
+  showEvaluationHistory: 'Historial de evaluaciones',
+  hideEvaluationHistory: 'Ocultar historial',
   noEvaluations: 'Sin evaluaciones'
 }
