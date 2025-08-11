@@ -42,7 +42,7 @@ export function useItemEditor() {
     setEditingItem(null)
   }
 
-  const handleCreateNew = (type: 'okr' | 'competency', level: 'department' = 'department') => {
+  const handleCreateNew = (type: 'okr' | 'competency') => {
     setNewItemType(type)
     setCreatingNew(true)
     setEditingItem({

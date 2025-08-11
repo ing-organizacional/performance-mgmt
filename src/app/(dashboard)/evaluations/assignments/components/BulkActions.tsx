@@ -2,13 +2,11 @@ import { useLanguage } from '@/contexts/LanguageContext'
 import { Target, Star } from 'lucide-react'
 
 interface BulkActionsProps {
-  selectedEmployeesCount: number
   isPending: boolean
   onCreateNew: (type: 'okr' | 'competency') => void
 }
 
 export function BulkActions({
-  selectedEmployeesCount,
   isPending,
   onCreateNew
 }: BulkActionsProps) {

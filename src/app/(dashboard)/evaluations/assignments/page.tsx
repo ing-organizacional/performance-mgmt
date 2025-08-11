@@ -85,17 +85,17 @@ export default async function AssignmentsPage() {
     }
   })
 
-  // Get all assignments for these team members
-  const assignments = await prisma.evaluationItemAssignment.findMany({
-    where: {
-      companyId,
-      employeeId: { in: teamMembers.map(member => member.id) }
-    },
-    select: {
-      employeeId: true,
-      evaluationItemId: true
-    }
-  })
+  // Get all assignments for these team members (for future use)
+  // const assignments = await prisma.evaluationItemAssignment.findMany({
+  //   where: {
+  //     companyId,
+  //     employeeId: { in: teamMembers.map(member => member.id) }
+  //   },
+  //   select: {
+  //     employeeId: true,
+  //     evaluationItemId: true
+  //   }
+  // })
 
   // Clean up any orphaned assignments for this company (assignments referencing non-existent evaluation items)
   await prisma.evaluationItemAssignment.deleteMany({

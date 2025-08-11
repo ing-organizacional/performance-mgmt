@@ -8,7 +8,6 @@ interface AssignmentGridProps {
   employees: Employee[]
   activeTab: ActiveTab
   editingItem: EditingItem | null
-  newItemType: 'okr' | 'competency'
   isPending: boolean
   selectedEmployees: string[]
   confirmingUnassign: string | null
@@ -29,7 +28,6 @@ export function AssignmentGrid({
   employees,
   activeTab,
   editingItem,
-  newItemType,
   isPending,
   selectedEmployees,
   confirmingUnassign,

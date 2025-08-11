@@ -28,7 +28,8 @@ async function getCyclesData(companyId: string) {
   })
 
   // Convert dates to strings for serialization
-  const serializedCycles = cycles.map(cycle => ({
+  type CycleWithIncludes = typeof cycles[0]
+  const serializedCycles = cycles.map((cycle: CycleWithIncludes) => ({
     ...cycle,
     startDate: cycle.startDate.toISOString(),
     endDate: cycle.endDate.toISOString(),

@@ -96,7 +96,7 @@ export default function AssignmentsClient({
 
   const handleCreateNew = (type: 'okr' | 'competency') => {
     if (activeTab === 'department') {
-      itemEditorHook.handleCreateNew(type, 'department')
+      itemEditorHook.handleCreateNew(type)
     }
   }
 
@@ -229,7 +229,6 @@ export default function AssignmentsClient({
                 employees={employees}
                 activeTab={activeTab}
                 editingItem={itemEditorHook.editingItem}
-                newItemType={itemEditorHook.newItemType}
                 isPending={isPending}
                 selectedEmployees={selectedEmployees}
                 confirmingUnassign={assignmentHook.confirmingUnassign}
@@ -267,7 +266,6 @@ export default function AssignmentsClient({
               {/* Create New Section */}
               <div className="mb-4 md:mb-8">
                 <BulkActions
-                  selectedEmployeesCount={selectedEmployees.length}
                   isPending={isPending}
                   onCreateNew={handleCreateNew}
                 />
@@ -313,7 +311,6 @@ export default function AssignmentsClient({
                 employees={employees}
                 activeTab={activeTab}
                 editingItem={itemEditorHook.editingItem}
-                newItemType={itemEditorHook.newItemType}
                 isPending={isPending}
                 selectedEmployees={selectedEmployees}
                 confirmingUnassign={assignmentHook.confirmingUnassign}

@@ -13,23 +13,19 @@ import type {
 import { MIN_COMMENT_LENGTH } from '../types'
 
 interface UseEvaluationProps {
-  employeeId: string
   initialItems: EvaluationItem[]
   initialEvaluationId?: string | null
   initialEvaluationStatus?: EvaluationStatus
   initialOverallRating?: number | null
   initialOverallComment?: string
-  userRole: string
 }
 
 export function useEvaluation({
-  employeeId,
   initialItems,
   initialEvaluationId,
   initialEvaluationStatus = 'draft',
   initialOverallRating,
-  initialOverallComment = '',
-  userRole
+  initialOverallComment = ''
 }: UseEvaluationProps) {
   const router = useRouter()
   const { t } = useLanguage()

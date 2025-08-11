@@ -119,7 +119,7 @@ async function testAuditSystem() {
     
     // 8. Display sample audit logs
     console.log('\n8️⃣ Sample audit logs:')
-    logs.slice(0, 3).forEach(log => {
+    logs.slice(0, 3).forEach((log: any) => {
       console.log(`\n   📝 ${log.action.toUpperCase()} - ${log.entityType}`)
       console.log(`      User: ${log.user.name} (${log.user.role})`)
       console.log(`      Time: ${new Date(log.timestamp).toLocaleString()}`)

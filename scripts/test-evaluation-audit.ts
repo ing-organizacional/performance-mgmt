@@ -93,7 +93,7 @@ async function testEvaluationAudit() {
     })
     
     console.log(`\n📋 Audit logs for evaluation ${evaluation.id}:`)
-    evaluationAudits.forEach(audit => {
+    evaluationAudits.forEach((audit: any) => {
       console.log(`   • ${audit.action.toUpperCase()} by ${audit.user.name} (${audit.user.role})`)
       console.log(`     Time: ${new Date(audit.timestamp).toLocaleString()}`)
       if (audit.oldData) {

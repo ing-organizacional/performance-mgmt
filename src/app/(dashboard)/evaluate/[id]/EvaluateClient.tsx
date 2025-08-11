@@ -24,13 +24,11 @@ export default function EvaluateClient({
   
   // Use custom hooks for state management
   const evaluation = useEvaluation({
-    employeeId,
     initialItems,
     initialEvaluationId,
     initialEvaluationStatus,
     initialOverallRating,
-    initialOverallComment,
-    userRole
+    initialOverallComment
   })
 
   // Auto-save hook
