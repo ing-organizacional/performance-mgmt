@@ -1,6 +1,7 @@
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma-client'
 import { redirect } from 'next/navigation'
+import { isAIEnabled } from '@/lib/ai-features'
 import AssignmentsClient from './AssignmentsClient'
 
 interface EvaluationItem {
@@ -145,6 +146,9 @@ export default async function AssignmentsPage() {
       .map(assignment => assignment.evaluationItemId)
   }))
 
+  // Check if AI features are enabled for this company
+  const aiEnabled = await isAIEnabled(companyId)
+
   return (
     <AssignmentsClient 
       evaluationItems={formattedItems}
@@ -153,6 +157,7 @@ export default async function AssignmentsPage() {
       userName={session.user.name || ''}
       userId={userId}
       userDepartment={session.user.department}
+      aiEnabled={aiEnabled}
     />
   )
 }

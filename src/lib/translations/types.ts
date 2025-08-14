@@ -48,6 +48,14 @@ export interface CommonTranslations {
   approving: string
   of: string
   employees: string
+  // AI Features
+  improveWithAI: string
+  improving: string
+  aiImprovement: string
+  improveWithAITooltip: string
+  aiImprovementSuccess: string
+  aiImprovementFailed: string
+  dismissError: string
   departments: string
   unknownError: string
   error: string

@@ -3,6 +3,8 @@
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma-client'
 import { revalidatePath } from 'next/cache'
+import { isAIEnabled } from '@/lib/ai-features'
+import { improveText } from '@/lib/llm'
 
 // Server action to assign evaluation items to employees
 export async function assignItemsToEmployees(itemId: string, employeeIds: string[]) {
@@ -251,5 +253,80 @@ export async function updateEvaluationItem(itemId: string, formData: {
   } catch (error) {
     console.error('Error updating evaluation item:', error)
     return { success: false, error: 'Failed to update evaluation item' }
+  }
+}
+
+// Server action to improve text with AI
+export async function improveTextWithAI(formData: {
+  text: string
+  type: 'objective' | 'key-result' | 'competency'
+  context?: string
+}) {
+  try {
+    const session = await auth()
+    
+    if (!session?.user?.id) {
+      return { success: false, error: 'Unauthorized' }
+    }
+
+    const userRole = session.user.role
+    const companyId = session.user.companyId
+
+    // Only managers and HR can use AI improvement
+    if (userRole !== 'manager' && userRole !== 'hr') {
+      return { success: false, error: 'Access denied - Manager or HR role required' }
+    }
+
+    // Check if AI is enabled for this company
+    const aiEnabled = await isAIEnabled(companyId)
+    if (!aiEnabled) {
+      return { success: false, error: 'AI features are not enabled for your organization' }
+    }
+
+    const { text, type, context } = formData
+
+    if (!text?.trim()) {
+      return { success: false, error: 'Text is required' }
+    }
+
+    // Rate limiting check (prevent API abuse)
+    // TODO: Implement proper rate limiting in production
+    
+    // Call LLM API with the configured provider
+    const improvedText = await improveText(text.trim(), type, context?.trim())
+
+    return { success: true, improvedText }
+
+  } catch (error) {
+    console.error('Error improving text with AI:', error)
+    
+    // Provide specific user-friendly error messages
+    if (error instanceof Error) {
+      // Configuration errors
+      if (error.message === 'AI_CONFIG_MISSING') {
+        return { success: false, error: 'AI service is not configured. Please contact your administrator.' }
+      }
+      if (error.message.includes('API key')) {
+        return { success: false, error: 'AI service configuration error. Please contact your administrator.' }
+      }
+      
+      // API errors
+      if (error.message.includes('quota') || error.message.includes('rate limit')) {
+        return { success: false, error: 'AI service temporarily unavailable. Please try again later.' }
+      }
+      if (error.message.includes('insufficient_quota')) {
+        return { success: false, error: 'AI service quota exceeded. Please contact your administrator.' }
+      }
+      if (error.message.includes('invalid_api_key')) {
+        return { success: false, error: 'AI service authentication error. Please contact your administrator.' }
+      }
+      
+      // Network errors
+      if (error.message.includes('network') || error.message.includes('timeout')) {
+        return { success: false, error: 'Network error. Please check your connection and try again.' }
+      }
+    }
+    
+    return { success: false, error: 'Failed to improve text. Please try again.' }
   }
 }

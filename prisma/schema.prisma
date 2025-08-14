@@ -11,10 +11,12 @@ datasource db {
 }
 
 model Company {
-  id     String  @id @default(cuid())
-  name   String
-  code   String  @unique
-  active Boolean @default(true)
+  id        String  @id @default(cuid())
+  name      String
+  code      String  @unique
+  active    Boolean @default(true)
+  aiEnabled Boolean @default(false) // Feature flag for AI functionality
+  aiFeatures Json?                  // Future granular AI feature configuration
 
   users                     User[]
   evaluations               Evaluation[]

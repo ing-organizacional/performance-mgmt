@@ -37,4 +37,5 @@ export interface AssignmentsClientProps {
   userName: string
   userId: string
   userDepartment?: string
+  aiEnabled?: boolean
 }
