@@ -239,6 +239,7 @@ export default function AssignmentsClient({
                 canEditDeadline={canEditDeadline}
                 getEmployeesWithItem={assignmentHook.getEmployeesWithItem}
                 aiEnabled={aiEnabled}
+                userDepartment={userDepartment}
                 onEditItem={itemEditorHook.handleEditItem}
                 onSaveEdit={itemEditorHook.handleSaveEdit}
                 onCancelEdit={itemEditorHook.handleCancelEdit}
@@ -288,6 +289,7 @@ export default function AssignmentsClient({
                   canSetDeadline={canSetDeadlineForLevel('department')}
                   isPending={isPending}
                   aiEnabled={aiEnabled}
+                  userDepartment={userDepartment}
                   onUpdateItem={itemEditorHook.updateEditingItem}
                   onSave={handleSaveNew}
                   onCancel={itemEditorHook.handleCancelNew}
@@ -323,6 +325,7 @@ export default function AssignmentsClient({
                 canEditDeadline={canEditDeadline}
                 getEmployeesWithItem={assignmentHook.getEmployeesWithItem}
                 aiEnabled={aiEnabled}
+                userDepartment={userDepartment}
                 onEditItem={itemEditorHook.handleEditItem}
                 onSaveEdit={itemEditorHook.handleSaveEdit}
                 onCancelEdit={itemEditorHook.handleCancelEdit}

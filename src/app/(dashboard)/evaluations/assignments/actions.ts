@@ -259,13 +259,17 @@ export async function updateEvaluationItem(itemId: string, formData: {
 // Server action to improve text with AI
 export async function improveTextWithAI(formData: {
   text: string
-  type: 'objective' | 'key-result' | 'competency'
+  type: 'objective' | 'key-result' | 'competency' | 'competency-description'
   context?: string
+  isIteration?: boolean
+  department?: string
 }) {
   console.log('🚀 [Server Action] AI text improvement request received:', {
     type: formData.type,
     textLength: formData.text?.length || 0,
     hasContext: !!formData.context,
+    isIteration: !!formData.isIteration,
+    department: formData.department || 'company-wide',
     textPreview: formData.text?.substring(0, 50) + (formData.text?.length > 50 ? '...' : '')
   })
 
@@ -316,7 +320,7 @@ export async function improveTextWithAI(formData: {
     // TODO: Implement proper rate limiting in production
     
     // Call LLM API with the configured provider
-    const improvedText = await improveText(text.trim(), type, context?.trim())
+    const improvedText = await improveText(text.trim(), type, context?.trim(), formData.isIteration, formData.department)
 
     console.log('✅ [Server Action] Text improvement successful:', {
       originalLength: text.trim().length,

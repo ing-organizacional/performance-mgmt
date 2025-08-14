@@ -5,7 +5,7 @@ import { getSystemPrompt } from './prompts'
  * Abstract interface for LLM providers
  */
 export interface LLMProvider {
-  improveText(text: string, type: 'objective' | 'key-result' | 'competency', context?: string): Promise<string>
+  improveText(text: string, type: 'objective' | 'key-result' | 'competency' | 'competency-description', context?: string, isIteration?: boolean, department?: string): Promise<string>
 }
 
 /**
@@ -24,9 +24,9 @@ export class OpenAIProvider implements LLMProvider {
     })
   }
 
-  async improveText(text: string, type: 'objective' | 'key-result' | 'competency', context?: string): Promise<string> {
+  async improveText(text: string, type: 'objective' | 'key-result' | 'competency' | 'competency-description', context?: string, isIteration?: boolean, department?: string): Promise<string> {
     try {
-      const systemPrompt = getSystemPrompt(type)
+      const systemPrompt = getSystemPrompt(type, isIteration, department)
       const userPrompt = context ? `Context: ${context}\n\nOriginal: ${text}` : `Original: ${text}`
 
       const response = await this.client.chat.completions.create({
@@ -52,7 +52,7 @@ export class OpenAIProvider implements LLMProvider {
  */
 export class AnthropicProvider implements LLMProvider {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async improveText(text: string, type: 'objective' | 'key-result' | 'competency', context?: string): Promise<string> {
+  async improveText(text: string, type: 'objective' | 'key-result' | 'competency' | 'competency-description', context?: string, isIteration?: boolean, department?: string): Promise<string> {
     // TODO: Implement when @anthropic-ai/sdk is added
     throw new Error('Anthropic provider not yet implemented')
   }
@@ -68,7 +68,7 @@ export class OllamaProvider implements LLMProvider {
     this.baseUrl = process.env.OLLAMA_BASE_URL || 'http://localhost:11434'
   }
 
-  async improveText(text: string, type: 'objective' | 'key-result' | 'competency', context?: string): Promise<string> {
+  async improveText(text: string, type: 'objective' | 'key-result' | 'competency' | 'competency-description', context?: string, isIteration?: boolean, department?: string): Promise<string> {
     const model = process.env.OLLAMA_MODEL || 'llama3.1:8b-instruct-q5_K_M'
     
     console.log('🤖 [Ollama] Starting text improvement request')
@@ -81,7 +81,7 @@ export class OllamaProvider implements LLMProvider {
     })
 
     try {
-      const systemPrompt = getSystemPrompt(type)
+      const systemPrompt = getSystemPrompt(type, isIteration, department)
       const userPrompt = context ? `Context: ${context}\n\nOriginal: ${text}` : `Original: ${text}`
 
       console.log('📝 [Ollama] Generated prompts:', {

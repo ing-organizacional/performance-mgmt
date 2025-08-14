@@ -31,20 +31,24 @@ export const createLLMProvider = (): LLMProvider => {
  */
 export const improveText = async (
   text: string, 
-  type: 'objective' | 'key-result' | 'competency', 
-  context?: string
+  type: 'objective' | 'key-result' | 'competency' | 'competency-description', 
+  context?: string,
+  isIteration?: boolean,
+  department?: string
 ): Promise<string> => {
   console.log('🎯 [LLM] Text improvement request:', {
     textLength: text.length,
     type: type,
     hasContext: !!context,
+    isIteration: !!isIteration,
+    department: department || 'company-wide',
     textPreview: text.substring(0, 50) + (text.length > 50 ? '...' : '')
   })
   
   const startTime = Date.now()
   try {
     const provider = createLLMProvider()
-    const result = await provider.improveText(text, type, context)
+    const result = await provider.improveText(text, type, context, isIteration, department)
     
     const duration = Date.now() - startTime
     console.log(`✅ [LLM] Text improvement completed in ${duration}ms:`, {
