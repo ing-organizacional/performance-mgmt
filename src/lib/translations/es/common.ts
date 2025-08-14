@@ -86,5 +86,7 @@ export const common: CommonTranslations = {
   yourDashboard: 'tu panel de control',
   takingYouTo: 'Te estamos llevando a',
   secondsRemaining: 'segundos restantes',
-  secondRemaining: 'segundo restante'
+  secondRemaining: 'segundo restante',
+  versions: 'Versiones',
+  refine: 'Refinar'
 }

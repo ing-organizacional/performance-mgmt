@@ -222,60 +222,63 @@ export function ItemEditor({
           <label className="block text-sm font-medium text-gray-700 mb-2">
             {newItemType === 'okr' ? t.okrs.objective : t.evaluations.competency}
           </label>
-          <div className="flex gap-2">
-            <input
-              type="text"
-              value={editingItem.title}
-              onChange={(e) => onUpdateItem({ title: e.target.value })}
-              className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-gray-900"
-              placeholder={isCreatingNew ? `${t.common.edit} ${newItemType === 'okr' ? t.evaluations.okr : t.evaluations.competency}...` : "Title"}
-              disabled={isPending || aiPending}
-            />
-            {/* Title AI Controls */}
-            <div className="flex flex-col gap-2">
-              {aiEnabled && editingItem.title.trim().length >= 20 && textHistory.title.length < 4 && (
-                <button
-                onClick={() => handleImproveText('title', textHistory.title.length > 0)}
-                disabled={isPending || aiPending || improvingField === 'title'}
-                className="flex items-center justify-center min-w-[44px] min-h-[44px] px-2.5 py-2 text-xs font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 hover:text-blue-700 disabled:bg-gray-50 disabled:text-gray-400 disabled:cursor-not-allowed active:scale-95 transition-all duration-150 touch-manipulation border border-blue-200 hover:border-blue-300"
-                title={improvingField === 'title' ? t.common.improving : (textHistory.title.length > 0 ? 'Refine with AI (max 3 versions)' : t.common.improveWithAITooltip)}
-                aria-label={improvingField === 'title' ? t.common.improving : (textHistory.title.length > 0 ? 'Refine with AI' : t.common.improveWithAITooltip)}
-              >
-                {improvingField === 'title' ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <>
-                    {textHistory.title.length > 0 ? <RefreshCw className="h-4 w-4" /> : <Sparkles className="h-4 w-4" />}
-                  </>
-                )}
-                <span className="hidden sm:block ml-1.5">
-                  {improvingField === 'title' ? t.common.improving : (textHistory.title.length > 0 ? 'Refine' : 'AI')}
-                </span>
-                </button>
+          <textarea
+            value={editingItem.title}
+            onChange={(e) => onUpdateItem({ title: e.target.value })}
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-gray-900 resize-none"
+            rows={2}
+            placeholder={isCreatingNew ? `${t.common.edit} ${newItemType === 'okr' ? t.evaluations.okr : t.evaluations.competency}...` : "Title"}
+            disabled={isPending || aiPending}
+          />
+          
+          {/* Title AI Controls - Below input, right-aligned */}
+          <div className="flex justify-end gap-2 mt-2">
+            {/* Single Smart AI Button */}
+            {aiEnabled && editingItem.title.trim().length >= 20 && textHistory.title.length < 4 && (
+              <button
+              onClick={() => handleImproveText('title', textHistory.title.length > 0)}
+              disabled={isPending || aiPending || improvingField === 'title'}
+              className="flex items-center justify-center min-w-[44px] h-9 px-2.5 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 hover:text-blue-700 disabled:bg-gray-50 disabled:text-gray-400 disabled:cursor-not-allowed active:scale-95 transition-all duration-150 touch-manipulation border border-blue-200 hover:border-blue-300"
+              title={improvingField === 'title' ? t.common.improving : (textHistory.title.length > 0 ? 'Refine with AI' : t.common.improveWithAITooltip)}
+              aria-label={improvingField === 'title' ? t.common.improving : (textHistory.title.length > 0 ? 'Refine with AI' : t.common.improveWithAITooltip)}
+            >
+              {improvingField === 'title' ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <>
+                  {textHistory.title.length > 0 ? <RefreshCw className="h-4 w-4" /> : <Sparkles className="h-4 w-4" />}
+                </>
               )}
-              
-              {/* Title Version History */}
-              {textHistory.title.length > 1 && (
-                <div className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg border">
-                  <span className="text-xs text-gray-600 font-medium">Versions:</span>
-                  <div className="flex gap-1">
-                    {textHistory.title.map((_, index) => (
-                      <button
-                        key={index}
-                        onClick={() => switchToVersion('title', index)}
-                        className={`px-2 py-1 text-xs rounded transition-all duration-150 ${
-                          currentVersion.title === index
-                            ? 'bg-blue-500 text-white'
-                            : 'bg-white text-gray-600 hover:bg-gray-100'
-                        }`}
-                      >
-                        {index === 0 ? 'Original' : `AI v${index}`}
-                      </button>
-                    ))}
-                  </div>
+              <span className="hidden sm:block ml-1.5">
+                {improvingField === 'title' ? t.common.improving : (textHistory.title.length > 0 ? t.common.refine : 'AI')}
+              </span>
+              <span className="sm:hidden ml-1.5">
+                {improvingField === 'title' ? t.common.improving : (textHistory.title.length > 0 ? t.common.refine : 'AI')}
+              </span>
+              </button>
+            )}
+            
+            {/* Title Version Pills - Compact */}
+            {textHistory.title.length > 1 && (
+              <div className="flex items-center gap-2 px-2 py-1.5 bg-gray-100 rounded text-xs h-9">
+                <span className="text-gray-600 font-medium">{t.common.versions}:</span>
+                <div className="flex gap-1">
+                  {textHistory.title.map((_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => switchToVersion('title', index)}
+                      className={`px-1.5 py-0.5 text-xs rounded transition-all duration-150 ${
+                        currentVersion.title === index
+                          ? 'bg-blue-500 text-white'
+                          : 'bg-white text-gray-600 hover:bg-gray-200'
+                      }`}
+                    >
+                      {index === 0 ? 'Orig' : `v${index}`}
+                    </button>
+                  ))}
                 </div>
-              )}
-            </div>
+              </div>
+            )}
           </div>
         </div>
         
@@ -288,18 +291,19 @@ export function ItemEditor({
               value={editingItem.description}
               onChange={(e) => onUpdateItem({ description: e.target.value })}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-gray-900"
-              rows={3}
+              rows={6}
               placeholder={isCreatingNew ? `${t.common.edit} ${t.companyItems.description.toLowerCase()}...` : "Description"}
               disabled={isPending || aiPending}
             />
-            {/* Description AI Controls */}
-            {aiEnabled && editingItem.description.trim().length >= 30 && textHistory.description.length < 4 && (
-              <div className="flex justify-end">
+            {/* Description AI Controls - Below textarea, right-aligned */}
+            <div className="flex justify-end gap-2">
+              {/* Single Smart AI Button */}
+              {aiEnabled && editingItem.description.trim().length >= 30 && textHistory.description.length < 4 && (
                 <button
                   onClick={() => handleImproveText('description', textHistory.description.length > 0)}
                   disabled={isPending || aiPending || improvingField === 'description'}
-                  className="flex items-center justify-center min-w-[44px] min-h-[44px] px-2.5 py-2 text-xs font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 hover:text-blue-700 disabled:bg-gray-50 disabled:text-gray-400 disabled:cursor-not-allowed active:scale-95 transition-all duration-150 touch-manipulation border border-blue-200 hover:border-blue-300"
-                  title={improvingField === 'description' ? t.common.improving : (textHistory.description.length > 0 ? 'Refine with AI (max 3 versions)' : t.common.improveWithAITooltip)}
+                  className="flex items-center justify-center min-w-[44px] h-9 px-2.5 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 hover:text-blue-700 disabled:bg-gray-50 disabled:text-gray-400 disabled:cursor-not-allowed active:scale-95 transition-all duration-150 touch-manipulation border border-blue-200 hover:border-blue-300"
+                  title={improvingField === 'description' ? t.common.improving : (textHistory.description.length > 0 ? 'Refine with AI' : t.common.improveWithAITooltip)}
                   aria-label={improvingField === 'description' ? t.common.improving : (textHistory.description.length > 0 ? 'Refine with AI' : t.common.improveWithAITooltip)}
                 >
                   {improvingField === 'description' ? (
@@ -312,37 +316,37 @@ export function ItemEditor({
                   <span className="hidden sm:block ml-1.5">
                     {improvingField === 'description' 
                       ? t.common.improving 
-                      : (textHistory.description.length > 0 ? 'Refine' : t.common.improveWithAI)
+                      : (textHistory.description.length > 0 ? t.common.refine : t.common.improveWithAI)
                     }
                   </span>
                   <span className="sm:hidden ml-1.5">
-                    {textHistory.description.length > 0 ? 'Refine' : 'AI'}
+                    {textHistory.description.length > 0 ? t.common.refine : 'AI'}
                   </span>
                 </button>
-              </div>
-            )}
-            
-            {/* Description Version History */}
-            {textHistory.description.length > 1 && (
-              <div className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg border mt-2">
-                <span className="text-xs text-gray-600 font-medium">Versions:</span>
-                <div className="flex gap-1 flex-wrap">
-                  {textHistory.description.map((_, index) => (
-                    <button
-                      key={index}
-                      onClick={() => switchToVersion('description', index)}
-                      className={`px-2 py-1 text-xs rounded transition-all duration-150 ${
-                        currentVersion.description === index
-                          ? 'bg-blue-500 text-white'
-                          : 'bg-white text-gray-600 hover:bg-gray-100'
-                      }`}
-                    >
-                      {index === 0 ? 'Original' : `AI v${index}`}
-                    </button>
-                  ))}
+              )}
+              
+              {/* Description Version Pills - Compact */}
+              {textHistory.description.length > 1 && (
+                <div className="flex items-center gap-2 px-2 py-1.5 bg-gray-100 rounded text-xs h-9">
+                  <span className="text-gray-600 font-medium">{t.common.versions}:</span>
+                  <div className="flex gap-1">
+                    {textHistory.description.map((_, index) => (
+                      <button
+                        key={index}
+                        onClick={() => switchToVersion('description', index)}
+                        className={`px-1.5 py-0.5 text-xs rounded transition-all duration-150 ${
+                          currentVersion.description === index
+                            ? 'bg-blue-500 text-white'
+                            : 'bg-white text-gray-600 hover:bg-gray-200'
+                        }`}
+                      >
+                        {index === 0 ? 'Orig' : `v${index}`}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
         
@@ -355,7 +359,7 @@ export function ItemEditor({
               type="date"
               value={editingItem.evaluationDeadline || ''}
               onChange={(e) => onUpdateItem({ evaluationDeadline: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-gray-900"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-gray-900 text-sm"
               min={new Date().toISOString().slice(0, 10)}
               disabled={isPending}
             />

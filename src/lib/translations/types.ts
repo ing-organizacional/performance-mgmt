@@ -87,6 +87,8 @@ export interface CommonTranslations {
   takingYouTo: string
   secondsRemaining: string
   secondRemaining: string
+  versions: string
+  refine: string
 }
 
 export interface AuthTranslations {
