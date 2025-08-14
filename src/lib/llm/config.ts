@@ -11,14 +11,17 @@ export interface LLMConfig {
  * Get LLM configuration from environment variables
  */
 export const getLLMConfig = (): LLMConfig => {
-  const provider = (process.env.LLM_PROVIDER || 'openai') as LLMProviderType
-  
-  return {
+  const provider = (process.env.LLM_PROVIDER || 'ollama') as LLMProviderType
+  const config = {
     provider,
     model: getModelForProvider(provider),
     maxTokens: parseInt(process.env.LLM_MAX_TOKENS || '500'),
     temperature: parseFloat(process.env.LLM_TEMPERATURE || '0.3')
   }
+  
+  console.log('🔧 [LLM Config] Configuration loaded:', config)
+  
+  return config
 }
 
 /**

@@ -5,8 +5,14 @@ import { prisma } from '@/lib/prisma-client'
  * Two-level check: global environment flag + company-specific setting
  */
 export const isAIEnabled = async (companyId: string): Promise<boolean> => {
+  console.log('🔍 [AI Features] Checking AI status for company:', companyId)
+  
   // Global check first - master switch for entire deployment
-  if (process.env.AI_FEATURES_ENABLED !== 'true') {
+  const globalEnabled = process.env.AI_FEATURES_ENABLED === 'true'
+  console.log('🌍 [AI Features] Global AI enabled:', globalEnabled)
+  
+  if (!globalEnabled) {
+    console.log('❌ [AI Features] AI disabled globally via AI_FEATURES_ENABLED')
     return false
   }
   
@@ -14,12 +20,22 @@ export const isAIEnabled = async (companyId: string): Promise<boolean> => {
     // Company-specific check
     const company = await prisma.company.findUnique({
       where: { id: companyId },
-      select: { aiEnabled: true }
+      select: { aiEnabled: true, name: true }
     })
     
-    return company?.aiEnabled || false
+    console.log('🏢 [AI Features] Company data:', {
+      id: companyId,
+      name: company?.name,
+      aiEnabled: company?.aiEnabled,
+      found: !!company
+    })
+    
+    const result = company?.aiEnabled || false
+    console.log(`✅ [AI Features] Final AI status for company ${companyId}:`, result)
+    
+    return result
   } catch (error) {
-    console.error('Error checking AI features for company:', error)
+    console.error('💥 [AI Features] Error checking AI features for company:', error)
     return false
   }
 }

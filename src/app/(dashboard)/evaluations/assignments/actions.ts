@@ -262,10 +262,24 @@ export async function improveTextWithAI(formData: {
   type: 'objective' | 'key-result' | 'competency'
   context?: string
 }) {
+  console.log('🚀 [Server Action] AI text improvement request received:', {
+    type: formData.type,
+    textLength: formData.text?.length || 0,
+    hasContext: !!formData.context,
+    textPreview: formData.text?.substring(0, 50) + (formData.text?.length > 50 ? '...' : '')
+  })
+
   try {
     const session = await auth()
+    console.log('👤 [Server Action] Session check:', {
+      hasSession: !!session,
+      userId: session?.user?.id,
+      userRole: session?.user?.role,
+      companyId: session?.user?.companyId
+    })
     
     if (!session?.user?.id) {
+      console.log('❌ [Server Action] Unauthorized - no session')
       return { success: false, error: 'Unauthorized' }
     }
 
@@ -274,26 +288,41 @@ export async function improveTextWithAI(formData: {
 
     // Only managers and HR can use AI improvement
     if (userRole !== 'manager' && userRole !== 'hr') {
+      console.log('❌ [Server Action] Access denied - invalid role:', userRole)
       return { success: false, error: 'Access denied - Manager or HR role required' }
     }
 
     // Check if AI is enabled for this company
     const aiEnabled = await isAIEnabled(companyId)
     if (!aiEnabled) {
+      console.log('❌ [Server Action] AI not enabled for company:', companyId)
       return { success: false, error: 'AI features are not enabled for your organization' }
     }
 
     const { text, type, context } = formData
 
     if (!text?.trim()) {
+      console.log('❌ [Server Action] Empty text provided')
       return { success: false, error: 'Text is required' }
     }
+
+    console.log('🎯 [Server Action] Processing text improvement:', {
+      originalLength: text.trim().length,
+      type: type,
+      hasContext: !!context?.trim()
+    })
 
     // Rate limiting check (prevent API abuse)
     // TODO: Implement proper rate limiting in production
     
     // Call LLM API with the configured provider
     const improvedText = await improveText(text.trim(), type, context?.trim())
+
+    console.log('✅ [Server Action] Text improvement successful:', {
+      originalLength: text.trim().length,
+      improvedLength: improvedText.length,
+      sameText: text.trim() === improvedText
+    })
 
     return { success: true, improvedText }
 

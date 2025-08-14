@@ -69,29 +69,113 @@ export class OllamaProvider implements LLMProvider {
   }
 
   async improveText(text: string, type: 'objective' | 'key-result' | 'competency', context?: string): Promise<string> {
+    const model = process.env.OLLAMA_MODEL || 'llama3.1:8b-instruct-q5_K_M'
+    
+    console.log('🤖 [Ollama] Starting text improvement request')
+    console.log('🔧 [Ollama] Configuration:', {
+      baseUrl: this.baseUrl,
+      model: model,
+      textLength: text.length,
+      type: type,
+      hasContext: !!context
+    })
+
     try {
       const systemPrompt = getSystemPrompt(type)
       const userPrompt = context ? `Context: ${context}\n\nOriginal: ${text}` : `Original: ${text}`
-      const fullPrompt = `${systemPrompt}\n\n${userPrompt}`
 
-      const response = await fetch(`${this.baseUrl}/api/generate`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          model: process.env.OLLAMA_MODEL || 'llama3.1',
-          prompt: fullPrompt,
-          stream: false
-        })
+      console.log('📝 [Ollama] Generated prompts:', {
+        systemPromptLength: systemPrompt.length,
+        userPromptLength: userPrompt.length,
+        hasContext: !!context
       })
 
+      // According to Ollama API docs, use system and prompt separately for better results
+      const requestBody = {
+        model: model,
+        prompt: userPrompt,
+        system: systemPrompt,
+        stream: false,
+        options: {
+          temperature: parseFloat(process.env.LLM_TEMPERATURE || '0.3'),
+          num_predict: parseInt(process.env.LLM_MAX_TOKENS || '500'),
+          top_k: 40,
+          top_p: 0.9,
+          repeat_penalty: 1.1
+        }
+      }
+
+      console.log('🚀 [Ollama] Sending request to:', `${this.baseUrl}/api/generate`)
+      console.log('📊 [Ollama] Request body:', {
+        model: requestBody.model,
+        promptLength: requestBody.prompt.length,
+        systemLength: requestBody.system.length,
+        stream: requestBody.stream,
+        options: requestBody.options
+      })
+
+      const startTime = Date.now()
+      const response = await fetch(`${this.baseUrl}/api/generate`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify(requestBody)
+      })
+
+      const duration = Date.now() - startTime
+      console.log(`⏱️ [Ollama] Request completed in ${duration}ms`)
+      console.log('📥 [Ollama] Response status:', response.status, response.statusText)
+
       if (!response.ok) {
-        throw new Error(`Ollama API error: ${response.statusText}`)
+        const errorText = await response.text()
+        console.error('❌ [Ollama] API error response:', errorText)
+        throw new Error(`Ollama API error: ${response.status} ${response.statusText} - ${errorText}`)
       }
 
       const data = await response.json()
-      return data.response?.trim() || text
+      console.log('📄 [Ollama] Response data keys:', Object.keys(data))
+      console.log('📊 [Ollama] Response stats:', {
+        hasResponse: !!data.response,
+        responseLength: data.response?.length || 0,
+        done: data.done,
+        totalDuration: data.total_duration,
+        loadDuration: data.load_duration,
+        promptEvalCount: data.prompt_eval_count,
+        evalCount: data.eval_count
+      })
+
+      const improvedText = data.response?.trim() || text
+      
+      // Validate that we got a meaningful response
+      if (!data.response || data.response.trim().length === 0) {
+        console.warn('⚠️ [Ollama] Empty response received, using original text')
+        return text
+      }
+
+      console.log('✅ [Ollama] Text improvement successful:', {
+        originalLength: text.length,
+        improvedLength: improvedText.length,
+        originalText: text.substring(0, 100) + (text.length > 100 ? '...' : ''),
+        improvedText: improvedText.substring(0, 100) + (improvedText.length > 100 ? '...' : ''),
+        evaluationTime: `${data.eval_duration / 1000000}ms`,
+        tokensPerSecond: data.eval_count && data.eval_duration ? 
+          Math.round((data.eval_count * 1000000000) / data.eval_duration) : 'N/A'
+      })
+
+      return improvedText
     } catch (error) {
-      console.error('Ollama API error:', error)
+      console.error('💥 [Ollama] Fatal error during text improvement:', error)
+      
+      if (error instanceof Error) {
+        console.error('🔍 [Ollama] Error details:', {
+          name: error.name,
+          message: error.message,
+          stack: error.stack?.split('\n').slice(0, 3).join('\n') // Limit stack trace
+        })
+      }
+      
       throw new Error('Failed to improve text with Ollama')
     }
   }

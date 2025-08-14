@@ -7,14 +7,20 @@ import { OpenAIProvider, AnthropicProvider, OllamaProvider, type LLMProvider } f
 export const createLLMProvider = (): LLMProvider => {
   const config = getLLMConfig()
   
+  console.log('🏭 [LLM Factory] Creating provider:', config.provider)
+  
   switch (config.provider) {
     case 'openai':
+      console.log('🤖 [LLM Factory] Initializing OpenAI provider')
       return new OpenAIProvider()
     case 'anthropic':
+      console.log('🤖 [LLM Factory] Initializing Anthropic provider')
       return new AnthropicProvider()
     case 'ollama':
+      console.log('🤖 [LLM Factory] Initializing Ollama provider')
       return new OllamaProvider()
     default:
+      console.error('❌ [LLM Factory] Unsupported provider:', config.provider)
       throw new Error(`Unsupported LLM provider: ${config.provider}`)
   }
 }
@@ -28,8 +34,31 @@ export const improveText = async (
   type: 'objective' | 'key-result' | 'competency', 
   context?: string
 ): Promise<string> => {
-  const provider = createLLMProvider()
-  return await provider.improveText(text, type, context)
+  console.log('🎯 [LLM] Text improvement request:', {
+    textLength: text.length,
+    type: type,
+    hasContext: !!context,
+    textPreview: text.substring(0, 50) + (text.length > 50 ? '...' : '')
+  })
+  
+  const startTime = Date.now()
+  try {
+    const provider = createLLMProvider()
+    const result = await provider.improveText(text, type, context)
+    
+    const duration = Date.now() - startTime
+    console.log(`✅ [LLM] Text improvement completed in ${duration}ms:`, {
+      originalLength: text.length,
+      improvedLength: result.length,
+      resultPreview: result.substring(0, 50) + (result.length > 50 ? '...' : '')
+    })
+    
+    return result
+  } catch (error) {
+    const duration = Date.now() - startTime
+    console.error(`❌ [LLM] Text improvement failed after ${duration}ms:`, error)
+    throw error
+  }
 }
 
 /**

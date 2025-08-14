@@ -142,7 +142,7 @@ export function ItemEditor({
               placeholder={isCreatingNew ? `${t.common.edit} ${newItemType === 'okr' ? t.evaluations.okr : t.evaluations.competency}...` : "Title"}
               disabled={isPending || aiPending}
             />
-            {aiEnabled && editingItem.title.trim() && (
+            {aiEnabled && editingItem.title.trim().length >= 30 && (
               <button
                 onClick={() => handleImproveText('title')}
                 disabled={isPending || aiPending || improvingField === 'title'}
@@ -176,7 +176,7 @@ export function ItemEditor({
               placeholder={isCreatingNew ? `${t.common.edit} ${t.companyItems.description.toLowerCase()}...` : "Description"}
               disabled={isPending || aiPending}
             />
-            {aiEnabled && editingItem.description.trim() && (
+            {aiEnabled && editingItem.description.trim().length >= 30 && (
               <div className="flex justify-end">
                 <button
                   onClick={() => handleImproveText('description')}
