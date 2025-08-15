@@ -125,7 +125,17 @@ export const companyItems: CompanyItemsTranslations = {
   confirmDeactivate: 'Deactivate Company-Wide',
   confirmActivate: 'Activate Company-Wide', 
   deactivateWarning: 'This will remove the item from ALL employee evaluations company-wide.',
-  activateWarning: 'This will make the item available for ALL employees company-wide.'
+  activateWarning: 'This will make the item available for ALL employees company-wide.',
+  // Error messages
+  errors: {
+    deadlineTomorrowOrLater: 'Deadline must be tomorrow or later.',
+    failedToCreate: 'Failed to create item',
+    failedToSave: 'Failed to save item',
+    failedToToggleStatus: 'Failed to toggle item status',
+    errorCreating: 'Error creating item',
+    errorSaving: 'Error saving item',
+    errorToggling: 'Error toggling item status'
+  }
 }
 
 export const okrs: OKRsTranslations = {

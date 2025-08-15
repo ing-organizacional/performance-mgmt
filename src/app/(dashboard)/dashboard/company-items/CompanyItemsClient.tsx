@@ -4,7 +4,9 @@ import { useRouter } from 'next/navigation'
 import { useState, useTransition } from 'react'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { LanguageSwitcher } from '@/components/layout'
-import { createEvaluationItem } from '@/lib/actions/evaluations'
+import { ToastContainer } from '@/components/ui'
+import { useToast } from '@/hooks/useToast'
+import { createEvaluationItem, updateEvaluationItem, toggleEvaluationItemActive } from '@/lib/actions/evaluations'
 import { ItemEditor } from '@/app/(dashboard)/evaluations/assignments/components/ItemEditor'
 import type { EditingItem } from '@/app/(dashboard)/evaluations/assignments/types'
 import { Building2, Target, Star, ChevronLeft, Edit, Lock, Unlock, AlertTriangle } from 'lucide-react'
@@ -32,6 +34,7 @@ interface CompanyItemsClientProps {
 export default function CompanyItemsClient({ initialItems, aiEnabled, userDepartment }: CompanyItemsClientProps) {
   const router = useRouter()
   const { t } = useLanguage()
+  const { toasts, error: showError, success: showSuccess, removeToast } = useToast()
   const [isPending, startTransition] = useTransition()
   
   // Debug: Log AI status
@@ -80,10 +83,11 @@ export default function CompanyItemsClient({ initialItems, aiEnabled, userDepart
     // Validate deadline if provided
     if (editingItem.evaluationDeadline) {
       const deadlineDate = new Date(editingItem.evaluationDeadline)
-      const oneHourFromNow = new Date(Date.now() + 60 * 60 * 1000)
+      const today = new Date()
+      today.setHours(0, 0, 0, 0) // Reset to start of today
       
-      if (deadlineDate <= oneHourFromNow) {
-        alert('Deadline must be at least 1 hour in the future.')
+      if (deadlineDate <= today) {
+        showError(t.companyItems?.errors?.deadlineTomorrowOrLater || 'Deadline must be tomorrow or later.')
         return
       }
     }
@@ -103,12 +107,12 @@ export default function CompanyItemsClient({ initialItems, aiEnabled, userDepart
           setEditingItem(null)
           setCreatingNew(false)
         } else {
-          alert(result.error || 'Failed to create item')
+          showError(result.error || t.companyItems?.errors?.failedToCreate || 'Failed to create item')
           console.error('Failed to create item:', result.error)
         }
       } catch (error) {
         console.error('Error creating item:', error)
-        alert('Error creating item')
+        showError(t.companyItems?.errors?.errorCreating || 'Error creating item')
       }
     })
   }
@@ -116,37 +120,36 @@ export default function CompanyItemsClient({ initialItems, aiEnabled, userDepart
   const handleSaveEdit = async () => {
     if (!editingItem) return
 
-    // Validate deadline if provided
+    // Validate deadline if provided (client-side validation for immediate feedback)
     if (editingItem.evaluationDeadline) {
       const deadlineDate = new Date(editingItem.evaluationDeadline)
-      const oneHourFromNow = new Date(Date.now() + 60 * 60 * 1000)
+      const today = new Date()
+      today.setHours(0, 0, 0, 0) // Reset to start of today
       
-      if (deadlineDate <= oneHourFromNow) {
-        alert('Deadline must be at least 1 hour in the future.')
+      if (deadlineDate <= today) {
+        showError(t.companyItems?.errors?.deadlineTomorrowOrLater || 'Deadline must be tomorrow or later.')
         return
       }
     }
 
     startTransition(async () => {
       try {
-        const response = await fetch(`/api/evaluation-items/${editingItem.id}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            title: editingItem.title,
-            description: editingItem.description,
-            evaluationDeadline: editingItem.evaluationDeadline || null
-          })
+        const result = await updateEvaluationItem(editingItem.id, {
+          title: editingItem.title,
+          description: editingItem.description,
+          evaluationDeadline: editingItem.evaluationDeadline || null
         })
 
-        if (response.ok) {
+        if (result.success) {
           await refreshItems() // Refresh data from server
           setEditingItem(null) // Close editing mode
         } else {
-          console.error('Failed to save item')
+          showError(result.error || t.companyItems?.errors?.failedToSave || 'Failed to save item')
+          console.error('Failed to save item:', result.error)
         }
       } catch (error) {
         console.error('Error saving item:', error)
+        showError(t.companyItems?.errors?.errorSaving || 'Error saving item')
       }
     })
   }
@@ -167,35 +170,32 @@ export default function CompanyItemsClient({ initialItems, aiEnabled, userDepart
     try {
       console.log('Toggling item:', itemToToggle.id, 'from', itemToToggle.active, 'to', !itemToToggle.active)
       
-      const response = await fetch(`/api/evaluation-items/${itemToToggle.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          active: !itemToToggle.active
-        })
-      })
-
-      if (response.ok) {
-        const result = await response.json()
-        console.log('API response:', result)
+      const result = await toggleEvaluationItemActive(itemToToggle.id)
+      
+      if (result.success) {
+        console.log('Toggle successful:', 'message' in result ? result.message : 'Success')
         
-        // Update the local state with the actual response data
-        if (result.success && result.data) {
-          setCompanyItems(prev => prev.map(item => 
-            item.id === itemToToggle.id 
-              ? { ...item, active: result.data.active }
-              : item
-          ))
-        }
+        // Optimistically update local state
+        setCompanyItems(prev => prev.map(item => 
+          item.id === itemToToggle.id 
+            ? { ...item, active: !itemToToggle.active }
+            : item
+        ))
         
-        // Also refresh from server to ensure consistency
+        // Refresh from server to ensure consistency
         await refreshItems()
+        
+        // Show success message if item was deactivated
+        if ('message' in result && result.message && result.message.includes('deactivated')) {
+          showSuccess(result.message)
+        }
       } else {
-        const errorData = await response.json()
-        console.error('Failed to toggle item status:', errorData)
+        showError(result.error || t.companyItems?.errors?.failedToToggleStatus || 'Failed to toggle item status')
+        console.error('Failed to toggle item status:', result.error)
       }
     } catch (error) {
       console.error('Error toggling item status:', error)
+      showError(t.companyItems?.errors?.errorToggling || 'Error toggling item status')
     } finally {
       setShowConfirmModal(false)
       setItemToToggle(null)
@@ -475,6 +475,9 @@ export default function CompanyItemsClient({ initialItems, aiEnabled, userDepart
           </div>
         </div>
       )}
+
+      {/* Toast Notifications */}
+      <ToastContainer toasts={toasts} onRemoveToast={removeToast} />
     </div>
   )
 }

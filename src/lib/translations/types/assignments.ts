@@ -59,6 +59,16 @@ export interface CompanyItemsTranslations {
   confirmActivate: string
   deactivateWarning: string
   activateWarning: string
+  // Error messages
+  errors: {
+    deadlineTomorrowOrLater: string
+    failedToCreate: string
+    failedToSave: string
+    failedToToggleStatus: string
+    errorCreating: string
+    errorSaving: string
+    errorToggling: string
+  }
 }
 
 export interface OKRsTranslations {

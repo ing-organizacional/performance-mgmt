@@ -152,10 +152,10 @@ export async function createEvaluationItem(formData: {
         return { success: false, error: 'Invalid deadline date format' }
       }
       
-      const now = new Date()
-      const oneHourFromNow = new Date(now.getTime() + 60 * 60 * 1000)
-      if (deadlineDate <= oneHourFromNow) {
-        return { success: false, error: 'Deadline must be at least 1 hour in the future' }
+      const today = new Date()
+      today.setHours(0, 0, 0, 0) // Reset to start of today
+      if (deadlineDate <= today) {
+        return { success: false, error: 'Deadline must be tomorrow or later' }
       }
     }
 
@@ -255,10 +255,10 @@ export async function updateEvaluationItem(itemId: string, formData: {
         return { success: false, error: 'Invalid deadline date format' }
       }
       
-      const now = new Date()
-      const oneHourFromNow = new Date(now.getTime() + 60 * 60 * 1000)
-      if (deadlineDate <= oneHourFromNow) {
-        return { success: false, error: 'Deadline must be at least 1 hour in the future' }
+      const today = new Date()
+      today.setHours(0, 0, 0, 0) // Reset to start of today
+      if (deadlineDate <= today) {
+        return { success: false, error: 'Deadline must be tomorrow or later' }
       }
     }
 
