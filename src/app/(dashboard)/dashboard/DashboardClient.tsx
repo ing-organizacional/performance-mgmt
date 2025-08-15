@@ -116,7 +116,7 @@ export default function DashboardClient({
       />
 
       {/* Main Dashboard Content */}
-      <main className="max-w-8xl mx-auto px-6 lg:px-8 py-8">
+      <main className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-4 lg:py-8">
         
         {/* Key Metrics Section */}
         <DashboardMetrics 
@@ -125,13 +125,13 @@ export default function DashboardClient({
         />
 
         {/* Critical Actions and Status Updates */}
-        <div className="space-y-6 mb-8">
+        <div className="space-y-4 lg:space-y-6 mb-6 lg:mb-8">
           
           {/* Critical Actions Alert */}
           <CriticalActionsAlert completionStats={completionStats} />
 
           {/* Overdue Drafts and Pending Approvals Row */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
             <OverdueDraftsCard overdueDrafts={overdueDrafts} />
             <PendingApprovalsCard 
               pendingApprovals={pendingApprovals}
@@ -147,14 +147,14 @@ export default function DashboardClient({
       </main>
 
       {/* Enhanced Footer */}
-      <footer className="border-t border-gray-200/50 bg-white/80 backdrop-blur-lg mt-12">
-        <div className="max-w-8xl mx-auto px-6 lg:px-8 py-6">
-          <div className="flex items-center justify-between">
-            <div className="text-sm text-gray-600">
+      <footer className="border-t border-gray-200/50 bg-white/80 backdrop-blur-lg mt-8 lg:mt-12">
+        <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-3 lg:py-6">
+          <div className="flex flex-col items-center space-y-2 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
+            <div className="text-sm text-gray-600 text-center sm:text-left sm:order-1">
               <span className="font-medium">{t.dashboard.lastUpdated}: </span>
-              {currentTime || 'Loading...'}
+              <span className="block sm:inline">{currentTime || 'Loading...'}</span>
             </div>
-            <div className="text-xs text-gray-500">
+            <div className="text-xs text-gray-500 text-center sm:text-right sm:order-2">
               © 2025 - <a 
                 href="https://www.ing-organizacional.com" 
                 target="_blank" 

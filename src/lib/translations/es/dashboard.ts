@@ -6,7 +6,7 @@ export const dashboard: DashboardTranslations = {
   newEvaluation: 'Nueva Evaluación',
   completionStatus: 'Estatus de Avance',
   complete: 'Completo',
-  completed: 'Completadas',
+  completed: 'Completas',
   remaining: 'Pendientes',
   overdueEvaluations: 'Evaluaciones Vencidas',
   pastDueDate: 'Estas evaluaciones han pasado su fecha límite',

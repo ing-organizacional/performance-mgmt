@@ -45,20 +45,20 @@ export function DashboardMetrics({
     : 0
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-6 lg:mb-8">
       
       {/* Primary Completion Metric */}
-      <Link href="/dashboard/pending" className="lg:col-span-2 group">
-        <div className="bg-white rounded-2xl border border-gray-200/60 p-8 shadow-sm hover:shadow-xl hover:border-primary/30 transition-all duration-300 group">
-          <div className="flex items-start justify-between mb-6">
-            <div>
-              <h2 className="text-lg font-bold text-gray-900 group-hover:text-primary transition-colors mb-2">
+      <Link href="/dashboard/pending" className="md:col-span-2 lg:col-span-2 group">
+        <div className="bg-white rounded-2xl border border-gray-200/60 p-6 lg:p-8 shadow-sm hover:shadow-xl hover:border-primary/30 transition-all duration-300 group">
+          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-4 lg:mb-6">
+            <div className="mb-4 sm:mb-0">
+              <h2 className="text-base lg:text-lg font-bold text-gray-900 group-hover:text-primary transition-colors mb-2">
                 {t.dashboard.completionStatus}
               </h2>
-              <p className="text-sm text-gray-600">{t.dashboard.clickToManagePending}</p>
+              <p className="text-sm text-gray-600 hidden sm:block">{t.dashboard.clickToManagePending}</p>
             </div>
-            <div className="text-right">
-              <div className="text-4xl font-bold text-primary mb-1">{completionPercentage}%</div>
+            <div className="text-center sm:text-right">
+              <div className="text-3xl lg:text-4xl font-bold text-primary mb-1">{completionPercentage}%</div>
               <div className="text-xs text-gray-500 uppercase tracking-wide">{t.dashboard.completeStatus}</div>
             </div>
           </div>
@@ -74,53 +74,53 @@ export function DashboardMetrics({
           </div>
 
           {/* Stats Grid */}
-          <div className="grid grid-cols-3 gap-4">
-            <div className="text-center p-4 bg-green-50 rounded-xl border border-green-100">
-              <div className="text-2xl font-bold text-green-600 mb-1">{completionStats.completed}</div>
-              <div className="text-xs font-semibold text-green-700 uppercase tracking-wide">{t.dashboard.completed}</div>
+          <div className="grid grid-cols-3 gap-1 sm:gap-4">
+            <div className="text-center p-1.5 sm:p-2 lg:p-3 bg-green-50 rounded-lg border border-green-100">
+              <div className="text-lg lg:text-xl font-bold text-green-600 mb-0.5">{completionStats.completed}</div>
+              <div className="text-xs font-semibold text-green-700 uppercase tracking-tighter leading-tight hyphens-auto break-words px-0.5">{t.dashboard.completed}</div>
             </div>
-            <div className="text-center p-4 bg-blue-50 rounded-xl border border-blue-100">
-              <div className="text-2xl font-bold text-blue-600 mb-1">{completionStats.inProgress}</div>
-              <div className="text-xs font-semibold text-blue-700 uppercase tracking-wide">{t.dashboard.inProgressStatus}</div>
+            <div className="text-center p-1.5 sm:p-2 lg:p-3 bg-blue-50 rounded-lg border border-blue-100">
+              <div className="text-lg lg:text-xl font-bold text-blue-600 mb-0.5">{completionStats.inProgress}</div>
+              <div className="text-xs font-semibold text-blue-700 uppercase tracking-tighter leading-tight hyphens-auto break-words px-0.5">{t.dashboard.inProgressStatus}</div>
             </div>
-            <div className="text-center p-4 bg-orange-50 rounded-xl border border-orange-100">
-              <div className="text-2xl font-bold text-orange-600 mb-1">{completionStats.pending}</div>
-              <div className="text-xs font-semibold text-orange-700 uppercase tracking-wide">{t.dashboard.remaining}</div>
+            <div className="text-center p-1.5 sm:p-2 lg:p-3 bg-orange-50 rounded-lg border border-orange-100">
+              <div className="text-lg lg:text-xl font-bold text-orange-600 mb-0.5">{completionStats.pending}</div>
+              <div className="text-xs font-semibold text-orange-700 uppercase tracking-tighter leading-tight hyphens-auto break-words px-0.5">{t.dashboard.remaining}</div>
             </div>
           </div>
         </div>
       </Link>
 
       {/* Quick Stats Cards */}
-      <div className="space-y-6">
-        <div className="bg-white rounded-2xl border border-gray-200/60 p-6 shadow-sm">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wide">{t.dashboard.totalEmployeesHeader}</h3>
-            <Users className="w-5 h-5 text-gray-400" />
+      <div className="md:col-span-2 lg:col-span-1 grid grid-cols-2 md:grid-cols-1 gap-4 lg:space-y-6">
+        <div className="bg-white rounded-2xl border border-gray-200/60 p-4 lg:p-6 shadow-sm">
+          <div className="flex items-center justify-between mb-3 lg:mb-4">
+            <h3 className="text-xs lg:text-sm font-semibold text-gray-900 uppercase tracking-wide">{t.dashboard.totalEmployeesHeader}</h3>
+            <Users className="w-4 lg:w-5 h-4 lg:h-5 text-gray-400" />
           </div>
-          <div className="text-3xl font-bold text-gray-900">{completionStats.total}</div>
+          <div className="text-2xl lg:text-3xl font-bold text-gray-900">{completionStats.total}</div>
         </div>
 
-        <div className="bg-white rounded-2xl border border-gray-200/60 p-6 shadow-sm">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wide">{t.dashboard.avgRatingHeader}</h3>
-            <Star className="w-5 h-5 text-gray-400" />
+        <div className="bg-white rounded-2xl border border-gray-200/60 p-4 lg:p-6 shadow-sm">
+          <div className="flex items-center justify-between mb-3 lg:mb-4">
+            <h3 className="text-xs lg:text-sm font-semibold text-gray-900 uppercase tracking-wide">{t.dashboard.avgRatingHeader}</h3>
+            <Star className="w-4 lg:w-5 h-4 lg:h-5 text-gray-400" />
           </div>
-          <div className="text-3xl font-bold text-gray-900">{averageRating.toFixed(1)}</div>
+          <div className="text-2xl lg:text-3xl font-bold text-gray-900">{averageRating.toFixed(1)}</div>
         </div>
       </div>
 
       {/* Performance Distribution */}
       <button 
         onClick={() => router.push('/dashboard/ratings')}
-        className="bg-white rounded-2xl border border-gray-200/60 p-6 shadow-sm hover:shadow-xl hover:border-primary/30 transition-all duration-300 text-left"
+        className="md:col-span-2 lg:col-span-1 bg-white rounded-2xl border border-gray-200/60 p-4 lg:p-6 shadow-sm hover:shadow-xl hover:border-primary/30 transition-all duration-300 text-left min-h-[44px]"
       >
-        <div className="flex items-center justify-between mb-6">
-          <h3 className="text-lg font-bold text-gray-900">{t.dashboard.generalResults}</h3>
+        <div className="flex items-center justify-between mb-4 lg:mb-6">
+          <h3 className="text-base lg:text-lg font-bold text-gray-900">{t.dashboard.generalResults}</h3>
           <ChevronRight className="w-5 h-5 text-gray-400 hover:text-primary transition-colors" />
         </div>
         
-        <div className="space-y-3">
+        <div className="space-y-2 lg:space-y-3">
           {[
             { 
               key: 'outstanding', 
@@ -182,14 +182,14 @@ export function DashboardMetrics({
             const percentage = totalRatings > 0 ? (count / totalRatings) * 100 : 0
             
             return (
-              <div key={key} className={`flex items-center justify-between p-3 rounded-lg border ${bgClass} ${borderClass}`}>
-                <div className="flex items-center">
-                  <div className={`w-3 h-3 rounded-full mr-3 ${dotClass}`}></div>
-                  <span className={`text-sm font-semibold ${textClass}`}>{label}</span>
+              <div key={key} className={`flex items-center justify-between p-2 lg:p-3 rounded-lg border ${bgClass} ${borderClass}`}>
+                <div className="flex items-center flex-1 min-w-0">
+                  <div className={`w-3 h-3 rounded-full mr-2 lg:mr-3 flex-shrink-0 ${dotClass}`}></div>
+                  <span className={`text-xs lg:text-sm font-semibold ${textClass} truncate`}>{label}</span>
                 </div>
-                <div className="flex items-center gap-3">
-                  <span className={`text-base font-bold ${countClass}`}>{count}</span>
-                  <div className={`w-16 rounded-full h-2 ${barBgClass}`}>
+                <div className="flex items-center gap-2 lg:gap-3 flex-shrink-0">
+                  <span className={`text-sm lg:text-base font-bold ${countClass}`}>{count}</span>
+                  <div className={`w-12 lg:w-16 rounded-full h-2 ${barBgClass}`}>
                     <div 
                       className={`h-2 rounded-full transition-all duration-500 ${barFillClass}`}
                       style={{ width: `${percentage}%` }}

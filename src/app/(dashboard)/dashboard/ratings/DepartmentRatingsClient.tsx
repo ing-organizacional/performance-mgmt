@@ -56,13 +56,13 @@ export default function DepartmentRatingsClient({ departments }: DepartmentRatin
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20">
       <RatingsHeader departmentCount={departments.length} />
 
-      <main className="max-w-8xl mx-auto px-6 lg:px-8 py-8">
+      <main className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-4 lg:py-8">
         {exportError && <ExportErrorDisplay exportError={exportError} />}
         
         <OverviewSection departments={departments} />
 
         {/* Department Cards */}
-        <div className="space-y-6">
+        <div className="space-y-4 lg:space-y-6">
           {departments.map((department) => (
             <DepartmentRatingCard key={department.department} department={department} />
           ))}
