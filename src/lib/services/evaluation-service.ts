@@ -1,5 +1,17 @@
-// Evaluation business logic
-// Centralized evaluation operations and validation
+/**
+ * Evaluation Business Logic Service
+ * 
+ * Provides centralized evaluation operations and validation for the performance management system.
+ * Handles CRUD operations for evaluation items, employee assignments, and evaluation data retrieval.
+ * Includes utility functions for deadline management and urgency calculations.
+ * 
+ * Key Features:
+ * - Evaluation item creation and management with automatic sort ordering
+ * - Employee assignment/unassignment to evaluation items
+ * - Team member retrieval with evaluation status
+ * - User evaluation history and workflow support
+ * - Deadline urgency calculations with multi-level priority system
+ */
 
 import { prisma } from '@/lib/prisma-client'
 import { EvaluationItem, Evaluation } from '@/types'

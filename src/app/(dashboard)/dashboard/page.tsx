@@ -1,3 +1,46 @@
+/**
+ * Dashboard Page Component
+ * 
+ * Main dashboard page providing comprehensive performance management overview for managers and HR.
+ * Displays real-time evaluation statistics, performance metrics, cycle management, and actionable
+ * insights for organizational performance tracking and management decision-making.
+ * 
+ * Key Features:
+ * - Real-time completion statistics with detailed breakdowns
+ * - Performance rating distribution analysis and visualization
+ * - Active performance cycle management and monitoring
+ * - Overdue drafts tracking with manager accountability
+ * - Pending approvals queue with priority indicators
+ * - Company-wide evaluation metrics and trends
+ * - Role-based access control (Manager/HR only)
+ * 
+ * Dashboard Sections:
+ * - Completion Stats: Total, completed, in-progress, pending evaluations
+ * - Rating Distribution: Performance rating breakdown (1-5 stars)
+ * - Active Cycle: Current performance cycle status and metrics
+ * - Critical Actions: Overdue drafts and pending approvals requiring attention
+ * - Administrative Tools: Cycle management and company-wide operations
+ * 
+ * Data Processing:
+ * - Server-side data fetching for optimal performance
+ * - Complex statistical calculations for evaluation metrics
+ * - Multi-table aggregation for comprehensive insights
+ * - Real-time calculation of overdue and pending items
+ * - Active employee filtering for accurate counts
+ * 
+ * Access Control:
+ * - Manager role: Limited to their team's data
+ * - HR role: Full company access
+ * - Employee role: Redirected to personal evaluations
+ * - Session validation with automatic redirect
+ * 
+ * Performance Optimization:
+ * - Server-side rendering for faster initial load
+ * - Efficient database queries with proper indexing
+ * - Calculated metrics passed to client component
+ * - Minimal client-side processing for better UX
+ */
+
 import { auth } from '@/auth'
 import { redirect } from 'next/navigation'
 import { prisma } from '@/lib/prisma-client'

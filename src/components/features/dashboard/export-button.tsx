@@ -1,3 +1,38 @@
+/**
+ * Export Button Component
+ * 
+ * Flexible export button component for generating evaluation reports in multiple formats.
+ * Integrates with the useExport hook to provide seamless data export functionality with
+ * loading states and error handling. Supports various export scopes and formats.
+ * 
+ * Key Features:
+ * - Multi-format export support (PDF, Excel) for different reporting needs
+ * - Flexible export scopes: individual evaluations, team, department, company-wide
+ * - Role-based access control integration with automatic permission checking
+ * - Loading state management with visual feedback during export operations
+ * - Customizable styling and content for different UI contexts
+ * - Error handling with user-friendly feedback mechanisms
+ * 
+ * Export Types:
+ * - Individual Evaluation: Single employee evaluation with detailed breakdown
+ * - Team Export: Manager's team evaluations with comparative analysis
+ * - Department Export: Department-wide evaluation summary and insights
+ * - Company Export: Organization-wide evaluation data and metrics
+ * 
+ * User Experience:
+ * - Disabled state during export operations to prevent multiple requests
+ * - Loading spinner with progress indication
+ * - Customizable button content and styling
+ * - Accessible button implementation with proper states
+ * - Silent error handling with console logging for debugging
+ * 
+ * Integration:
+ * - Seamless integration with useExport hook for data fetching
+ * - Support for role-based export permissions
+ * - Automatic file download handling
+ * - Format-specific export optimization
+ */
+
 'use client'
 
 import { useExport } from '@/hooks/useExport'

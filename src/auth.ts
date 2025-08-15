@@ -1,3 +1,14 @@
+/**
+ * NextAuth v5 Configuration
+ * 
+ * Configures authentication for the performance management system with support for:
+ * - Username/password authentication for office workers
+ * - PIN-based authentication for operational workers  
+ * - Biometric authentication (WebAuthn/FIDO2) for enhanced security
+ * - Company-based multi-tenancy with role-based access control
+ * - JWT sessions with 24-hour expiration for security
+ */
+
 import NextAuth from 'next-auth'
 import Credentials from 'next-auth/providers/credentials'
 import { authenticateUser } from '@/lib/auth'

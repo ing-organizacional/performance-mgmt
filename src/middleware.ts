@@ -1,3 +1,14 @@
+/**
+ * Next.js Middleware with Security Headers
+ * 
+ * This middleware runs on every request to:
+ * - Apply Content Security Policy (CSP) headers for XSS protection
+ * - Set security headers (X-Frame-Options, X-Content-Type-Options, etc.)
+ * - Implement referrer policy for privacy
+ * - Configure permissions policy to restrict browser APIs
+ * - Enable CSRF protection via NextAuth SameSite cookies
+ */
+
 import { auth } from '@/auth'
 import { NextResponse } from 'next/server'
 

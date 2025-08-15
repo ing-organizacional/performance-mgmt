@@ -1,5 +1,29 @@
-// Database model types
-// Mirrors Prisma schema for type safety
+/**
+ * Database Model Type Definitions
+ * 
+ * TypeScript interfaces that mirror the Prisma database schema for compile-time type safety.
+ * These types ensure consistency between database operations and application logic, providing
+ * strict typing for all data access patterns across the performance management system.
+ * 
+ * Key Features:
+ * - Direct mapping to Prisma schema models for type safety
+ * - Support for multi-tenancy with company-scoped data isolation
+ * - Extended types with computed relations and aggregates
+ * - Comprehensive user role and permission modeling
+ * - Performance cycle and evaluation workflow support
+ * 
+ * Core Entities:
+ * - Company: Multi-tenant organization structure
+ * - User: Employee, manager, and HR user accounts with role hierarchy
+ * - Evaluation: Performance evaluation records with ratings and feedback
+ * - EvaluationItem: Configurable evaluation criteria (OKRs, competencies)
+ * - PerformanceCycle: Time-bounded evaluation periods
+ * - PartialAssessment: Incremental evaluation data collection
+ * 
+ * Extended Types:
+ * - UserWithDetails: Users with relationship data and counts
+ * - EvaluationCycle: Cycles with related entity statistics
+ */
 
 export interface Company {
   id: string

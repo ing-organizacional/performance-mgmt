@@ -1,3 +1,44 @@
+/**
+ * Login Page Component
+ * 
+ * Comprehensive authentication page supporting multiple login methods including traditional
+ * credentials and modern biometric authentication. Provides a secure, user-friendly login
+ * experience with internationalization support and development convenience features.
+ * 
+ * Key Features:
+ * - Credential-based authentication with email/username and password
+ * - Biometric authentication support (Face ID, Touch ID, fingerprint)
+ * - Password visibility toggle for better user experience
+ * - Form validation with real-time error feedback
+ * - Internationalization support with language switching
+ * - Development mode with demo credentials display
+ * - Automatic session management and redirect handling
+ * 
+ * Authentication Methods:
+ * - Traditional: Email/username + password authentication
+ * - Biometric: WebAuthn-based biometric authentication for supported devices
+ * - Development: Demo credentials for testing different user roles
+ * 
+ * Security Features:
+ * - Secure credential validation with NextAuth integration
+ * - Password masking with optional visibility toggle
+ * - Automatic login tracking for audit purposes
+ * - Error handling with user-friendly messages
+ * - CSRF protection through NextAuth
+ * 
+ * User Experience:
+ * - Responsive design for mobile and desktop
+ * - Loading states during authentication
+ * - Clear error messaging with internationalization
+ * - Language switcher for global accessibility
+ * - Direct window redirect for improved performance
+ * 
+ * Development Support:
+ * - Demo credentials display in development mode
+ * - Multiple user role examples for testing
+ * - Clear role-based credential examples
+ */
+
 'use client'
 
 import { useState } from 'react'

@@ -1,3 +1,24 @@
+/**
+ * Administrative Server Actions
+ * 
+ * High-privilege administrative functions for system maintenance and data management.
+ * These actions provide destructive operations that require careful authorization and
+ * confirmation mechanisms to prevent accidental data loss.
+ * 
+ * Key Features:
+ * - Database reset functionality with confirmation requirements
+ * - HR-only access control for administrative operations  
+ * - Proper foreign key constraint handling during bulk operations
+ * - Audit logging of administrative actions
+ * - Automatic redirects with status feedback
+ * 
+ * Security:
+ * - Strict HR role requirement for all operations
+ * - Explicit confirmation required for destructive actions
+ * - Session validation and automatic logout on unauthorized access
+ * - Error handling with appropriate user feedback
+ */
+
 'use server'
 
 import { auth } from '@/auth'

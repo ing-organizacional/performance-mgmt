@@ -1,3 +1,24 @@
+/**
+ * Performance Cycle Server Actions
+ * 
+ * Server-side actions for managing performance evaluation cycles. These actions handle the complete
+ * lifecycle of performance cycles including creation, status updates, and deletion with proper
+ * authorization and validation. Enforces business rules such as single active cycle constraints.
+ * 
+ * Key Features:
+ * - HR-only access control for cycle management operations
+ * - Comprehensive form validation with Zod schemas
+ * - Business rule enforcement (single active cycle, dependency checking)
+ * - Safe deletion with evaluation dependency validation
+ * - Automatic cache revalidation for UI consistency
+ * - Flexible status management (active, closed, archived)
+ * 
+ * Access Control:
+ * - Cycle creation/modification: HR role required
+ * - Cycle viewing: Manager/HR roles can access cycle information
+ * - All operations scoped to user's company for multi-tenancy
+ */
+
 'use server'
 
 import { revalidatePath } from 'next/cache'

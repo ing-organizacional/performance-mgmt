@@ -1,3 +1,17 @@
+/**
+ * Export Management Hook
+ * 
+ * Comprehensive export system for performance evaluation data supporting:
+ * - Multiple export formats (PDF for individuals, Excel for bulk data)
+ * - Bilingual export with automatic language detection
+ * - Various export scopes (individual, team, department, company-wide)
+ * - Advanced filtering (top performers, needs attention, selected employees)
+ * - Robust error handling and loading states
+ * - Client-side file download with blob management
+ * - Progress tracking for large exports
+ * - Memory-efficient buffer handling for large datasets
+ */
+
 'use client'
 
 import { useState } from 'react'

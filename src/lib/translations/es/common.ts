@@ -48,6 +48,14 @@ export const common: CommonTranslations = {
   approving: 'Aceptando...',
   of: 'de',
   employees: 'empleados',
+  // AI Features
+  improveWithAI: 'Mejorar',
+  improving: 'Mejorando...',
+  aiImprovement: 'Mejora con IA',
+  improveWithAITooltip: 'Mejorar texto con IA',
+  aiImprovementSuccess: 'Texto mejorado exitosamente',
+  aiImprovementFailed: 'Error en Mejora con IA',
+  dismissError: 'Descartar error',
   departments: 'departamentos',
   unknownError: 'Error desconocido',
   error: 'Error',
@@ -78,5 +86,7 @@ export const common: CommonTranslations = {
   yourDashboard: 'tu panel de control',
   takingYouTo: 'Te estamos llevando a',
   secondsRemaining: 'segundos restantes',
-  secondRemaining: 'segundo restante'
+  secondRemaining: 'segundo restante',
+  versions: 'Versiones',
+  refine: 'Refinar'
 }

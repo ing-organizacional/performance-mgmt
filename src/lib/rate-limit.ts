@@ -1,5 +1,40 @@
-// Simple in-memory rate limiting for authentication endpoints
-// In production, use Redis or a proper rate limiting service
+/**
+ * Rate Limiting Utility
+ * 
+ * In-memory rate limiting system for protecting authentication endpoints and preventing
+ * brute force attacks. Provides configurable rate limiting with automatic cleanup
+ * and predefined configurations for common authentication scenarios.
+ * 
+ * Key Features:
+ * - Sliding window rate limiting with configurable thresholds
+ * - In-memory storage with automatic cleanup of expired entries
+ * - Flexible configuration for different endpoint requirements
+ * - Detailed rate limit response with remaining attempts and reset times
+ * - Predefined configurations for authentication security
+ * 
+ * Security Benefits:
+ * - Brute force attack prevention on login endpoints
+ * - Account enumeration protection for registration/password reset
+ * - Distributed denial-of-service (DDoS) mitigation at application level
+ * - Configurable rate limits per identifier (IP, user, etc.)
+ * 
+ * Production Considerations:
+ * - For production environments, replace with Redis-based solution
+ * - Consider distributed rate limiting for multi-instance deployments
+ * - Implement persistent storage for rate limit data across restarts
+ * - Add monitoring and alerting for rate limit violations
+ * 
+ * Rate Limit Configurations:
+ * - LOGIN: 5 attempts per 15 minutes for login protection
+ * - SIGNUP: 3 attempts per hour for registration abuse prevention
+ * - PASSWORD_RESET: 3 attempts per hour for password reset protection
+ * 
+ * Implementation:
+ * - Memory-based storage with automatic expiration cleanup
+ * - Sliding window algorithm for accurate rate limiting
+ * - Configurable window duration and attempt thresholds
+ * - Detailed response information for client handling
+ */
 
 interface RateLimitEntry {
   count: number

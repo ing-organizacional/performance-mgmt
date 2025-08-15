@@ -1,3 +1,15 @@
+/**
+ * Language Context Provider
+ * 
+ * Provides bilingual support throughout the application with:
+ * - Dynamic language switching between English and Spanish
+ * - Persistent language preference in localStorage
+ * - Type-safe translations with complete TypeScript support
+ * - 290+ translation keys covering all application features
+ * - Seamless integration with all UI components
+ * - Real-time language updates without page refresh
+ */
+
 'use client'
 
 import React, { createContext, useContext, useState, useEffect } from 'react'

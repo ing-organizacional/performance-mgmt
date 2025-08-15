@@ -13,6 +13,8 @@ interface AssignmentGridProps {
   confirmingUnassign: string | null
   canEditDeadline: (item: EvaluationItem) => boolean
   getEmployeesWithItem: (itemId: string) => Employee[]
+  aiEnabled?: boolean
+  userDepartment?: string
   onEditItem: (item: EvaluationItem) => void
   onSaveEdit: () => void
   onCancelEdit: () => void
@@ -33,6 +35,8 @@ export function AssignmentGrid({
   confirmingUnassign,
   canEditDeadline,
   getEmployeesWithItem,
+  aiEnabled = false,
+  userDepartment,
   onEditItem,
   onSaveEdit,
   onCancelEdit,
@@ -151,6 +155,8 @@ export function AssignmentGrid({
                 level="department"
                 canSetDeadline={canEditDeadline(item)}
                 isPending={isPending}
+                aiEnabled={aiEnabled}
+                userDepartment={userDepartment}
                 onUpdateItem={onUpdateEditingItem}
                 onSave={onSaveEdit}
                 onCancel={onCancelEdit}

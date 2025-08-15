@@ -4,6 +4,8 @@ import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { LanguageSwitcher } from '@/components/layout'
+import { ToastContainer } from '@/components/ui'
+import { useToast } from '@/hooks/useToast'
 
 // Import types
 import type { AssignmentsClientProps, ActiveTab } from './types'
@@ -26,10 +28,12 @@ export default function AssignmentsClient({
   userRole,
   userName,
   userId,
-  userDepartment
+  userDepartment,
+  aiEnabled = false
 }: AssignmentsClientProps) {
   const router = useRouter()
   const { t } = useLanguage()
+  const { toasts, removeToast } = useToast()
   
   const [activeTab, setActiveTab] = useState<ActiveTab>('company')
   const [selectedEmployees, setSelectedEmployees] = useState<string[]>([])
@@ -101,7 +105,7 @@ export default function AssignmentsClient({
   }
 
   const handleSaveNew = () => {
-    itemEditorHook.handleSaveNew('department')
+    itemEditorHook.handleSaveNew('department', () => router.refresh())
   }
 
   const filteredItems = evaluationItems.filter(item => item.level === activeTab)
@@ -234,8 +238,10 @@ export default function AssignmentsClient({
                 confirmingUnassign={assignmentHook.confirmingUnassign}
                 canEditDeadline={canEditDeadline}
                 getEmployeesWithItem={assignmentHook.getEmployeesWithItem}
+                aiEnabled={aiEnabled}
+                userDepartment={userDepartment}
                 onEditItem={itemEditorHook.handleEditItem}
-                onSaveEdit={itemEditorHook.handleSaveEdit}
+                onSaveEdit={() => itemEditorHook.handleSaveEdit(() => router.refresh())}
                 onCancelEdit={itemEditorHook.handleCancelEdit}
                 onUpdateEditingItem={itemEditorHook.updateEditingItem}
                 onBulkAssignment={handleBulkAssignment}
@@ -282,6 +288,8 @@ export default function AssignmentsClient({
                   level="department"
                   canSetDeadline={canSetDeadlineForLevel('department')}
                   isPending={isPending}
+                  aiEnabled={aiEnabled}
+                  userDepartment={userDepartment}
                   onUpdateItem={itemEditorHook.updateEditingItem}
                   onSave={handleSaveNew}
                   onCancel={itemEditorHook.handleCancelNew}
@@ -316,8 +324,10 @@ export default function AssignmentsClient({
                 confirmingUnassign={assignmentHook.confirmingUnassign}
                 canEditDeadline={canEditDeadline}
                 getEmployeesWithItem={assignmentHook.getEmployeesWithItem}
+                aiEnabled={aiEnabled}
+                userDepartment={userDepartment}
                 onEditItem={itemEditorHook.handleEditItem}
-                onSaveEdit={itemEditorHook.handleSaveEdit}
+                onSaveEdit={() => itemEditorHook.handleSaveEdit(() => router.refresh())}
                 onCancelEdit={itemEditorHook.handleCancelEdit}
                 onUpdateEditingItem={itemEditorHook.updateEditingItem}
                 onBulkAssignment={handleBulkAssignment}
@@ -330,6 +340,9 @@ export default function AssignmentsClient({
         )}
 
       </main>
+      
+      {/* Toast Notifications */}
+      <ToastContainer toasts={toasts} onRemoveToast={removeToast} />
     </div>
   )
 }

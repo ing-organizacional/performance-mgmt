@@ -1,5 +1,41 @@
 /**
- * Utility functions for handling evaluation deadlines
+ * Evaluation Deadline Management Utilities
+ * 
+ * Comprehensive deadline calculation and management system for performance evaluations.
+ * Provides deadline awareness, urgency calculations, and visual feedback to ensure
+ * timely completion of evaluation processes across the organization.
+ * 
+ * Key Features:
+ * - Accurate deadline calculation with timezone handling
+ * - Multi-level urgency classification (overdue, high, medium, low)
+ * - Internationalization support for deadline status messages
+ * - CSS class generation for consistent visual feedback
+ * - Sorting and filtering utilities for deadline-aware UI components
+ * - Human-readable deadline status formatting
+ * 
+ * Deadline Classification:
+ * - Overdue: Past the deadline date
+ * - High Urgency: 0-3 days remaining
+ * - Medium Urgency: 4-7 days remaining  
+ * - Low Urgency: 8+ days remaining
+ * 
+ * Visual Feedback:
+ * - Color-coded urgency indicators for immediate recognition
+ * - Consistent CSS classes for theme integration
+ * - Status text formatting for accessibility
+ * - Responsive design considerations
+ * 
+ * Data Processing:
+ * - Efficient sorting algorithms for deadline prioritization
+ * - Filtering capabilities for urgency-based views
+ * - Null/undefined deadline handling for robustness
+ * - Performance-optimized calculations for large datasets
+ * 
+ * Integration:
+ * - Translation system compatibility
+ * - Component-ready utilities for immediate use
+ * - Type-safe interfaces for development efficiency
+ * - Extensible design for future enhancements
  */
 
 export interface DeadlineInfo {

@@ -1,6 +1,7 @@
 import { auth } from '@/auth'
 import { redirect } from 'next/navigation'
 import { prisma } from '@/lib/prisma-client'
+import { isAIEnabled } from '@/lib/ai-features'
 import CompanyItemsClient from './CompanyItemsClient'
 
 interface CompanyEvaluationItem {
@@ -15,6 +16,24 @@ interface CompanyEvaluationItem {
   deadlineSetBy?: string | null
   active: boolean
   createdAt: string
+}
+
+interface EvaluationItemWithRelations {
+  id: string
+  title: string
+  description: string
+  type: string
+  active: boolean
+  evaluationDeadline: Date | null
+  createdAt: Date
+  creator: {
+    name: string
+    role: string
+  } | null
+  deadlineSetByUser: {
+    name: string
+    role: string
+  } | null
 }
 
 async function getCompanyItems(companyId: string): Promise<CompanyEvaluationItem[]> {
@@ -44,7 +63,7 @@ async function getCompanyItems(companyId: string): Promise<CompanyEvaluationItem
   })
 
   // Transform the data to match the expected interface
-  return items.map(item => ({
+  return items.map((item: EvaluationItemWithRelations) => ({
     id: item.id,
     title: item.title,
     description: item.description,
@@ -79,7 +98,14 @@ export default async function CompanyItemsPage() {
   // Fetch company items directly from database
   const companyItems = await getCompanyItems(companyId)
 
+  // Check if AI features are enabled for this company
+  const aiEnabled = await isAIEnabled(companyId)
+
   return (
-    <CompanyItemsClient initialItems={companyItems} />
+    <CompanyItemsClient 
+      initialItems={companyItems} 
+      aiEnabled={aiEnabled}
+      userDepartment={session.user.department}
+    />
   )
 }

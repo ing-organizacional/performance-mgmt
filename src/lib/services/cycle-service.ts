@@ -1,5 +1,18 @@
-// Performance cycle business logic
-// Centralized cycle operations and validation
+/**
+ * Performance Cycle Business Logic Service
+ * 
+ * Manages performance evaluation cycles throughout their lifecycle from creation to archival.
+ * Enforces business rules around cycle status management and ensures data integrity.
+ * Provides comprehensive cycle operations with validation and dependency checking.
+ * 
+ * Key Features:
+ * - Cycle creation with single active cycle enforcement
+ * - Status management (active, closed, archived) with business rule validation
+ * - Safe deletion with dependency checking for evaluations and assessments
+ * - Company-scoped cycle operations with multi-tenancy support
+ * - Date range validation and temporal business logic
+ * - Comprehensive cycle data retrieval with related entity counts
+ */
 
 import { prisma } from '@/lib/prisma-client'
 import { PerformanceCycle, EvaluationCycle } from '@/types'

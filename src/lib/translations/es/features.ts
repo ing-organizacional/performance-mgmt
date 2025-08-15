@@ -125,7 +125,17 @@ export const companyItems: CompanyItemsTranslations = {
   confirmDeactivate: 'Desactivar de Toda la Empresa',
   confirmActivate: 'Activar para Toda la Empresa',
   deactivateWarning: 'Esto eliminará el elemento de TODAS las evaluaciones de colaboradores en toda la empresa.',
-  activateWarning: 'Esto hará que el elemento esté disponible para TODOS los colaboradores en toda la empresa.'
+  activateWarning: 'Esto hará que el elemento esté disponible para TODOS los colaboradores en toda la empresa.',
+  // Error messages
+  errors: {
+    deadlineTomorrowOrLater: 'La fecha límite debe ser mañana o posterior.',
+    failedToCreate: 'Error al crear el elemento',
+    failedToSave: 'Error al guardar el elemento',
+    failedToToggleStatus: 'Error al cambiar el estado del elemento',
+    errorCreating: 'Error creando elemento',
+    errorSaving: 'Error guardando elemento',
+    errorToggling: 'Error cambiando estado del elemento'
+  }
 }
 
 export const okrs: OKRsTranslations = {

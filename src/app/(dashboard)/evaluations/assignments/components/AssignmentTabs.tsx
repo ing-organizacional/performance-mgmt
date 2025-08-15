@@ -95,7 +95,7 @@ export function AssignmentTabs({ activeTab, setActiveTab }: AssignmentTabsProps)
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`flex items-center gap-3 px-6 py-3 min-h-[44px] font-semibold rounded-xl transition-all duration-200 active:scale-95 touch-manipulation shadow-sm border ${
+              className={`flex items-center gap-2 md:gap-3 px-3 md:px-6 py-2.5 md:py-3 min-h-[44px] font-semibold rounded-xl transition-all duration-200 active:scale-95 touch-manipulation shadow-sm border ${
                 activeTab === tab
                   ? 'bg-primary text-white shadow-lg shadow-primary/25 border-primary scale-105'
                   : 'bg-white text-gray-600 hover:text-primary hover:bg-primary/5 hover:border-primary/20 hover:shadow-md border-gray-200'
@@ -103,7 +103,7 @@ export function AssignmentTabs({ activeTab, setActiveTab }: AssignmentTabsProps)
             >
               <div className="flex items-center gap-2">
                 {getBadgeIcon(tab)}
-                <span className="capitalize whitespace-nowrap text-sm lg:text-base">{getBadgeLabel(tab)}</span>
+                <span className="capitalize whitespace-nowrap text-xs md:text-sm lg:text-base">{getBadgeLabel(tab)}</span>
               </div>
             </button>
           ))}

@@ -116,7 +116,11 @@ async function seed() {
     data: {
       code: 'DEMO',
       name: 'DEMO S.A.',
-      active: true
+      active: true,
+      aiEnabled: true, // Enable AI for demo
+      aiFeatures: {
+        textImprovement: true
+      }
     }
   })
 

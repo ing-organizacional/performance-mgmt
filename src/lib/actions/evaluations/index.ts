@@ -11,7 +11,8 @@ export {
 export {
   createEvaluationItem,
   updateEvaluationItem,
-  getEvaluationItems
+  getEvaluationItems,
+  toggleEvaluationItemActive
 } from './evaluation-items'
 
 // Data retrieval functions

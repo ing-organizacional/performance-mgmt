@@ -48,10 +48,10 @@ export async function createEvaluationItem(formData: {
         return { success: false, error: 'Invalid deadline date format' }
       }
       
-      const now = new Date()
-      const oneHourFromNow = new Date(now.getTime() + 60 * 60 * 1000)
-      if (deadlineDate <= oneHourFromNow) {
-        return { success: false, error: 'Deadline must be at least 1 hour in the future' }
+      const today = new Date()
+      today.setHours(0, 0, 0, 0) // Reset to start of today
+      if (deadlineDate <= today) {
+        return { success: false, error: 'Deadline must be tomorrow or later' }
       }
     }
 
@@ -192,11 +192,12 @@ export async function createEvaluationItem(formData: {
   }
 }
 
-// Server action to update evaluation item
+// Server action to update evaluation item (enhanced with full API functionality)
 export async function updateEvaluationItem(itemId: string, formData: {
-  title: string
-  description: string
-  evaluationDeadline?: string
+  title?: string
+  description?: string
+  evaluationDeadline?: string | null
+  active?: boolean
 }) {
   try {
     const session = await auth()
@@ -214,49 +215,193 @@ export async function updateEvaluationItem(itemId: string, formData: {
       return { success: false, error: 'Access denied - Manager or HR role required' }
     }
 
-    const { title, description, evaluationDeadline } = formData
+    const { title, description, evaluationDeadline, active } = formData
 
-    if (!title?.trim() || !description?.trim()) {
+    // Validate required fields only if provided (not for active-only toggles)
+    const isActiveToggle = active !== undefined && title === undefined && description === undefined
+    if (!isActiveToggle && (!title?.trim() || !description?.trim())) {
       return { success: false, error: 'Title and description are required' }
+    }
+
+    // Check if item exists and get current state
+    const existingItem = await prisma.evaluationItem.findUnique({
+      where: { 
+        id: itemId,
+        companyId
+      }
+    })
+
+    if (!existingItem) {
+      return { success: false, error: 'Evaluation item not found' }
+    }
+
+    // Permission check based on role and item level
+    if (userRole === 'hr') {
+      // HR can edit everything including deadlines
+    } else if (userRole === 'manager') {
+      // Managers can only edit department and manager level items
+      if (existingItem.level === 'company') {
+        return { success: false, error: 'Company-level items can only be edited by HR' }
+      }
+      
+      // For deadline changes, managers can only set deadlines for items they created or manage
+      if (evaluationDeadline !== undefined) {
+        if (existingItem.createdBy !== userId && 
+            existingItem.assignedTo !== userId && 
+            existingItem.assignedTo !== session.user.department) {
+          return { success: false, error: 'You can only set deadlines for items you created or manage' }
+        }
+      }
     }
 
     // Validate deadline if provided
     let deadlineDate = null
-    if (evaluationDeadline) {
-      deadlineDate = new Date(evaluationDeadline)
-      if (isNaN(deadlineDate.getTime())) {
-        return { success: false, error: 'Invalid deadline date format' }
+    if (evaluationDeadline !== undefined) {
+      if (evaluationDeadline === null || evaluationDeadline === '') {
+        deadlineDate = null
+      } else {
+        deadlineDate = new Date(evaluationDeadline)
+        if (isNaN(deadlineDate.getTime())) {
+          return { success: false, error: 'Invalid deadline date format. Please provide a valid date and time.' }
+        }
+        
+        const today = new Date()
+        today.setHours(0, 0, 0, 0) // Reset to start of today
+        if (deadlineDate <= today) {
+          return { success: false, error: 'Deadline must be tomorrow or later.' }
+        }
+
+        const twoYearsFromNow = new Date(today.getTime() + 2 * 365 * 24 * 60 * 60 * 1000)
+        if (deadlineDate > twoYearsFromNow) {
+          return { success: false, error: 'Deadline cannot be more than 2 years in the future.' }
+        }
       }
-      
-      const now = new Date()
-      const oneHourFromNow = new Date(now.getTime() + 60 * 60 * 1000)
-      if (deadlineDate <= oneHourFromNow) {
-        return { success: false, error: 'Deadline must be at least 1 hour in the future' }
+    }
+
+    // Prepare update data
+    const updateData: {
+      title?: string
+      description?: string
+      evaluationDeadline?: Date | null
+      deadlineSetBy?: string | null
+      active?: boolean
+    } = {}
+
+    if (!isActiveToggle) {
+      if (title !== undefined) updateData.title = title.trim()
+      if (description !== undefined) updateData.description = description.trim()
+    }
+
+    if (active !== undefined) {
+      updateData.active = active
+    }
+
+    if (evaluationDeadline !== undefined) {
+      updateData.evaluationDeadline = deadlineDate
+      updateData.deadlineSetBy = deadlineDate ? userId : null
+    }
+
+    // Handle deactivation cleanup
+    if (active === false && existingItem.active === true) {
+      await handleItemDeactivation(existingItem, userId, session.user.name, userRole)
+    }
+
+    // Log deadline changes for audit
+    if (evaluationDeadline !== undefined && 
+        toISOStringSafe(existingItem.evaluationDeadline) !== toISOStringSafe(deadlineDate)) {
+      const auditLog = {
+        timestamp: new Date().toISOString(),
+        userId,
+        userName: session.user.name,
+        userRole,
+        action: 'deadline_changed',
+        itemId,
+        itemTitle: existingItem.title,
+        oldDeadline: toISOStringSafe(existingItem.evaluationDeadline),
+        newDeadline: toISOStringSafe(deadlineDate),
+        companyId
       }
+      console.log('AUDIT: Evaluation item deadline changed:', JSON.stringify(auditLog, null, 2))
     }
 
     // Update the item
     await prisma.evaluationItem.update({
-      where: { 
-        id: itemId,
-        companyId // Ensure user can only update items from their company
-      },
-      data: {
-        title: title.trim(),
-        description: description.trim(),
-        evaluationDeadline: deadlineDate,
-        deadlineSetBy: deadlineDate ? userId : null
-      }
+      where: { id: itemId },
+      data: updateData
     })
 
     revalidatePath('/evaluations/assignments')
     revalidatePath('/dashboard/company-items')
-    revalidateTag('evaluation-items') // Invalidate cached evaluation items
-    return { success: true }
+    revalidateTag('evaluation-items')
+    
+    const message = active === false && existingItem.active === true 
+      ? 'Item deactivated and removed from all employee evaluations'
+      : 'Evaluation item updated successfully'
+    
+    return { success: true, message }
 
   } catch (error) {
     console.error('Error updating evaluation item:', error)
     return { success: false, error: 'Failed to update evaluation item' }
+  }
+}
+
+// Helper function to handle item deactivation cleanup
+async function handleItemDeactivation(
+  existingItem: { id: string; level: string; companyId: string; title: string }, 
+  userId: string, 
+  userName: string, 
+  userRole: string
+) {
+  try {
+    // For company-level items, remove from all existing evaluations
+    if (existingItem.level === 'company') {
+      const evaluations = await prisma.evaluation.findMany({
+        where: { companyId: existingItem.companyId }
+      })
+
+      for (const evaluation of evaluations) {
+        if (evaluation.evaluationItemsData) {
+          try {
+            const items = JSON.parse(evaluation.evaluationItemsData)
+            const filteredItems = items.filter((item: { id: string }) => item.id !== existingItem.id)
+            
+            if (filteredItems.length !== items.length) {
+              await prisma.evaluation.update({
+                where: { id: evaluation.id },
+                data: { evaluationItemsData: JSON.stringify(filteredItems) }
+              })
+            }
+          } catch (jsonError) {
+            console.error('Error parsing evaluation JSON data:', jsonError)
+          }
+        }
+      }
+    }
+
+    // Remove from individual assignments
+    await prisma.evaluationItemAssignment.deleteMany({
+      where: { evaluationItemId: existingItem.id }
+    })
+
+    // Audit log
+    const auditLog = {
+      timestamp: new Date().toISOString(),
+      userId,
+      userName,
+      userRole,
+      action: 'item_deactivated',
+      itemId: existingItem.id,
+      itemTitle: existingItem.title,
+      itemLevel: existingItem.level,
+      companyId: existingItem.companyId,
+      message: 'Item deactivated and removed from all employee evaluations'
+    }
+    console.log('AUDIT: Evaluation item deactivated:', JSON.stringify(auditLog, null, 2))
+
+  } catch (error) {
+    console.error('Error during deactivation cleanup:', error)
+    throw error
   }
 }
 
@@ -422,5 +567,38 @@ export async function getEvaluationItems(employeeId: string) {
   } catch (error) {
     console.error('Error fetching evaluation items:', error)
     return { success: false, error: 'Failed to fetch evaluation items' }
+  }
+}
+
+// Server action to toggle evaluation item active status
+export async function toggleEvaluationItemActive(itemId: string) {
+  try {
+    const session = await auth()
+    
+    if (!session?.user?.id) {
+      return { success: false, error: 'Unauthorized' }
+    }
+
+    // Get current item state
+    const existingItem = await prisma.evaluationItem.findUnique({
+      where: { 
+        id: itemId,
+        companyId: session.user.companyId
+      },
+      select: { active: true }
+    })
+
+    if (!existingItem) {
+      return { success: false, error: 'Evaluation item not found' }
+    }
+
+    // Use the enhanced updateEvaluationItem function to toggle active status
+    return await updateEvaluationItem(itemId, { 
+      active: !existingItem.active 
+    })
+
+  } catch (error) {
+    console.error('Error toggling evaluation item active status:', error)
+    return { success: false, error: 'Failed to toggle item status' }
   }
 }

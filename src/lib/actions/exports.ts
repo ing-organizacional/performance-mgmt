@@ -1,3 +1,32 @@
+/**
+ * Data Export Server Actions
+ * 
+ * Comprehensive evaluation data export functionality supporting multiple formats and access levels.
+ * Provides role-based access control for exporting individual, team, department, and company-wide
+ * evaluation data. Supports both PDF and Excel export formats with proper authorization validation.
+ * 
+ * Key Features:
+ * - Multi-format export support (PDF, Excel) with configurable languages
+ * - Role-based access control with manager/HR permission enforcement
+ * - Flexible export scopes (individual, team, department, company, selective)
+ * - Performance filtering (top performers, needs attention)
+ * - Proper data serialization for client-side file handling
+ * - Comprehensive error handling with user-friendly messages
+ * 
+ * Export Types:
+ * - Individual evaluations: Employee (own), Manager (their team), HR (all)
+ * - Team evaluations: Manager (their team), HR (all teams)
+ * - Department evaluations: Manager (own department), HR (any department)
+ * - Company evaluations: HR only
+ * - Selected employees/departments: Role-based filtering applied
+ * - Performance-based filtering: Top performers, needs attention
+ * 
+ * Security:
+ * - All exports scoped to user's company for multi-tenancy
+ * - Manager access limited to their direct reports/department
+ * - HR access to all company data with audit trail
+ */
+
 'use server'
 
 import { auth } from '@/auth'
