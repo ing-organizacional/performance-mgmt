@@ -44,7 +44,9 @@ export class OpenAIProvider implements LLMProvider {
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt }
         ],
-        max_completion_tokens: parseInt(process.env.LLM_MAX_TOKENS || '500')
+        max_completion_tokens: isGPT5Model ? 
+          parseInt(process.env.LLM_MAX_TOKENS || '1000') : 
+          parseInt(process.env.LLM_MAX_TOKENS || '500')
       }
       
       // GPT-5 models only support default temperature (1), don't set custom temperature
@@ -72,7 +74,13 @@ export class OpenAIProvider implements LLMProvider {
       const improvedText = response.choices[0]?.message?.content?.trim()
       
       if (!improvedText) {
-        console.warn('⚠️ [OpenAI] Empty response received, using original text')
+        const finishReason = response.choices[0]?.finish_reason
+        if (finishReason === 'length') {
+          console.warn('⚠️ [OpenAI] Response truncated due to token limit. Consider increasing max_completion_tokens for GPT-5 models.')
+        } else {
+          console.warn('⚠️ [OpenAI] Empty response received, reason:', finishReason)
+        }
+        console.warn('⚠️ [OpenAI] Using original text as fallback')
         return text
       }
 
