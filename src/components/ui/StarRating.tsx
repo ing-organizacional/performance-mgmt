@@ -1,3 +1,31 @@
+/**
+ * Star Rating Component
+ * 
+ * Interactive star rating component for performance evaluations with accessibility support.
+ * Provides visual feedback for rating selections and supports multiple sizes for different
+ * UI contexts. Optimized for both desktop and mobile interactions.
+ * 
+ * Key Features:
+ * - 5-star rating system with individual star selection
+ * - Multiple size variants (small, medium, large) for UI flexibility
+ * - Full accessibility support with ARIA labels and keyboard navigation
+ * - Touch-optimized interaction zones for mobile devices
+ * - Smooth hover and active state animations
+ * - Disabled state support for read-only contexts
+ * - Memoized rendering for performance optimization
+ * 
+ * Accessibility:
+ * - Semantic button elements with descriptive ARIA labels
+ * - Keyboard navigation support for all rating options
+ * - High contrast visual states for better visibility
+ * - Screen reader compatible with clear rating announcements
+ * 
+ * Performance:
+ * - React.memo optimization to prevent unnecessary re-renders
+ * - Efficient event handling with useCallback hooks
+ * - CSS-based animations for smooth performance
+ */
+
 'use client'
 
 import { memo, useCallback } from 'react'

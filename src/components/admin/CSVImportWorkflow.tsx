@@ -1,3 +1,52 @@
+/**
+ * CSV Import Workflow Component
+ * 
+ * Comprehensive CSV import workflow for bulk user management with multi-step validation,
+ * preview, configuration, and execution. Provides enterprise-grade import capabilities
+ * with error handling, rollback functionality, and detailed audit trails.
+ * 
+ * Key Features:
+ * - Multi-step import workflow (upload, preview, configure, execute)
+ * - Real-time CSV validation with detailed error reporting
+ * - Flexible upsert configuration for create/update operations
+ * - Import history tracking with rollback capabilities
+ * - Progress tracking with visual step indicators
+ * - Modular component architecture for maintainability
+ * - Internationalization support for global deployment
+ * 
+ * Workflow Steps:
+ * 1. Upload: File selection and initial validation
+ * 2. Preview: Data parsing and validation with error display
+ * 3. Configure: Upsert options and field selection
+ * 4. Execute: Import execution with progress tracking
+ * 5. Complete: Results summary and next actions
+ * 
+ * Data Management:
+ * - CSV parsing with comprehensive field validation
+ * - Duplicate detection and handling strategies
+ * - Field mapping and transformation options
+ * - Batch processing for large datasets
+ * - Transaction safety with rollback support
+ * 
+ * Error Handling:
+ * - Field-level validation with specific error messages
+ * - Global error reporting for file-level issues
+ * - Partial success handling for mixed results
+ * - User-friendly error presentation with correction guidance
+ * 
+ * Security Features:
+ * - File type and size validation
+ * - Data sanitization and validation
+ * - Role-based access control for import operations
+ * - Audit logging for all import activities
+ * 
+ * User Experience:
+ * - Progress visualization with step-by-step guidance
+ * - Configurable import options with sensible defaults
+ * - History view with detailed import summaries
+ * - Rollback functionality for error recovery
+ */
+
 'use client'
 
 import { useState, useRef, useCallback } from 'react'

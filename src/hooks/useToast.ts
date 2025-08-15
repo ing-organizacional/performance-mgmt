@@ -1,3 +1,15 @@
+/**
+ * Toast Notification Hook
+ * 
+ * Provides a comprehensive toast notification system with:
+ * - Multiple toast types (success, error, info, warning)
+ * - Auto-dismissal with configurable duration
+ * - Queue management for multiple simultaneous toasts
+ * - Type-safe message handling with unique IDs
+ * - Imperative API for easy integration with Server Actions
+ * - Memory-efficient state management with useCallback optimization
+ */
+
 'use client'
 
 import { useState, useCallback } from 'react'

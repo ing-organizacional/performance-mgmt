@@ -1,3 +1,42 @@
+/**
+ * Performance Cycle Permission Management
+ * 
+ * Role-based permission system for controlling data access and modification rights
+ * throughout different performance cycle phases. Ensures data integrity and proper
+ * workflow enforcement based on cycle status and user roles.
+ * 
+ * Key Features:
+ * - Cycle-aware permission checking for all evaluation operations
+ * - Role-based access control with differentiated permissions
+ * - Status-dependent workflow enforcement (active, closed, archived)
+ * - Item-type specific permission validation
+ * - Comprehensive error handling with descriptive feedback
+ * - Middleware integration for server action protection
+ * 
+ * Permission Matrix:
+ * - Active Cycle: Full editing permissions for managers/HR
+ * - Closed Cycle: Read-only for managers, HR can edit partial assessments
+ * - Archived Cycle: Read-only for all users (future: superadmin override)
+ * - No Cycle: Backward compatibility with legacy data
+ * 
+ * Supported Item Types:
+ * - evaluation: Full evaluation records and ratings
+ * - evaluation_item: Evaluation criteria and objectives
+ * - partial_assessment: Mid-cycle progress assessments
+ * 
+ * Business Rules:
+ * - Managers can edit during active cycles only
+ * - HR has extended permissions for partial assessments in closed cycles
+ * - Archived cycles are read-only to preserve historical data
+ * - Backwards compatibility for evaluations without cycle assignment
+ * 
+ * Security:
+ * - Database-level validation of cycle status
+ * - Role-based permission enforcement
+ * - Detailed error reporting for audit purposes
+ * - Graceful handling of missing or invalid cycles
+ */
+
 import { prisma } from './prisma-client'
 
 export interface CyclePermissionCheck {

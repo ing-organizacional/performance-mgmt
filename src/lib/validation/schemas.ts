@@ -1,3 +1,38 @@
+/**
+ * Validation Schema Definitions
+ * 
+ * Comprehensive Zod validation schemas for all application data inputs and API endpoints.
+ * Provides runtime type validation, sanitization, and error handling with detailed
+ * error messages for user feedback. Ensures data integrity across all system boundaries.
+ * 
+ * Key Features:
+ * - Zod-based runtime validation with TypeScript inference
+ * - Multi-layer validation for different user types and roles
+ * - File upload validation with security checks
+ * - Complex business rule validation with custom refinements
+ * - Pagination and query parameter validation
+ * - Generic helper functions for validation middleware
+ * 
+ * Validation Categories:
+ * - User Data: Account creation, updates, and import validation
+ * - Evaluation Items: OKR and competency validation with deadline checks
+ * - File Operations: CSV import with size and format validation
+ * - API Queries: Pagination, filtering, and search parameter validation
+ * - Authentication: Credential and session validation
+ * 
+ * Security Features:
+ * - Input sanitization and length limits
+ * - File type and size restrictions
+ * - SQL injection prevention through parameterized validation
+ * - XSS prevention through input escaping
+ * 
+ * Business Rules:
+ * - Role-based validation requirements
+ * - User type-specific field requirements (office vs operational)
+ * - Complex cross-field validation logic
+ * - Date and time validation with business constraints
+ */
+
 import { z } from 'zod'
 
 // Base validation schemas

@@ -1,3 +1,15 @@
+/**
+ * Authentication Service
+ * 
+ * Handles user authentication for the performance management system supporting:
+ * - Office workers: Email + password authentication
+ * - Operational workers: Username + PIN authentication  
+ * - Company-based multi-tenancy with optional company codes
+ * - Secure password hashing with bcryptjs
+ * - Role-based access control (employee, manager, hr)
+ * - User type differentiation (office vs operational workers)
+ */
+
 import bcrypt from 'bcryptjs'
 import { prisma } from './prisma-client'
 

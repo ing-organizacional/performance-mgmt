@@ -1,3 +1,45 @@
+/**
+ * Evaluation Item Limit Management
+ * 
+ * Comprehensive system for managing and enforcing evaluation item limits per employee
+ * to ensure manageable workloads and maintain evaluation quality. Prevents evaluation
+ * overload while providing flexible assignment strategies across organizational levels.
+ * 
+ * Key Features:
+ * - Maximum evaluation item limits per employee (configurable)
+ * - Multi-level item assignment tracking (company, department, manager, individual)
+ * - Bulk validation for organizational-level item assignments
+ * - Employee impact analysis for new item creation
+ * - Comprehensive counting algorithms including all assignment types
+ * - Proactive limit violation prevention
+ * 
+ * Assignment Hierarchy:
+ * - Company-wide items: Apply to all employees automatically
+ * - Department items: Apply to all employees in specific departments
+ * - Manager items: Apply to all direct reports of specific managers
+ * - Individual assignments: Manually assigned to specific employees
+ * 
+ * Limit Enforcement:
+ * - Default maximum: 10 evaluation items per employee
+ * - Real-time validation during item creation and assignment
+ * - Bulk validation for organizational changes
+ * - Detailed reporting of employees who would exceed limits
+ * - Granular control over assignment strategies
+ * 
+ * Business Benefits:
+ * - Prevents evaluation fatigue and overload
+ * - Ensures consistent workload distribution
+ * - Maintains evaluation quality through manageable scope
+ * - Provides visibility into assignment impact before execution
+ * - Supports strategic evaluation planning
+ * 
+ * Integration:
+ * - Real-time validation in assignment workflows
+ * - Administrative tools for limit monitoring
+ * - Reporting capabilities for evaluation planning
+ * - Flexible configuration for different organizational needs
+ */
+
 import { prisma } from '@/lib/prisma-client'
 
 // Maximum number of OKRs/competencies per employee (excluding overall score)

@@ -1,5 +1,18 @@
-// User management business logic
-// Centralized user operations and data access
+/**
+ * User Management Business Logic Service
+ * 
+ * Provides comprehensive user management operations for the performance management system.
+ * Handles user lifecycle management including creation, updates, authentication, and validation.
+ * Supports different user types (administrative, operational) with role-based permissions.
+ * 
+ * Key Features:
+ * - User CRUD operations with password hashing and PIN code support
+ * - Role-based user management (admin, manager, hr, employee roles)
+ * - Company-scoped user operations and hierarchy management
+ * - Duplicate detection and validation across email/username
+ * - Manager-employee relationship management with dependency checking
+ * - Multi-tenancy support with company isolation
+ */
 
 import { prisma } from '@/lib/prisma-client'
 import bcrypt from 'bcryptjs'

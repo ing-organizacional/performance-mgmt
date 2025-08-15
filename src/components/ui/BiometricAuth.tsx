@@ -1,3 +1,40 @@
+/**
+ * Biometric Authentication Component
+ * 
+ * Advanced biometric authentication component supporting WebAuthn API for secure, passwordless
+ * authentication. Provides platform-specific biometric authentication (Face ID, Touch ID, 
+ * fingerprint) with comprehensive error handling and device compatibility detection.
+ * 
+ * Key Features:
+ * - WebAuthn API integration for secure biometric authentication
+ * - Platform-specific biometric detection (iOS Face ID/Touch ID, Android fingerprint, macOS Touch ID)
+ * - Dual-mode operation: setup new credentials and authenticate existing users
+ * - Comprehensive error handling with user-friendly feedback
+ * - Device compatibility checking with graceful fallbacks
+ * - Internationalization support for multi-language environments
+ * - Compact and full-size UI variants for different contexts
+ * 
+ * Security Features:
+ * - Platform authenticator requirement for hardware-bound credentials
+ * - User verification enforcement for biometric confirmation
+ * - Secure challenge generation with cryptographic randomness
+ * - Public key cryptography for authentication validation
+ * - Server-side credential registration and validation
+ * 
+ * User Experience:
+ * - Device-specific UI text and icons (Face ID, Touch ID, Fingerprint)
+ * - Loading states with progress indication during authentication
+ * - Silent handling of user cancellation to prevent error loops
+ * - Responsive design for both mobile and desktop interfaces
+ * - Toast notifications for successful operations and errors
+ * 
+ * Platform Support:
+ * - iOS: Face ID and Touch ID detection and authentication
+ * - macOS: Touch ID support for Mac devices
+ * - Android: Fingerprint authentication support
+ * - Windows: Windows Hello compatibility
+ */
+
 'use client'
 
 import { useState, useEffect } from 'react'

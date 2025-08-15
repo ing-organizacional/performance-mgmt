@@ -1,5 +1,33 @@
-// Form data types and validation schemas
-// Types for form handling and user input
+/**
+ * Form Data Type Definitions
+ * 
+ * Comprehensive type definitions for form handling, user input validation, and data transfer
+ * objects used throughout the application. Provides type safety for all form operations
+ * and ensures consistent data structures between frontend and backend processing.
+ * 
+ * Key Features:
+ * - Strongly typed form data structures for all major entities
+ * - Support for both new and existing record operations (create/update)
+ * - Legacy evaluation item support for backward compatibility
+ * - Flexible form field configuration with validation metadata
+ * - Generic error handling types for consistent UX
+ * 
+ * Form Categories:
+ * - User Management: User creation, updates, and authentication forms
+ * - Evaluation Management: Evaluation items, ratings, and assignments
+ * - Cycle Management: Performance cycle configuration and lifecycle
+ * - Authentication: Login and credential management forms
+ * 
+ * Legacy Support:
+ * - OKRItem and CompetencyItem types for JSON-based evaluation storage
+ * - Backward compatibility with existing evaluation data structures
+ * - Migration support for transitioning to new evaluation system
+ * 
+ * Validation Integration:
+ * - Form field props with built-in validation support
+ * - Error handling types for user feedback
+ * - Flexible input types supporting various form controls
+ */
 
 export interface UserFormData {
   id?: string

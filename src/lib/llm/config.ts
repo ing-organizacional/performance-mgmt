@@ -1,3 +1,15 @@
+/**
+ * LLM Provider Configuration System
+ * 
+ * Multi-provider LLM configuration supporting:
+ * - OpenAI: GPT-4, GPT-4o-mini for cloud-based AI
+ * - Anthropic: Claude-3-Haiku, Sonnet, Opus for advanced reasoning
+ * - Ollama: Local LLM deployment for privacy-focused organizations
+ * - Environment-based configuration with sensible defaults
+ * - Runtime provider switching and model selection
+ * - Token limits and temperature control for consistent outputs
+ */
+
 export type LLMProviderType = 'openai' | 'anthropic' | 'ollama'
 
 export interface LLMConfig {

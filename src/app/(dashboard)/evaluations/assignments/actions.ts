@@ -1,3 +1,33 @@
+/**
+ * Evaluation Assignment Server Actions
+ * 
+ * Server-side actions for managing evaluation item assignments and AI-powered content improvement.
+ * Handles the creation, modification, and assignment of evaluation items to employees with proper
+ * authorization and validation. Includes AI integration for text enhancement capabilities.
+ * 
+ * Key Features:
+ * - Evaluation item CRUD operations with role-based permissions
+ * - Employee assignment/unassignment to evaluation items
+ * - AI-powered text improvement for objectives and competencies
+ * - Performance cycle integration and validation
+ * - Deadline management with future-date validation
+ * - Comprehensive error handling and user feedback
+ * 
+ * AI Integration:
+ * - Text improvement for objectives, key results, and competencies
+ * - Company-specific AI enablement checking
+ * - Rate limiting and quota management
+ * - Context-aware improvements with department specificity
+ * - Detailed logging for debugging and monitoring
+ * 
+ * Access Control:
+ * - Item creation/modification: Manager/HR roles required
+ * - Assignment operations: Manager/HR roles required
+ * - AI features: Manager/HR roles with AI enablement
+ * - Company-level items: HR only
+ * - All operations scoped to user's company
+ */
+
 'use server'
 
 import { auth } from '@/auth'

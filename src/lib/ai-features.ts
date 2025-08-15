@@ -1,3 +1,17 @@
+/**
+ * AI Features Management System
+ * 
+ * Provides enterprise-grade AI feature management with:
+ * - Global AI toggle via environment variables (master switch)
+ * - Per-company AI enablement for granular control
+ * - Feature flags for specific AI capabilities (text improvement, etc.)
+ * - Runtime configuration management for AI services
+ * - Comprehensive logging for AI feature debugging
+ * 
+ * Used throughout the application to control AI functionality based on
+ * both global deployment settings and individual company preferences.
+ */
+
 import { prisma } from '@/lib/prisma-client'
 
 /**
