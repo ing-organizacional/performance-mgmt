@@ -2,7 +2,8 @@
 
 ✅ **ENTERPRISE-READY: Comprehensive Security Audit Completed**
 
-This guide covers deploying the Performance Management System using Docker, with support for both single-company and multi-company setups.
+This guide covers deploying the Performance Management System using Docker,
+with support for both single-company and multi-company setups.
 
 **Security Status (August 15, 2025):** ENTERPRISE-GRADE - A+ Security
 Rating (95/100). Exceptional security architecture verified. Ready for
@@ -117,9 +118,17 @@ performance-mgmt/
 **Required:**
 
 - `DATABASE_URL` - SQLite database path
-- `NEXTAUTH_URL` - Full URL of your application
-- `NEXTAUTH_SECRET` - Secret for JWT signing (use
-  `openssl rand -base64 32`)
+- `NEXTAUTH_URL` - Full URL of your application  
+- `NEXTAUTH_SECRET` - Secret for JWT signing (use `openssl rand -base64 32`)
+
+**AI Configuration (v2.0.0+):**
+
+- `AI_FEATURES_ENABLED=true` - Enable AI-powered text improvement
+- `LLM_PROVIDER=openai` - AI provider: 'openai', 'anthropic', or 'ollama'
+- `OPENAI_API_KEY` - OpenAI API key (required when using OpenAI)
+- `OPENAI_MODEL=gpt-4o-mini` - OpenAI model (optional, defaults to gpt-4o-mini)
+- `ANTHROPIC_API_KEY` - Claude API key (optional, for Anthropic provider)
+- `OLLAMA_BASE_URL` - Local Ollama server URL (optional, for local AI)
 
 **Optional:**
 
@@ -129,18 +138,29 @@ performance-mgmt/
 ### Production Environment File
 
 ```bash
-# .env.production
+# .env.production (v2.0.0 with AI features)
 NODE_ENV=production
 DATABASE_URL=file:./data/production.db
 NEXTAUTH_URL=https://your-domain.com
 # ✅ REQUIRED: Generate secure secret with: openssl rand -base64 32
 NEXTAUTH_SECRET=REPLACE_WITH_SECURE_32_BYTE_STRING_GENERATED_BY_OPENSSL
 
+# AI Configuration (v2.0.0+)
+AI_FEATURES_ENABLED=true
+LLM_PROVIDER=openai
+OPENAI_API_KEY=sk-your-openai-key-here
+OPENAI_MODEL=gpt-4o-mini
+
+# Optional: Multi-provider support
+# ANTHROPIC_API_KEY=sk-ant-your-anthropic-key-here
+# OLLAMA_BASE_URL=http://your-ollama-server:11434
+
 # ⚠️ PRODUCTION CHECKLIST: 
 # 1. Generate secure NEXTAUTH_SECRET (above)
-# 2. Remove demo credentials from seed files
-# 3. Configure HTTPS/SSL certificates
-# All critical security vulnerabilities have been resolved (August 9, 2025)
+# 2. Configure AI provider API keys
+# 3. Remove demo credentials from seed files  
+# 4. Configure HTTPS/SSL certificates
+# All critical security vulnerabilities have been resolved (August 15, 2025)
 ```
 
 ## 🖥️ Windows Server Deployment
@@ -186,6 +206,56 @@ Use IIS as a reverse proxy:
 ```
 
 ## 📊 Data Management
+
+### Database Initialization & Seeding
+
+For new deployments, you'll need to seed the database with demo data:
+
+#### Step 1: Install TypeScript Executor
+
+```bash
+# Install tsx temporarily for seeding
+docker exec -it [container-name] yarn add tsx
+```
+
+#### Step 2: Copy Seed Files
+
+```bash
+# Copy seed files from host to container data directory
+docker cp ./src/lib/seed-comprehensive.ts [container-name]:/app/data/
+docker cp ./src/lib/prisma-client.ts [container-name]:/app/data/
+```
+
+#### Step 3: Run Database Seed
+
+```bash
+# Execute comprehensive seed (creates 40 employees across 5 departments)
+docker exec -it [container-name] sh -c "cd /app/data && npx tsx seed-comprehensive.ts"
+```
+
+#### Step 4: Cleanup
+
+```bash
+# Remove temporary files and tsx dependency
+docker exec -it [container-name] rm /app/data/seed-comprehensive.ts /app/data/prisma-client.ts
+docker exec -it [container-name] yarn remove tsx
+```
+
+**What the Seed Creates:**
+
+- **DEMO S.A.** company with AI features enabled
+- **40 employees** across HR, Rooms, Food & Beverage, Finance, and Maintenance departments
+- **Performance cycle** for current year
+- **Evaluation items** (company-wide OKRs and competencies)
+- **Demo evaluations** with various statuses (draft, submitted, completed)
+- **Login credentials** for testing all user roles
+
+**Demo Login Credentials:**
+
+- HR Director: `miranda.priestly@demo.com` / `a`
+- F&B Director: `gordon.ramsay@demo.com` / `a`
+- Executive Chef: `monica.geller@demo.com` / `a`
+- All users have password: `a`
 
 ### Database Backup
 
@@ -266,11 +336,13 @@ docker system prune -f
 ### Resource Requirements
 
 **Minimum (per company):**
+
 - CPU: 1 core
 - RAM: 512MB
 - Storage: 10GB
 
 **Recommended (per company):**
+
 - CPU: 2 cores  
 - RAM: 1GB
 - Storage: 50GB
@@ -343,6 +415,7 @@ services:
 ### Security Headers - IMPLEMENTED ✅
 
 All security headers now active:
+
 - CSRF protection ✅ **IMPLEMENTED**
 - Secure cookies ✅ **FULL IMPLEMENTATION**
 - Content Security Policy ✅ **COMPREHENSIVE CSP**
@@ -372,27 +445,31 @@ services:
 
 ### Common Issues
 
-**1. Database Connection Error**
+#### 1. Database Connection Error
+
 ```bash
 # Check database file permissions
 ls -la ./data/
 chmod 644 ./data/production.db
 ```
 
-**2. Port Already in Use**
+#### 2. Port Already in Use
+
 ```bash
 # Find process using port
 netstat -tulpn | grep :3000
 kill -9 <PID>
 ```
 
-**3. Permission Denied**
+#### 3. Permission Denied
+
 ```bash
 # Fix file permissions
 sudo chown -R 1001:1001 ./data/
 ```
 
-**4. Memory Issues**
+#### 4. Memory Issues
+
 ```bash
 # Increase Docker memory limit
 # Docker Desktop > Settings > Resources > Memory
@@ -453,6 +530,7 @@ find backups/ -name "weekly-backup-*.tar.gz" -mtime +30 -delete
 The deployment setup provides solid containerization architecture with **all critical security vulnerabilities resolved**. Ready for production deployment.
 
 ### Security Issues - RESOLVED ✅
+
 1. **Authentication**: Rate limiting implemented, demo passwords flagged for removal
 2. **Input Validation**: ✅ Comprehensive Zod schemas active on all APIs
 3. **Security Headers**: ✅ CSRF, CSP, and all protective headers implemented
@@ -461,11 +539,13 @@ The deployment setup provides solid containerization architecture with **all cri
 6. **Dependencies**: ✅ All packages updated, no security vulnerabilities
 
 ### Performance Status
+
 1. **Database**: ✅ Optimized with 20+ strategic indexes
 2. **Components**: ✅ Architecture stable, no critical refactoring required
 3. **Caching**: ✅ 5-minute caching implemented for team data
 
 ### Deployment Readiness
+
 - **Architecture**: ✅ Well-structured Next.js 15 + Docker
 - **Data Isolation**: ✅ Multi-tenant architecture working
 - **Security**: ✅ **ALL CRITICAL VULNERABILITIES RESOLVED**
@@ -475,4 +555,3 @@ The deployment setup provides solid containerization architecture with **all cri
 **RECOMMENDATION:** ✅ **READY FOR PRODUCTION DEPLOYMENT** with final environment configuration (HTTPS, secure secrets, demo data cleanup).
 
 See `SECURITY.md` for complete vulnerability details and `API_AUDIT.md` for performance improvements.
-

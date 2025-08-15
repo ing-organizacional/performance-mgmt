@@ -52,13 +52,17 @@ RUN chown nextjs:users .next
 COPY --from=builder --chown=nextjs:users /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:users /app/.next/static ./.next/static
 
-# Copy Prisma files
-COPY --from=builder /app/prisma ./prisma
-COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
-COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
+# Copy Prisma files with proper ownership
+COPY --from=builder --chown=nextjs:users /app/prisma ./prisma
+COPY --from=builder --chown=nextjs:users /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=builder --chown=nextjs:users /app/node_modules/@prisma ./node_modules/@prisma
 
 # Create data directory for SQLite database with proper permissions
 RUN mkdir -p /app/data && chown -R nextjs:users /app/data && chmod -R 775 /app/data
+
+# Fix ownership of entire /app directory for the nextjs user
+# This allows package installation, yarn.lock creation, and other write operations
+RUN chown -R nextjs:users /app
 
 # Create startup script for proper database initialization (before switching user)
 RUN echo '#!/bin/sh' > /app/start.sh && \
