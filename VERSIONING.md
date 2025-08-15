@@ -14,7 +14,7 @@ Examples:
 - Removing features or changing user workflows
 - NextAuth version upgrades that break compatibility
 
-**Current**: v1.x.x
+**Current**: v2.x.x
 
 ### MINOR Version (1.X.0)
 **Increment when adding functionality in a backward compatible manner**
@@ -44,6 +44,49 @@ Examples:
 - Dependency updates (without breaking changes)
 
 ## 🏷️ Version History
+
+### v2.1.0 - Mobile-First Dashboard & Enhanced UX (August 15, 2025)
+**Minor release: Comprehensive mobile optimization and UX improvements**
+
+**New Features:**
+- ✅ Complete mobile-responsive dashboard experience with hamburger navigation
+- ✅ Enhanced authentication page with bilingual branding ("Bienvenido a Performa")
+- ✅ Touch-optimized interactions with 44px minimum touch targets
+- ✅ Consistent Lucide icon system throughout the application
+- ✅ Mobile-first footer design with centered layout
+
+**Improvements:**
+- ✅ Compact mobile layouts with proper text handling and overflow prevention
+- ✅ GPT-5 model compatibility with optimized token handling
+- ✅ Enhanced responsive breakpoint system across all components
+- ✅ Improved Spanish translations for better mobile text fit
+
+**Bug Fixes:**
+- ✅ Text overflow in mobile colored status boxes
+- ✅ OpenAI API parameter compatibility for GPT-5 models
+- ✅ Temperature parameter restrictions for reasoning models
+
+### v2.0.0 - AI-Powered Performance Management (August 14, 2025)
+**Major release: Enterprise AI integration and advanced features**
+
+**New Features:**
+- ✅ Complete AI-powered text improvement system (OpenAI, Anthropic, Ollama)
+- ✅ Context-aware AI prompts for objectives, key results, and competencies
+- ✅ Company-level AI feature flags and permissions system
+- ✅ Version history management for AI-improved content
+- ✅ Streaming UI with professional text animation effects
+
+**Enhanced Features:**
+- ✅ Employee archive system with complete lifecycle management
+- ✅ Advanced component architecture with single responsibility principle
+- ✅ Desktop-first dashboard with professional gradient backgrounds
+- ✅ Enhanced export system with PDF generation capabilities
+
+**Security & Performance:**
+- ✅ Secure API key management for LLM providers
+- ✅ AI input validation and content filtering
+- ✅ Rate limiting for AI endpoints
+- ✅ Comprehensive audit logging for AI operations
 
 ### v1.0.0 - First Production Release (August 10, 2025)
 **Major milestone: Production-ready enterprise system**
@@ -152,13 +195,17 @@ gh release create v1.1.0 --title "v1.1.0" --notes "Release notes..."
 
 ### Planned Major Versions
 
-**v2.0.0 - Advanced Features (Q1 2026)**
+**v2.2.0 - Advanced Analytics (Q1 2026)**
 - Peer review and 360-degree feedback
-- Advanced reporting and analytics
+- Advanced reporting and analytics dashboard
+- Performance trend analysis and insights
+- Enhanced export capabilities
+
+**v3.0.0 - Enterprise Integration (Q3 2026)**
 - SSO integration (SAML, OIDC)
 - Multi-language expansion beyond English/Spanish
 
-**v3.0.0 - Enterprise Scale (Q3 2026)**  
+**v4.0.0 - Enterprise Scale (2027)**  
 - Microservices architecture
 - Advanced role-based permissions
 - API rate limiting and quotas
@@ -192,5 +239,5 @@ yarn test
 ---
 
 **Maintained by**: Development Team  
-**Last Updated**: August 10, 2025  
-**Next Review**: September 1, 2025
+**Last Updated**: August 15, 2025  
+**Next Review**: September 15, 2025

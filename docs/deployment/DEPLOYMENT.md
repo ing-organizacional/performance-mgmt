@@ -121,7 +121,7 @@ performance-mgmt/
 - `NEXTAUTH_URL` - Full URL of your application  
 - `NEXTAUTH_SECRET` - Secret for JWT signing (use `openssl rand -base64 32`)
 
-**AI Configuration (v2.0.0+):**
+**AI Configuration (v2.1.0+):**
 
 - `AI_FEATURES_ENABLED=true` - Enable AI-powered text improvement
 - `LLM_PROVIDER=openai` - AI provider: 'openai', 'anthropic', or 'ollama'
@@ -138,14 +138,14 @@ performance-mgmt/
 ### Production Environment File
 
 ```bash
-# .env.production (v2.0.0 with AI features)
+# .env.production (v2.1.0 with AI features)
 NODE_ENV=production
 DATABASE_URL=file:./data/production.db
 NEXTAUTH_URL=https://your-domain.com
 # ✅ REQUIRED: Generate secure secret with: openssl rand -base64 32
 NEXTAUTH_SECRET=REPLACE_WITH_SECURE_32_BYTE_STRING_GENERATED_BY_OPENSSL
 
-# AI Configuration (v2.0.0+)
+# AI Configuration (v2.1.0+)
 AI_FEATURES_ENABLED=true
 LLM_PROVIDER=openai
 OPENAI_API_KEY=sk-your-openai-key-here
