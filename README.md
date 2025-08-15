@@ -383,4 +383,127 @@ Comprehensive data management for HR teams with preview, validation, upsert oper
 
 ---
 
+## 🤖 AI Feature Management (Future Implementation)
+
+### Commercial AI Features Architecture
+
+**Current Status**: AI features implemented with basic company-level toggles
+**Future Enhancement**: Full subscription management system for paid AI upgrades
+
+### Recommended Admin Control System
+
+#### **Two-Level Control Architecture**
+1. **Global Environment** (`AI_FEATURES_ENABLED`) - Deployment-wide master switch
+2. **Company Database** (`aiEnabled`) - Per-company subscription toggle
+
+#### **Super Admin Dashboard** (`/admin/system`)
+Master admin controls for managing AI subscriptions across all companies:
+
+```typescript
+interface SuperAdminControls {
+  // Global AI Management
+  globalAIStatus: boolean
+  totalAIEnabledCompanies: number
+  
+  // Company Subscription Management
+  companies: {
+    id: string
+    name: string
+    aiEnabled: boolean
+    aiSubscriptionStatus: 'trial' | 'paid' | 'expired'
+    aiUsageStats: { requests: number, limit: number }
+    subscriptionExpires: Date
+  }[]
+}
+```
+
+#### **Enhanced Company Model**
+```typescript
+model Company {
+  // ... existing fields
+  aiEnabled Boolean @default(false)
+  aiFeatures Json? // Granular feature flags
+  
+  // Subscription Management
+  aiSubscriptionType String? // 'trial' | 'basic' | 'premium'
+  aiSubscriptionStatus String? // 'active' | 'expired' | 'cancelled'
+  aiSubscriptionExpires DateTime?
+  aiUsageLimit Int? // Monthly API calls limit
+  aiUsageCount Int @default(0) // Current usage
+  aiLastResetDate DateTime? // Usage counter reset
+}
+```
+
+#### **Super Admin User Management**
+```typescript
+model User {
+  // ... existing fields
+  isSuperAdmin Boolean @default(false) // Master admin access
+}
+```
+
+### **Admin Functions**
+
+#### **AI Subscription Management**
+- `toggleCompanyAI(companyId, enabled)` - Enable/disable AI for company
+- `setAISubscription(companyId, type, duration)` - Set subscription plan
+- `extendTrial(companyId, days)` - Extend trial period
+- `checkUsageLimits(companyId)` - Monitor API usage
+- `expireSubscription(companyId)` - Handle subscription expiration
+
+#### **Usage Tracking & Enforcement**
+- Automatic usage counting for all AI API calls
+- Monthly usage limits based on subscription tier
+- Auto-expiration of subscriptions
+- Usage analytics and reporting
+
+### **Environment Configuration**
+```bash
+# Master Admin Controls
+AI_FEATURES_ENABLED=true              # Global kill switch
+AI_TRIAL_DURATION_DAYS=30             # Default trial period
+AI_DEFAULT_MONTHLY_LIMIT=1000         # API calls per month
+SUPER_ADMIN_EMAIL=admin@ing-organizacional.com
+
+# Subscription Tiers
+AI_BASIC_MONTHLY_LIMIT=500
+AI_PREMIUM_MONTHLY_LIMIT=2000
+AI_PREMIUM_FEATURES=["advanced_prompts", "bulk_processing"]
+```
+
+### **Implementation Priority**
+
+#### **Phase 1 - Admin Infrastructure**
+1. Super admin user flag and authentication
+2. Admin dashboard UI (`/admin/system`)
+3. Company AI status management
+
+#### **Phase 2 - Subscription System**
+1. Enhanced Company model with subscription fields
+2. AI usage tracking and limits
+3. Automatic subscription expiration
+
+#### **Phase 3 - Advanced Features**
+1. Multiple subscription tiers (Basic/Premium)
+2. Granular feature flags per tier
+3. Usage analytics and reporting
+4. Automated billing integration
+
+### **Business Model Integration**
+
+#### **Subscription Tiers**
+- **Trial**: 30 days, 100 API calls/month
+- **Basic**: $X/month, 500 API calls/month, basic text improvement
+- **Premium**: $Y/month, 2000 API calls/month, advanced features
+
+#### **Revenue Tracking**
+- Company subscription status monitoring
+- Usage-based billing preparation
+- Conversion tracking (trial → paid)
+
+**Implementation Timeline**: Q2 2025 (estimated)
+**Revenue Target**: AI subscription upsells for existing enterprise clients
+
+---
+
 **Built for Enterprise Performance Management** - Scalable, secure, accessible

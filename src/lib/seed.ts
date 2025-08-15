@@ -9,7 +9,11 @@ export async function seedDatabase() {
     create: {
       name: 'Demo Company',
       code: 'DEMO_001',
-      active: true
+      active: true,
+      aiEnabled: true, // Enable AI for demo
+      aiFeatures: {
+        textImprovement: true
+      }
     }
   })
 
