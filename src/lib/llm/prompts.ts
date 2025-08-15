@@ -28,7 +28,7 @@ Improve the following objective to make it:
 
 IMPORTANT: 
 - Respond in the SAME LANGUAGE as the input text
-- Keep it under 50 characters total
+- Keep it under 80 characters total
 - Return only the improved objective text, nothing else.${departmentContext}${iterationContext}`
 
     case 'key-result':
@@ -40,11 +40,13 @@ Improve the following key result to make it:
 - Time-bound with clear deadlines
 - Action-oriented and specific
 - Very succinct and concise
-- MAXIMUM 300 characters (strictly enforce this limit)
+- MAXIMUM 400 characters (strictly enforce this limit)
+- Aligned with and contributing to the objective (if provided in context)
 
 IMPORTANT: 
+- If an objective is provided as context, ensure the key result directly supports and measures progress toward that specific objective
 - Respond in the SAME LANGUAGE as the input text
-- Keep it under 300 characters total
+- Keep it under 400 characters total
 - Return only the improved key result text, nothing else.${departmentContext}${iterationContext}`
 
     case 'competency':
@@ -59,7 +61,7 @@ Improve the following competency name/title to make it:
 
 IMPORTANT: 
 - Respond in the SAME LANGUAGE as the input text
-- Keep it under 50 characters total
+- Keep it under 80 characters total
 - Return only the improved competency name, nothing else.${departmentContext}${iterationContext}`
 
     case 'competency-description':
@@ -72,11 +74,13 @@ Improve the following competency description to make it:
 - Measurable for evaluation
 - Professional and detailed
 - Very succinct and concise
-- MAXIMUM 300 characters (strictly enforce this limit)
+- MAXIMUM 400 characters (strictly enforce this limit)
+- Aligned with and relevant to the competency title (if provided in context)
 
 IMPORTANT: 
+- If a competency title is provided as context, ensure the description directly relates to and supports that specific competency
 - Respond in the SAME LANGUAGE as the input text
-- Keep it under 300 characters total
+- Keep it under 400 characters total
 - Return only the improved competency description, nothing else.${departmentContext}${iterationContext}`
 
     default:

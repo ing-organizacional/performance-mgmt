@@ -1,6 +1,7 @@
 import { auth } from '@/auth'
 import { redirect } from 'next/navigation'
 import { prisma } from '@/lib/prisma-client'
+import { isAIEnabled } from '@/lib/ai-features'
 import CompanyItemsClient from './CompanyItemsClient'
 
 interface CompanyEvaluationItem {
@@ -79,7 +80,14 @@ export default async function CompanyItemsPage() {
   // Fetch company items directly from database
   const companyItems = await getCompanyItems(companyId)
 
+  // Check if AI features are enabled for this company
+  const aiEnabled = await isAIEnabled(companyId)
+
   return (
-    <CompanyItemsClient initialItems={companyItems} />
+    <CompanyItemsClient 
+      initialItems={companyItems} 
+      aiEnabled={aiEnabled}
+      userDepartment={session.user.department}
+    />
   )
 }

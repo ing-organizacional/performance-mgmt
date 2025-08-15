@@ -1,6 +1,6 @@
 import { useLanguage } from '@/contexts/LanguageContext'
 import type { EditingItem } from '../types'
-import { Building2, User, Target, Star, Sparkles, Loader2, AlertCircle, RefreshCw } from 'lucide-react'
+import { Building2, User, Target, Star, Wand2, Loader2, AlertCircle, RefreshCw } from 'lucide-react'
 import { improveTextWithAI } from '../actions'
 import { useState, useTransition } from 'react'
 import { useToast } from '@/hooks/useToast'
@@ -9,7 +9,7 @@ interface ItemEditorProps {
   editingItem: EditingItem | null
   newItemType: 'okr' | 'competency'
   isCreatingNew: boolean
-  level: 'department' | 'manager'
+  level: 'department' | 'manager' | 'company'
   canSetDeadline: boolean
   isPending: boolean
   aiEnabled?: boolean // Feature flag for AI functionality
@@ -212,8 +212,9 @@ export function ItemEditor({
             <span className="text-sm font-bold text-primary uppercase tracking-wide">
               {newItemType === 'okr' ? t.evaluations.okr : t.evaluations.competency}
             </span>
-            <span className={`text-xs px-2 py-1 rounded-full font-medium ${getBadgeStyles(level)}`}>
-              {getBadgeIcon(level)} {getBadgeLabel(level)}
+            <span className={`text-xs px-3 py-1 rounded-full font-medium flex items-center gap-1 ${getBadgeStyles(level)}`}>
+              {getBadgeIcon(level)}
+              <span>{getBadgeLabel(level)}</span>
             </span>
           </div>
         </div>
@@ -246,14 +247,15 @@ export function ItemEditor({
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
                 <>
-                  {textHistory.title.length > 0 ? <RefreshCw className="h-4 w-4" /> : <Sparkles className="h-4 w-4" />}
+                  {textHistory.title.length > 0 ? <RefreshCw className="h-4 w-4" /> : <Wand2 className="h-4 w-4" />}
                 </>
               )}
               <span className="hidden sm:block ml-1.5">
-                {improvingField === 'title' ? t.common.improving : (textHistory.title.length > 0 ? t.common.refine : 'AI')}
+                {improvingField === 'title' ? t.common.improving : (textHistory.title.length > 0 ? t.common.refine : t.common.improveWithAI)}
               </span>
+              {/* Mobile: Show text only when improving, otherwise just icon */}
               <span className="sm:hidden ml-1.5">
-                {improvingField === 'title' ? t.common.improving : (textHistory.title.length > 0 ? t.common.refine : 'AI')}
+                {improvingField === 'title' ? t.common.improving : ''}
               </span>
               </button>
             )}
@@ -310,7 +312,7 @@ export function ItemEditor({
                     <Loader2 className="h-4 w-4 animate-spin" />
                   ) : (
                     <>
-                      {textHistory.description.length > 0 ? <RefreshCw className="h-4 w-4" /> : <Sparkles className="h-4 w-4" />}
+                      {textHistory.description.length > 0 ? <RefreshCw className="h-4 w-4" /> : <Wand2 className="h-4 w-4" />}
                     </>
                   )}
                   <span className="hidden sm:block ml-1.5">
@@ -319,8 +321,9 @@ export function ItemEditor({
                       : (textHistory.description.length > 0 ? t.common.refine : t.common.improveWithAI)
                     }
                   </span>
+                  {/* Mobile: Show text only when improving, otherwise just icon */}
                   <span className="sm:hidden ml-1.5">
-                    {textHistory.description.length > 0 ? t.common.refine : 'AI'}
+                    {improvingField === 'description' ? t.common.improving : ''}
                   </span>
                 </button>
               )}

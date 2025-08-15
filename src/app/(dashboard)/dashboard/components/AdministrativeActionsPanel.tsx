@@ -27,7 +27,7 @@ export function AdministrativeActionsPanel({ onExportCenterOpen }: Administrativ
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <button 
-            onClick={() => router.push('/evaluations/assignments')}
+            onClick={() => router.push('/dashboard/company-items')}
             className="flex items-center justify-between p-6 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-2xl hover:from-blue-100 hover:to-indigo-100 hover:border-blue-300 hover:shadow-lg transition-all duration-300 group"
           >
             <div className="flex items-center">
@@ -35,8 +35,8 @@ export function AdministrativeActionsPanel({ onExportCenterOpen }: Administrativ
                 <Clipboard className="w-6 h-6 text-white" />
               </div>
               <div className="text-left">
-                <div className="text-lg font-semibold text-gray-900">{t.dashboard.evaluationAssignments}</div>
-                <div className="text-sm text-gray-600">{t.dashboard.manageOkrsCompetencies}</div>
+                <div className="text-lg font-semibold text-gray-900">{t.dashboard.companyAssignments}</div>
+                <div className="text-sm text-gray-600">{t.dashboard.manageCompanyOkrsCompetencies}</div>
               </div>
             </div>
             <ChevronRight className="w-6 h-6 text-blue-600 group-hover:text-blue-700 transition-colors" />

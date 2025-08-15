@@ -557,7 +557,9 @@ export interface DashboardTranslations {
   systemAdministration: string
   monitoringAnalysis: string
   evaluationAssignments: string
+  companyAssignments: string
   manageOkrsCompetencies: string
+  manageCompanyOkrsCompetencies: string
   generateReportsAnalysis: string
   totalEmployeesHeader: string
   avgRatingHeader: string
