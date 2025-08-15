@@ -52,9 +52,39 @@ export class OpenAIProvider implements LLMProvider {
         requestParams.temperature = parseFloat(process.env.LLM_TEMPERATURE || '0.3')
       }
 
+      console.log('🚀 [OpenAI] Sending request:', {
+        model: requestParams.model,
+        systemPromptLength: requestParams.messages[0].content.length,
+        userPromptLength: requestParams.messages[1].content.length,
+        maxTokens: requestParams.max_completion_tokens,
+        temperature: requestParams.temperature || 'default (1.0)'
+      })
+
       const response = await this.client.chat.completions.create(requestParams)
 
-      return response.choices[0]?.message?.content?.trim() || text
+      console.log('📥 [OpenAI] Response received:', {
+        choices: response.choices?.length || 0,
+        finishReason: response.choices[0]?.finish_reason,
+        usage: response.usage,
+        hasContent: !!response.choices[0]?.message?.content
+      })
+
+      const improvedText = response.choices[0]?.message?.content?.trim()
+      
+      if (!improvedText) {
+        console.warn('⚠️ [OpenAI] Empty response received, using original text')
+        return text
+      }
+
+      console.log('✅ [OpenAI] Text improvement result:', {
+        originalLength: text.length,
+        improvedLength: improvedText.length,
+        originalText: text.substring(0, 50) + (text.length > 50 ? '...' : ''),
+        improvedText: improvedText.substring(0, 50) + (improvedText.length > 50 ? '...' : ''),
+        unchanged: text.trim() === improvedText.trim()
+      })
+
+      return improvedText
     } catch (error) {
       console.error('OpenAI API error:', error)
       throw new Error('Failed to improve text with OpenAI')

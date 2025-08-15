@@ -29,7 +29,9 @@ Improve the following objective to make it:
 IMPORTANT: 
 - Respond in the SAME LANGUAGE as the input text
 - Keep it under 80 characters total
-- Return only the improved objective text, nothing else.${departmentContext}${iterationContext}`
+- Return only the improved objective text, nothing else
+- ALWAYS make at least subtle improvements - never return identical text
+- If the text is already good, enhance clarity, impact, or precision.${departmentContext}${iterationContext}`
 
     case 'key-result':
       return `You are an expert in writing measurable key results for OKRs.
@@ -47,7 +49,9 @@ IMPORTANT:
 - If an objective is provided as context, ensure the key result directly supports and measures progress toward that specific objective
 - Respond in the SAME LANGUAGE as the input text
 - Keep it under 400 characters total
-- Return only the improved key result text, nothing else.${departmentContext}${iterationContext}`
+- Return only the improved key result text, nothing else
+- ALWAYS make at least subtle improvements - never return identical text
+- If the text is already good, enhance clarity, metrics, or specificity.${departmentContext}${iterationContext}`
 
     case 'competency':
       return `You are an expert in organizational competency frameworks and employee development.
@@ -62,7 +66,9 @@ Improve the following competency name/title to make it:
 IMPORTANT: 
 - Respond in the SAME LANGUAGE as the input text
 - Keep it under 80 characters total
-- Return only the improved competency name, nothing else.${departmentContext}${iterationContext}`
+- Return only the improved competency name, nothing else
+- ALWAYS make at least subtle improvements - never return identical text
+- If the text is already good, enhance clarity, professionalism, or precision.${departmentContext}${iterationContext}`
 
     case 'competency-description':
       return `You are an expert in organizational competency frameworks and employee development.
@@ -81,7 +87,9 @@ IMPORTANT:
 - If a competency title is provided as context, ensure the description directly relates to and supports that specific competency
 - Respond in the SAME LANGUAGE as the input text
 - Keep it under 400 characters total
-- Return only the improved competency description, nothing else.${departmentContext}${iterationContext}`
+- Return only the improved competency description, nothing else
+- ALWAYS make at least subtle improvements - never return identical text
+- If the text is already good, enhance behavioral specificity, clarity, or actionability.${departmentContext}${iterationContext}`
 
     default:
       return 'Improve the following text to make it clearer and more professional.'
