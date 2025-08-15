@@ -5,51 +5,123 @@ services:
     build: .
     ports:
       - "3000:3000"
+    env_file:
+      - .env.production
     environment:
       - NODE_ENV=production
-      - DATABASE_URL=file:./data/production.db
-      - NEXTAUTH_URL=http://localhost:3000
-      - NEXTAUTH_SECRET=HKwA1Z/q8pfSrSxZCuQk1VRu0jgT80PYHhVArKhJSJs=
+      - DATABASE_URL=file:/app/data/production.db
     volumes:
       - ./data:/app/data
+      - /etc/localtime:/etc/localtime:ro  # Sync timezone
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
       interval: 30s
       timeout: 10s
       retries: 3
+      start_period: 40s
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '1.0'
+        reservations:
+          memory: 256M
+          cpus: '0.5'
+    networks:
+      - performance-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   # Multi-company setup example
   company-1:
     build: .
     ports:
       - "3001:3000"
+    env_file:
+      - .env.company1
     environment:
       - NODE_ENV=production
-      - DATABASE_URL=file:./data/company1.db
-      - NEXTAUTH_URL=http://localhost:3001
-      - NEXTAUTH_SECRET=AiAxaMw+oY+XBVwPy4cm89Pkhxq0z40ux+cdCGkjz5g=
+      - DATABASE_URL=file:/app/data/company1.db
       - COMPANY_ID=company-1
     volumes:
       - ./data/company1:/app/data
+      - /etc/localtime:/etc/localtime:ro
     restart: unless-stopped
     profiles: ["multi-company"]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '1.0'
+        reservations:
+          memory: 256M
+          cpus: '0.5'
+    networks:
+      - performance-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   company-2:
     build: .
     ports:
       - "3002:3000"
+    env_file:
+      - .env.company2
     environment:
       - NODE_ENV=production
-      - DATABASE_URL=file:./data/company2.db
-      - NEXTAUTH_URL=http://localhost:3002
-      - NEXTAUTH_SECRET=vE5MOgKKqLrldh8CE97ssWKnyWWE/nXWQcpv1ZzdjRw=
+      - DATABASE_URL=file:/app/data/company2.db
       - COMPANY_ID=company-2
     volumes:
       - ./data/company2:/app/data
+      - /etc/localtime:/etc/localtime:ro
     restart: unless-stopped
     profiles: ["multi-company"]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '1.0'
+        reservations:
+          memory: 256M
+          cpus: '0.5'
+    networks:
+      - performance-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
 volumes:
   data:
     driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${PWD}/data
+
+networks:
+  performance-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16

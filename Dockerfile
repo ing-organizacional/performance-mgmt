@@ -67,7 +67,7 @@ RUN echo '#!/bin/sh' > /app/start.sh && \
     echo 'mkdir -p /app/data' >> /app/start.sh && \
     echo 'chmod 775 /app/data' >> /app/start.sh && \
     echo 'echo "Initializing database schema..."' >> /app/start.sh && \
-    echo 'npx prisma db push --accept-data-loss' >> /app/start.sh && \
+    echo 'npx prisma db push' >> /app/start.sh && \
     echo 'echo "Starting application..."' >> /app/start.sh && \
     echo 'node server.js' >> /app/start.sh && \
     chmod +x /app/start.sh && \
