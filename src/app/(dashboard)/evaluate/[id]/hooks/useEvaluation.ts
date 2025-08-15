@@ -2,7 +2,7 @@ import { useState, useCallback, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { useToast } from '@/hooks/useToast'
-import { hapticFeedback } from '@/utils/haptics'
+import { hapticFeedback } from '@/lib/utils/haptics'
 import { submitEvaluation, unlockEvaluation, updateEvaluationItem } from '@/lib/actions/evaluations'
 import type { 
   EvaluationItem, 
