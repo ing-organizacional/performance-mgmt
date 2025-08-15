@@ -131,21 +131,41 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="flex justify-center mb-4">
-          <LanguageSwitcher />
+    <div className="min-h-screen bg-gradient-to-br from-blue-900 via-blue-800 to-blue-600 flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative">
+      {/* Subtle overlay pattern to match ing-organizacional.com aesthetic */}
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-900/50 via-transparent to-orange-500/20 pointer-events-none" />
+      
+      <div className="relative z-10">
+        {/* Language selector with guidance */}
+        <div className="sm:mx-auto sm:w-full sm:max-w-md mb-8">
+          <div className="text-center mb-4">
+            <p className="text-white/80 text-sm mb-3">
+              {t.auth.selectLanguage}
+            </p>
+            <div className="flex justify-center">
+              <div className="bg-white/10 backdrop-blur-sm rounded-lg p-1 border border-white/20">
+                <LanguageSwitcher />
+              </div>
+            </div>
+          </div>
         </div>
-        <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-gray-900">
-          {t.nav.performanceManagement}
-        </h2>
-        <p className="mt-2 text-center text-sm text-gray-600">
-          {t.auth.signInToAccount}
-        </p>
+
+        {/* Main titles */}
+        <div className="sm:mx-auto sm:w-full sm:max-w-lg text-center mb-4">
+          <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-4 leading-tight">
+            {t.auth.welcomeTo}{' '}
+            <span className="text-orange-400 bg-gradient-to-r from-orange-400 to-orange-500 bg-clip-text text-transparent">
+              Performa
+            </span>
+          </h1>
+          <h2 className="text-xl md:text-2xl text-white/90 font-medium">
+            {t.auth.performanceManagementSystem}
+          </h2>
+        </div>
       </div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+      <div className="relative z-10 mt-4 sm:mx-auto sm:w-full sm:max-w-md">
+        <div className="bg-white/95 backdrop-blur-sm py-8 px-4 shadow-2xl sm:rounded-xl sm:px-10 border border-white/20">
           <form className="space-y-6" onSubmit={handleSubmit}>
             {error && (
               <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md text-sm">
@@ -223,17 +243,19 @@ export default function LoginPage() {
           </form>
 
           {/* Biometric Authentication Option */}
-          <div className="mt-4">
+          <div className="mt-6">
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-gray-300" />
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="bg-white px-2 text-gray-500">or</span>
+                <span className="bg-white/95 px-4 py-1 text-gray-600 font-medium rounded-full border border-gray-200">
+                  {t.auth.orLoginWithBiometric}
+                </span>
               </div>
             </div>
             
-            <div className="mt-4">
+            <div className="mt-6">
               <BiometricAuth
                 mode="login"
                 onSuccess={handleBiometricSuccess}
@@ -243,26 +265,13 @@ export default function LoginPage() {
               />
             </div>
           </div>
-
-{process.env.NODE_ENV === 'development' && (
-            <div className="mt-6">
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-gray-300" />
-                </div>
-                <div className="relative flex justify-center text-sm">
-                  <span className="bg-white px-2 text-gray-500">{t.auth.demoCredentials}</span>
-                </div>
-              </div>
-              
-              <div className="mt-4 text-xs text-gray-500 space-y-1">
-                <p><strong>{t.auth.hr}:</strong> hr@demo.com / password123</p>
-                <p><strong>{t.auth.manager}:</strong> manager@demo.com / password123</p>
-                <p><strong>{t.auth.employee}:</strong> employee1@demo.com / password123</p>
-                <p><strong>{t.auth.worker}:</strong> worker1 / 1234</p>
-              </div>
-            </div>
-          )}
+        </div>
+        
+        {/* Copyright footer */}
+        <div className="mt-8 text-center">
+          <p className="text-white/70 text-sm">
+            {t.auth.copyright}
+          </p>
         </div>
       </div>
     </div>

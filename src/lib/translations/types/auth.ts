@@ -22,6 +22,12 @@ export interface AuthTranslations {
   name: string
   email: string
   role: string
+  welcomeToPerforma: string
+  welcomeTo: string
+  performanceManagementSystem: string
+  selectLanguage: string
+  copyright: string
+  orLoginWithBiometric: string
 }
 
 export interface NavigationTranslations {

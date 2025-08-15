@@ -16,5 +16,11 @@ export const auth: AuthTranslations = {
   worker: 'Worker',
   name: 'Name',
   email: 'Email',
-  role: 'Role'
+  role: 'Role',
+  welcomeToPerforma: 'Welcome to Performa',
+  welcomeTo: 'Welcome to',
+  performanceManagementSystem: 'Performance Management System',
+  selectLanguage: 'Select your preferred language',
+  copyright: 'Copyright 2025 - Ingeniería Organizacional',
+  orLoginWithBiometric: 'or login with biometric'
 }
