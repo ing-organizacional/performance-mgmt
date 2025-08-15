@@ -30,15 +30,24 @@ export class OpenAIProvider implements LLMProvider {
       const systemPrompt = getSystemPrompt(type, isIteration, department)
       const userPrompt = context ? `Context: ${context}\n\nOriginal: ${text}` : `Original: ${text}`
 
-      const response = await this.client.chat.completions.create({
-        model: process.env.OPENAI_MODEL || 'gpt-5-mini',
+      const model = process.env.OPENAI_MODEL || 'gpt-5-mini'
+      const isGPT5Model = model.startsWith('gpt-5')
+      
+      const requestParams: any = {
+        model,
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt }
         ],
-        max_completion_tokens: parseInt(process.env.LLM_MAX_TOKENS || '500'),
-        temperature: parseFloat(process.env.LLM_TEMPERATURE || '0.3')
-      })
+        max_completion_tokens: parseInt(process.env.LLM_MAX_TOKENS || '500')
+      }
+      
+      // GPT-5 models only support default temperature (1), don't set custom temperature
+      if (!isGPT5Model) {
+        requestParams.temperature = parseFloat(process.env.LLM_TEMPERATURE || '0.3')
+      }
+
+      const response = await this.client.chat.completions.create(requestParams)
 
       return response.choices[0]?.message?.content?.trim() || text
     } catch (error) {
