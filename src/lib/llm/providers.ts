@@ -31,12 +31,12 @@ export class OpenAIProvider implements LLMProvider {
       const userPrompt = context ? `Context: ${context}\n\nOriginal: ${text}` : `Original: ${text}`
 
       const response = await this.client.chat.completions.create({
-        model: process.env.OPENAI_MODEL || 'gpt-4o-mini',
+        model: process.env.OPENAI_MODEL || 'gpt-5-mini',
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt }
         ],
-        max_tokens: parseInt(process.env.LLM_MAX_TOKENS || '500'),
+        max_completion_tokens: parseInt(process.env.LLM_MAX_TOKENS || '500'),
         temperature: parseFloat(process.env.LLM_TEMPERATURE || '0.3')
       })
 
