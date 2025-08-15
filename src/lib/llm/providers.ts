@@ -33,7 +33,12 @@ export class OpenAIProvider implements LLMProvider {
       const model = process.env.OPENAI_MODEL || 'gpt-5-mini'
       const isGPT5Model = model.startsWith('gpt-5')
       
-      const requestParams: any = {
+      const requestParams: {
+        model: string
+        messages: Array<{ role: 'system' | 'user'; content: string }>
+        max_completion_tokens: number
+        temperature?: number
+      } = {
         model,
         messages: [
           { role: 'system', content: systemPrompt },
