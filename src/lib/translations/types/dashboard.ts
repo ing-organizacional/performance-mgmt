@@ -87,6 +87,12 @@ export interface DashboardTranslations {
   exportExcel: string
   showingOf: string
   noAuditLogs: string
+  auditLogsWillAppear: string
+  totalPages: string
+  users: string
+  reports: string
+  show: string
+  hide: string
   timestamp: string
   user: string
   action: string

@@ -45,6 +45,27 @@ Examples:
 
 ## 🏷️ Version History
 
+### v2.1.1 - Internationalization & Audit Enhancements (August 15, 2025)
+**Patch release: Bilingual improvements and audit logging enhancements**
+
+**🌐 Internationalization Fixes:**
+- Fixed hardcoded English text in AI improvement error messages
+- Made all date picker calendars fully bilingual with proper `lang` attributes
+- Fixed hardcoded English text in audit dashboard
+- Replaced emoji with consistent Lucide icons in audit dashboard
+- Removed duplicate translation keys and fixed type definitions
+
+**📋 Audit System Improvements:**
+- Added comprehensive audit logging for company-wide item management (create, update, deactivate)
+- Implemented `auditEvaluationItem` function with complete before/after data tracking
+- Enhanced audit trail for company-wide competency and OKR changes
+- Improved audit dashboard with better bilingual support
+
+**✨ Quality Improvements:**
+- Fixed TypeScript compilation issues
+- Clean ESLint and build process
+- Enhanced user experience with consistent language support across all date inputs
+
 ### v2.1.0 - Mobile-First Dashboard & Enhanced UX (August 15, 2025)
 **Minor release: Comprehensive mobile optimization and UX improvements**
 

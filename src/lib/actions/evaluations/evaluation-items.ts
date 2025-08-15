@@ -4,6 +4,7 @@ import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma-client'
 import { revalidatePath, unstable_cache, revalidateTag } from 'next/cache'
 import { toISOStringSafe } from '@/lib/utils/date'
+import { auditEvaluationItem } from '@/lib/services/audit-service'
 
 // Server action to create new evaluation item
 export async function createEvaluationItem(formData: {
@@ -104,6 +105,25 @@ export async function createEvaluationItem(formData: {
         deadlineSetBy: deadlineDate ? userId : null
       }
     })
+
+    // Audit log for item creation
+    await auditEvaluationItem(
+      userId,
+      userRole,
+      companyId,
+      'create',
+      newItem.id,
+      null,
+      {
+        title: newItem.title,
+        description: newItem.description,
+        type: newItem.type,
+        level: newItem.level,
+        evaluationDeadline: toISOStringSafe(newItem.evaluationDeadline),
+        active: newItem.active
+      },
+      `Created ${type} item at ${level} level`
+    )
 
     // If it's a company-wide item, automatically assign to all employees and reopen completed evaluations
     if (level === 'company') {
@@ -306,29 +326,33 @@ export async function updateEvaluationItem(itemId: string, formData: {
       await handleItemDeactivation(existingItem, userId, session.user.name, userRole)
     }
 
-    // Log deadline changes for audit
-    if (evaluationDeadline !== undefined && 
-        toISOStringSafe(existingItem.evaluationDeadline) !== toISOStringSafe(deadlineDate)) {
-      const auditLog = {
-        timestamp: new Date().toISOString(),
-        userId,
-        userName: session.user.name,
-        userRole,
-        action: 'deadline_changed',
-        itemId,
-        itemTitle: existingItem.title,
-        oldDeadline: toISOStringSafe(existingItem.evaluationDeadline),
-        newDeadline: toISOStringSafe(deadlineDate),
-        companyId
-      }
-      console.log('AUDIT: Evaluation item deadline changed:', JSON.stringify(auditLog, null, 2))
-    }
-
     // Update the item
     await prisma.evaluationItem.update({
       where: { id: itemId },
       data: updateData
     })
+
+    // Audit log for item update
+    await auditEvaluationItem(
+      userId,
+      userRole,
+      companyId,
+      'update',
+      itemId,
+      {
+        title: existingItem.title,
+        description: existingItem.description,
+        evaluationDeadline: toISOStringSafe(existingItem.evaluationDeadline),
+        active: existingItem.active
+      },
+      {
+        title: updateData.title || existingItem.title,
+        description: updateData.description || existingItem.description,
+        evaluationDeadline: toISOStringSafe(updateData.evaluationDeadline !== undefined ? updateData.evaluationDeadline : existingItem.evaluationDeadline),
+        active: updateData.active !== undefined ? updateData.active : existingItem.active
+      },
+      `Updated ${existingItem.level}-level ${existingItem.type} item`
+    )
 
     revalidatePath('/evaluations/assignments')
     revalidatePath('/dashboard/company-items')
@@ -348,9 +372,9 @@ export async function updateEvaluationItem(itemId: string, formData: {
 
 // Helper function to handle item deactivation cleanup
 async function handleItemDeactivation(
-  existingItem: { id: string; level: string; companyId: string; title: string }, 
+  existingItem: { id: string; level: string; companyId: string; title: string; type: string }, 
   userId: string, 
-  userName: string, 
+  _userName: string, 
   userRole: string
 ) {
   try {
@@ -384,20 +408,17 @@ async function handleItemDeactivation(
       where: { evaluationItemId: existingItem.id }
     })
 
-    // Audit log
-    const auditLog = {
-      timestamp: new Date().toISOString(),
+    // Audit log for item deactivation
+    await auditEvaluationItem(
       userId,
-      userName,
       userRole,
-      action: 'item_deactivated',
-      itemId: existingItem.id,
-      itemTitle: existingItem.title,
-      itemLevel: existingItem.level,
-      companyId: existingItem.companyId,
-      message: 'Item deactivated and removed from all employee evaluations'
-    }
-    console.log('AUDIT: Evaluation item deactivated:', JSON.stringify(auditLog, null, 2))
+      existingItem.companyId,
+      'update',
+      existingItem.id,
+      { active: true },
+      { active: false },
+      `Deactivated ${existingItem.level}-level ${existingItem.type} item and removed from all employee evaluations`
+    )
 
   } catch (error) {
     console.error('Error during deactivation cleanup:', error)

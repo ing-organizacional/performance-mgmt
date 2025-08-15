@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { LanguageSwitcher } from '@/components/layout'
 import { exportAuditLogsToExcel } from '@/lib/services/audit-export'
-import { FileText, User, RotateCcw, Edit3, CheckCircle, BarChart3, File } from 'lucide-react'
+import { FileText, User, RotateCcw, Edit3, CheckCircle, BarChart3, File, ChevronLeft, Download, X, BarChart } from 'lucide-react'
 
 interface AuditLog {
   id: string
@@ -51,7 +51,7 @@ export default function AuditDashboard({
 }: AuditDashboardProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const { t } = useLanguage()
+  const { t, language } = useLanguage()
   const [expandedLog, setExpandedLog] = useState<string | null>(null)
   const [exporting, setExporting] = useState(false)
 
@@ -135,9 +135,7 @@ export default function AuditDashboard({
                 onClick={() => router.push('/dashboard')}
                 className="p-1.5 md:p-2 -ml-1.5 min-h-[44px] min-w-[44px] rounded-lg text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-all duration-200 touch-manipulation"
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                </svg>
+                <ChevronLeft className="w-5 h-5" />
               </button>
               <div className="min-w-0 flex-1">
                 <h1 className="text-base md:text-lg font-semibold text-gray-900">{t.dashboard.auditDashboard}</h1>
@@ -178,11 +176,11 @@ export default function AuditDashboard({
                 className="px-2 md:px-3 py-1.5 md:py-2 min-h-[36px] md:min-h-[44px] border border-gray-300 rounded text-xs md:text-sm min-w-[100px] md:min-w-[120px] bg-white shadow-sm hover:border-primary focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all duration-200"
               >
                 <option value="">{t.dashboard.allTypes}</option>
-                <option value="evaluation">Evaluations</option>
-                <option value="user">Users</option>
-                <option value="cycle">Cycles</option>
-                <option value="item">Items</option>
-                <option value="report">Reports</option>
+                <option value="evaluation">{t.dashboard.evaluations}</option>
+                <option value="user">{t.dashboard.users}</option>
+                <option value="cycle">{t.dashboard.cycles}</option>
+                <option value="item">{t.dashboard.items}</option>
+                <option value="report">{t.dashboard.reports}</option>
               </select>
 
               <div className="flex flex-col gap-0.5 min-w-[130px] md:min-w-[150px]">
@@ -192,6 +190,7 @@ export default function AuditDashboard({
                   value={filters.startDate ? filters.startDate.toISOString().split('T')[0] : ''}
                   onChange={(e) => updateFilters({ startDate: e.target.value })}
                   className="px-2 md:px-3 py-1.5 md:py-2 min-h-[36px] md:min-h-[44px] border border-gray-300 rounded text-xs md:text-sm bg-white shadow-sm hover:border-primary focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all duration-200"
+                  lang={language}
                 />
               </div>
               
@@ -202,6 +201,7 @@ export default function AuditDashboard({
                   value={filters.endDate ? filters.endDate.toISOString().split('T')[0] : ''}
                   onChange={(e) => updateFilters({ endDate: e.target.value })}
                   className="px-2 md:px-3 py-1.5 md:py-2 min-h-[36px] md:min-h-[44px] border border-gray-300 rounded text-xs md:text-sm bg-white shadow-sm hover:border-primary focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all duration-200"
+                  lang={language}
                 />
               </div>
             </div>
@@ -218,9 +218,7 @@ export default function AuditDashboard({
                 disabled={exporting || logs.length === 0}
                 className="px-3 md:px-4 py-1.5 md:py-2 min-h-[36px] md:min-h-[44px] bg-primary text-white rounded hover:bg-primary-hover text-xs md:text-sm font-medium whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1 md:gap-2 transition-all duration-200 shadow-sm active:scale-95"
               >
-                <svg className="w-3 h-3 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
+                <Download className="w-3 h-3 md:w-4 md:h-4" />
                 <span>{exporting ? '...' : t.dashboard.exportExcel}</span>
               </button>
             </div>
@@ -238,7 +236,7 @@ export default function AuditDashboard({
               </span>
               <div className="h-3 w-px bg-gray-300 hidden md:block"></div>
               <span className="text-xs text-gray-500 hidden md:inline">
-                {totalPages} pages total
+                {t.dashboard.totalPages.replace('{count}', totalPages.toString())}
               </span>
             </div>
             
@@ -328,7 +326,7 @@ export default function AuditDashboard({
                         onClick={() => setExpandedLog(expandedLog === log.id ? null : log.id)}
                         className="px-2 py-1 md:px-2.5 md:py-1.5 min-h-[28px] md:min-h-[44px] bg-primary text-white rounded hover:bg-primary-hover text-xs font-medium transition-all duration-200 shadow-sm active:scale-95"
                       >
-                        {expandedLog === log.id ? 'Hide' : 'Show'}
+                        {expandedLog === log.id ? t.dashboard.hide : t.dashboard.show}
                       </button>
                     </td>
                   </tr>
@@ -338,9 +336,9 @@ export default function AuditDashboard({
 
             {logs.length === 0 && (
               <div className="text-center py-12 md:py-16">
-                <div className="text-gray-400 text-4xl md:text-6xl mb-4">📊</div>
+                <BarChart className="w-12 h-12 md:w-16 md:h-16 text-gray-400 mx-auto mb-4" />
                 <h3 className="text-lg md:text-xl font-semibold text-gray-700 mb-2">{t.dashboard.noAuditLogs}</h3>
-                <p className="text-sm md:text-base text-gray-500">Audit logs will appear here once system activity occurs</p>
+                <p className="text-sm md:text-base text-gray-500">{t.dashboard.auditLogsWillAppear}</p>
               </div>
             )}
           </div>
@@ -358,9 +356,7 @@ export default function AuditDashboard({
                   onClick={() => setExpandedLog(null)}
                   className="p-1.5 min-h-[44px] min-w-[44px] text-gray-400 hover:text-gray-600 hover:bg-gray-100/50 rounded transition-all duration-200"
                 >
-                  <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
+                  <X className="w-4 h-4 md:w-5 md:h-5" />
                 </button>
               </div>
               

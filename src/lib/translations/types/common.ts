@@ -36,6 +36,10 @@ export interface CommonTranslations {
   improveWithAITooltip: string
   aiImprovementSuccess: string
   aiImprovementFailed: string
+  aiRefinedTextSuccess: string
+  aiFailedToImproveText: string
+  aiUnexpectedError: string
+  refineWithAI: string
   dismissError: string
   departments: string
   unknownError: string

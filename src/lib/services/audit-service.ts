@@ -239,6 +239,32 @@ export async function auditBulkOperation(
 }
 
 /**
+ * Audit evaluation item management actions
+ */
+export async function auditEvaluationItem(
+  userId: string,
+  userRole: string,
+  companyId: string,
+  action: AuditAction,
+  itemId: string,
+  oldData?: JsonValue,
+  newData?: JsonValue,
+  reason?: string
+) {
+  await createAuditLog({
+    userId,
+    userRole,
+    companyId,
+    action,
+    entityType: 'item',
+    entityId: itemId,
+    oldData,
+    newData,
+    reason
+  })
+}
+
+/**
  * Query audit logs with filters
  */
 export async function queryAuditLogs(

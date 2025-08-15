@@ -32,7 +32,7 @@ export function ItemEditor({
   onSave,
   onCancel
 }: ItemEditorProps) {
-  const { t } = useLanguage()
+  const { t, language } = useLanguage()
   const { success, error } = useToast()
   const [aiPending, startAITransition] = useTransition()
   const [improvingField, setImprovingField] = useState<'title' | 'description' | null>(null)
@@ -151,15 +151,15 @@ export function ItemEditor({
           animateTextChange(field, result.improvedText)
           
           setAiError(null) // Clear error on success
-          success(isIteration ? `AI refined text successfully` : t.common.aiImprovementSuccess)
+          success(isIteration ? t.common.aiRefinedTextSuccess : t.common.aiImprovementSuccess)
         } else {
-          const errorMessage = result.error || 'Failed to improve text'
+          const errorMessage = result.error || t.common.aiFailedToImproveText
           setAiError(errorMessage)
           error(errorMessage)
         }
       } catch (err) {
         console.error('AI improvement error:', err)
-        const errorMessage = 'Unexpected error occurred. Please try again.'
+        const errorMessage = t.common.aiUnexpectedError
         setAiError(errorMessage)
         error(errorMessage)
       } finally {
@@ -240,8 +240,8 @@ export function ItemEditor({
               onClick={() => handleImproveText('title', textHistory.title.length > 0)}
               disabled={isPending || aiPending || improvingField === 'title'}
               className="flex items-center justify-center min-w-[44px] h-9 px-2.5 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 hover:text-blue-700 disabled:bg-gray-50 disabled:text-gray-400 disabled:cursor-not-allowed active:scale-95 transition-all duration-150 touch-manipulation border border-blue-200 hover:border-blue-300"
-              title={improvingField === 'title' ? t.common.improving : (textHistory.title.length > 0 ? 'Refine with AI' : t.common.improveWithAITooltip)}
-              aria-label={improvingField === 'title' ? t.common.improving : (textHistory.title.length > 0 ? 'Refine with AI' : t.common.improveWithAITooltip)}
+              title={improvingField === 'title' ? t.common.improving : (textHistory.title.length > 0 ? t.common.refineWithAI : t.common.improveWithAITooltip)}
+              aria-label={improvingField === 'title' ? t.common.improving : (textHistory.title.length > 0 ? t.common.refineWithAI : t.common.improveWithAITooltip)}
             >
               {improvingField === 'title' ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -305,8 +305,8 @@ export function ItemEditor({
                   onClick={() => handleImproveText('description', textHistory.description.length > 0)}
                   disabled={isPending || aiPending || improvingField === 'description'}
                   className="flex items-center justify-center min-w-[44px] h-9 px-2.5 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 hover:text-blue-700 disabled:bg-gray-50 disabled:text-gray-400 disabled:cursor-not-allowed active:scale-95 transition-all duration-150 touch-manipulation border border-blue-200 hover:border-blue-300"
-                  title={improvingField === 'description' ? t.common.improving : (textHistory.description.length > 0 ? 'Refine with AI' : t.common.improveWithAITooltip)}
-                  aria-label={improvingField === 'description' ? t.common.improving : (textHistory.description.length > 0 ? 'Refine with AI' : t.common.improveWithAITooltip)}
+                  title={improvingField === 'description' ? t.common.improving : (textHistory.description.length > 0 ? t.common.refineWithAI : t.common.improveWithAITooltip)}
+                  aria-label={improvingField === 'description' ? t.common.improving : (textHistory.description.length > 0 ? t.common.refineWithAI : t.common.improveWithAITooltip)}
                 >
                   {improvingField === 'description' ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
@@ -365,6 +365,7 @@ export function ItemEditor({
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-gray-900 text-sm"
               min={new Date().toISOString().slice(0, 10)}
               disabled={isPending}
+              lang={language}
             />
           </div>
         )}

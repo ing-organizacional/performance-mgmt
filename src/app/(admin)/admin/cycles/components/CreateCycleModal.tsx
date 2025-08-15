@@ -9,7 +9,7 @@ interface CreateCycleModalProps {
 }
 
 export function CreateCycleModal({ onClose, onSubmit, isPending }: CreateCycleModalProps) {
-  const { t } = useLanguage()
+  const { t, language } = useLanguage()
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
@@ -56,6 +56,7 @@ export function CreateCycleModal({ onClose, onSubmit, isPending }: CreateCycleMo
                 type="date"
                 required
                 className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
+                lang={language}
               />
             </div>
 
@@ -68,6 +69,7 @@ export function CreateCycleModal({ onClose, onSubmit, isPending }: CreateCycleMo
                 type="date"
                 required
                 className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
+                lang={language}
               />
             </div>
           </div>
