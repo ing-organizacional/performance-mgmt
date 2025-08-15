@@ -1,4 +1,5 @@
 import OpenAI from 'openai'
+import Anthropic from '@anthropic-ai/sdk'
 import { getSystemPrompt } from './prompts'
 
 /**
@@ -48,13 +49,86 @@ export class OpenAIProvider implements LLMProvider {
 }
 
 /**
- * Anthropic provider implementation (future)
+ * Anthropic provider implementation (Claude)
  */
 export class AnthropicProvider implements LLMProvider {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  private client: Anthropic
+
+  constructor() {
+    if (!process.env.ANTHROPIC_API_KEY) {
+      throw new Error('AI_CONFIG_MISSING')
+    }
+    
+    this.client = new Anthropic({
+      apiKey: process.env.ANTHROPIC_API_KEY
+    })
+  }
+
   async improveText(text: string, type: 'objective' | 'key-result' | 'competency' | 'competency-description', context?: string, isIteration?: boolean, department?: string): Promise<string> {
-    // TODO: Implement when @anthropic-ai/sdk is added
-    throw new Error('Anthropic provider not yet implemented')
+    try {
+      const systemPrompt = getSystemPrompt(type, isIteration, department)
+      const userPrompt = context ? `Context: ${context}\n\nOriginal: ${text}` : `Original: ${text}`
+
+      console.log('🤖 [Anthropic] Starting text improvement request')
+      console.log('🔧 [Anthropic] Configuration:', {
+        model: process.env.ANTHROPIC_MODEL || 'claude-3-haiku-20240307',
+        textLength: text.length,
+        type: type,
+        hasContext: !!context,
+        maxTokens: parseInt(process.env.LLM_MAX_TOKENS || '500')
+      })
+
+      const response = await this.client.messages.create({
+        model: process.env.ANTHROPIC_MODEL || 'claude-3-haiku-20240307',
+        max_tokens: parseInt(process.env.LLM_MAX_TOKENS || '500'),
+        temperature: parseFloat(process.env.LLM_TEMPERATURE || '0.3'),
+        system: systemPrompt,
+        messages: [
+          { role: 'user', content: userPrompt }
+        ]
+      })
+
+      console.log('📥 [Anthropic] Response received:', {
+        stopReason: response.stop_reason,
+        usage: response.usage,
+        contentBlocks: response.content.length
+      })
+
+      // Extract text from response content blocks
+      const improvedText = response.content
+        .filter(block => block.type === 'text')
+        .map(block => block.text)
+        .join('')
+        .trim()
+
+      if (!improvedText) {
+        console.warn('⚠️ [Anthropic] Empty response received, using original text')
+        return text
+      }
+
+      console.log('✅ [Anthropic] Text improvement successful:', {
+        originalLength: text.length,
+        improvedLength: improvedText.length,
+        originalText: text.substring(0, 100) + (text.length > 100 ? '...' : ''),
+        improvedText: improvedText.substring(0, 100) + (improvedText.length > 100 ? '...' : ''),
+        inputTokens: response.usage.input_tokens,
+        outputTokens: response.usage.output_tokens
+      })
+
+      return improvedText
+    } catch (error) {
+      console.error('💥 [Anthropic] Fatal error during text improvement:', error)
+      
+      if (error instanceof Error) {
+        console.error('🔍 [Anthropic] Error details:', {
+          name: error.name,
+          message: error.message,
+          stack: error.stack?.split('\n').slice(0, 3).join('\n') // Limit stack trace
+        })
+      }
+      
+      throw new Error('Failed to improve text with Anthropic')
+    }
   }
 }
 

@@ -49,7 +49,7 @@ export function ItemEditor({
     description: number
   }>({ title: 0, description: 0 })
   
-  const [isStreaming, setIsStreaming] = useState<{
+  const [, setIsStreaming] = useState<{
     title: boolean
     description: boolean
   }>({ title: false, description: false })

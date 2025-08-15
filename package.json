@@ -19,6 +19,7 @@
     "db:reset:basic": "prisma db push --force-reset && yarn db:seed:basic"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.60.0",
     "@prisma/client": "^6.14.0",
     "@radix-ui/react-checkbox": "^1.3.2",
     "@radix-ui/react-progress": "^1.1.7",

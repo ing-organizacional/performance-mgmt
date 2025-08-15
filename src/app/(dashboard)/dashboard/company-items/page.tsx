@@ -18,6 +18,24 @@ interface CompanyEvaluationItem {
   createdAt: string
 }
 
+interface EvaluationItemWithRelations {
+  id: string
+  title: string
+  description: string
+  type: string
+  active: boolean
+  evaluationDeadline: Date | null
+  createdAt: Date
+  creator: {
+    name: string
+    role: string
+  } | null
+  deadlineSetByUser: {
+    name: string
+    role: string
+  } | null
+}
+
 async function getCompanyItems(companyId: string): Promise<CompanyEvaluationItem[]> {
   const items = await prisma.evaluationItem.findMany({
     where: {
@@ -45,7 +63,7 @@ async function getCompanyItems(companyId: string): Promise<CompanyEvaluationItem
   })
 
   // Transform the data to match the expected interface
-  return items.map(item => ({
+  return items.map((item: EvaluationItemWithRelations) => ({
     id: item.id,
     title: item.title,
     description: item.description,
