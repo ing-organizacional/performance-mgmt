@@ -105,7 +105,7 @@ export default function AssignmentsClient({
   }
 
   const handleSaveNew = () => {
-    itemEditorHook.handleSaveNew('department')
+    itemEditorHook.handleSaveNew('department', () => router.refresh())
   }
 
   const filteredItems = evaluationItems.filter(item => item.level === activeTab)
@@ -241,7 +241,7 @@ export default function AssignmentsClient({
                 aiEnabled={aiEnabled}
                 userDepartment={userDepartment}
                 onEditItem={itemEditorHook.handleEditItem}
-                onSaveEdit={itemEditorHook.handleSaveEdit}
+                onSaveEdit={() => itemEditorHook.handleSaveEdit(() => router.refresh())}
                 onCancelEdit={itemEditorHook.handleCancelEdit}
                 onUpdateEditingItem={itemEditorHook.updateEditingItem}
                 onBulkAssignment={handleBulkAssignment}
@@ -327,7 +327,7 @@ export default function AssignmentsClient({
                 aiEnabled={aiEnabled}
                 userDepartment={userDepartment}
                 onEditItem={itemEditorHook.handleEditItem}
-                onSaveEdit={itemEditorHook.handleSaveEdit}
+                onSaveEdit={() => itemEditorHook.handleSaveEdit(() => router.refresh())}
                 onCancelEdit={itemEditorHook.handleCancelEdit}
                 onUpdateEditingItem={itemEditorHook.updateEditingItem}
                 onBulkAssignment={handleBulkAssignment}
