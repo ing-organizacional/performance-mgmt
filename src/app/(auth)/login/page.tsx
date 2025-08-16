@@ -144,7 +144,7 @@ export default function LoginPage() {
             </p>
             <div className="flex justify-center">
               <div className="bg-white/10 backdrop-blur-sm rounded-lg p-1 border border-white/20">
-                <LanguageSwitcher />
+                <LanguageSwitcher variant="orange-header" />
               </div>
             </div>
           </div>
@@ -271,6 +271,9 @@ export default function LoginPage() {
         <div className="mt-8 text-center">
           <p className="text-white/70 text-sm">
             {t.auth.copyright}
+          </p>
+          <p className="text-white/70 text-sm mt-2">
+            Version 2.2.0
           </p>
         </div>
       </div>
