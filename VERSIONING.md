@@ -45,6 +45,39 @@ Examples:
 
 ## 🏷️ Version History
 
+### v2.2.0 - Speech Recognition & UX Enhancements (August 16, 2025)
+**Minor release: New speech-to-text features, improved UX, and comprehensive bug fixes**
+
+**🎤 Speech Recognition Enhancements:**
+- **NEW**: Conservative text enhancement for speech-to-text output with 90%+ confidence
+- Fixed microphone access permissions for speech recognition (security policy)
+- Added language-aware speech recognition support (Spanish/English)
+- Improved speech input reliability and error handling
+
+**🌐 Bilingual & UX Improvements:**
+- **NEW**: Enhanced autosave feedback with success confirmation and minimum visibility duration
+- **NEW**: Bilingual autosave messages (English/Spanish) with proper translations
+- Fixed mixed language issues in evaluation approval messages
+- Improved input visibility across all forms with consistent text colors
+
+**🔧 Critical Bug Fixes:**
+- Fixed evaluation cycle association bug preventing dashboard accuracy
+- Resolved dashboard completion statistics cache invalidation issues
+- Fixed navigation inconsistencies (archive page back button)
+- Standardized header styling across all dashboard pages
+
+**📊 Dashboard & Navigation:**
+- Fixed audit dashboard auto-scroll to bottom issue
+- Consistent header layout and spacing across all pages
+- Improved filter input visibility in audit page
+- Enhanced accessibility with proper touch targets and focus states
+
+**📋 Technical Improvements:**
+- Automatic linking of new evaluations to active performance cycles
+- Enhanced cache invalidation for real-time dashboard updates
+- Better error handling and user feedback mechanisms
+- Improved component consistency and maintainability
+
 ### v2.1.1 - Internationalization & Audit Enhancements (August 15, 2025)
 **Patch release: Bilingual improvements and audit logging enhancements**
 
