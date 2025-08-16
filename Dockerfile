@@ -28,14 +28,15 @@ COPY . .
 # Generate Prisma client
 RUN npx prisma generate
 
+# Set NODE_ENV to production for build process
+ENV NODE_ENV=production
+
 # Build the application
 RUN yarn build
 
 # Production image, copy all the files and run next
 FROM base AS runner
 WORKDIR /app
-
-ENV NODE_ENV=production
 
 # Use UnRAID standard user/group IDs for better compatibility
 # GID 100 (users) already exists in Alpine, so use it directly
