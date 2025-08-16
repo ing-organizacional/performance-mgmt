@@ -40,6 +40,8 @@ export const evaluations: EvaluationsTranslations = {
   employeesNeedReEvaluation: 'employees need re-evaluation',
   evaluationsAwaitingApproval: 'evaluations awaiting your acceptance',
   evaluationAwaitingApproval: 'evaluation awaiting your acceptance',
+  evaluationAwaitingApprovalMessage: 'You have {count} evaluation awaiting your acceptance that needs your acceptance.',
+  evaluationsAwaitingApprovalMessage: 'You have {count} evaluations awaiting your acceptance that need your acceptance.',
   comments: 'Comments',
   minimumCharacters: 'Minimum {count} characters',
   tapToRate: 'Tap a star to rate this item',

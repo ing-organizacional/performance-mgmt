@@ -112,12 +112,13 @@ export async function autosaveEvaluation(formData: {
         }
       })
     } else if (!existingEvaluation) {
-      // Create new evaluation as draft
+      // Create new evaluation as draft and link to active cycle
       evaluation = await prisma.evaluation.create({
         data: {
           employeeId,
           managerId: userId,
           companyId,
+          cycleId: activeCycle?.id || null,
           periodType: derivedPeriodType,
           periodDate: derivedPeriodDate,
           evaluationItemsData: JSON.stringify(evaluationItems),

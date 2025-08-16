@@ -46,6 +46,8 @@ export interface EvaluationsTranslations {
   employeesNeedReEvaluation: string
   evaluationsAwaitingApproval: string
   evaluationAwaitingApproval: string
+  evaluationAwaitingApprovalMessage: string
+  evaluationsAwaitingApprovalMessage: string
   comments: string
   minimumCharacters: string
   tapToRate: string

@@ -149,8 +149,8 @@ export default function MyEvaluationsClient({ evaluations, userName, activeCycle
                   {(() => {
                     const count = evaluations.filter(e => e.status === 'submitted').length;
                     return count === 1 
-                      ? `You have ${count} ${t.evaluations.evaluationAwaitingApproval} that needs your acceptance.`
-                      : `You have ${count} ${t.evaluations.evaluationsAwaitingApproval} that need your acceptance.`;
+                      ? t.evaluations.evaluationAwaitingApprovalMessage.replace('{count}', count.toString())
+                      : t.evaluations.evaluationsAwaitingApprovalMessage.replace('{count}', count.toString());
                   })()}
                 </p>
               </div>

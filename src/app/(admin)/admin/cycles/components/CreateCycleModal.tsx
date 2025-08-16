@@ -42,7 +42,7 @@ export function CreateCycleModal({ onClose, onSubmit, isPending }: CreateCycleMo
               type="text"
               required
               placeholder="e.g., 2025 Annual Review"
-              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
+              className="w-full px-4 py-3 min-h-[44px] text-base text-gray-900 placeholder-gray-500 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary/50 transition-all duration-200 shadow-sm hover:border-gray-300 touch-manipulation"
             />
           </div>
 
@@ -55,7 +55,7 @@ export function CreateCycleModal({ onClose, onSubmit, isPending }: CreateCycleMo
                 name="startDate"
                 type="date"
                 required
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
+                className="w-full px-4 py-3 min-h-[44px] text-base text-gray-900 placeholder-gray-500 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary/50 transition-all duration-200 shadow-sm hover:border-gray-300 touch-manipulation"
                 lang={language}
               />
             </div>
@@ -68,7 +68,7 @@ export function CreateCycleModal({ onClose, onSubmit, isPending }: CreateCycleMo
                 name="endDate"
                 type="date"
                 required
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
+                className="w-full px-4 py-3 min-h-[44px] text-base text-gray-900 placeholder-gray-500 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary/50 transition-all duration-200 shadow-sm hover:border-gray-300 touch-manipulation"
                 lang={language}
               />
             </div>
