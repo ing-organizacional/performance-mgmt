@@ -32,7 +32,7 @@ export default function EvaluateClient({
   })
 
   // Auto-save hook
-  const { autoSaving, triggerAutoSave, autoSaveEvaluationAction } = useAutosave({
+  const { autoSaving, saveSuccess, triggerAutoSave, autoSaveEvaluationAction } = useAutosave({
     employeeId,
     evaluationStatus: evaluation.evaluationStatus,
     evaluationItems: evaluation.evaluationItems,
@@ -104,6 +104,7 @@ export default function EvaluateClient({
         evaluationStatus={evaluation.evaluationStatus}
         userRole={userRole}
         autoSaving={autoSaving}
+        saveSuccess={saveSuccess}
         isAllComplete={evaluation.isAllComplete}
         submitting={evaluation.submitting}
         onBack={handleBackToList}

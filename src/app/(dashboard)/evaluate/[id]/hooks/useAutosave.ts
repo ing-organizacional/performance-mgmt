@@ -1,4 +1,4 @@
-import { useRef, useCallback, useState } from 'react'
+import { useRef, useCallback, useState, useEffect } from 'react'
 import { autosaveEvaluation } from '@/lib/actions/evaluations'
 import type { EvaluationItem, EvaluationStatus } from '../types'
 
@@ -22,7 +22,11 @@ export function useAutosave({
   onEvaluationIdChange
 }: UseAutosaveProps) {
   const [autoSaving, setAutoSaving] = useState(false)
+  const [pendingSave, setPendingSave] = useState(false)
+  const [saveSuccess, setSaveSuccess] = useState(false)
   const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const savingTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const successTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   // Auto-save functionality
   const autoSaveEvaluationAction = useCallback(async () => {
@@ -30,6 +34,8 @@ export function useAutosave({
     
     try {
       setAutoSaving(true)
+      setPendingSave(false)
+      
       const result = await autosaveEvaluation({
         employeeId,
         evaluationItems: evaluationItems.map(item => ({
@@ -48,18 +54,42 @@ export function useAutosave({
       if (result.success && result.evaluationId && !evaluationId) {
         onEvaluationIdChange(result.evaluationId)
       }
+      
+      // Show success state if save was successful
+      if (result.success) {
+        setAutoSaving(false)
+        setSaveSuccess(true)
+        
+        // Hide success message after 2 seconds
+        successTimeoutRef.current = setTimeout(() => {
+          setSaveSuccess(false)
+        }, 2000)
+      } else {
+        // If save failed, just hide the saving indicator
+        setAutoSaving(false)
+      }
+      
     } catch (err) {
       console.error('Auto-save error:', err)
-    } finally {
       setAutoSaving(false)
     }
   }, [evaluationStatus, employeeId, evaluationItems, overallRating, overallComment, evaluationId, onEvaluationIdChange])
 
   const triggerAutoSave = useCallback(() => {
-    // Clear existing timeout
+    // Clear existing timeouts
     if (autoSaveTimeoutRef.current) {
       clearTimeout(autoSaveTimeoutRef.current)
     }
+    if (savingTimeoutRef.current) {
+      clearTimeout(savingTimeoutRef.current)
+    }
+    if (successTimeoutRef.current) {
+      clearTimeout(successTimeoutRef.current)
+    }
+    
+    // Hide success message and show pending save indicator immediately
+    setSaveSuccess(false)
+    setPendingSave(true)
     
     // Set new timeout for auto-save (2 second delay as per requirements)
     autoSaveTimeoutRef.current = setTimeout(() => {
@@ -67,8 +97,24 @@ export function useAutosave({
     }, 2000)
   }, [autoSaveEvaluationAction])
 
+  // Cleanup timeouts on unmount
+  useEffect(() => {
+    return () => {
+      if (autoSaveTimeoutRef.current) {
+        clearTimeout(autoSaveTimeoutRef.current)
+      }
+      if (savingTimeoutRef.current) {
+        clearTimeout(savingTimeoutRef.current)
+      }
+      if (successTimeoutRef.current) {
+        clearTimeout(successTimeoutRef.current)
+      }
+    }
+  }, [])
+
   return {
-    autoSaving,
+    autoSaving: autoSaving || pendingSave,
+    saveSuccess,
     triggerAutoSave,
     autoSaveEvaluationAction
   }

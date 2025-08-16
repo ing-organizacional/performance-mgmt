@@ -10,6 +10,7 @@ interface EvaluationStepsProps {
   evaluationStatus: EvaluationStatus
   userRole: string
   autoSaving: boolean
+  saveSuccess: boolean
   isAllComplete: boolean
   submitting: boolean
   onBack: () => void
@@ -25,6 +26,7 @@ export function EvaluationSteps({
   evaluationStatus,
   userRole,
   autoSaving,
+  saveSuccess,
   isAllComplete,
   submitting,
   onBack,
@@ -75,12 +77,20 @@ export function EvaluationSteps({
                 {progress.completed} {t.evaluations?.of || 'of'} {progress.total} {t.evaluations?.itemsCompleted || 'completed'}
               </span>
               {autoSaving && (
-                <span className="text-sm text-gray-600 flex items-center">
-                  <svg className="animate-spin h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="flex items-center bg-blue-50 text-blue-700 px-3 py-1.5 rounded-lg border border-blue-200">
+                  <svg className="animate-spin h-4 w-4 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                   </svg>
-                  Auto-saving...
-                </span>
+                  <span className="text-sm font-medium">{t.evaluations?.autoSaving || 'Saving...'}</span>
+                </div>
+              )}
+              {saveSuccess && (
+                <div className="flex items-center bg-green-50 text-green-700 px-3 py-1.5 rounded-lg border border-green-200">
+                  <svg className="h-4 w-4 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span className="text-sm font-medium">{t.evaluations?.autoSaved || 'Saved'}</span>
+                </div>
               )}
             </div>
             
