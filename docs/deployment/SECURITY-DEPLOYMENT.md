@@ -36,7 +36,7 @@ add_header X-Frame-Options "SAMEORIGIN" always;
 add_header X-Content-Type-Options "nosniff" always;
 add_header X-XSS-Protection "1; mode=block" always;
 add_header Referrer-Policy "strict-origin-when-cross-origin" always;
-add_header Permissions-Policy "geolocation=(), microphone=(), camera=()" always;
+add_header Permissions-Policy "geolocation=(), microphone=(self), camera=()" always;
 add_header Content-Security-Policy "default-src 'self'; script-src 'self' \n  'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; \n  img-src 'self' data:; font-src 'self';" always;
 
 # Hide server information
@@ -282,6 +282,24 @@ if [ $ADMIN_ACCESS -gt 5 ]; then
     echo "Alert: $ADMIN_ACCESS admin endpoint accesses detected" | mail -s "Admin Access Alert" $ALERT_EMAIL
 fi
 ```
+
+## 🎤 Speech Recognition Security
+
+### Browser API Permissions
+
+The application includes **speech-to-text functionality** for evaluation input. The Permissions-Policy header is configured to allow microphone access only for the application's domain:
+
+```nginx
+add_header Permissions-Policy "geolocation=(), microphone=(self), camera=()" always;
+```
+
+**Security Benefits:**
+- ✅ **Microphone access restricted to same-origin only**
+- ✅ **Prevents third-party scripts from accessing microphone**
+- ✅ **Camera and geolocation completely blocked**
+- ✅ **Language-aware speech recognition (Spanish/English)**
+
+**Note:** Speech recognition is handled by the application's middleware at `/src/middleware.ts`. The Nginx configuration should match the application-level permissions for consistency.
 
 ## 🚀 Additional Hardening
 

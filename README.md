@@ -53,6 +53,7 @@ yarn lint && yarn tsc --noEmit  # Verify code quality
 - **Enterprise SSO ready**: Microsoft AD & Google Workspace integration
 - **Complete audit trails**: All actions tracked with timestamps
 - **Bilingual support**: English/Spanish with instant switching
+- **Speech-to-text input**: Language-aware voice recognition for evaluations
 
 ### Architecture Excellence
 
@@ -108,6 +109,7 @@ yarn lint && yarn tsc --noEmit  # Verify code quality
 - **Full audit trail**: All data changes with user/IP tracking
 - **OWASP Top 10**: All major vulnerabilities addressed
 - **Enterprise standards**: Data protection regulation compliant
+- **Browser API Security**: Permissions Policy with microphone=(self) for speech recognition
 
 **Security Verification:**
 

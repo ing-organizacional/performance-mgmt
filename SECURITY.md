@@ -211,8 +211,10 @@ EXPOSE 3000
 ✅ **API & NETWORK SECURITY** - EXCELLENT
 - Content Security Policy (CSP) with 11 security directives
 - Security headers: X-Frame-Options, X-Content-Type-Options, nosniff
+- Permissions Policy: microphone=(self), camera=(), geolocation=() for browser API security
 - Rate limiting implemented for authentication endpoints
 - CORS protection via NextAuth SameSite cookies
+- Speech recognition secured with origin-restricted microphone access
 
 ✅ **XSS & CODE INJECTION PROTECTION** - EXCELLENT
 - No dangerous HTML methods (dangerouslySetInnerHTML, innerHTML)

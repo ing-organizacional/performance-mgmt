@@ -114,6 +114,7 @@ LLM_TEMPERATURE=0.3
 - **Version History**: Switch between original and up to 3 AI-improved versions
 - **Streaming UI**: Animated text updates with professional loading states
 - **Bilingual Support**: Complete English/Spanish translation coverage
+- **Speech Recognition**: Language-aware voice input (Spanish/English) for text fields
 
 ## Core System Features
 
@@ -125,6 +126,7 @@ LLM_TEMPERATURE=0.3
 - **HR Controls**: Can unlock submitted evaluations back to draft
 - **Auto-save**: 2-second delay on manager evaluation forms
 - **AI Integration**: Real-time text improvement during item creation/editing
+- **Speech-to-Text**: Voice input for evaluations with language-aware recognition
 
 **Performance Cycle Management:**
 
@@ -301,4 +303,5 @@ enterprise features
   Claude-3-Sonnet, Claude-3-Opus, Ollama local models supported
 - **Performance**: Turbopack development, optimized production builds
 - **Security**: Rate limiting, input validation, secure credential
-  management
+  management, middleware permissions policy
+- **Browser APIs**: Speech recognition (microphone access), secure permissions policy
