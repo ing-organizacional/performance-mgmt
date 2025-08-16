@@ -164,7 +164,7 @@ export default function ArchiveClient({
             {/* Left Section - Navigation & Title */}
             <div className="flex items-center gap-6">
               <Link
-                href="/users"
+                href="/dashboard"
                 className="flex items-center justify-center min-w-[44px] min-h-[44px] bg-white/20 text-white rounded-xl hover:bg-white/30 hover:scale-105 active:scale-95 transition-all duration-200 touch-manipulation shadow-sm"
                 title={t.common.back}
               >

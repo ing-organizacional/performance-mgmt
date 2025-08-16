@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { LanguageSwitcher } from '@/components/layout'
@@ -54,6 +54,11 @@ export default function AuditDashboard({
   const { t, language } = useLanguage()
   const [expandedLog, setExpandedLog] = useState<string | null>(null)
   const [exporting, setExporting] = useState(false)
+
+  // Ensure page starts at the top
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'instant' })
+  }, [])
 
   const updateFilters = (newFilters: Record<string, string>) => {
     const params = new URLSearchParams(searchParams.toString())
@@ -126,38 +131,47 @@ export default function AuditDashboard({
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
-      {/* Fixed Header - Compact audit design */}
-      <div className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-200/50 shadow-sm">
-        <div className="max-w-8xl mx-auto px-4 md:px-6 lg:px-8 py-2 md:py-3">
+      {/* Header - Consistent with other dashboard pages */}
+      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-gray-200/50 shadow-sm">
+        <div className="max-w-8xl mx-auto px-6 lg:px-8 py-6">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 md:gap-3 min-w-0 flex-1">
+            {/* Left Section - Navigation & Title */}
+            <div className="flex items-center gap-6">
               <button
                 onClick={() => router.push('/dashboard')}
-                className="p-1.5 md:p-2 -ml-1.5 min-h-[44px] min-w-[44px] rounded-lg text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-all duration-200 touch-manipulation"
+                className="flex items-center justify-center min-w-[44px] min-h-[44px] bg-gray-100 text-gray-600 rounded-xl hover:bg-gray-200 hover:scale-105 active:scale-95 transition-all duration-200 touch-manipulation shadow-sm"
+                title={t.common.back}
               >
                 <ChevronLeft className="w-5 h-5" />
               </button>
-              <div className="min-w-0 flex-1">
-                <h1 className="text-base md:text-lg font-semibold text-gray-900">{t.dashboard.auditDashboard}</h1>
-                <p className="text-xs md:text-sm text-gray-500 hidden md:block">{t.dashboard.auditDescription}</p>
+              
+              <div className="min-w-0">
+                <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">
+                  {t.dashboard.auditDashboard}
+                </h1>
+                <p className="text-sm text-gray-600 mt-1">
+                  {t.dashboard.auditDescription}
+                </p>
               </div>
             </div>
-            <div className="flex items-center gap-2">
+
+            {/* Right Section - Actions */}
+            <div className="flex items-center gap-4">
               <LanguageSwitcher />
             </div>
           </div>
         </div>
-      </div>
+      </header>
 
-      {/* Filters - Compact and flush with header */}
-      <div className="fixed top-[60px] md:top-[72px] left-0 right-0 z-40 bg-white/90 backdrop-blur-md border-b border-gray-200/50 shadow-sm">
-        <div className="max-w-8xl mx-auto px-4 md:px-6 lg:px-8 py-2 md:py-3">
+      {/* Filters - Consistent styling */}
+      <div className="bg-white/90 backdrop-blur-md border-b border-gray-200/50 sticky top-[92px] z-30 shadow-sm">
+        <div className="max-w-8xl mx-auto px-6 lg:px-8 py-6">
           <div className="flex flex-wrap items-end justify-between gap-2 md:gap-3">
             <div className="flex flex-wrap items-end gap-2 md:gap-3 flex-1">
               <select
                 value={filters.action || ''}
                 onChange={(e) => updateFilters({ action: e.target.value })}
-                className="px-2 md:px-3 py-1.5 md:py-2 min-h-[36px] md:min-h-[44px] border border-gray-300 rounded text-xs md:text-sm min-w-[100px] md:min-w-[120px] bg-white shadow-sm hover:border-primary focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all duration-200"
+                className="px-2 md:px-3 py-1.5 md:py-2 min-h-[36px] md:min-h-[44px] text-base text-gray-900 placeholder-gray-500 bg-white border border-gray-300 rounded text-xs md:text-sm min-w-[100px] md:min-w-[120px] shadow-sm hover:border-primary focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all duration-200"
               >
                 <option value="">{t.dashboard.allActions}</option>
                 <option value="create">{getActionText('create')}</option>
@@ -173,7 +187,7 @@ export default function AuditDashboard({
               <select
                 value={filters.entityType || ''}
                 onChange={(e) => updateFilters({ entityType: e.target.value })}
-                className="px-2 md:px-3 py-1.5 md:py-2 min-h-[36px] md:min-h-[44px] border border-gray-300 rounded text-xs md:text-sm min-w-[100px] md:min-w-[120px] bg-white shadow-sm hover:border-primary focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all duration-200"
+                className="px-2 md:px-3 py-1.5 md:py-2 min-h-[36px] md:min-h-[44px] text-base text-gray-900 placeholder-gray-500 bg-white border border-gray-300 rounded text-xs md:text-sm min-w-[100px] md:min-w-[120px] shadow-sm hover:border-primary focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all duration-200"
               >
                 <option value="">{t.dashboard.allTypes}</option>
                 <option value="evaluation">{t.dashboard.evaluations}</option>
@@ -189,7 +203,7 @@ export default function AuditDashboard({
                   type="date"
                   value={filters.startDate ? filters.startDate.toISOString().split('T')[0] : ''}
                   onChange={(e) => updateFilters({ startDate: e.target.value })}
-                  className="px-2 md:px-3 py-1.5 md:py-2 min-h-[36px] md:min-h-[44px] border border-gray-300 rounded text-xs md:text-sm bg-white shadow-sm hover:border-primary focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all duration-200"
+                  className="px-2 md:px-3 py-1.5 md:py-2 min-h-[36px] md:min-h-[44px] text-base text-gray-900 placeholder-gray-500 bg-white border border-gray-300 rounded text-xs md:text-sm shadow-sm hover:border-primary focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all duration-200"
                   lang={language}
                 />
               </div>
@@ -200,7 +214,7 @@ export default function AuditDashboard({
                   type="date"
                   value={filters.endDate ? filters.endDate.toISOString().split('T')[0] : ''}
                   onChange={(e) => updateFilters({ endDate: e.target.value })}
-                  className="px-2 md:px-3 py-1.5 md:py-2 min-h-[36px] md:min-h-[44px] border border-gray-300 rounded text-xs md:text-sm bg-white shadow-sm hover:border-primary focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all duration-200"
+                  className="px-2 md:px-3 py-1.5 md:py-2 min-h-[36px] md:min-h-[44px] text-base text-gray-900 placeholder-gray-500 bg-white border border-gray-300 rounded text-xs md:text-sm shadow-sm hover:border-primary focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all duration-200"
                   lang={language}
                 />
               </div>
@@ -226,9 +240,9 @@ export default function AuditDashboard({
         </div>
       </div>
 
-      {/* Stats & Pagination Bar - Compact audit design */}
-      <div className="mt-[140px] md:mt-[160px] bg-gradient-to-r from-gray-50 to-blue-50 border-b border-gray-200/50">
-        <div className="max-w-8xl mx-auto px-4 md:px-6 lg:px-8 py-2 md:py-3">
+      {/* Stats & Pagination Bar */}
+      <div className="bg-gradient-to-r from-gray-50 to-blue-50 border-b border-gray-200/50">
+        <div className="max-w-8xl mx-auto px-6 lg:px-8 py-4">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-2 md:gap-3">
             <div className="flex items-center gap-2 md:gap-3">
               <span className="text-xs md:text-sm text-gray-700 font-medium">
@@ -271,8 +285,8 @@ export default function AuditDashboard({
         </div>
       </div>
 
-      {/* Audit Logs Table - Compact audit design */}
-      <div className="max-w-8xl mx-auto px-4 md:px-6 lg:px-8 py-2 md:py-3">
+      {/* Audit Logs Table */}
+      <div className="max-w-8xl mx-auto px-6 lg:px-8 py-6">
         <div className="bg-white/90 backdrop-blur-sm rounded-lg md:rounded-xl shadow-lg border border-gray-200/50 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="min-w-full">
