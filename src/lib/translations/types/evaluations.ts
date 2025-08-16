@@ -17,6 +17,8 @@ export interface EvaluationsTranslations {
   submitEvaluation: string
   submitForApproval: string
   submitting: string
+  autoSaving: string
+  autoSaved: string
   evaluationSubmittedSuccess: string
   evaluationApprovedSuccess: string
   awaitingEmployeeApproval: string

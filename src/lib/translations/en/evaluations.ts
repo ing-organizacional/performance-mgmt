@@ -11,6 +11,8 @@ export const evaluations: EvaluationsTranslations = {
   submitEvaluation: 'Submit Evaluation',
   submitForApproval: 'Submit for Employee Acceptance',
   submitting: 'Submitting...',
+  autoSaving: 'Saving...',
+  autoSaved: 'Saved',
   evaluationSubmittedSuccess: 'Evaluation submitted for employee acceptance',
   evaluationApprovedSuccess: 'Evaluation accepted successfully!',
   awaitingEmployeeApproval: 'Awaiting your acceptance',
