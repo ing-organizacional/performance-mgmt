@@ -215,6 +215,8 @@ export async function submitEvaluation(evaluationId: string) {
 
     revalidatePath('/evaluations')
     revalidatePath(`/evaluate/${evaluation.employeeId}`)
+    revalidatePath('/dashboard')
+    revalidatePath('/dashboard/pending')
     return { success: true }
 
   } catch (error) {
@@ -281,6 +283,8 @@ export async function approveEvaluation(evaluationId: string) {
     revalidatePath('/my-evaluations')
     revalidatePath('/evaluations')
     revalidatePath('/dashboard')
+    revalidatePath('/dashboard/pending')
+    revalidatePath('/', 'layout') // Revalidate entire layout cache
     return { success: true }
 
   } catch (error) {
@@ -348,6 +352,7 @@ export async function unlockEvaluation(evaluationId: string, reason?: string) {
 
     revalidatePath('/evaluations')
     revalidatePath('/dashboard')
+    revalidatePath('/dashboard/pending')
     return { success: true }
 
   } catch (error) {
