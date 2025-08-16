@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
+import { enhanceEvaluationText } from '@/lib/utils/text-enhancement'
 
 interface SpeechRecognitionOptions {
   language?: string
@@ -178,7 +179,10 @@ export function useSpeechRecognition(
         const transcriptText = result[0].transcript
 
         if (result.isFinal) {
-          finalTranscriptValue += transcriptText + ' '
+          // Apply conservative text enhancement to final results
+          const languageCode = language.startsWith('es') ? 'es' : 'en'
+          const enhancedText = enhanceEvaluationText(transcriptText, languageCode)
+          finalTranscriptValue += enhancedText + ' '
           setConfidence(result[0].confidence)
         } else {
           interimTranscriptValue += transcriptText
