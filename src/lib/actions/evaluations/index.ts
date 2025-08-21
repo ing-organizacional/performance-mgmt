@@ -12,7 +12,9 @@ export {
   createEvaluationItem,
   updateEvaluationItem,
   getEvaluationItems,
-  toggleEvaluationItemActive
+  toggleEvaluationItemActive,
+  archiveEvaluationItem,
+  getArchivedEvaluationItems
 } from './evaluation-items'
 
 // Data retrieval functions

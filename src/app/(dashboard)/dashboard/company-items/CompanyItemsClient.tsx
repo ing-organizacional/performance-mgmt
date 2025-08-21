@@ -1,15 +1,16 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { useState, useTransition, useEffect } from 'react'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { LanguageSwitcher } from '@/components/layout'
 import { ToastContainer } from '@/components/ui'
 import { useToast } from '@/hooks/useToast'
-import { createEvaluationItem, updateEvaluationItem, toggleEvaluationItemActive } from '@/lib/actions/evaluations'
+import { createEvaluationItem, updateEvaluationItem, toggleEvaluationItemActive, archiveEvaluationItem } from '@/lib/actions/evaluations'
 import { ItemEditor } from '@/app/(dashboard)/evaluations/assignments/components/ItemEditor'
 import type { EditingItem } from '@/app/(dashboard)/evaluations/assignments/types'
-import { Building2, Target, Star, ChevronLeft, Edit, Lock, Unlock, AlertTriangle } from 'lucide-react'
+import { Building2, Target, Star, ChevronLeft, Edit, Lock, Unlock, AlertTriangle, Archive, History } from 'lucide-react'
 
 interface CompanyEvaluationItem {
   id: string
@@ -25,13 +26,18 @@ interface CompanyEvaluationItem {
   createdAt: string
 }
 
+
 interface CompanyItemsClientProps {
   initialItems: CompanyEvaluationItem[]
   aiEnabled: boolean
   userDepartment?: string
+  archivedCount: {
+    okrs: number
+    competencies: number
+  }
 }
 
-export default function CompanyItemsClient({ initialItems, aiEnabled, userDepartment }: CompanyItemsClientProps) {
+export default function CompanyItemsClient({ initialItems, aiEnabled, userDepartment, archivedCount }: CompanyItemsClientProps) {
   const router = useRouter()
   const { t } = useLanguage()
   const { toasts, error: showError, success: showSuccess, removeToast } = useToast()
@@ -51,6 +57,11 @@ export default function CompanyItemsClient({ initialItems, aiEnabled, userDepart
   const [newItemType, setNewItemType] = useState<'okr' | 'competency'>('okr')
   const [showConfirmModal, setShowConfirmModal] = useState(false)
   const [itemToToggle, setItemToToggle] = useState<CompanyEvaluationItem | null>(null)
+  
+  // Archive functionality states
+  const [showArchiveModal, setShowArchiveModal] = useState(false)
+  const [itemToArchive, setItemToArchive] = useState<CompanyEvaluationItem | null>(null)
+  const [archiveReason, setArchiveReason] = useState('')
 
   const refreshItems = async () => {
     // Refresh the server component data - the revalidatePath in the server action 
@@ -247,6 +258,42 @@ export default function CompanyItemsClient({ initialItems, aiEnabled, userDepart
     setItemToToggle(null)
   }
 
+  // Archive functionality handlers
+  const handleArchiveClick = (item: CompanyEvaluationItem) => {
+    setItemToArchive(item)
+    setArchiveReason('')
+    setShowArchiveModal(true)
+  }
+
+  const handleArchiveConfirm = async () => {
+    if (!itemToArchive) return
+
+    startTransition(async () => {
+      try {
+        const result = await archiveEvaluationItem(itemToArchive.id, archiveReason)
+        
+        if (result.success) {
+          // Remove from active items list
+          setCompanyItems(prev => prev.filter(item => item.id !== itemToArchive.id))
+          showSuccess(result.message || t.companyItems?.archivedItems || 'Item archived successfully')
+          
+          // Refresh from server to update archive count
+          await refreshItems()
+        } else {
+          showError(result.error || t.companyItems?.errors?.failedToArchive || 'Failed to archive item')
+        }
+      } catch (error) {
+        console.error('Error archiving item:', error)
+        showError(t.companyItems?.errors?.errorArchiving || 'Error archiving item')
+      } finally {
+        setShowArchiveModal(false)
+        setItemToArchive(null)
+        setArchiveReason('')
+      }
+    })
+  }
+
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-blue-50/20 to-indigo-50/30">
       {/* Desktop-First Professional Header */}
@@ -412,6 +459,16 @@ export default function CompanyItemsClient({ initialItems, aiEnabled, userDepart
                         {item.active ? <Lock className="h-4 w-4" /> : <Unlock className="h-4 w-4" />}
                         <span className="hidden sm:inline">{item.active ? t.companyItems?.deactivate || 'Deactivate' : t.companyItems?.activate || 'Activate'}</span>
                       </button>
+                      {!item.active && (
+                        <button
+                          onClick={() => handleArchiveClick(item)}
+                          className="flex items-center space-x-2 min-w-[44px] min-h-[44px] px-3 py-2 bg-amber-100 text-amber-700 text-sm font-medium rounded-lg hover:bg-amber-200 active:scale-95 transition-all duration-150 touch-manipulation"
+                          title={t.companyItems?.archiveInactiveItem || 'Archive inactive item'}
+                        >
+                          <Archive className="h-4 w-4" />
+                          <span className="hidden sm:inline">{t.companyItems?.archive || 'Archive'}</span>
+                        </button>
+                      )}
                       <button
                         onClick={() => handleEditItem(item)}
                         className="flex items-center space-x-2 min-w-[44px] min-h-[44px] px-3 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 active:scale-95 transition-all duration-150 touch-manipulation"
@@ -445,6 +502,51 @@ export default function CompanyItemsClient({ initialItems, aiEnabled, userDepart
             )}
           </div>
         </div>
+
+        {/* Archive Stats Card */}
+        {(archivedCount.okrs > 0 || archivedCount.competencies > 0) && (
+          <div className="bg-white rounded-xl md:rounded-2xl border border-gray-200/60 shadow-sm mt-6 md:mt-8">
+            <div className="p-4 md:p-8">
+              <div className="flex items-start justify-between">
+                <div className="flex items-start gap-3 md:gap-4">
+                  <div className="w-8 h-8 md:w-12 md:h-12 bg-amber-100 rounded-lg md:rounded-xl flex items-center justify-center">
+                    <Archive className="w-5 h-5 md:w-6 md:h-6 text-amber-600" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg md:text-xl font-bold text-gray-900 mb-2">
+                      {t.companyItems?.archivedItems || 'Archived Items'}
+                    </h3>
+                    <div className="flex flex-wrap items-center gap-4 mb-3">
+                      <div className="flex items-center gap-2">
+                        <Target className="h-4 w-4 text-primary" />
+                        <span className="text-sm text-gray-600">
+                          {archivedCount.okrs} {t.companyItems?.archivedOKRs || 'Archived OKRs'}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Star className="h-4 w-4 text-amber-500" />
+                        <span className="text-sm text-gray-600">
+                          {archivedCount.competencies} {t.companyItems?.archivedCompetencies || 'Archived Competencies'}
+                        </span>
+                      </div>
+                    </div>
+                    <p className="text-xs md:text-sm text-gray-500">
+                      {t.companyItems?.viewArchivedItems || 'View previously archived company-wide items'}
+                    </p>
+                  </div>
+                </div>
+                <Link
+                  href="/dashboard/company-items/archived"
+                  className="flex items-center space-x-2 px-4 py-2 min-h-[44px] bg-amber-100 text-amber-700 text-sm font-medium rounded-lg hover:bg-amber-200 active:scale-95 transition-all duration-150 touch-manipulation"
+                >
+                  <History className="h-4 w-4" />
+                  <span>{t.companyItems?.viewArchived || 'View'} {t.companyItems?.archived || 'Archived'}</span>
+                </Link>
+              </div>
+            </div>
+          </div>
+        )}
+
       </main>
 
       {/* Confirmation Modal */}
@@ -509,6 +611,79 @@ export default function CompanyItemsClient({ initialItems, aiEnabled, userDepart
                   }`}
                 >
                   {itemToToggle.active ? t.companyItems?.deactivate || 'Deactivate' : t.companyItems?.activate || 'Activate'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Archive Confirmation Modal */}
+      {showArchiveModal && itemToArchive && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 px-4">
+          <div className="bg-white rounded-xl md:rounded-2xl p-6 md:p-8 max-w-md w-full shadow-2xl border border-gray-200">
+            <div className="text-center">
+              <div className="mb-6">
+                {/* Icon */}
+                <div className="mx-auto flex items-center justify-center w-12 h-12 md:w-16 md:h-16 rounded-full mb-4 bg-amber-100">
+                  <Archive className="w-6 h-6 md:w-8 md:h-8 text-amber-600" />
+                </div>
+                
+                {/* Title */}
+                <h3 className="text-lg md:text-xl font-bold text-gray-900 mb-2">
+                  {t.companyItems?.confirmArchive || 'Archive'} {itemToArchive.type === 'okr' ? 'OKR' : t.evaluations?.competency || 'Competency'}?
+                </h3>
+                
+                {/* Item title */}
+                <p className="text-sm md:text-base text-gray-600 mb-4">
+                  <strong>&quot;{itemToArchive.title}&quot;</strong>
+                </p>
+              </div>
+              
+              {/* Warning */}
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6">
+                <div className="flex items-start space-x-3">
+                  <div className="flex-shrink-0">
+                    <AlertTriangle className="w-5 h-5 text-amber-600 mt-0.5" />
+                  </div>
+                  <p className="text-sm text-amber-800 font-medium">
+                    {t.companyItems?.archiveWarning || 'This will permanently archive the item. It will be moved to the archive section and cannot be reactivated.'}
+                  </p>
+                </div>
+              </div>
+
+              {/* Reason Input */}
+              <div className="mb-6 text-left">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  {t.companyItems?.archiveReason || 'Reason for archiving (optional)'}
+                </label>
+                <textarea
+                  value={archiveReason}
+                  onChange={(e) => setArchiveReason(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent resize-none"
+                  rows={3}
+                  placeholder={t.companyItems?.archiveReasonPlaceholder || 'Enter reason for archiving this item...'}
+                />
+              </div>
+
+              {/* Actions */}
+              <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3">
+                <button
+                  onClick={() => {
+                    setShowArchiveModal(false)
+                    setItemToArchive(null)
+                    setArchiveReason('')
+                  }}
+                  className="flex-1 px-4 py-3 min-h-[44px] bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 active:scale-95 transition-all duration-150 touch-manipulation"
+                >
+                  {t.common?.cancel || 'Cancel'}
+                </button>
+                <button
+                  onClick={handleArchiveConfirm}
+                  disabled={isPending}
+                  className="flex-1 px-4 py-3 min-h-[44px] bg-amber-600 hover:bg-amber-700 active:bg-amber-800 text-white text-sm font-medium rounded-lg active:scale-95 transition-all duration-150 touch-manipulation disabled:opacity-50"
+                >
+                  {isPending ? t.companyItems?.archiving || 'Archiving...' : t.companyItems?.archiveItem || 'Archive Item'}
                 </button>
               </div>
             </div>

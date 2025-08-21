@@ -59,6 +59,37 @@ export interface CompanyItemsTranslations {
   confirmActivate: string
   deactivateWarning: string
   activateWarning: string
+  
+  // Archive-related translations
+  archive: string
+  archived: string
+  archivedItems: string
+  archivedItemsTitle: string
+  archiveInactiveItem: string
+  confirmArchive: string
+  archiveWarning: string
+  archiveReason: string
+  archiveReasonPlaceholder: string
+  archiving: string
+  archiveItem: string
+  viewArchived: string
+  hideArchived: string
+  archivedOKRs: string
+  archivedCompetencies: string
+  archivedOn: string
+  archivedBy: string
+  reason: string
+  viewArchivedItems: string
+  details: string
+  noArchivedItems: string
+  noArchivedItemsDescription: string
+  searchArchived: string
+  searchResults: string
+  noMatchingItems: string
+  clearSearch: string
+  searchHelp: string
+  seeAllArchived: string
+  
   // Error messages
   errors: {
     deadlineTomorrowOrLater: string
@@ -68,6 +99,10 @@ export interface CompanyItemsTranslations {
     errorCreating: string
     errorSaving: string
     errorToggling: string
+    failedToArchive: string
+    errorArchiving: string
+    failedToFetchArchived: string
+    errorFetchingArchived: string
   }
 }
 

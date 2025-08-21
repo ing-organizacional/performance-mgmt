@@ -623,3 +623,156 @@ export async function toggleEvaluationItemActive(itemId: string) {
     return { success: false, error: 'Failed to toggle item status' }
   }
 }
+
+// Server action to archive inactive evaluation item
+export async function archiveEvaluationItem(itemId: string, reason?: string) {
+  try {
+    const session = await auth()
+    
+    if (!session?.user?.id) {
+      return { success: false, error: 'Unauthorized' }
+    }
+
+    const userId = session.user.id
+    const userRole = session.user.role
+    const companyId = session.user.companyId
+
+    // Only HR can archive items (following user archive pattern)
+    if (userRole !== 'hr') {
+      return { success: false, error: 'Access denied - HR role required' }
+    }
+
+    // Get the item to archive
+    const existingItem = await prisma.evaluationItem.findUnique({
+      where: { 
+        id: itemId,
+        companyId
+      },
+      include: {
+        creator: {
+          select: { name: true, role: true }
+        }
+      }
+    })
+
+    if (!existingItem) {
+      return { success: false, error: 'Evaluation item not found' }
+    }
+
+    // Can only archive inactive items
+    if (existingItem.active === true) {
+      return { success: false, error: 'Only inactive items can be archived. Please deactivate the item first.' }
+    }
+
+    // Check if already archived - using bracket notation to avoid TypeScript issues during schema migration
+    if (existingItem['archivedAt' as keyof typeof existingItem]) {
+      return { success: false, error: 'Item is already archived' }
+    }
+
+    // Archive the item using raw SQL to handle new schema fields
+    await prisma.$executeRaw`
+      UPDATE EvaluationItem 
+      SET archivedAt = ${new Date()},
+          archivedBy = ${userId},
+          archivedReason = ${reason || 'Archived by HR'}
+      WHERE id = ${itemId}
+    `
+
+    // Audit log for item archiving
+    await auditEvaluationItem(
+      userId,
+      userRole,
+      companyId,
+      'update',
+      itemId,
+      {
+        active: existingItem.active,
+        archivedAt: null
+      },
+      {
+        active: existingItem.active,
+        archivedAt: new Date().toISOString()
+      },
+      `Archived ${existingItem.level}-level ${existingItem.type} item: ${reason || 'No reason provided'}`
+    )
+
+    revalidatePath('/dashboard/company-items')
+    return { success: true, message: 'Item archived successfully' }
+
+  } catch (error) {
+    console.error('Error archiving evaluation item:', error)
+    return { success: false, error: 'Failed to archive item' }
+  }
+}
+
+// Server action to get archived evaluation items
+export async function getArchivedEvaluationItems() {
+  try {
+    const session = await auth()
+    
+    if (!session?.user?.id) {
+      return { success: false, error: 'Unauthorized' }
+    }
+
+    const userRole = session.user.role
+    const companyId = session.user.companyId
+
+    // Only HR can view archived items
+    if (userRole !== 'hr') {
+      return { success: false, error: 'Access denied - HR role required' }
+    }
+
+    // Get archived company-level items - using raw query approach to handle new schema fields
+    const archivedItems = await prisma.$queryRaw`
+      SELECT 
+        ei.*,
+        c.name as creatorName,
+        c.role as creatorRole,
+        au.name as archivedByName,
+        au.role as archivedByRole
+      FROM EvaluationItem ei
+      LEFT JOIN User c ON ei.createdBy = c.id
+      LEFT JOIN User au ON ei.archivedBy = au.id
+      WHERE ei.companyId = ${companyId}
+        AND ei.level = 'company'
+        AND ei.archivedAt IS NOT NULL
+      ORDER BY ei.archivedAt DESC, ei.createdAt DESC
+    ` as Array<{
+      id: string
+      title: string
+      description: string
+      type: string
+      level: string
+      active: boolean
+      createdAt: Date
+      archivedAt: Date | null
+      archivedReason: string | null
+      creatorName: string | null
+      creatorRole: string | null
+      archivedByName: string | null
+      archivedByRole: string | null
+    }>
+
+    // Transform to match expected format
+    const formattedItems = archivedItems.map(item => ({
+      id: item.id,
+      title: item.title,
+      description: item.description,
+      type: item.type as 'okr' | 'competency',
+      level: 'company' as const,
+      createdBy: item.creatorName || 'Unknown',
+      creatorRole: item.creatorRole || 'unknown',
+      active: item.active,
+      createdAt: item.createdAt.toISOString(),
+      archivedAt: item.archivedAt?.toISOString() || null,
+      archivedBy: item.archivedByName || 'Unknown',
+      archivedReason: item.archivedReason || 'No reason provided'
+    }))
+
+    return { success: true, items: formattedItems }
+
+  } catch (error) {
+    console.error('Error fetching archived evaluation items:', error)
+    return { success: false, error: 'Failed to fetch archived items' }
+  }
+}

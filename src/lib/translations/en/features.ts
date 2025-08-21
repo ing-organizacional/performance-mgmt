@@ -126,6 +126,37 @@ export const companyItems: CompanyItemsTranslations = {
   confirmActivate: 'Activate Company-Wide', 
   deactivateWarning: 'This will remove the item from ALL employee evaluations company-wide.',
   activateWarning: 'This will make the item available for ALL employees company-wide.',
+  
+  // Archive-related translations
+  archive: 'Archive',
+  archived: 'Archived',
+  archivedItems: 'Archived Items',
+  archivedItemsTitle: 'Archived Items',
+  archiveInactiveItem: 'Archive inactive item',
+  confirmArchive: 'Archive',
+  archiveWarning: 'This will permanently archive the item. It will be moved to the archive section and cannot be reactivated.',
+  archiveReason: 'Reason for archiving (optional)',
+  archiveReasonPlaceholder: 'Enter reason for archiving this item...',
+  archiving: 'Archiving...',
+  archiveItem: 'Archive Item',
+  viewArchived: 'View Archived',
+  hideArchived: 'Hide',
+  archivedOKRs: 'Archived OKRs',
+  archivedCompetencies: 'Archived Competencies',
+  archivedOn: 'Archived on',
+  archivedBy: 'Archived by',
+  reason: 'Reason',
+  viewArchivedItems: 'View previously archived company-wide items',
+  details: 'Details',
+  noArchivedItems: 'No archived items found',
+  noArchivedItemsDescription: 'When company-wide items are archived, they will appear here with their full details and history.',
+  searchArchived: 'Search archived items...',
+  searchResults: 'Search Results',
+  noMatchingItems: 'No matching items found',
+  clearSearch: 'Clear search',
+  searchHelp: 'Try adjusting your search terms or',
+  seeAllArchived: 'clear the search to see all archived items',
+  
   // Error messages
   errors: {
     deadlineTomorrowOrLater: 'Deadline must be tomorrow or later.',
@@ -134,7 +165,11 @@ export const companyItems: CompanyItemsTranslations = {
     failedToToggleStatus: 'Failed to toggle item status',
     errorCreating: 'Error creating item',
     errorSaving: 'Error saving item',
-    errorToggling: 'Error toggling item status'
+    errorToggling: 'Error toggling item status',
+    failedToArchive: 'Failed to archive item',
+    errorArchiving: 'Error archiving item',
+    failedToFetchArchived: 'Failed to fetch archived items',
+    errorFetchingArchived: 'Error fetching archived items'
   }
 }
 

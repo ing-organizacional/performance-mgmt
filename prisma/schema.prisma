@@ -72,6 +72,7 @@ model User {
   evaluationsReceived          Evaluation[]               @relation("EmployeeEvaluations")
   createdEvaluationItems       EvaluationItem[]           @relation("CreatedEvaluationItems")
   deadlineAssignments          EvaluationItem[]           @relation("DeadlineSetBy")
+  archivedEvaluationItems      EvaluationItem[]           @relation("ArchivedEvaluationItems")
   employeeAssignments          EvaluationItemAssignment[] @relation("EmployeeAssignments")
   managerAssignments           EvaluationItemAssignment[] @relation("AssignedByManager")
   auditLogs                    AuditLog[]
@@ -163,10 +164,16 @@ model EvaluationItem {
   evaluationDeadline DateTime?
   deadlineSetBy      String? // User ID who set the deadline
 
+  // Archive snapshot fields (following user archive pattern)
+  archivedAt         DateTime? // When the item was archived
+  archivedBy         String?   // User ID who archived the item
+  archivedReason     String?   // Reason for archiving
+
   company               Company                    @relation(fields: [companyId], references: [id])
   cycle                 PerformanceCycle?          @relation(fields: [cycleId], references: [id])
   creator               User                       @relation("CreatedEvaluationItems", fields: [createdBy], references: [id])
   deadlineSetByUser     User?                      @relation("DeadlineSetBy", fields: [deadlineSetBy], references: [id])
+  archivedByUser        User?                      @relation("ArchivedEvaluationItems", fields: [archivedBy], references: [id])
   individualAssignments EvaluationItemAssignment[]
   partialAssessments    PartialAssessment[]
 

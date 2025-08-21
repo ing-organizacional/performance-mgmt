@@ -126,6 +126,37 @@ export const companyItems: CompanyItemsTranslations = {
   confirmActivate: 'Activar para Toda la Empresa',
   deactivateWarning: 'Esto eliminará el elemento de TODAS las evaluaciones de colaboradores en toda la empresa.',
   activateWarning: 'Esto hará que el elemento esté disponible para TODOS los colaboradores en toda la empresa.',
+  
+  // Archive-related translations
+  archive: 'Archivar',
+  archived: 'Archivado',
+  archivedItems: 'Elementos Archivados',
+  archivedItemsTitle: 'Elementos Archivados',
+  archiveInactiveItem: 'Archivar elemento inactivo',
+  confirmArchive: 'Archivar',
+  archiveWarning: 'Esto archivará permanentemente el elemento. Se moverá a la sección de archivo y no se puede reactivar.',
+  archiveReason: 'Motivo para archivar (opcional)',
+  archiveReasonPlaceholder: 'Ingrese el motivo para archivar este elemento...',
+  archiving: 'Archivando...',
+  archiveItem: 'Archivar Elemento',
+  viewArchived: 'Ver Archivados',
+  hideArchived: 'Ocultar',
+  archivedOKRs: 'OKRs Archivados',
+  archivedCompetencies: 'Competencias Archivadas',
+  archivedOn: 'Archivado el',
+  archivedBy: 'Archivado por',
+  reason: 'Motivo',
+  viewArchivedItems: 'Ver elementos archivados previamente de toda la empresa',
+  details: 'Detalles',
+  noArchivedItems: 'No se encontraron elementos archivados',
+  noArchivedItemsDescription: 'Cuando los elementos de toda la empresa sean archivados, aparecerán aquí con todos sus detalles e historial.',
+  searchArchived: 'Buscar elementos archivados...',
+  searchResults: 'Resultados de Búsqueda',
+  noMatchingItems: 'No se encontraron elementos coincidentes',
+  clearSearch: 'Limpiar búsqueda',
+  searchHelp: 'Intenta ajustar tus términos de búsqueda o',
+  seeAllArchived: 'limpia la búsqueda para ver todos los elementos archivados',
+  
   // Error messages
   errors: {
     deadlineTomorrowOrLater: 'La fecha límite debe ser mañana o posterior.',
@@ -134,7 +165,11 @@ export const companyItems: CompanyItemsTranslations = {
     failedToToggleStatus: 'Error al cambiar el estado del elemento',
     errorCreating: 'Error creando elemento',
     errorSaving: 'Error guardando elemento',
-    errorToggling: 'Error cambiando estado del elemento'
+    errorToggling: 'Error cambiando estado del elemento',
+    failedToArchive: 'Error al archivar el elemento',
+    errorArchiving: 'Error archivando elemento',
+    failedToFetchArchived: 'Error al obtener elementos archivados',
+    errorFetchingArchived: 'Error obteniendo elementos archivados'
   }
 }
 
