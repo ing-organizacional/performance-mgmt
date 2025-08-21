@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { useState, useTransition } from 'react'
+import { useState, useTransition, useEffect } from 'react'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { LanguageSwitcher } from '@/components/layout'
 import { ToastContainer } from '@/components/ui'
@@ -41,6 +41,11 @@ export default function CompanyItemsClient({ initialItems, aiEnabled, userDepart
   console.log('🔍 [CompanyItems] AI enabled:', aiEnabled)
   
   const [companyItems, setCompanyItems] = useState<CompanyEvaluationItem[]>(initialItems)
+  
+  // Sync local state when initialItems change (after server refresh)
+  useEffect(() => {
+    setCompanyItems(initialItems)
+  }, [initialItems])
   const [editingItem, setEditingItem] = useState<EditingItem | null>(null)
   const [creatingNew, setCreatingNew] = useState(false)
   const [newItemType, setNewItemType] = useState<'okr' | 'competency'>('okr')
@@ -48,7 +53,8 @@ export default function CompanyItemsClient({ initialItems, aiEnabled, userDepart
   const [itemToToggle, setItemToToggle] = useState<CompanyEvaluationItem | null>(null)
 
   const refreshItems = async () => {
-    // Refresh the page to get updated data from server
+    // Refresh the server component data - the revalidatePath in the server action 
+    // already updated the cache, so router.refresh() will get fresh data
     router.refresh()
   }
 
@@ -103,9 +109,29 @@ export default function CompanyItemsClient({ initialItems, aiEnabled, userDepart
         })
 
         if (result.success) {
-          await refreshItems() // Refresh data from server
+          // Optimistically add the new item to the local state
+          const newItem: CompanyEvaluationItem = {
+            id: `temp-${Date.now()}`, // Temporary ID until page refreshes
+            title: editingItem.title,
+            description: editingItem.description,
+            type: newItemType,
+            level: 'company',
+            createdBy: 'You', // Current user
+            creatorRole: 'hr', // Assuming HR created it since this is company-items page
+            evaluationDeadline: editingItem.evaluationDeadline || null,
+            deadlineSetBy: null,
+            active: true,
+            createdAt: new Date().toISOString()
+          }
+          
+          // Add to the beginning of the list (newest first)
+          setCompanyItems(prev => [newItem, ...prev])
+          
           setEditingItem(null)
           setCreatingNew(false)
+          
+          // Refresh from server to get the actual item data with correct ID
+          await refreshItems()
         } else {
           showError(result.error || t.companyItems?.errors?.failedToCreate || 'Failed to create item')
           console.error('Failed to create item:', result.error)
@@ -141,8 +167,22 @@ export default function CompanyItemsClient({ initialItems, aiEnabled, userDepart
         })
 
         if (result.success) {
-          await refreshItems() // Refresh data from server
+          // Optimistically update the local state
+          setCompanyItems(prev => prev.map(item => 
+            item.id === editingItem.id 
+              ? {
+                  ...item,
+                  title: editingItem.title,
+                  description: editingItem.description,
+                  evaluationDeadline: editingItem.evaluationDeadline || null
+                }
+              : item
+          ))
+          
           setEditingItem(null) // Close editing mode
+          
+          // Refresh from server to ensure consistency
+          await refreshItems()
         } else {
           showError(result.error || t.companyItems?.errors?.failedToSave || 'Failed to save item')
           console.error('Failed to save item:', result.error)
