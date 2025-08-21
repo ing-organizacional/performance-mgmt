@@ -1,10 +1,14 @@
 'use client'
 
 import Link from 'next/link'
-import { useState } from 'react'
+import { useState, useTransition, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { LanguageSwitcher } from '@/components/layout'
-import { Target, Star, ChevronLeft, Archive, Calendar, User, Search, X } from 'lucide-react'
+import { ToastContainer } from '@/components/ui'
+import { useToast } from '@/hooks/useToast'
+import { unarchiveEvaluationItem, deleteArchivedEvaluationItem } from '@/lib/actions/evaluations'
+import { Target, Star, ChevronLeft, Archive, Calendar, User, Search, X, RotateCcw, Trash2, MoreVertical } from 'lucide-react'
 
 interface ArchivedCompanyEvaluationItem {
   id: string
@@ -30,8 +34,17 @@ interface ArchivedItemsClientProps {
 }
 
 export default function ArchivedItemsClient({ archivedItems, archivedCount }: ArchivedItemsClientProps) {
+  const router = useRouter()
   const { t } = useLanguage()
+  const { toasts, error: showError, success: showSuccess, removeToast } = useToast()
+  const [isPending, startTransition] = useTransition()
+  
   const [searchTerm, setSearchTerm] = useState('')
+  const [showUnarchiveModal, setShowUnarchiveModal] = useState(false)
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [itemToUnarchive, setItemToUnarchive] = useState<ArchivedCompanyEvaluationItem | null>(null)
+  const [itemToDelete, setItemToDelete] = useState<ArchivedCompanyEvaluationItem | null>(null)
+  const [actionMenuOpen, setActionMenuOpen] = useState<string | null>(null)
 
   const totalItems = archivedCount.okrs + archivedCount.competencies
 
@@ -47,6 +60,64 @@ export default function ArchivedItemsClient({ archivedItems, archivedCount }: Ar
       item.type.toLowerCase().includes(searchLower)
     )
   })
+
+  // Handle unarchive action
+  const handleUnarchiveConfirm = async () => {
+    if (!itemToUnarchive) return
+    
+    startTransition(async () => {
+      try {
+        const result = await unarchiveEvaluationItem(itemToUnarchive.id)
+        
+        if (result.success) {
+          showSuccess(`${itemToUnarchive.title} ${t.companyItems?.successUnarchived || 'has been unarchived and reactivated'}`)
+          setShowUnarchiveModal(false)
+          setItemToUnarchive(null)
+          router.refresh() // Refresh the page to show updated data
+        } else {
+          showError(result.error || 'Failed to unarchive item')
+        }
+      } catch (error) {
+        console.error('Error unarchiving item:', error)
+        showError('Failed to unarchive item')
+      }
+    })
+  }
+
+  // Handle delete action
+  const handleDeleteConfirm = async () => {
+    if (!itemToDelete) return
+    
+    startTransition(async () => {
+      try {
+        const result = await deleteArchivedEvaluationItem(itemToDelete.id)
+        
+        if (result.success) {
+          showSuccess(`${itemToDelete.title} ${t.companyItems?.successDeleted || 'has been permanently deleted'}`)
+          setShowDeleteModal(false)
+          setItemToDelete(null)
+          router.refresh() // Refresh the page to show updated data
+        } else {
+          showError(result.error || 'Failed to delete item')
+        }
+      } catch (error) {
+        console.error('Error deleting item:', error)
+        showError('Failed to delete item')
+      }
+    })
+  }
+
+  // Close action menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = () => {
+      setActionMenuOpen(null)
+    }
+
+    if (actionMenuOpen) {
+      document.addEventListener('click', handleClickOutside)
+      return () => document.removeEventListener('click', handleClickOutside)
+    }
+  }, [actionMenuOpen])
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-blue-50/20 to-indigo-50/30">
@@ -218,6 +289,48 @@ export default function ArchivedItemsClient({ archivedItems, archivedCount }: Ar
                         {t.companyItems?.reason || 'Reason'}: {item.archivedReason}
                       </div>
                     </div>
+                    
+                    {/* Actions Menu */}
+                    <div className="relative flex-shrink-0">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          setActionMenuOpen(actionMenuOpen === item.id ? null : item.id)
+                        }}
+                        className="flex items-center justify-center min-w-[44px] min-h-[44px] text-gray-700 hover:text-white hover:bg-blue-600 bg-blue-50 rounded-lg transition-all duration-150 touch-manipulation border border-blue-200 hover:border-blue-600 shadow-sm hover:shadow-md"
+                        title={t.companyItems?.actions || 'Actions'}
+                      >
+                        <MoreVertical className="w-4 h-4" />
+                      </button>
+                      
+                      {/* Action Menu Dropdown */}
+                      {actionMenuOpen === item.id && (
+                        <div className="absolute right-0 top-full mt-1 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
+                          <button
+                            onClick={() => {
+                              setItemToUnarchive(item)
+                              setShowUnarchiveModal(true)
+                              setActionMenuOpen(null)
+                            }}
+                            className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                          >
+                            <RotateCcw className="w-4 h-4 text-green-500" />
+                            {t.companyItems?.unarchive || 'Unarchive'}
+                          </button>
+                          <button
+                            onClick={() => {
+                              setItemToDelete(item)
+                              setShowDeleteModal(true)
+                              setActionMenuOpen(null)
+                            }}
+                            className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                            {t.companyItems?.delete || 'Delete'}
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               ))}
@@ -248,6 +361,98 @@ export default function ArchivedItemsClient({ archivedItems, archivedCount }: Ar
           </div>
         )}
       </main>
+
+      {/* Unarchive Confirmation Modal */}
+      {showUnarchiveModal && itemToUnarchive && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl">
+            <div className="text-center mb-6">
+              <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center mx-auto mb-4">
+                <RotateCcw className="w-6 h-6 text-green-600" />
+              </div>
+              <h3 className="text-lg font-bold text-gray-900 mb-2">
+                {t.companyItems?.confirmUnarchive || 'Unarchive Item'}
+              </h3>
+              <p className="text-gray-600 text-sm leading-relaxed">
+                {t.companyItems?.unarchiveWarning || 'This will reactivate the item and make it available for all employees company-wide again.'}
+              </p>
+              <div className="mt-4 p-3 bg-gray-50 rounded-lg text-left">
+                <div className="font-medium text-gray-900">{itemToUnarchive.title}</div>
+                <div className="text-sm text-gray-600">{itemToUnarchive.type === 'okr' ? 'OKR' : 'Competency'}</div>
+              </div>
+            </div>
+
+            <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3">
+              <button
+                onClick={() => {
+                  setShowUnarchiveModal(false)
+                  setItemToUnarchive(null)
+                }}
+                className="flex-1 px-4 py-3 min-h-[44px] bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 active:scale-95 transition-all duration-150 touch-manipulation"
+              >
+                {t.common?.cancel || 'Cancel'}
+              </button>
+              <button
+                onClick={handleUnarchiveConfirm}
+                disabled={isPending}
+                className="flex-1 px-4 py-3 min-h-[44px] bg-green-600 hover:bg-green-700 active:bg-green-800 text-white text-sm font-medium rounded-lg active:scale-95 transition-all duration-150 touch-manipulation disabled:opacity-50"
+              >
+                {isPending ? (t.companyItems?.unarchiving || 'Unarchiving...') : (t.companyItems?.unarchive || 'Unarchive')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && itemToDelete && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl">
+            <div className="text-center mb-6">
+              <div className="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center mx-auto mb-4">
+                <Trash2 className="w-6 h-6 text-red-600" />
+              </div>
+              <h3 className="text-lg font-bold text-gray-900 mb-2">
+                {t.companyItems?.confirmDelete || 'Delete Item Permanently'}
+              </h3>
+              <p className="text-gray-600 text-sm leading-relaxed mb-4">
+                {t.companyItems?.deleteWarning || 'This will permanently delete the item. This action cannot be undone.'}
+              </p>
+              <div className="p-3 bg-red-50 rounded-lg text-left mb-4">
+                <div className="font-medium text-gray-900">{itemToDelete.title}</div>
+                <div className="text-sm text-gray-600">{itemToDelete.type === 'okr' ? 'OKR' : 'Competency'}</div>
+              </div>
+              <div className="p-3 bg-amber-50 rounded-lg text-left">
+                <div className="text-sm text-amber-800">
+                  {t.companyItems?.deleteDataIntegrityWarning || 'Items with associated evaluations cannot be deleted to preserve data integrity.'}
+                </div>
+              </div>
+            </div>
+
+            <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3">
+              <button
+                onClick={() => {
+                  setShowDeleteModal(false)
+                  setItemToDelete(null)
+                }}
+                className="flex-1 px-4 py-3 min-h-[44px] bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 active:scale-95 transition-all duration-150 touch-manipulation"
+              >
+                {t.common?.cancel || 'Cancel'}
+              </button>
+              <button
+                onClick={handleDeleteConfirm}
+                disabled={isPending}
+                className="flex-1 px-4 py-3 min-h-[44px] bg-red-600 hover:bg-red-700 active:bg-red-800 text-white text-sm font-medium rounded-lg active:scale-95 transition-all duration-150 touch-manipulation disabled:opacity-50"
+              >
+                {isPending ? (t.companyItems?.deleting || 'Deleting...') : (t.companyItems?.delete || 'Delete')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Toast Notifications */}
+      <ToastContainer toasts={toasts} onRemoveToast={removeToast} />
     </div>
   )
 }

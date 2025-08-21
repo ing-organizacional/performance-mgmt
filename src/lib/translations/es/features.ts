@@ -156,6 +156,21 @@ export const companyItems: CompanyItemsTranslations = {
   clearSearch: 'Limpiar búsqueda',
   searchHelp: 'Intenta ajustar tus términos de búsqueda o',
   seeAllArchived: 'limpia la búsqueda para ver todos los elementos archivados',
+  unarchive: 'Desarchivar',
+  delete: 'Eliminar',
+  confirmUnarchive: 'Desarchivar Elemento',
+  confirmDelete: 'Eliminar Elemento Permanentemente',
+  unarchiveWarning: 'Esto restaurará el elemento como inactivo. Necesitarás activarlo manualmente si quieres que esté disponible para los colaboradores.',
+  deleteWarning: 'Esto eliminará permanentemente el elemento. Esta acción no se puede deshacer.',
+  deleteDataIntegrityWarning: 'Los elementos con evaluaciones asociadas no pueden eliminarse para preservar la integridad de los datos.',
+  unarchiving: 'Desarchivando...',
+  deleting: 'Eliminando...',
+  actions: 'Acciones',
+  successUnarchived: 'ha sido desarchivado y restaurado como inactivo',
+  successDeleted: 'ha sido eliminado permanentemente',
+  successArchived: 'ha sido archivado exitosamente',
+  successActivated: 'ha sido activado exitosamente',
+  successDeactivated: 'ha sido desactivado exitosamente',
   
   // Error messages
   errors: {

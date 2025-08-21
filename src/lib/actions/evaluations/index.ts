@@ -14,7 +14,9 @@ export {
   getEvaluationItems,
   toggleEvaluationItemActive,
   archiveEvaluationItem,
-  getArchivedEvaluationItems
+  getArchivedEvaluationItems,
+  unarchiveEvaluationItem,
+  deleteArchivedEvaluationItem
 } from './evaluation-items'
 
 // Data retrieval functions

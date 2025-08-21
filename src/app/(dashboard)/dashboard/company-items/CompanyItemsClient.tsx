@@ -224,7 +224,7 @@ export default function CompanyItemsClient({ initialItems, aiEnabled, userDepart
       const result = await toggleEvaluationItemActive(itemToToggle.id)
       
       if (result.success) {
-        console.log('Toggle successful:', 'message' in result ? result.message : 'Success')
+        console.log('Toggle successful')
         
         // Optimistically update local state
         setCompanyItems(prev => prev.map(item => 
@@ -236,10 +236,11 @@ export default function CompanyItemsClient({ initialItems, aiEnabled, userDepart
         // Refresh from server to ensure consistency
         await refreshItems()
         
-        // Show success message if item was deactivated
-        if ('message' in result && result.message && result.message.includes('deactivated')) {
-          showSuccess(result.message)
-        }
+        // Show success message
+        const statusText = itemToToggle.active 
+          ? `${itemToToggle.title} ${t.companyItems?.successDeactivated || 'has been deactivated successfully'}` 
+          : `${itemToToggle.title} ${t.companyItems?.successActivated || 'has been activated successfully'}`
+        showSuccess(statusText)
       } else {
         showError(result.error || t.companyItems?.errors?.failedToToggleStatus || 'Failed to toggle item status')
         console.error('Failed to toggle item status:', result.error)
@@ -275,7 +276,7 @@ export default function CompanyItemsClient({ initialItems, aiEnabled, userDepart
         if (result.success) {
           // Remove from active items list
           setCompanyItems(prev => prev.filter(item => item.id !== itemToArchive.id))
-          showSuccess(result.message || t.companyItems?.archivedItems || 'Item archived successfully')
+          showSuccess(`${itemToArchive.title} ${t.companyItems?.successArchived || 'has been archived successfully'}`)
           
           // Refresh from server to update archive count
           await refreshItems()

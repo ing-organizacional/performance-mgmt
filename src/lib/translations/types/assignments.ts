@@ -89,6 +89,21 @@ export interface CompanyItemsTranslations {
   clearSearch: string
   searchHelp: string
   seeAllArchived: string
+  unarchive: string
+  delete: string
+  confirmUnarchive: string
+  confirmDelete: string
+  unarchiveWarning: string
+  deleteWarning: string
+  deleteDataIntegrityWarning: string
+  unarchiving: string
+  deleting: string
+  actions: string
+  successUnarchived: string
+  successDeleted: string
+  successArchived: string
+  successActivated: string
+  successDeactivated: string
   
   // Error messages
   errors: {

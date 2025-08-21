@@ -156,6 +156,21 @@ export const companyItems: CompanyItemsTranslations = {
   clearSearch: 'Clear search',
   searchHelp: 'Try adjusting your search terms or',
   seeAllArchived: 'clear the search to see all archived items',
+  unarchive: 'Unarchive',
+  delete: 'Delete',
+  confirmUnarchive: 'Unarchive Item',
+  confirmDelete: 'Delete Item Permanently',
+  unarchiveWarning: 'This will restore the item as inactive. You will need to manually activate it if you want to make it available to employees.',
+  deleteWarning: 'This will permanently delete the item. This action cannot be undone.',
+  deleteDataIntegrityWarning: 'Items with associated evaluations cannot be deleted to preserve data integrity.',
+  unarchiving: 'Unarchiving...',
+  deleting: 'Deleting...',
+  actions: 'Actions',
+  successUnarchived: 'has been unarchived and restored as inactive',
+  successDeleted: 'has been permanently deleted',
+  successArchived: 'has been archived successfully',
+  successActivated: 'has been activated successfully',
+  successDeactivated: 'has been deactivated successfully',
   
   // Error messages
   errors: {
