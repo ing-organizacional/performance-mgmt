@@ -172,7 +172,13 @@ export default async function EvaluatePage({ params }: EvaluatePageProps) {
     level: item.level ?? '',
     createdBy: item.createdBy ?? '',
     creatorRole: item.creator?.role ?? '',
-    evaluationDeadline: item.evaluationDeadline ? item.evaluationDeadline.toISOString() : null,
+    evaluationDeadline: item.evaluationDeadline 
+      ? (typeof item.evaluationDeadline === 'number' 
+         ? new Date(item.evaluationDeadline).toISOString()
+         : item.evaluationDeadline instanceof Date 
+         ? item.evaluationDeadline.toISOString() 
+         : item.evaluationDeadline)
+      : null,
     deadlineSetBy: item.deadlineSetBy ?? null,
     deadlineSetByRole: item.deadlineSetByUser?.role ?? null
   }))
