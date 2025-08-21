@@ -171,10 +171,10 @@ export default async function EvaluatePage({ params }: EvaluatePageProps) {
     comment: '',
     level: item.level ?? '',
     createdBy: item.createdBy ?? '',
-    creatorRole: item.creatorRole ?? '',
-    evaluationDeadline: item.evaluationDeadline ?? null,
+    creatorRole: item.creator?.role ?? '',
+    evaluationDeadline: item.evaluationDeadline ? item.evaluationDeadline.toISOString() : null,
     deadlineSetBy: item.deadlineSetBy ?? null,
-    deadlineSetByRole: item.deadlineSetByRole ?? null
+    deadlineSetByRole: item.deadlineSetByUser?.role ?? null
   }))
   let overallRating = null
   let overallComment = ''
