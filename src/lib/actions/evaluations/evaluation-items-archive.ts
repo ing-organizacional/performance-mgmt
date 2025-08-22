@@ -14,7 +14,7 @@
 
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma-client'
-import { revalidatePath } from 'next/cache'
+import { revalidatePath, revalidateTag } from 'next/cache'
 import { toISOStringSafe } from '@/lib/utils/date'
 import { createItemAuditLog, transformArchivedItem } from './evaluation-items-utils'
 import type { EvaluationItemResult, FormattedArchivedItem } from './evaluation-items-types'
@@ -83,6 +83,7 @@ export async function archiveEvaluationItem(itemId: string, reason?: string): Pr
 
     revalidatePath('/dashboard/company-items')
     revalidatePath('/dashboard/company-items/archived')
+    revalidateTag('company-items') // Invalidate cached company items
 
     return { success: true }
 
@@ -237,6 +238,7 @@ export async function unarchiveEvaluationItem(itemId: string): Promise<Evaluatio
 
     revalidatePath('/dashboard/company-items')
     revalidatePath('/dashboard/company-items/archived')
+    revalidateTag('company-items') // Invalidate cached company items
 
     return { success: true }
 

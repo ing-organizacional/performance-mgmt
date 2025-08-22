@@ -8,6 +8,7 @@
 'use server'
 
 import { prisma } from '@/lib/prisma-client'
+import { revalidatePath, revalidateTag } from 'next/cache'
 import { auditUserManagement } from '@/lib/services/audit-service'
 import { requireHRAccess } from './utils'
 
@@ -90,6 +91,20 @@ export async function archiveUser(userId: string, reason?: string) {
       reason ? `Archived: ${reason}` : 'User archived'
     )
 
+    // Invalidate all relevant caches
+    revalidatePath('/users')
+    revalidatePath('/users/archive')
+    revalidatePath('/dashboard')
+    revalidatePath('/evaluations')
+    
+    // Invalidate team cache for the user's manager (if they have one)
+    if (userToArchive.managerId) {
+      revalidateTag(`manager-team-${userToArchive.managerId}`)
+    }
+    
+    // Invalidate company-wide caches that depend on active users
+    revalidateTag('company-items') // Company assignments may be affected
+    
     return {
       success: true,
       message: 'User archived successfully'
@@ -184,6 +199,23 @@ export async function bulkArchiveUsers(userIds: string[], reason?: string) {
       reason ? `Bulk archived ${usersToArchive.length} users: ${reason}` : `Bulk archived ${usersToArchive.length} users`
     )
 
+    // Invalidate all relevant caches after bulk operation
+    revalidatePath('/users')
+    revalidatePath('/users/archive')
+    revalidatePath('/dashboard')
+    revalidatePath('/evaluations')
+    
+    // Invalidate team caches for all affected managers
+    const affectedManagerIds = [...new Set(usersToArchive.map(user => user.managerId).filter(Boolean))]
+    affectedManagerIds.forEach(managerId => {
+      if (managerId) {
+        revalidateTag(`manager-team-${managerId}`)
+      }
+    })
+    
+    // Invalidate company-wide caches
+    revalidateTag('company-items') // Company assignments may be affected
+    
     return {
       success: true,
       message: `Successfully archived ${usersToArchive.length} user(s)`
@@ -259,6 +291,20 @@ export async function unarchiveUser(userId: string) {
       'User unarchived (restored)'
     )
 
+    // Invalidate all relevant caches
+    revalidatePath('/users')
+    revalidatePath('/users/archive')
+    revalidatePath('/dashboard')
+    revalidatePath('/evaluations')
+    
+    // Invalidate team cache for the user's manager (if they have one)
+    if (userToUnarchive.managerId) {
+      revalidateTag(`manager-team-${userToUnarchive.managerId}`)
+    }
+    
+    // Invalidate company-wide caches
+    revalidateTag('company-items') // Company assignments may be affected
+    
     return {
       success: true,
       message: 'User unarchived successfully'

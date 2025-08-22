@@ -2,7 +2,7 @@
 
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma-client'
-import { revalidatePath } from 'next/cache'
+import { revalidatePath, revalidateTag } from 'next/cache'
 import { auditEvaluation } from '@/lib/services/audit-service'
 
 // Server action to autosave evaluation as draft
@@ -218,6 +218,10 @@ export async function submitEvaluation(evaluationId: string) {
     revalidatePath(`/evaluate/${evaluation.employeeId}`)
     revalidatePath('/dashboard')
     revalidatePath('/dashboard/pending')
+    
+    // Invalidate team cache for the manager who submitted the evaluation
+    revalidateTag(`manager-team-${evaluation.managerId}`)
+    
     return { success: true }
 
   } catch (error) {
@@ -286,6 +290,10 @@ export async function approveEvaluation(evaluationId: string) {
     revalidatePath('/dashboard')
     revalidatePath('/dashboard/pending')
     revalidatePath('/', 'layout') // Revalidate entire layout cache
+    
+    // Invalidate team cache for the manager who created the evaluation
+    revalidateTag(`manager-team-${evaluation.managerId}`)
+    
     return { success: true }
 
   } catch (error) {
@@ -354,6 +362,10 @@ export async function unlockEvaluation(evaluationId: string, reason?: string) {
     revalidatePath('/evaluations')
     revalidatePath('/dashboard')
     revalidatePath('/dashboard/pending')
+    
+    // Invalidate team cache for the manager who created the evaluation
+    revalidateTag(`manager-team-${evaluation.managerId}`)
+    
     return { success: true }
 
   } catch (error) {
