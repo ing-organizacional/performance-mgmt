@@ -228,7 +228,7 @@ LLM_TEMPERATURE=0.3
 
 ## Current System State (August 21, 2025)
 
-**Production Readiness: ENTERPRISE-READY WITH AI v2.3.0** 🚀🤖
+**Production Readiness: ENTERPRISE-READY WITH AI v2.3.2** 🚀🤖
 
 **Build Status:** ✅ Clean TypeScript compilation and ESLint passes  
 **Security Status:** ✅ **COMPREHENSIVE SECURITY AUDIT COMPLETED - A+
@@ -279,6 +279,9 @@ enterprise features
   audit logging, OWASP compliance
 - ✅ **Performance Optimization**: Server Actions architecture with
   Turbopack support
+- ✅ **UI/UX Bug Fixes (v2.3.2)**: Fixed OKR/Competency creator display showing names instead of database codes
+- ✅ **Cache Performance Enhancement (v2.3.2)**: Implemented targeted cache invalidation preventing global cache storms at scale
+- ✅ **Version Synchronization (v2.3.2)**: Login page version display now accurately reflects package.json version
 
 **AI Feature Matrix:**
 
@@ -304,7 +307,7 @@ enterprise features
 - ⚠️ Configure HTTPS and production environment variables
 - ⚠️ Set appropriate AI rate limits for production usage
 
-**Latest Technical Specifications (v2.3.0):**
+**Latest Technical Specifications (v2.3.2):**
 
 - **Dependencies**: 34 production dependencies, all updated to latest
   stable versions
@@ -320,3 +323,26 @@ enterprise features
 - **Security**: Rate limiting, input validation, secure credential
   management, middleware permissions policy
 - **Browser APIs**: Speech recognition (microphone access), secure permissions policy
+
+## Recent Changes (v2.3.2 - August 22, 2025)
+
+### 🐛 **Bug Fixes**
+- **Fixed OKR/Competency Creator Display**: Evaluation cards now show human-readable creator names instead of database codes
+  - **Before**: `Created by: 64f9b2c3e4b4f7a1a2b3c4d5` 
+  - **After**: `Created by: John Smith`
+  - **Files**: `/src/app/(dashboard)/evaluate/[id]/page.tsx`
+
+### ⚡ **Performance Enhancements**  
+- **Optimized Cache Invalidation**: Implemented targeted cache revalidation to prevent performance issues at scale
+  - **Before**: Global cache invalidation affecting all companies (`revalidateTag('evaluation-items')`)
+  - **After**: Company-specific cache invalidation (`revalidateTag('company-items')`)
+  - **Impact**: Prevents database query storms with 1000+ employees
+  - **Files**: `/src/lib/actions/evaluations/evaluation-items-crud.ts`
+
+### 🔄 **Immediate UI Updates**
+- **Real-time Item Visibility**: Newly activated company-wide OKRs/Competencies now appear immediately in `/evaluate/[id]` without page refresh
+- **Cache Strategy**: Enhanced cache tagging system for more granular invalidation
+
+### 📝 **Maintenance**
+- **Version Synchronization**: Login page version display now matches package.json (2.3.2)
+- **Documentation**: Updated technical specifications and achievement tracking
