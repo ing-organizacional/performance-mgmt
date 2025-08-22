@@ -15,7 +15,7 @@
 
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma-client'
-import { revalidatePath, unstable_cache } from 'next/cache'
+import { revalidatePath, revalidateTag, unstable_cache } from 'next/cache'
 import { toISOStringSafe } from '@/lib/utils/date'
 import { 
   validateDeadline, 
@@ -139,6 +139,8 @@ export async function createEvaluationItem(formData: CreateEvaluationItemData): 
       await handleCompanyWideAssignment(newItem, userId, companyId, activeCycle)
     }
 
+    // Targeted cache invalidation - only affect this company
+    revalidateTag(`company-${companyId}`)
     revalidatePath('/evaluations/assignments')
     revalidatePath('/dashboard/company-items')
     revalidatePath('/evaluations')
@@ -345,6 +347,8 @@ export async function updateEvaluationItem(
       }
     )
 
+    // Targeted cache invalidation - only affect this company
+    revalidateTag('company-items')
     revalidatePath('/evaluations/assignments')
     revalidatePath('/dashboard/company-items')
     revalidatePath('/evaluations')
@@ -428,7 +432,7 @@ const getCachedEvaluationItemsForEmployee = unstable_cache(
   },
   ['evaluation-items'],
   {
-    tags: ['evaluation-items'],
+    tags: ['evaluation-items', 'company-items'],
     revalidate: 60 // Cache for 1 minute
   }
 )

@@ -170,7 +170,7 @@ export default async function EvaluatePage({ params }: EvaluatePageProps) {
     rating: null,
     comment: '',
     level: item.level ?? '',
-    createdBy: item.createdBy ?? '',
+    createdBy: item.creator?.name ?? '',
     creatorRole: item.creator?.role ?? '',
     evaluationDeadline: item.evaluationDeadline 
       ? (typeof item.evaluationDeadline === 'number' 
@@ -179,7 +179,7 @@ export default async function EvaluatePage({ params }: EvaluatePageProps) {
          ? item.evaluationDeadline.toISOString() 
          : item.evaluationDeadline)
       : null,
-    deadlineSetBy: item.deadlineSetBy ?? null,
+    deadlineSetBy: item.deadlineSetByUser?.name ?? null,
     deadlineSetByRole: item.deadlineSetByUser?.role ?? null
   }))
   let overallRating = null
