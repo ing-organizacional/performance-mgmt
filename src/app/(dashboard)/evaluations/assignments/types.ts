@@ -10,6 +10,7 @@ export interface EvaluationItem {
   evaluationDeadline?: string | null
   deadlineSetBy?: string | null
   deadlineSetByRole?: string | null
+  active: boolean
 }
 
 export interface Employee {

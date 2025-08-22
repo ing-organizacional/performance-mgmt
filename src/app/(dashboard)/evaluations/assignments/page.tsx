@@ -16,6 +16,7 @@ interface EvaluationItem {
   evaluationDeadline?: string | null
   deadlineSetBy?: string | null
   deadlineSetByRole?: string | null
+  active: boolean
 }
 
 interface Employee {
@@ -44,11 +45,11 @@ export default async function AssignmentsPage() {
   const userId = session.user.id
   const userRole = session.user.role
 
-  // Fetch all evaluation items for the company (including inactive ones to show assignments)
+  // Fetch only active evaluation items for the company
   const evaluationItems = await prisma.evaluationItem.findMany({
     where: {
-      companyId
-      // Note: Including inactive items so we can display what employees are assigned to
+      companyId,
+      active: true // Only show active items in assignments
     },
     include: {
       creator: {
@@ -98,12 +99,12 @@ export default async function AssignmentsPage() {
   //   }
   // })
 
-  // Clean up any orphaned assignments for this company (assignments referencing non-existent evaluation items)
+  // Clean up any orphaned assignments for this company (assignments referencing inactive or non-existent evaluation items)
   await prisma.evaluationItemAssignment.deleteMany({
     where: {
       companyId,
       evaluationItemId: {
-        notIn: evaluationItems.map(item => item.id)
+        notIn: evaluationItems.map(item => item.id) // Only keep assignments for active items
       }
     }
   })
@@ -132,7 +133,8 @@ export default async function AssignmentsPage() {
     assignedTo: item.assignedTo,
     evaluationDeadline: item.evaluationDeadline?.toISOString() || null,
     deadlineSetBy: item.deadlineSetByUser?.name || null,
-    deadlineSetByRole: item.deadlineSetByUser?.role || null
+    deadlineSetByRole: item.deadlineSetByUser?.role || null,
+    active: item.active
   }))
 
   const formattedEmployees: Employee[] = teamMembers.map(member => ({
