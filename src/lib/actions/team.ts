@@ -21,6 +21,15 @@ export interface TeamMember {
     status: string
     overallRating: number | null
     periodDate: string | null
+    evaluationItemsData: string | null
+    createdAt: Date
+    updatedAt: Date
+    isReopened: boolean
+    previousStatus: string | null
+    reopenedAt: Date | null
+    reopenedBy: string | null
+    reopenedReason: string | null
+    completionCount: number
   }[]
 }
 
@@ -98,7 +107,16 @@ export async function getManagerTeam(options?: {
                 id: true,
                 status: true,
                 overallRating: true,
-                periodDate: true
+                periodDate: true,
+                evaluationItemsData: true,
+                createdAt: true,
+                updatedAt: true,
+                isReopened: true,
+                previousStatus: true,
+                reopenedAt: true,
+                reopenedBy: true,
+                reopenedReason: true,
+                completionCount: true
               },
               orderBy: {
                 createdAt: 'desc'
@@ -123,7 +141,7 @@ export async function getManagerTeam(options?: {
           let hasCompletedEvaluation = false
           
           if (latestEval) {
-            if (latestEval.status === 'submitted' || latestEval.status === 'approved') {
+            if (latestEval.status === 'submitted' || latestEval.status === 'approved' || latestEval.status === 'completed') {
               totalCompleted++
               hasCompletedEvaluation = true
               if (latestEval.overallRating) {

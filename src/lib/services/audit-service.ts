@@ -17,6 +17,7 @@ export type AuditAction =
   | 'submit' 
   | 'approve' 
   | 'unlock'
+  | 'reopen'
   | 'login' 
   | 'logout'
   | 'import'

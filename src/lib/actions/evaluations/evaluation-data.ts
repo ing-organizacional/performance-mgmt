@@ -159,65 +159,17 @@ export async function getReopenedEvaluationsCount() {
       }
     }
 
-    // Get count of draft evaluations that were genuinely reopened (had previous work done)
-    // We check for drafts that were updated in the last 24 hours as a heuristic for reopened evaluations
-    const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000)
-    
-    // Get evaluations that were potentially reopened (only for current period)
-    const potentiallyReopenedEvaluations = await prisma.evaluation.findMany({
+    // Get count of genuinely reopened draft evaluations using the new robust tracking
+    const reopenedCount = await prisma.evaluation.count({
       where: {
         managerId: userId, // Always filter by direct reports
         companyId,
         status: 'draft',
         periodType,
         periodDate,
-        updatedAt: {
-          gte: oneDayAgo
-        },
-        evaluationItemsData: {
-          not: null
-        }
-      },
-      select: {
-        id: true,
-        status: true,
-        evaluationItemsData: true,
-        createdAt: true,
-        updatedAt: true,
-        employee: {
-          select: {
-            id: true,
-            name: true,
-            email: true
-          }
-        }
+        isReopened: true // Use the robust reopened flag
       }
     })
-
-
-
-    // Filter to only include evaluations that have actual rating/comment data
-    const reopenedCount = potentiallyReopenedEvaluations.filter(evaluation => {
-      if (!evaluation.evaluationItemsData) return false
-      
-      try {
-        const items = JSON.parse(evaluation.evaluationItemsData)
-        
-        // Check if any item has a rating or meaningful comment
-        const hasActualData = items.some((item: { rating?: number | null; comment?: string }) => 
-          item.rating !== null && item.rating !== undefined ||
-          (item.comment && item.comment.trim().length > 0)
-        )
-        
-        // Also ensure this wasn't just created (significant time difference between created and updated)
-        const timeDifference = new Date(evaluation.updatedAt).getTime() - new Date(evaluation.createdAt).getTime()
-        const hasSignificantTimeDifference = timeDifference > 5 * 60 * 1000 // More than 5 minutes
-        
-        return hasActualData && hasSignificantTimeDifference
-      } catch {
-        return false
-      }
-    }).length
 
     return { success: true, count: reopenedCount }
 

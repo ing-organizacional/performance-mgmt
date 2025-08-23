@@ -31,5 +31,6 @@ export {
   autosaveEvaluation,
   submitEvaluation,
   approveEvaluation,
-  unlockEvaluation
+  unlockEvaluation,
+  reopenEvaluationsForNewItems
 } from './evaluation-workflow'

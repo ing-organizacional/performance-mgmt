@@ -46,9 +46,11 @@ export async function autosaveEvaluation(formData: {
       periodDate
     } = formData
 
+
     if (!employeeId || !evaluationItems) {
       return { success: false, error: 'Missing required fields' }
     }
+
 
     // Get active cycle to derive period values
     const activeCycle = await prisma.performanceCycle.findFirst({
@@ -131,6 +133,13 @@ export async function autosaveEvaluation(formData: {
       // Don't modify submitted or completed evaluations
       return { success: false, error: 'Cannot modify submitted or completed evaluation' }
     }
+
+    // Invalidate cache to update badges on evaluations page
+    revalidatePath('/evaluations')
+    revalidateTag(`manager-team-${userId}`)
+    
+    // Invalidate the specific evaluation page cache
+    revalidatePath(`/evaluate/${employeeId}`)
 
     return { success: true, evaluationId: evaluation.id }
 
@@ -264,11 +273,13 @@ export async function approveEvaluation(evaluationId: string) {
       return { success: false, error: 'Only submitted evaluations can be approved' }
     }
 
-    // Update status to completed
+    // Update status to completed and increment completion count
     await prisma.evaluation.update({
       where: { id: evaluationId },
       data: { 
         status: 'completed',
+        completionCount: { increment: 1 },
+        isReopened: false, // Clear reopened flag when completing
         updatedAt: new Date()
       }
     })
@@ -332,16 +343,21 @@ export async function unlockEvaluation(evaluationId: string, reason?: string) {
       return { success: false, error: 'Evaluation not found' }
     }
 
-    // Can only unlock submitted evaluations
-    if (evaluation.status !== 'submitted') {
-      return { success: false, error: 'Only submitted evaluations can be unlocked' }
+    // Can only unlock submitted or completed evaluations
+    if (evaluation.status !== 'submitted' && evaluation.status !== 'completed') {
+      return { success: false, error: 'Only submitted or completed evaluations can be unlocked' }
     }
 
-    // Update status back to draft
+    // Update status back to draft and track reopening
     await prisma.evaluation.update({
       where: { id: evaluationId },
       data: { 
         status: 'draft',
+        isReopened: true,
+        previousStatus: evaluation.status,
+        reopenedAt: new Date(),
+        reopenedBy: userId,
+        reopenedReason: reason || 'Unlocked by HR',
         updatedAt: new Date()
       }
     })
@@ -371,5 +387,114 @@ export async function unlockEvaluation(evaluationId: string, reason?: string) {
   } catch (error) {
     console.error('Error unlocking evaluation:', error)
     return { success: false, error: 'Failed to unlock evaluation' }
+  }
+}
+
+// Server action to reopen completed evaluations when new company items are added
+export async function reopenEvaluationsForNewItems(affectedEmployeeIds: string[], reason: string = 'New company items added') {
+  try {
+    const session = await auth()
+    
+    if (!session?.user?.id) {
+      return { success: false, error: 'Unauthorized' }
+    }
+
+    const userId = session.user.id
+    const userRole = session.user.role
+    const companyId = session.user.companyId
+
+    // Only HR can reopen evaluations for new items
+    if (userRole !== 'hr') {
+      return { success: false, error: 'Only HR can reopen evaluations for new items' }
+    }
+
+    if (!affectedEmployeeIds?.length) {
+      return { success: false, error: 'No employees specified' }
+    }
+
+    // Get current active cycle
+    const activeCycle = await prisma.performanceCycle.findFirst({
+      where: {
+        companyId,
+        status: 'active'
+      },
+      orderBy: {
+        createdAt: 'desc'
+      }
+    })
+    
+    if (!activeCycle) {
+      return { success: false, error: 'No active performance cycle found' }
+    }
+
+    // Find completed/submitted evaluations for the affected employees in the current cycle
+    const evaluationsToReopen = await prisma.evaluation.findMany({
+      where: {
+        employeeId: { in: affectedEmployeeIds },
+        companyId,
+        cycleId: activeCycle.id,
+        status: { in: ['submitted', 'completed'] }
+      }
+    })
+
+    if (evaluationsToReopen.length === 0) {
+      return { success: true, reopenedCount: 0, message: 'No completed evaluations found to reopen' }
+    }
+
+    // Reopen the evaluations
+    const updatedEvaluations = await prisma.evaluation.updateMany({
+      where: {
+        id: { in: evaluationsToReopen.map(e => e.id) }
+      },
+      data: {
+        status: 'draft',
+        isReopened: true,
+        reopenedAt: new Date(),
+        reopenedBy: userId,
+        reopenedReason: reason
+      }
+    })
+
+    // Update each evaluation individually to set previousStatus (updateMany doesn't support individual field updates)
+    for (const evaluation of evaluationsToReopen) {
+      await prisma.evaluation.update({
+        where: { id: evaluation.id },
+        data: {
+          previousStatus: evaluation.status
+        }
+      })
+
+      // Create audit log entry
+      await auditEvaluation(
+        userId,
+        userRole,
+        companyId,
+        'reopen',
+        evaluation.id,
+        evaluation.employeeId,
+        { status: evaluation.status },
+        { status: 'draft', reason }
+      )
+    }
+
+    // Invalidate caches
+    revalidatePath('/evaluations')
+    revalidatePath('/dashboard')
+    
+    // Invalidate team cache for all affected managers
+    const managerIds = [...new Set(evaluationsToReopen.map(e => e.managerId))]
+    managerIds.forEach(managerId => {
+      revalidateTag(`manager-team-${managerId}`)
+    })
+
+    return { 
+      success: true, 
+      reopenedCount: updatedEvaluations.count,
+      message: `Successfully reopened ${updatedEvaluations.count} evaluations`
+    }
+
+  } catch (error) {
+    console.error('Error reopening evaluations for new items:', error)
+    return { success: false, error: 'Failed to reopen evaluations' }
   }
 }

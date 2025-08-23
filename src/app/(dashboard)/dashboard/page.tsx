@@ -262,13 +262,15 @@ async function getDashboardData(companyId: string) {
     }
   })
 
-  // Calculate pending to match the pending evaluations page logic
-  // Pending = employees without completed evaluations (includes those with no evaluations at all)
+  // Calculate pending correctly
+  // Pending = employees without any evaluations at all
+  const pending = totalEmployees - completed - inProgress
+  
   const completionStats: CompletionStats = {
     total: totalEmployees,
     completed,
     inProgress,
-    pending: totalEmployees - completed,
+    pending,
     overdue: 0, // TODO: Implement deadline tracking
     duesSoon: 0 // TODO: Implement deadline tracking
   }

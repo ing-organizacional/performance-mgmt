@@ -32,11 +32,12 @@ export function useAutosave({
   const autoSaveEvaluationAction = useCallback(async () => {
     if (evaluationStatus !== 'draft') return // Only auto-save drafts
     
+    
     try {
       setAutoSaving(true)
       setPendingSave(false)
       
-      const result = await autosaveEvaluation({
+      const dataToSend = {
         employeeId,
         evaluationItems: evaluationItems.map(item => ({
           id: item.id,
@@ -48,7 +49,10 @@ export function useAutosave({
         })),
         overallRating,
         overallComment
-      })
+      }
+      
+      
+      const result = await autosaveEvaluation(dataToSend)
       
       // Update evaluationId if it was created during auto-save
       if (result.success && result.evaluationId && !evaluationId) {
@@ -91,10 +95,10 @@ export function useAutosave({
     setSaveSuccess(false)
     setPendingSave(true)
     
-    // Set new timeout for auto-save (2 second delay as per requirements)
+    // Set new timeout for auto-save (1 second delay like original)
     autoSaveTimeoutRef.current = setTimeout(() => {
       autoSaveEvaluationAction()
-    }, 2000)
+    }, 1000)
   }, [autoSaveEvaluationAction])
 
   // Cleanup timeouts on unmount

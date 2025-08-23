@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { ToastContainer, RedirectingPage } from '@/components/ui'
 import { useToast } from '@/hooks/useToast'
-import { useEvaluation, useAutosave } from './hooks'
+import { useEvaluation } from './hooks'
 import { EvaluationSteps, ItemRating, OverallRating, SubmissionControls } from './components'
 import type { EvaluateClientProps } from './types'
 
@@ -22,36 +22,19 @@ export default function EvaluateClient({
   const { t } = useLanguage()
   const { toasts, removeToast } = useToast()
   
-  // Use custom hooks for state management
+  // Use custom hook for state management (now includes autosave)
   const evaluation = useEvaluation({
     initialItems,
     initialEvaluationId,
     initialEvaluationStatus,
     initialOverallRating,
-    initialOverallComment
+    initialOverallComment,
+    employeeId
   })
 
-  // Auto-save hook
-  const { autoSaving, saveSuccess, triggerAutoSave, autoSaveEvaluationAction } = useAutosave({
-    employeeId,
-    evaluationStatus: evaluation.evaluationStatus,
-    evaluationItems: evaluation.evaluationItems,
-    overallRating: evaluation.overallRating,
-    overallComment: evaluation.overallComment,
-    evaluationId: evaluation.evaluationId,
-    onEvaluationIdChange: evaluation.setEvaluationId
-  })
-
-  // Enhanced event handlers with auto-save integration
-  const handleRatingWithAutoSave = (rating: number) => {
-    evaluation.handleRating(rating)
-    triggerAutoSave()
-  }
-
-  const handleCommentChangeWithAutoSave = (comment: string) => {
-    evaluation.handleCommentChange(comment)
-    triggerAutoSave()
-  }
+  // Event handlers (autosave is now built into the hook)
+  const handleRating = evaluation.handleRating
+  const handleCommentChange = evaluation.handleCommentChange
 
   // Back to list
   const handleBackToList = () => {
@@ -60,7 +43,7 @@ export default function EvaluateClient({
 
   // Submit evaluation with auto-save integration
   const handleSubmitForApproval = () => {
-    evaluation.handleSubmitForApproval(autoSaveEvaluationAction)
+    evaluation.handleSubmitForApproval(evaluation.autoSaveEvaluationAction)
   }
 
   // Success screen
@@ -103,8 +86,8 @@ export default function EvaluateClient({
         progress={evaluation.progress}
         evaluationStatus={evaluation.evaluationStatus}
         userRole={userRole}
-        autoSaving={autoSaving}
-        saveSuccess={saveSuccess}
+        autoSaving={evaluation.autoSaving}
+        saveSuccess={evaluation.saveSuccess}
         isAllComplete={evaluation.isAllComplete}
         submitting={evaluation.submitting}
         onBack={handleBackToList}
@@ -121,8 +104,8 @@ export default function EvaluateClient({
             isOKR={evaluation.isOKR}
             editingItemId={evaluation.editingItemId}
             editingItemData={evaluation.editingItemData}
-            onRating={handleRatingWithAutoSave}
-            onCommentChange={handleCommentChangeWithAutoSave}
+            onRating={handleRating}
+            onCommentChange={handleCommentChange}
             onStartEditing={evaluation.handleStartEditing}
             onCancelEditing={evaluation.handleCancelEditing}
             onSaveItemEdit={evaluation.handleSaveItemEdit}
@@ -135,8 +118,8 @@ export default function EvaluateClient({
             overallRating={evaluation.overallRating}
             overallComment={evaluation.overallComment}
             evaluationStatus={evaluation.evaluationStatus}
-            onRating={handleRatingWithAutoSave}
-            onCommentChange={handleCommentChangeWithAutoSave}
+            onRating={handleRating}
+            onCommentChange={handleCommentChange}
           />
         )}
       </div>

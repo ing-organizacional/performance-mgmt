@@ -70,7 +70,11 @@ export function OverallRating({
           </label>
           <SpeechTextarea
             value={overallComment}
-            onChange={(value) => !isEvaluationLocked && onCommentChange(value)}
+            onChange={(value) => {
+              if (!isEvaluationLocked) {
+                onCommentChange(value)
+              }
+            }}
             placeholder={isEvaluationLocked ? "" : (t.evaluations?.commentPlaceholder || "Provide comprehensive overall feedback...")}
             disabled={isEvaluationLocked}
             rows={6}

@@ -256,6 +256,33 @@ async function seed() {
   })
 
   console.log('  ✅ Created 3 company-wide items')
+  
+  // Create automatic assignments for company-wide items to ALL employees
+  console.log('🔗 Creating company-wide item assignments...')
+  const allUsersForAssignment = await prisma.user.findMany({
+    where: {
+      companyId: company.id,
+      role: { in: ['employee', 'manager'] }
+    },
+    select: { id: true }
+  })
+
+  const companyItems = [companyCompetency, companyOKR1, companyOKR2]
+  
+  for (const item of companyItems) {
+    const assignments = allUsersForAssignment.map(user => ({
+      evaluationItemId: item.id,
+      employeeId: user.id,
+      companyId: company.id,
+      assignedBy: hrManager.id
+    }))
+
+    await prisma.evaluationItemAssignment.createMany({
+      data: assignments
+    })
+  }
+  
+  console.log(`  ✅ Created assignments for 3 company-wide items × ${allUsersForAssignment.length} employees = ${3 * allUsersForAssignment.length} assignments`)
 
   // Create HR additional competency
   await prisma.evaluationItem.create({
@@ -275,6 +302,30 @@ async function seed() {
     }
   })
   console.log('  ✅ Created HR department competency')
+  
+  // Create assignments for HR competency
+  const hrUsers = await prisma.user.findMany({
+    where: { companyId: company.id, department: 'HR', role: { in: ['employee', 'manager'] } },
+    select: { id: true }
+  })
+  
+  const hrCompetency = await prisma.evaluationItem.findFirst({
+    where: { title: 'Strategic HR Leadership', companyId: company.id }
+  })
+  
+  if (hrCompetency) {
+    const hrAssignments = hrUsers.map(user => ({
+      evaluationItemId: hrCompetency.id,
+      employeeId: user.id,
+      companyId: company.id,
+      assignedBy: hrManager.id
+    }))
+    
+    await prisma.evaluationItemAssignment.createMany({
+      data: hrAssignments
+    })
+    console.log(`  ✅ Created HR competency assignments: ${hrAssignments.length}`)
+  }
 
   // Create Finance department OKRs
   const financeOKR1 = await prisma.evaluationItem.create({
@@ -311,6 +362,27 @@ async function seed() {
     }
   })
   console.log('  ✅ Created Finance department OKRs')
+  
+  // Create assignments for Finance department OKRs
+  const financeUsers = await prisma.user.findMany({
+    where: { companyId: company.id, department: 'Finance', role: { in: ['employee', 'manager'] } },
+    select: { id: true }
+  })
+  
+  const financeItems = [financeOKR1, financeOKR2]
+  for (const item of financeItems) {
+    const financeAssignments = financeUsers.map(user => ({
+      evaluationItemId: item.id,
+      employeeId: user.id,
+      companyId: company.id,
+      assignedBy: users['Finance_manager'].id
+    }))
+    
+    await prisma.evaluationItemAssignment.createMany({
+      data: financeAssignments
+    })
+  }
+  console.log(`  ✅ Created Finance OKR assignments: ${financeItems.length} × ${financeUsers.length} = ${financeItems.length * financeUsers.length}`)
 
   // Create Maintenance department OKRs
   const maintenanceOKR1 = await prisma.evaluationItem.create({
@@ -347,6 +419,27 @@ async function seed() {
     }
   })
   console.log('  ✅ Created Maintenance department OKRs')
+  
+  // Create assignments for Maintenance department OKRs
+  const maintenanceUsers = await prisma.user.findMany({
+    where: { companyId: company.id, department: 'Maintenance', role: { in: ['employee', 'manager'] } },
+    select: { id: true }
+  })
+  
+  const maintenanceItems = [maintenanceOKR1, maintenanceOKR2]
+  for (const item of maintenanceItems) {
+    const maintenanceAssignments = maintenanceUsers.map(user => ({
+      evaluationItemId: item.id,
+      employeeId: user.id,
+      companyId: company.id,
+      assignedBy: users['Maintenance_manager'].id
+    }))
+    
+    await prisma.evaluationItemAssignment.createMany({
+      data: maintenanceAssignments
+    })
+  }
+  console.log(`  ✅ Created Maintenance OKR assignments: ${maintenanceItems.length} × ${maintenanceUsers.length} = ${maintenanceItems.length * maintenanceUsers.length}`)
 
   // Create individual F&B OKRs (unique for each F&B employee)
   console.log('🍽️  Creating individual F&B OKRs...')
@@ -477,7 +570,7 @@ async function seed() {
     
     // Determine evaluation type
     const isComplete = evaluationCount % 3 === 0 // Every 3rd is complete
-    const status = isComplete ? 'completed' : 'draft'
+    let status = isComplete ? 'completed' : 'draft'
     
     // Determine rating quality
     let ratingQuality: 'poor' | 'normal' | 'good' | 'excellent'
@@ -544,8 +637,31 @@ async function seed() {
       }
     })
 
-    // Create the evaluation
+    // Create the evaluation with new robust tracking fields
     const overallData = generateEvaluationData(ratingQuality, isComplete, employee.department === 'HR')
+    
+    // Determine completion count and reopened status for completed evaluations
+    let completionCount = 0
+    let isReopened = false
+    let previousStatus = null
+    let reopenedAt = null
+    let reopenedBy = null
+    let reopenedReason = null
+    
+    if (status === 'completed') {
+      completionCount = 1
+      
+      // 10% chance of being a reopened evaluation (to test the feature)
+      if (Math.random() < 0.1) {
+        isReopened = true
+        previousStatus = 'submitted'
+        reopenedAt = new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000) // Random time in last 7 days
+        reopenedBy = hrManager.id
+        reopenedReason = evaluationCount % 2 === 0 ? 'New company-wide item added' : 'HR review required'
+        status = 'draft' // Reopened evaluations are back to draft
+        completionCount = 1 // But they were completed once before
+      }
+    }
     
     await prisma.evaluation.create({
       data: {
@@ -558,14 +674,22 @@ async function seed() {
         evaluationItemsData: JSON.stringify(evaluationItemsData),
         overallRating: overallData.rating,
         managerComments: overallData.comment || undefined,
-        status
+        status,
+        // New robust tracking fields
+        isReopened,
+        previousStatus,
+        reopenedAt,
+        reopenedBy,
+        reopenedReason,
+        completionCount
       }
     })
   }
   
   console.log(`  ✅ Created ${evaluationCount} evaluations (mixed statuses and ratings)`)
-  console.log('     - Completed evaluations: ~33%')
+  console.log('     - Completed evaluations: ~30%')
   console.log('     - Draft evaluations: ~67%')
+  console.log('     - Reopened evaluations: ~3% (for testing)')
   console.log('     - No evaluations for HR department')
 
   // Summary

@@ -134,9 +134,11 @@ export async function createEvaluationItem(formData: CreateEvaluationItemData): 
       }
     )
 
-    // If it's a company-wide item, automatically assign to all employees
+    // Handle automatic assignment and evaluation reopening based on level
     if (level === 'company') {
       await handleCompanyWideAssignment(newItem, userId, companyId, activeCycle)
+    } else if (level === 'department' && assignedTo) {
+      await handleDepartmentAssignment(newItem, userId, companyId, assignedTo)
     }
 
     // Targeted cache invalidation - only affect this company
@@ -183,8 +185,10 @@ async function handleCompanyWideAssignment(
       data: assignments
     })
 
-    // Reopen completed evaluations for the current period
-    await reopenCompletedEvaluations(activeCycle, companyId)
+    // Import and call the robust reopening function
+    const { reopenEvaluationsForNewItems } = await import('./evaluation-workflow')
+    const employeeIds = employees.map(emp => emp.id)
+    await reopenEvaluationsForNewItems(employeeIds, 'New company-wide item added')
 
   } catch (error) {
     console.error('Error handling company-wide item assignment:', error)
@@ -192,43 +196,50 @@ async function handleCompanyWideAssignment(
 }
 
 /**
- * Reopens completed evaluations when new company-wide items are added
+ * Handles assignment of department-level items to department employees
  */
-async function reopenCompletedEvaluations(activeCycle: { name: string }, companyId: string) {
-  // Derive period info from active cycle
-  const cycleName = activeCycle.name.toLowerCase()
-  let periodType = 'yearly'
-  let periodDate = new Date().getFullYear().toString()
+async function handleDepartmentAssignment(
+  newItem: { id: string }, 
+  userId: string, 
+  companyId: string, 
+  departmentName: string
+) {
+  try {
+    // Get all employees in the department
+    const employees = await prisma.user.findMany({
+      where: {
+        companyId,
+        department: departmentName,
+        role: { in: ['employee', 'manager'] }
+      },
+      select: { id: true }
+    })
 
-  if (cycleName.includes('annual') || cycleName.includes('yearly') || cycleName.includes('year')) {
-    periodType = 'yearly'
-    const yearMatch = activeCycle.name.match(/\\b(20\\d{2})\\b/)
-    periodDate = yearMatch ? yearMatch[1] : new Date().getFullYear().toString()
-  } else if (cycleName.includes('quarter') || cycleName.includes('q1') || cycleName.includes('q2') || cycleName.includes('q3') || cycleName.includes('q4')) {
-    periodType = 'quarterly'
-    const quarterMatch = activeCycle.name.match(/\\b(20\\d{2}[-\\s]?Q[1-4]|\\bQ[1-4][-\\s]?20\\d{2})\\b/i)
-    if (quarterMatch) {
-      periodDate = quarterMatch[1].replace(/\\s/g, '-').toUpperCase()
-    } else {
-      const currentDate = new Date()
-      const quarter = Math.ceil((currentDate.getMonth() + 1) / 3)
-      periodDate = `${currentDate.getFullYear()}-Q${quarter}`
+    if (employees.length === 0) {
+      console.log(`No employees found in department: ${departmentName}`)
+      return
     }
-  }
 
-  // Reopen all completed evaluations in the current period
-  await prisma.evaluation.updateMany({
-    where: {
+    // Create assignments for all department employees
+    const assignments = employees.map(employee => ({
+      evaluationItemId: newItem.id,
+      employeeId: employee.id,
       companyId,
-      status: 'completed',
-      periodType,
-      periodDate
-    },
-    data: {
-      status: 'draft',
-      updatedAt: new Date()
-    }
-  })
+      assignedBy: userId
+    }))
+
+    await prisma.evaluationItemAssignment.createMany({
+      data: assignments
+    })
+
+    // Import and call the robust reopening function for department employees
+    const { reopenEvaluationsForNewItems } = await import('./evaluation-workflow')
+    const employeeIds = employees.map(emp => emp.id)
+    await reopenEvaluationsForNewItems(employeeIds, `New department OKR/Competency added for ${departmentName}`)
+
+  } catch (error) {
+    console.error('Error handling department item assignment:', error)
+  }
 }
 
 /**

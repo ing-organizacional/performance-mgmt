@@ -70,6 +70,7 @@ model User {
   employees                    User[]                     @relation("ManagerEmployee")
   evaluationsGiven             Evaluation[]               @relation("ManagerEvaluations")
   evaluationsReceived          Evaluation[]               @relation("EmployeeEvaluations")
+  evaluationsReopened          Evaluation[]               @relation("EvaluationReopenedBy")
   createdEvaluationItems       EvaluationItem[]           @relation("CreatedEvaluationItems")
   deadlineAssignments          EvaluationItem[]           @relation("DeadlineSetBy")
   archivedEvaluationItems      EvaluationItem[]           @relation("ArchivedEvaluationItems")
@@ -118,11 +119,20 @@ model Evaluation {
   overallRating   Int? // 1-5 scale
   managerComments String?
   status          String  @default("draft") // "draft" | "submitted" | "completed"
+  
+  // Robust evaluation state tracking
+  isReopened       Boolean   @default(false) // True if evaluation was reopened after being submitted/completed
+  previousStatus   String?   // Previous status before reopening ("submitted" | "completed")
+  reopenedAt       DateTime? // When the evaluation was last reopened
+  reopenedBy       String?   // User ID who reopened the evaluation
+  reopenedReason   String?   // Reason for reopening (e.g., "New company items added")
+  completionCount  Int       @default(0) // How many times this evaluation has been completed (0=never, 1=once, 2+=multiple times)
 
-  employee  User              @relation("EmployeeEvaluations", fields: [employeeId], references: [id])
-  manager   User              @relation("ManagerEvaluations", fields: [managerId], references: [id])
-  company   Company           @relation(fields: [companyId], references: [id])
-  cycle     PerformanceCycle? @relation(fields: [cycleId], references: [id])
+  employee    User              @relation("EmployeeEvaluations", fields: [employeeId], references: [id])
+  manager     User              @relation("ManagerEvaluations", fields: [managerId], references: [id])
+  company     Company           @relation(fields: [companyId], references: [id])
+  cycle       PerformanceCycle? @relation(fields: [cycleId], references: [id])
+  reopenedByUser User?          @relation("EvaluationReopenedBy", fields: [reopenedBy], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -135,11 +145,15 @@ model Evaluation {
   @@index([managerId])
   @@index([cycleId])
   @@index([status])
+  @@index([isReopened])
+  @@index([reopenedBy])
   @@index([companyId, status])
   @@index([managerId, status])
   @@index([employeeId, status])
   @@index([cycleId, status])
   @@index([companyId, cycleId, status])
+  @@index([companyId, isReopened])
+  @@index([managerId, isReopened])
 }
 
 model EvaluationItem {

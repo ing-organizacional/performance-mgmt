@@ -23,6 +23,12 @@ interface Employee {
     evaluationItemsData?: string | null
     createdAt: string
     updatedAt: string
+    isReopened: boolean
+    previousStatus: string | null
+    reopenedAt: string | null
+    reopenedBy: string | null
+    reopenedReason: string | null
+    completionCount: number
   }[]
 }
 
@@ -173,25 +179,42 @@ export default function EvaluationsClient({
               return { status: 'completed', icon: <CheckCircle className="w-4 h-4" />, color: 'text-green-600', label: t.status.completed }
             }
             
-            // Check if this is a reopened evaluation (draft with evaluation data that was recently updated)
-            if (latestEval.status === 'draft') {
-              // Simple heuristic: if it's a draft but has evaluation data, it might be reopened
-              // In a real implementation, you might want a more sophisticated way to detect this
-              const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000)
-              const updatedRecently = new Date(latestEval.updatedAt || latestEval.createdAt) > oneDayAgo
-              
-              if (updatedRecently && latestEval.evaluationItemsData) {
-                return { 
-                  status: 'reopened', 
-                  icon: (
-                    <RefreshCw className="w-4 h-4" />
-                  ), 
-                  color: 'text-primary', 
-                  label: t.status.draftReopened 
-                }
+            // Check if this is a genuinely reopened evaluation using robust tracking
+            if (latestEval.status === 'draft' && latestEval.isReopened) {
+              return { 
+                status: 'reopened', 
+                icon: (
+                  <RefreshCw className="w-4 h-4" />
+                ), 
+                color: 'text-primary', 
+                label: t.status.draftReopened 
               }
             }
             
+            // For draft evaluations that aren't reopened, determine if they're truly in progress
+            if (latestEval.status === 'draft') {
+              // Check if the evaluation has actual content (ratings or comments)
+              if (latestEval.evaluationItemsData) {
+                try {
+                  const items = JSON.parse(latestEval.evaluationItemsData)
+                  const hasContent = items.some((item: { rating?: number | null; comment?: string }) => 
+                    (item.rating !== null && item.rating !== undefined) ||
+                    (item.comment && item.comment.trim().length > 0)
+                  )
+                  
+                  if (hasContent) {
+                    return { status: 'inprogress', icon: <RotateCcw className="w-4 h-4" />, color: 'text-amber-600', label: t.status.inProgress }
+                  }
+                } catch {
+                  // If parsing fails, treat as not started
+                }
+              }
+              
+              // Draft with no content = not started
+              return { status: 'empty', icon: <Circle className="w-4 h-4" />, color: 'text-gray-500', label: t.status.notStarted }
+            }
+            
+            // Fallback (shouldn't reach here)
             return { status: 'inprogress', icon: <RotateCcw className="w-4 h-4" />, color: 'text-amber-600', label: t.status.inProgress }
           }
           

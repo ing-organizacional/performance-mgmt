@@ -1,9 +1,9 @@
-import { useState, useCallback, useMemo } from 'react'
+import { useState, useCallback, useMemo, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { useToast } from '@/hooks/useToast'
 import { hapticFeedback } from '@/lib/utils/haptics'
-import { submitEvaluation, unlockEvaluation, updateEvaluationItem } from '@/lib/actions/evaluations'
+import { submitEvaluation, unlockEvaluation, updateEvaluationItem, autosaveEvaluation } from '@/lib/actions/evaluations'
 import type { 
   EvaluationItem, 
   EvaluationStatus, 
@@ -18,6 +18,7 @@ interface UseEvaluationProps {
   initialEvaluationStatus?: EvaluationStatus
   initialOverallRating?: number | null
   initialOverallComment?: string
+  employeeId: string
 }
 
 export function useEvaluation({
@@ -25,7 +26,8 @@ export function useEvaluation({
   initialEvaluationId,
   initialEvaluationStatus = 'draft',
   initialOverallRating,
-  initialOverallComment = ''
+  initialOverallComment = '',
+  employeeId
 }: UseEvaluationProps) {
   const router = useRouter()
   const { t } = useLanguage()
@@ -42,6 +44,31 @@ export function useEvaluation({
   const [editingItemData, setEditingItemData] = useState<ItemEditData | null>(null)
   const [evaluationStatus, setEvaluationStatus] = useState<EvaluationStatus>(initialEvaluationStatus)
   const [evaluationId, setEvaluationId] = useState<string | null>(initialEvaluationId || null)
+  
+  // Autosave state
+  const [autoSaving, setAutoSaving] = useState(false)
+  const [pendingSave, setPendingSave] = useState(false)
+  const [saveSuccess, setSaveSuccess] = useState(false)
+  const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const successTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  
+  // Use ref to store latest state values to avoid closure issues
+  const latestStateRef = useRef({
+    evaluationItems,
+    overallRating,
+    overallComment,
+    evaluationId,
+    evaluationStatus
+  })
+  
+  // Update ref whenever state changes
+  latestStateRef.current = {
+    evaluationItems,
+    overallRating,
+    overallComment,
+    evaluationId,
+    evaluationStatus
+  }
 
   // Check if evaluation is locked (submitted or completed)
   const isEvaluationLocked = useMemo(() => 
@@ -111,6 +138,74 @@ export function useEvaluation({
     }
   }, [editingItemId, editingItemData, success, error])
 
+  // Auto-save functionality using refs to avoid closure issues
+  const autoSaveEvaluationAction = useCallback(async () => {
+    const currentState = latestStateRef.current
+    
+    if (currentState.evaluationStatus !== 'draft') return // Only auto-save drafts
+    
+    try {
+      setAutoSaving(true)
+      setPendingSave(false)
+      
+      const result = await autosaveEvaluation({
+        employeeId,
+        evaluationItems: currentState.evaluationItems.map(item => ({
+          id: item.id,
+          title: item.title,
+          description: item.description,
+          type: item.type as 'okr' | 'competency',
+          rating: item.rating,
+          comment: item.comment
+        })),
+        overallRating: currentState.overallRating,
+        overallComment: currentState.overallComment
+      })
+      
+      // Update evaluationId if it was created during auto-save
+      if (result.success && result.evaluationId && !currentState.evaluationId) {
+        setEvaluationId(result.evaluationId)
+      }
+      
+      // Show success state if save was successful
+      if (result.success) {
+        setAutoSaving(false)
+        setSaveSuccess(true)
+        
+        // Hide success message after 2 seconds
+        successTimeoutRef.current = setTimeout(() => {
+          setSaveSuccess(false)
+        }, 2000)
+      } else {
+        // If save failed, just hide the saving indicator
+        setAutoSaving(false)
+      }
+      
+    } catch (err) {
+      console.error('Auto-save error:', err)
+      setAutoSaving(false)
+    }
+  }, [employeeId]) // Minimal dependencies
+
+  const triggerAutoSave = useCallback(() => {
+    // Clear existing timeouts
+    if (autoSaveTimeoutRef.current) {
+      clearTimeout(autoSaveTimeoutRef.current)
+    }
+    if (successTimeoutRef.current) {
+      clearTimeout(successTimeoutRef.current)
+    }
+    
+    // Hide success message and show pending save indicator immediately
+    setSaveSuccess(false)
+    setPendingSave(true)
+    
+    // Set new timeout for auto-save (1 second delay)
+    autoSaveTimeoutRef.current = setTimeout(() => {
+      autoSaveEvaluationAction()
+    }, 1000)
+  }, [autoSaveEvaluationAction])
+
   // Event handlers
   const handleRating = useCallback((rating: number) => {
     if (evaluationStatus !== 'draft') return
@@ -125,7 +220,10 @@ export function useEvaluation({
     } else if (isOverall) {
       setOverallRating(rating)
     }
-  }, [evaluationStatus, currentItem, evaluationItems, isOverall])
+    
+    // Trigger autosave after state update
+    triggerAutoSave()
+  }, [evaluationStatus, currentItem, evaluationItems, isOverall, triggerAutoSave])
 
   const handleCommentChange = useCallback((comment: string) => {
     if (evaluationStatus !== 'draft') return
@@ -138,7 +236,10 @@ export function useEvaluation({
     } else if (isOverall) {
       setOverallComment(comment)
     }
-  }, [evaluationStatus, currentItem, evaluationItems, isOverall])
+    
+    // Trigger autosave after state update
+    triggerAutoSave()
+  }, [evaluationStatus, currentItem, evaluationItems, isOverall, triggerAutoSave])
 
   const handleNext = useCallback(() => {
     if (currentStep < totalSteps - 1) {
@@ -242,6 +343,18 @@ export function useEvaluation({
     setEditingItemData(data)
   }, [])
 
+  // Cleanup timeouts on unmount
+  useEffect(() => {
+    return () => {
+      if (autoSaveTimeoutRef.current) {
+        clearTimeout(autoSaveTimeoutRef.current)
+      }
+      if (successTimeoutRef.current) {
+        clearTimeout(successTimeoutRef.current)
+      }
+    }
+  }, [])
+
   return {
     // State
     currentStep,
@@ -254,6 +367,10 @@ export function useEvaluation({
     editingItemData,
     evaluationStatus,
     evaluationId,
+    
+    // Autosave state
+    autoSaving: autoSaving || pendingSave,
+    saveSuccess,
     
     // Computed values
     isEvaluationLocked,
@@ -276,6 +393,10 @@ export function useEvaluation({
     handleStartEditing,
     handleCancelEditing,
     handleUpdateEditingData,
+    
+    // Autosave functions
+    triggerAutoSave,
+    autoSaveEvaluationAction,
     
     // Setters for external use
     setEvaluationId,
