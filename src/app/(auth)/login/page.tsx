@@ -273,7 +273,7 @@ export default function LoginPage() {
             {t.auth.copyright}
           </p>
           <p className="text-white/70 text-sm mt-2">
-            Version 2.3.2
+            Version 2.4.0
           </p>
         </div>
       </div>
