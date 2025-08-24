@@ -155,9 +155,21 @@ LLM_TEMPERATURE=0.3
 
 **Role-Based Access:**
 
-- **HR**: `/dashboard` → cycle management, team overview, deadline tracking, user archive, company items + **Full AI access**
-- **Managers**: `/evaluations` → team evaluation list, evaluation forms + **AI access when enabled**
+- **HR**: `/dashboard` → cycle management, team overview, deadline tracking, user archive, company items, **department oversight** + **Full AI access**
+- **Managers**: `/evaluations` → team evaluation list, evaluation forms, **department assignments** + **AI access when enabled**
 - **Employees**: `/my-evaluations` → view received evaluations, approve pending ones (no AI access)
+
+**Assignment Management System:**
+
+- **Company Tab** (`/evaluations/assignments`): Shows company-wide items activated by HR (read-only for all users)
+- **Department Tab** (`/evaluations/assignments`): Manager-specific interface for creating and assigning departmental items
+  - **For All Managers (including HR)**: Shows only items they created + department items for their department
+  - **Clean UX**: Each manager sees only relevant items, no cross-departmental clutter
+- **HR Department Oversight** (`/dashboard/oversight`): Dedicated HR interface for reviewing all departmental items across the organization
+  - **Advanced Filtering**: By department, manager, type (OKR/Competency)
+  - **Comprehensive Search**: Title, description, creator search capabilities  
+  - **Assignment Visibility**: View all employee assignments across departments
+  - **Bilingual Interface**: Complete English/Spanish translation support
 
 ## Authentication & User Management
 
@@ -226,9 +238,9 @@ LLM_TEMPERATURE=0.3
 - ✅ OWASP Top 10 compliance verified
 - ⚠️ Remove demo credentials before production deployment
 
-## Current System State (August 21, 2025)
+## Current System State (August 24, 2025)
 
-**Production Readiness: ENTERPRISE-READY WITH AI v2.3.2** 🚀🤖
+**Production Readiness: ENTERPRISE-READY WITH AI + OVERSIGHT v2.4.0** 🚀🤖👁️
 
 **Build Status:** ✅ Clean TypeScript compilation and ESLint passes  
 **Security Status:** ✅ **COMPREHENSIVE SECURITY AUDIT COMPLETED - A+
@@ -282,6 +294,12 @@ enterprise features
 - ✅ **UI/UX Bug Fixes (v2.3.2)**: Fixed OKR/Competency creator display showing names instead of database codes
 - ✅ **Cache Performance Enhancement (v2.3.2)**: Implemented targeted cache invalidation preventing global cache storms at scale
 - ✅ **Version Synchronization (v2.3.2)**: Login page version display now accurately reflects package.json version
+- ✅ **HR Department Oversight System (v2.4.0)**: Dedicated interface for reviewing all departmental items across organization
+- ✅ **Assignment Filtering Enhancement (v2.4.0)**: Clean UX with role-specific item filtering preventing cross-departmental clutter
+- ✅ **Advanced Search & Filter (v2.4.0)**: Comprehensive filtering by department, manager, type with bilingual search capabilities
+- ✅ **Text Contrast Optimization (v2.4.0)**: Enhanced readability across all interface elements following design system guidelines
+- ✅ **Database Relationship Fix (v2.4.0)**: Corrected Prisma queries using proper individualAssignments relationship
+- ✅ **React Performance Fix (v2.4.0)**: Eliminated duplicate keys error through proper manager deduplication
 
 **AI Feature Matrix:**
 
@@ -307,24 +325,52 @@ enterprise features
 - ⚠️ Configure HTTPS and production environment variables
 - ⚠️ Set appropriate AI rate limits for production usage
 
-**Latest Technical Specifications (v2.3.2):**
+**Latest Technical Specifications (v2.4.0):**
 
 - **Dependencies**: 34 production dependencies, all updated to latest
   stable versions
-- **Build Output**: 23 pages, optimized bundle sizes, standalone Docker
+- **Build Output**: 25 pages (including oversight), optimized bundle sizes, standalone Docker
   support
-- **TypeScript**: Strict mode, 100% type coverage
-- **Database**: 12-table schema with AI feature support and audit trails
-- **Code Architecture**: Modular evaluation-items system (4 logical modules
-  vs 1 monolithic file)
+- **TypeScript**: Strict mode, 100% type coverage with enhanced interface definitions
+- **Database**: 12-table schema with AI feature support, audit trails, and proper relationship handling
+- **Code Architecture**: Modular evaluation-items system with dedicated oversight module (5 logical modules)
 - **AI Models**: GPT-4o-mini (default), GPT-4, Claude-3-Haiku,
   Claude-3-Sonnet, Claude-3-Opus, Ollama local models supported
-- **Performance**: Turbopack development, optimized production builds
+- **Performance**: Turbopack development, optimized production builds, React key optimization
 - **Security**: Rate limiting, input validation, secure credential
   management, middleware permissions policy
 - **Browser APIs**: Speech recognition (microphone access), secure permissions policy
+- **UI/UX**: Enhanced text contrast following WCAG guidelines, bilingual interface support
+- **Translation System**: 320+ translation keys with complete oversight feature coverage
 
-## Recent Changes (v2.3.2 - August 22, 2025)
+## Recent Changes (v2.4.0 - August 24, 2025)
+
+### 🎯 **Major Features**
+- **HR Department Oversight System**: New dedicated page (`/dashboard/oversight`) for comprehensive department management
+  - **Advanced Filtering**: Filter by department, manager, type (OKR/Competency)
+  - **Comprehensive Search**: Search across titles, descriptions, and creators
+  - **Assignment Visibility**: View all employee assignments across departments
+  - **Professional UI**: Desktop-first responsive design with proper contrast
+  - **Complete Translations**: Full English/Spanish bilingual support
+
+### 🔧 **Assignment System Improvements**
+- **Clean Department Tab**: All managers (including HR) now see only relevant items in Department tab
+- **Role Separation**: Clear distinction between departmental management and company oversight
+- **Better UX**: Eliminated cross-departmental clutter for improved user experience
+
+### 🐛 **Technical Fixes** 
+- **Database Queries**: Corrected Prisma relationship queries using `individualAssignments` instead of `assignments`
+- **React Keys**: Fixed duplicate key errors through proper manager deduplication with Map-based approach
+- **Text Contrast**: Enhanced readability across all interface elements following design system guidelines
+
+### 📚 **Documentation & Translations**
+- **Translation Expansion**: Added 30+ new translation keys for oversight functionality
+- **Type Safety**: Enhanced TypeScript interfaces for oversight data structures
+- **Navigation Integration**: Added oversight button to HR dashboard administrative actions
+
+---
+
+## Previous Changes (v2.3.2 - August 22, 2025)
 
 ### 🐛 **Bug Fixes**
 - **Fixed OKR/Competency Creator Display**: Evaluation cards now show human-readable creator names instead of database codes
