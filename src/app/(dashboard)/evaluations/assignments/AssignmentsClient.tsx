@@ -343,6 +343,7 @@ export default function AssignmentsClient({
                 isPending={isPending}
                 userRole={userRole}
                 evaluatedItems={evaluatedItems}
+                activeTab={activeTab}
                 onEmployeeSelection={handleEmployeeSelection}
                 onUnassignFromEmployee={assignmentHook.handleUnassignFromEmployee}
                 onSelectAll={handleSelectAll}

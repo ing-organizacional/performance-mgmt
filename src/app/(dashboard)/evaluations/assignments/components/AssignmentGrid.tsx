@@ -48,6 +48,19 @@ export function AssignmentGrid({
 }: AssignmentGridProps) {
   const { t } = useLanguage()
 
+  // Helper function to filter employee assigned items based on active tab
+  const getFilteredAssignedItems = (employeeAssignedItems: string[]): string[] => {
+    if (activeTab === 'department') {
+      // In Department tab, only show department-level items
+      return employeeAssignedItems.filter(itemId => {
+        const item = items.find(evalItem => evalItem.id === itemId)
+        return item && item.level === 'department'
+      })
+    }
+    // In Company tab, show all items
+    return employeeAssignedItems
+  }
+
   const getBadgeStyles = (level: string) => {
     switch (level) {
       case 'company':
@@ -271,18 +284,20 @@ export function AssignmentGrid({
                   </div>
                 </div>
                 <div className="text-xs text-gray-500">
-                  {employee.assignedItems.length} {t.assignments.itemsAssigned}
+                  {getFilteredAssignedItems(employee.assignedItems).length} {t.assignments.itemsAssigned}
                 </div>
               </div>
 
               {/* Show current assignments for this employee */}
-              {employee.assignedItems.length > 0 && (
-                <div className="mb-4 p-3 bg-gray-50 rounded-lg">
-                  <h4 className="text-sm font-medium text-gray-700 mb-2">
-                    {t.assignments.itemsAssigned} ({employee.assignedItems.length}):
-                  </h4>
-                  <div className="flex flex-wrap gap-1">
-                    {employee.assignedItems.map((itemId) => {
+              {(() => {
+                const filteredItems = getFilteredAssignedItems(employee.assignedItems)
+                return filteredItems.length > 0 && (
+                  <div className="mb-4 p-3 bg-gray-50 rounded-lg">
+                    <h4 className="text-sm font-medium text-gray-700 mb-2">
+                      {t.assignments.itemsAssigned} ({filteredItems.length}):
+                    </h4>
+                    <div className="flex flex-wrap gap-1">
+                      {filteredItems.map((itemId) => {
                       const item = items.find(evalItem => evalItem.id === itemId)
                       return item ? (
                         <div key={itemId} className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs bg-primary/10 text-primary border border-primary/20">
@@ -309,10 +324,11 @@ export function AssignmentGrid({
                           </button>
                         </div>
                       ) : null
-                    })}
+                      })}
+                    </div>
                   </div>
-                </div>
-              )}
+                )
+              })()}
 
               {/* Individual Items for Assignment */}
               <div className="space-y-3">
