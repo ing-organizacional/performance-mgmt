@@ -125,3 +125,34 @@ export interface OKRsTranslations {
   objective: string
   keyResults: string
 }
+
+export interface OversightTranslations {
+  title: string
+  subtitle: string
+  allDepartmentItems: string
+  description: string
+  searchPlaceholder: string
+  filterByDepartment: string
+  filterByManager: string
+  filterByType: string
+  allDepartments: string
+  allManagers: string
+  allTypes: string
+  noItemsFound: string
+  noItemsDescription: string
+  assignedEmployees: string
+  createdBy: string
+  department: string
+  manager: string
+  type: string
+  itemDetails: string
+  assignedTo: string
+  employees: string
+  okrType: string
+  competencyType: string
+  viewAssignments: string
+  manageItem: string
+  departmentOverview: string
+  totalItems: string
+  totalAssignments: string
+}

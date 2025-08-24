@@ -4,7 +4,8 @@ import type {
   SettingsTranslations,
   AssignmentsTranslations,
   CompanyItemsTranslations,
-  OKRsTranslations 
+  OKRsTranslations,
+  OversightTranslations 
 } from '../types'
 
 export const speech: SpeechTranslations = {
@@ -191,4 +192,35 @@ export const companyItems: CompanyItemsTranslations = {
 export const okrs: OKRsTranslations = {
   objective: 'Objetivo',
   keyResults: 'Resultados Clave'
+}
+
+export const oversight: OversightTranslations = {
+  title: 'Supervisión Departamental',
+  subtitle: 'Revisar y gestionar todos los OKRs y competencias departamentales',
+  allDepartmentItems: 'Todos los Elementos Departamentales',
+  description: 'Visión general de todos los elementos creados por gerentes en todos los departamentos',
+  searchPlaceholder: 'Buscar por título, descripción o creador...',
+  filterByDepartment: 'Filtrar por Departamento',
+  filterByManager: 'Filtrar por Gerente',
+  filterByType: 'Filtrar por Tipo',
+  allDepartments: 'Todos los Departamentos',
+  allManagers: 'Todos los Gerentes',
+  allTypes: 'Todos los Tipos',
+  noItemsFound: 'No se encontraron elementos',
+  noItemsDescription: 'Ningún elemento departamental coincide con sus filtros actuales',
+  assignedEmployees: 'Empleados Asignados',
+  createdBy: 'Creado por',
+  department: 'Departamento',
+  manager: 'Gerente',
+  type: 'Tipo',
+  itemDetails: 'Detalles del Elemento',
+  assignedTo: 'Asignado a',
+  employees: 'empleados',
+  okrType: 'OKR',
+  competencyType: 'Competencia',
+  viewAssignments: 'Ver Asignaciones',
+  manageItem: 'Gestionar Elemento',
+  departmentOverview: 'Resumen Departamental',
+  totalItems: 'Total de Elementos',
+  totalAssignments: 'Total de Asignaciones'
 }

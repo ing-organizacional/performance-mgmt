@@ -131,6 +131,7 @@ export const dashboard: DashboardTranslations = {
   exportAllExcel: 'Export All as Excel',
   clearAll: 'Clear All',
   departmentRatings: 'Department Ratings',
+  departmentOversight: 'Department Oversight',
   performanceInsights: 'Performance Insights',
   totalEvaluations: 'Total Evaluations',
   completeDepartments: 'Complete Departments',

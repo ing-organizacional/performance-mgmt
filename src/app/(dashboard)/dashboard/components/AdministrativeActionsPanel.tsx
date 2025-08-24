@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation'
 import { useLanguage } from '@/contexts/LanguageContext'
-import { Settings, Clipboard, FolderDown, ChevronRight, Users, RefreshCw, FileText, Clock, Star, Archive } from 'lucide-react'
+import { Settings, Clipboard, FolderDown, ChevronRight, Users, RefreshCw, FileText, Clock, Star, Archive, Eye } from 'lucide-react'
 
 interface AdministrativeActionsPanelProps {
   onExportCenterOpen: () => void
@@ -153,6 +153,19 @@ export function AdministrativeActionsPanel({ onExportCenterOpen }: Administrativ
                   <Star className="w-4 lg:w-5 h-4 lg:h-5 text-yellow-600" />
                 </div>
                 <span className="font-medium text-gray-700 text-sm lg:text-base truncate">{t.dashboard.departmentRatings}</span>
+              </div>
+              <ChevronRight className="w-4 lg:w-5 h-4 lg:h-5 text-gray-400 group-hover:text-gray-600 transition-colors flex-shrink-0" />
+            </button>
+
+            <button 
+              onClick={() => router.push('/dashboard/oversight')}
+              className="w-full flex items-center justify-between p-3 lg:p-4 border border-gray-200 rounded-xl hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 group min-h-[44px]"
+            >
+              <div className="flex items-center flex-1 min-w-0">
+                <div className="w-8 lg:w-10 h-8 lg:h-10 bg-teal-100 rounded-lg flex items-center justify-center mr-2 lg:mr-3 flex-shrink-0">
+                  <Eye className="w-4 lg:w-5 h-4 lg:h-5 text-teal-600" />
+                </div>
+                <span className="font-medium text-gray-700 text-sm lg:text-base truncate">{t.dashboard.departmentOversight}</span>
               </div>
               <ChevronRight className="w-4 lg:w-5 h-4 lg:h-5 text-gray-400 group-hover:text-gray-600 transition-colors flex-shrink-0" />
             </button>

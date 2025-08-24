@@ -137,6 +137,7 @@ export interface DashboardTranslations {
   exportAllExcel: string
   clearAll: string
   departmentRatings: string
+  departmentOversight: string
   performanceInsights: string
   totalEvaluations: string
   completeDepartments: string

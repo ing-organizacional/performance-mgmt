@@ -24,7 +24,7 @@ import type { CommonTranslations } from './common'
 import type { AuthTranslations, NavigationTranslations } from './auth'
 import type { EvaluationsTranslations } from './evaluations'
 import type { SpeechTranslations, BiometricTranslations, SettingsTranslations } from './features'
-import type { AssignmentsTranslations, CompanyItemsTranslations, OKRsTranslations } from './assignments'
+import type { AssignmentsTranslations, CompanyItemsTranslations, OKRsTranslations, OversightTranslations } from './assignments'
 import type { DashboardTranslations } from './dashboard'
 import type { UsersTranslations } from './users'
 
@@ -47,6 +47,7 @@ export interface Translations {
   assignments: AssignmentsTranslations
   companyItems: CompanyItemsTranslations
   okrs: OKRsTranslations
+  oversight: OversightTranslations
   dashboard: DashboardTranslations
   users: UsersTranslations
 }

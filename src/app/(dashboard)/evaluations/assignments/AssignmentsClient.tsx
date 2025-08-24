@@ -108,7 +108,23 @@ export default function AssignmentsClient({
     itemEditorHook.handleSaveNew('department', () => router.refresh())
   }
 
-  const filteredItems = evaluationItems.filter(item => item.level === activeTab)
+  const filteredItems = evaluationItems.filter(item => {
+    if (activeTab === 'company') {
+      return item.level === 'company'
+    }
+    
+    if (activeTab === 'department') {
+      // For all managers (including HR) in Department tab, show:
+      // 1. Items they created (level: 'manager')
+      // 2. Department-level items for their department (level: 'department' and assignedTo matches their department)
+      if (userRole === 'manager' || userRole === 'hr') {
+        return (item.level === 'manager' && item.createdBy === userName) ||
+               (item.level === 'department' && item.assignedTo === userDepartment)
+      }
+    }
+    
+    return false
+  })
 
 
   const getBadgeIcon = (level: string) => {

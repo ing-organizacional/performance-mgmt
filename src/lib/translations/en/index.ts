@@ -3,7 +3,7 @@ import { status, ratings, common } from './common'
 import { auth } from './auth'
 import { nav } from './navigation'
 import { evaluations } from './evaluations'
-import { speech, biometric, settings, assignments, companyItems, okrs } from './features'
+import { speech, biometric, settings, assignments, companyItems, okrs, oversight } from './features'
 import { dashboard } from './dashboard'
 import { users } from './users'
 
@@ -20,6 +20,7 @@ export const en: Translations = {
   assignments,
   companyItems,
   okrs,
+  oversight,
   dashboard,
   users
 }

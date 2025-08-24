@@ -4,7 +4,8 @@ import type {
   SettingsTranslations,
   AssignmentsTranslations,
   CompanyItemsTranslations,
-  OKRsTranslations 
+  OKRsTranslations,
+  OversightTranslations 
 } from '../types'
 
 export const speech: SpeechTranslations = {
@@ -191,4 +192,35 @@ export const companyItems: CompanyItemsTranslations = {
 export const okrs: OKRsTranslations = {
   objective: 'Objective',
   keyResults: 'Key Results'
+}
+
+export const oversight: OversightTranslations = {
+  title: 'Department Oversight',
+  subtitle: 'Review and manage all departmental OKRs and competencies',
+  allDepartmentItems: 'All Department Items',
+  description: 'Overview of all items created by managers across departments',
+  searchPlaceholder: 'Search by title, description, or creator...',
+  filterByDepartment: 'Filter by Department',
+  filterByManager: 'Filter by Manager',
+  filterByType: 'Filter by Type',
+  allDepartments: 'All Departments',
+  allManagers: 'All Managers',
+  allTypes: 'All Types',
+  noItemsFound: 'No items found',
+  noItemsDescription: 'No department-level items match your current filters',
+  assignedEmployees: 'Assigned Employees',
+  createdBy: 'Created by',
+  department: 'Department',
+  manager: 'Manager',
+  type: 'Type',
+  itemDetails: 'Item Details',
+  assignedTo: 'Assigned to',
+  employees: 'employees',
+  okrType: 'OKR',
+  competencyType: 'Competency',
+  viewAssignments: 'View Assignments',
+  manageItem: 'Manage Item',
+  departmentOverview: 'Department Overview',
+  totalItems: 'Total Items',
+  totalAssignments: 'Total Assignments'
 }
