@@ -27,6 +27,15 @@ export interface AssignmentsTranslations {
   evaluationDeadline: string
   departmentLevelAssignments: string
   departmentDescription: string
+  myItems: string
+  createAndManageItems: string
+  myTeam: string
+  manageTeamAssignments: string
+  whatWouldYouLikeToDo: string
+  chooseNextStepAfterCreation: string
+  createOnly: string
+  assignToTeam: string
+  canAssignLaterIfNeeded: string
   currentlyAssignedTo: string
   clickOrangeButtonConfirm: string
   cannotRemoveEvaluated: string
@@ -42,6 +51,15 @@ export interface AssignmentsTranslations {
   confirmOverride: string
   hrOverrideSuccess: string
   evaluationDataCleared: string
+  assignmentSuccess: string
+  assignmentFailed: string
+  itemNotFound: string
+  allEmployeesAlreadyAssigned: string
+  failedToAssignItems: string
+  failedToUnassignItem: string
+  failedToOverrideUnassignment: string
+  clickAgainToConfirmRemoval: string
+  removeFromEmployee: string
 }
 
 export interface CompanyItemsTranslations {

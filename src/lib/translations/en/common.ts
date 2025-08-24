@@ -94,5 +94,9 @@ export const common: CommonTranslations = {
   versions: 'Versions',
   refine: 'Refine',
   clear: 'Clear',
-  more: 'more'
+  more: 'more',
+  unknownItem: 'Unknown Item',
+  title: 'Title',
+  description: 'Description',
+  original: 'Orig'
 }

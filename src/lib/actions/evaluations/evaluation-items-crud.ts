@@ -136,9 +136,8 @@ export async function createEvaluationItem(formData: CreateEvaluationItemData): 
     // Handle automatic assignment and evaluation reopening based on level
     if (level === 'company') {
       await handleCompanyWideAssignment(newItem, userId, companyId, activeCycle)
-    } else if (level === 'department' && assignedTo) {
-      await handleDepartmentAssignment(newItem, userId, companyId, assignedTo)
     }
+    // Note: Department items are now assigned manually through the UI, not automatically
 
     // Targeted cache invalidation - only affect this company
     revalidateTag(`company-${companyId}`)
@@ -195,52 +194,6 @@ async function handleCompanyWideAssignment(
   }
 }
 
-/**
- * Handles assignment of department-level items to department employees
- */
-async function handleDepartmentAssignment(
-  newItem: { id: string }, 
-  userId: string, 
-  companyId: string, 
-  departmentName: string
-) {
-  try {
-    // Get all employees in the department
-    const employees = await prisma.user.findMany({
-      where: {
-        companyId,
-        department: departmentName,
-        role: { in: ['employee', 'manager'] }
-      },
-      select: { id: true }
-    })
-
-    if (employees.length === 0) {
-      console.log(`No employees found in department: ${departmentName}`)
-      return
-    }
-
-    // Create assignments for all department employees
-    const assignments = employees.map(employee => ({
-      evaluationItemId: newItem.id,
-      employeeId: employee.id,
-      companyId,
-      assignedBy: userId
-    }))
-
-    await prisma.evaluationItemAssignment.createMany({
-      data: assignments
-    })
-
-    // Import and call the robust reopening function for department employees
-    const { reopenEvaluationsForNewItems } = await import('./evaluation-workflow')
-    const employeeIds = employees.map(emp => emp.id)
-    await reopenEvaluationsForNewItems(employeeIds, `New department OKR/Competency added for ${departmentName}`)
-
-  } catch (error) {
-    console.error('Error handling department item assignment:', error)
-  }
-}
 
 /**
  * Server action to update evaluation item (enhanced with full API functionality)

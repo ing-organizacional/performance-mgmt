@@ -248,7 +248,7 @@ export function EmployeeSelector({
       {hrConfirmation && (
         <HROverrideModal
           isOpen={true}
-          itemTitle={evaluationItems.find(item => item.id === hrConfirmation.itemId)?.title || 'Unknown Item'}
+          itemTitle={evaluationItems.find(item => item.id === hrConfirmation.itemId)?.title || t.common.unknownItem}
           evaluatedEmployees={hrConfirmation.evaluatedEmployees}
           onConfirm={onHROverride}
           onCancel={onCancelHRConfirmation}

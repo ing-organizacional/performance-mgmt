@@ -76,4 +76,8 @@ export interface CommonTranslations {
   refine: string
   clear: string
   more: string
+  unknownItem: string
+  title: string
+  description: string
+  original: string
 }

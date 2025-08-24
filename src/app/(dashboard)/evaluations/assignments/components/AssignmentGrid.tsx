@@ -15,6 +15,7 @@ interface AssignmentGridProps {
   getEmployeesWithItem: (itemId: string) => Employee[]
   aiEnabled?: boolean
   userDepartment?: string
+  departmentView?: 'items' | 'employees'
   onEditItem: (item: EvaluationItem) => void
   onSaveEdit: () => void
   onCancelEdit: () => void
@@ -37,6 +38,7 @@ export function AssignmentGrid({
   getEmployeesWithItem,
   aiEnabled = false,
   userDepartment,
+  departmentView = 'items',
   onEditItem,
   onSaveEdit,
   onCancelEdit,
@@ -231,8 +233,8 @@ export function AssignmentGrid({
                             } ${isPending ? 'opacity-50 cursor-not-allowed' : ''}`}
                             title={
                               confirmingUnassign === `${item.id}-${employee.id}`
-                                ? 'Click again to confirm removal'
-                                : `Remove from ${employee.name}`
+                                ? t.assignments.clickAgainToConfirmRemoval
+                                : `${t.assignments.removeFromEmployee} ${employee.name}`
                             }
                           >
                             {confirmingUnassign === `${item.id}-${employee.id}` ? '?' : '✕'}
@@ -243,16 +245,24 @@ export function AssignmentGrid({
                   </div>
                 )}
                 
-                <div className="ml-11 mt-3">
-                  <button
-                    onClick={() => onBulkAssignment(item.id)}
-                    disabled={selectedEmployees.length === 0 || isPending}
-                    className="flex items-center space-x-2 px-6 py-3 min-h-[44px] bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 active:scale-95 active:bg-green-800 disabled:bg-gray-300 disabled:cursor-not-allowed disabled:active:scale-100 transition-all duration-150 touch-manipulation shadow-sm"
-                  >
-                    <span>➕</span>
-                    <span>{isPending ? t.common.saving : t.assignments.assignToSelected}</span>
-                  </button>
-                </div>
+                {/* Only show bulk assignment in items view when employees are selected */}
+                {departmentView === 'items' && selectedEmployees.length > 0 && (
+                  <div className="ml-11 mt-3">
+                    <button
+                      onClick={() => onBulkAssignment(item.id)}
+                      disabled={selectedEmployees.length === 0 || isPending}
+                      className="flex items-center space-x-2 px-6 py-3 min-h-[44px] bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 active:scale-95 active:bg-green-800 disabled:bg-gray-300 disabled:cursor-not-allowed disabled:active:scale-100 transition-all duration-150 touch-manipulation shadow-sm"
+                    >
+                      <span>➕</span>
+                      <span>
+                        {isPending 
+                          ? t.common.saving 
+                          : `${t.assignments.assignToSelected} (${selectedEmployees.length})`
+                        }
+                      </span>
+                    </button>
+                  </div>
+                )}
               </div>
             )}
           </div>

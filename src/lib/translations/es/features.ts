@@ -95,6 +95,15 @@ export const assignments: AssignmentsTranslations = {
   evaluationDeadline: 'Fecha Límite de Evaluación (Opcional)',
   departmentLevelAssignments: 'Asignaciones de Nivel Departamental',
   departmentDescription: 'Estos elementos son creados por gerentes y aplicados a empleados dentro de departamentos específicos.',
+  myItems: 'Mis Elementos',
+  createAndManageItems: 'Crear y gestionar los elementos de tu departamento',
+  myTeam: 'Mi Equipo',
+  manageTeamAssignments: 'Gestionar asignaciones para los miembros de tu equipo',
+  whatWouldYouLikeToDo: '¿Qué te gustaría hacer ahora?',
+  chooseNextStepAfterCreation: 'Puedes asignar este elemento a tu equipo ahora, o hacerlo más tarde.',
+  createOnly: 'Solo Crear',
+  assignToTeam: 'Asignar al Equipo',
+  canAssignLaterIfNeeded: 'Siempre puedes asignar elementos a los miembros del equipo más tarde.',
   currentlyAssignedTo: 'Actualmente asignado a',
   clickOrangeButtonConfirm: 'Haz clic en el botón naranja otra vez para confirmar la eliminación',
   cannotRemoveEvaluated: 'No se puede eliminar: El elemento ha sido evaluado.',
@@ -109,7 +118,16 @@ export const assignments: AssignmentsTranslations = {
   reasonRequired: 'Por favor proporciona un motivo para esta anulación',
   confirmOverride: 'Confirmar Anulación',
   hrOverrideSuccess: 'Elemento eliminado exitosamente con anulación de RH',
-  evaluationDataCleared: 'Los datos de evaluación han sido eliminados'
+  evaluationDataCleared: 'Los datos de evaluación han sido eliminados',
+  assignmentSuccess: 'asignado a',
+  assignmentFailed: 'Error al asignar elemento',
+  itemNotFound: 'No se pudo encontrar el elemento creado',
+  allEmployeesAlreadyAssigned: 'Todos los empleados seleccionados ya tienen este elemento asignado',
+  failedToAssignItems: 'Error al asignar elementos',
+  failedToUnassignItem: 'Error al desasignar elemento',
+  failedToOverrideUnassignment: 'Error al anular la desasignación',
+  clickAgainToConfirmRemoval: 'Haz clic de nuevo para confirmar la eliminación',
+  removeFromEmployee: 'Eliminar de'
 }
 
 export const companyItems: CompanyItemsTranslations = {

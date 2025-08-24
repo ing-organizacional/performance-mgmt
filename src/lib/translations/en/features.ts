@@ -95,6 +95,15 @@ export const assignments: AssignmentsTranslations = {
   evaluationDeadline: 'Evaluation Deadline (Optional)',
   departmentLevelAssignments: 'Department-Level Assignments',
   departmentDescription: 'These items are created by managers and applied to employees within specific departments.',
+  myItems: 'My Items',
+  createAndManageItems: 'Create and manage your department items',
+  myTeam: 'My Team',
+  manageTeamAssignments: 'Manage assignments for your team members',
+  whatWouldYouLikeToDo: 'What would you like to do next?',
+  chooseNextStepAfterCreation: 'You can assign this item to your team now, or do it later.',
+  createOnly: 'Create Only',
+  assignToTeam: 'Assign to Team',
+  canAssignLaterIfNeeded: 'You can always assign items to team members later.',
   currentlyAssignedTo: 'Currently assigned to',
   clickOrangeButtonConfirm: 'Click the orange button again to confirm removal',
   cannotRemoveEvaluated: 'Cannot remove: Item has been evaluated.',
@@ -109,7 +118,16 @@ export const assignments: AssignmentsTranslations = {
   reasonRequired: 'Please provide a reason for this override',
   confirmOverride: 'Confirm Override',
   hrOverrideSuccess: 'Item successfully removed with HR override',
-  evaluationDataCleared: 'Evaluation data has been cleared'
+  evaluationDataCleared: 'Evaluation data has been cleared',
+  assignmentSuccess: 'assigned to',
+  assignmentFailed: 'Failed to assign item',
+  itemNotFound: 'Could not find the created item',
+  allEmployeesAlreadyAssigned: 'All selected employees already have this item assigned',
+  failedToAssignItems: 'Failed to assign items',
+  failedToUnassignItem: 'Failed to unassign item',
+  failedToOverrideUnassignment: 'Failed to override unassignment',
+  clickAgainToConfirmRemoval: 'Click again to confirm removal',
+  removeFromEmployee: 'Remove from'
 }
 
 export const companyItems: CompanyItemsTranslations = {

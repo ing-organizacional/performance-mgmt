@@ -228,7 +228,7 @@ export function ItemEditor({
             onChange={(e) => onUpdateItem({ title: e.target.value })}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-gray-900 resize-none"
             rows={2}
-            placeholder={isCreatingNew ? `${t.common.edit} ${newItemType === 'okr' ? t.evaluations.okr : t.evaluations.competency}...` : "Title"}
+            placeholder={isCreatingNew ? `${t.common.edit} ${newItemType === 'okr' ? t.evaluations.okr : t.evaluations.competency}...` : t.common.title}
             disabled={isPending || aiPending}
           />
           
@@ -275,7 +275,7 @@ export function ItemEditor({
                           : 'bg-white text-gray-600 hover:bg-gray-200'
                       }`}
                     >
-                      {index === 0 ? 'Orig' : `v${index}`}
+                      {index === 0 ? t.common.original : `v${index}`}
                     </button>
                   ))}
                 </div>
@@ -294,7 +294,7 @@ export function ItemEditor({
               onChange={(e) => onUpdateItem({ description: e.target.value })}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-gray-900"
               rows={6}
-              placeholder={isCreatingNew ? `${t.common.edit} ${t.companyItems.description.toLowerCase()}...` : "Description"}
+              placeholder={isCreatingNew ? `${t.common.edit} ${t.common.description.toLowerCase()}...` : t.common.description}
               disabled={isPending || aiPending}
             />
             {/* Description AI Controls - Below textarea, right-aligned */}
@@ -343,7 +343,7 @@ export function ItemEditor({
                             : 'bg-white text-gray-600 hover:bg-gray-200'
                         }`}
                       >
-                        {index === 0 ? 'Orig' : `v${index}`}
+                        {index === 0 ? t.common.original : `v${index}`}
                       </button>
                     ))}
                   </div>
