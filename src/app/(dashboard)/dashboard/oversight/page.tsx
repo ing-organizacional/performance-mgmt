@@ -22,9 +22,7 @@ export default async function OversightPage() {
     where: {
       companyId,
       active: true,
-      level: {
-        in: ['department', 'manager']
-      }
+      level: 'department'
     },
     include: {
       creator: {
@@ -48,13 +46,13 @@ export default async function OversightPage() {
       }
     },
     orderBy: [
-      { level: 'asc' }, // department first, then manager
+      { level: 'asc' }, // department level items
       { createdAt: 'desc' }
     ]
   })
 
   // Get unique departments and managers for filtering
-  const departments = [...new Set(evaluationItems.map(item => item.creator.department).filter(Boolean))]
+  const departments = [...new Set(evaluationItems.map(item => item.creator.department).filter((dept): dept is string => Boolean(dept)))]
   
   // Create unique managers array by deduplicating by ID
   const uniqueManagersMap = new Map()
@@ -70,7 +68,7 @@ export default async function OversightPage() {
     title: item.title,
     description: item.description,
     type: item.type as 'okr' | 'competency',
-    level: item.level as 'department' | 'manager',
+    level: item.level as 'department',
     createdBy: {
       id: item.creator.id,
       name: item.creator.name,

@@ -9,7 +9,7 @@ export interface EvaluationItem {
   type: 'okr' | 'competency'
   rating: number | null
   comment: string
-  level?: 'company' | 'department' | 'manager'
+  level?: 'company' | 'department'
   evaluationDeadline?: string | null
   deadlineSetBy?: string | null
   deadlineSetByRole?: string | null

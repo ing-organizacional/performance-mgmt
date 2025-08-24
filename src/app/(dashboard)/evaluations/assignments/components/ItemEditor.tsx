@@ -9,7 +9,7 @@ interface ItemEditorProps {
   editingItem: EditingItem | null
   newItemType: 'okr' | 'competency'
   isCreatingNew: boolean
-  level: 'department' | 'manager' | 'company'
+  level: 'department' | 'company'
   canSetDeadline: boolean
   isPending: boolean
   aiEnabled?: boolean // Feature flag for AI functionality

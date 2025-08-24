@@ -24,7 +24,7 @@ export class EvaluationService {
       title: string
       description: string
       type: 'okr' | 'competency'
-      level: 'company' | 'department' | 'manager'
+      level: 'company' | 'department'
       assignedTo?: string | null
       cycleId?: string | null
       evaluationDeadline?: Date | null

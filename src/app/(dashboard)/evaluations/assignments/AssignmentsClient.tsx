@@ -27,7 +27,6 @@ export default function AssignmentsClient({
   employees,
   userRole,
   userName,
-  userId,
   userDepartment,
   aiEnabled = false
 }: AssignmentsClientProps) {
@@ -55,19 +54,18 @@ export default function AssignmentsClient({
       // Check if manager created this item
       if (item.createdBy === userName) return true
       
-      // Check if item is assigned to this manager or their department
+      // Check if item is assigned to this manager's department
       if (item.level === 'department' && item.assignedTo === userDepartment) return true
-      if (item.level === 'manager' && item.assignedTo === userId) return true
     }
     
     return false
   }
 
-  const canSetDeadlineForLevel = (level: 'company' | 'department' | 'manager'): boolean => {
+  const canSetDeadlineForLevel = (level: 'company' | 'department'): boolean => {
     // HR can set deadlines for all levels
     if (userRole === 'hr') return true
     
-    // Managers can set deadlines for department and manager level items
+    // Managers can set deadlines for department level items
     if (userRole === 'manager') {
       return level !== 'company'
     }
@@ -115,10 +113,10 @@ export default function AssignmentsClient({
     
     if (activeTab === 'department') {
       // For all managers (including HR) in Department tab, show:
-      // 1. Items they created (level: 'manager')
+      // 1. Items they created (level: 'department')
       // 2. Department-level items for their department (level: 'department' and assignedTo matches their department)
       if (userRole === 'manager' || userRole === 'hr') {
-        return (item.level === 'manager' && item.createdBy === userName) ||
+        return (item.level === 'department' && item.createdBy === userName) ||
                (item.level === 'department' && item.assignedTo === userDepartment)
       }
     }

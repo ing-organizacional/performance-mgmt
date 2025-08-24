@@ -4,7 +4,7 @@ import { useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { LanguageSwitcher } from '@/components/layout'
-import { Target, Star, Users, Building2, User, Search, Filter, X } from 'lucide-react'
+import { Target, Star, Users, Building2, User, Search, X } from 'lucide-react'
 
 interface AssignedEmployee {
   id: string
@@ -24,7 +24,7 @@ interface OversightItem {
   title: string
   description: string
   type: 'okr' | 'competency'
-  level: 'department' | 'manager'
+  level: 'department'
   createdBy: Creator
   assignedTo: string | null
   assignedEmployees: AssignedEmployee[]
@@ -273,7 +273,7 @@ export default function OversightClient({ items, departments, managers }: Oversi
                         </span>
                         <span className={`inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full font-medium border ${getBadgeStyles(item.level)}`}>
                           {getBadgeIcon(item.level)}
-                          <span>{item.level === 'department' ? t.common.department : t.common.manager}</span>
+                          <span>{t.common.department}</span>
                         </span>
                       </div>
                       <h3 className="text-sm md:text-lg font-bold text-gray-900 leading-tight mb-1">{item.title}</h3>

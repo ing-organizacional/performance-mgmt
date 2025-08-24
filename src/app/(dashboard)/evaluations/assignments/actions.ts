@@ -114,7 +114,7 @@ export async function createEvaluationItem(formData: {
   title: string
   description: string
   type: 'okr' | 'competency'
-  level: 'company' | 'department' | 'manager'
+  level: 'company' | 'department'
   evaluationDeadline?: string
 }) {
   try {
@@ -168,8 +168,6 @@ export async function createEvaluationItem(formData: {
     let assignedTo = null
     if (level === 'department' && user?.department) {
       assignedTo = user.department
-    } else if (level === 'manager') {
-      assignedTo = userId
     }
 
     // Get the active performance cycle (required for all evaluation items)

@@ -475,7 +475,7 @@ async function seed() {
         title: okr.title,
         description: okr.desc,
         type: 'okr',
-        level: 'manager',
+        level: 'department',
         assignedTo: users['Food & Beverage_manager'].id,
         createdBy: users['Food & Beverage_manager'].id,
         active: true,

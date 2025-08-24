@@ -81,7 +81,7 @@ export interface EvaluationItem {
   title: string
   description: string
   type: 'okr' | 'competency'
-  level: 'company' | 'department' | 'manager'
+  level: 'company' | 'department'
   createdBy: string
   assignedTo: string | null
   active: boolean

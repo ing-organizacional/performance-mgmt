@@ -3,7 +3,7 @@ export interface EvaluationItem {
   title: string
   description: string
   type: 'okr' | 'competency'
-  level: 'company' | 'department' | 'manager'
+  level: 'company' | 'department'
   createdBy: string
   creatorRole: string
   assignedTo?: string | null
@@ -36,7 +36,6 @@ export interface AssignmentsClientProps {
   employees: Employee[]
   userRole: string
   userName: string
-  userId: string
   userDepartment?: string
   aiEnabled?: boolean
 }

@@ -9,7 +9,7 @@ interface EvaluationItem {
   title: string
   description: string
   type: 'okr' | 'competency'
-  level: 'company' | 'department' | 'manager'
+  level: 'company' | 'department'
   createdBy: string
   creatorRole: string
   assignedTo?: string | null
@@ -127,7 +127,7 @@ export default async function AssignmentsPage() {
     title: item.title,
     description: item.description,
     type: item.type as 'okr' | 'competency',
-    level: item.level as 'company' | 'department' | 'manager',
+    level: item.level as 'company' | 'department',
     createdBy: item.creator.name,
     creatorRole: item.creator.role,
     assignedTo: item.assignedTo,
@@ -157,7 +157,6 @@ export default async function AssignmentsPage() {
       employees={formattedEmployees}
       userRole={userRole}
       userName={session.user.name || ''}
-      userId={userId}
       userDepartment={session.user.department}
       aiEnabled={aiEnabled}
     />

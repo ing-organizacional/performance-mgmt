@@ -75,8 +75,6 @@ export async function createEvaluationItem(formData: CreateEvaluationItemData): 
     let assignedTo: string | null = null
     if (level === 'department' && user?.department) {
       assignedTo = user.department
-    } else if (level === 'manager') {
-      assignedTo = userId
     }
 
     // Get the active performance cycle (required for all evaluation items)
@@ -476,7 +474,7 @@ export async function getEvaluationItems(employeeId: string): Promise<Evaluation
       where: {
         companyId,
         active: true,
-        level: 'manager',
+        level: 'department',
         assignedTo: session.user.id
       },
       include: {

@@ -7,7 +7,7 @@
  * 
  * Key Features:
  * - Maximum evaluation item limits per employee (configurable)
- * - Multi-level item assignment tracking (company, department, manager, individual)
+ * - Multi-level item assignment tracking (company, department, individual)
  * - Bulk validation for organizational-level item assignments
  * - Employee impact analysis for new item creation
  * - Comprehensive counting algorithms including all assignment types
@@ -16,7 +16,7 @@
  * Assignment Hierarchy:
  * - Company-wide items: Apply to all employees automatically
  * - Department items: Apply to all employees in specific departments
- * - Manager items: Apply to all direct reports of specific managers
+ * - Department items: Apply to all employees in specific departments
  * - Individual assignments: Manually assigned to specific employees
  * 
  * Limit Enforcement:
@@ -47,7 +47,7 @@ export const MAX_EVALUATION_ITEMS = 10
 
 /**
  * Count total evaluation items assigned to an employee
- * Includes company-wide, department-wide, manager-level, and individual assignments
+ * Includes company-wide, department-wide, and individual assignments
  */
 export async function countEmployeeEvaluationItems(employeeId: string, companyId: string): Promise<number> {
   // Get employee info to determine department and manager
@@ -64,7 +64,7 @@ export async function countEmployeeEvaluationItems(employeeId: string, companyId
   }
 
   // Get all evaluation items that apply to this employee
-  const [companyItems, departmentItems, managerItems, individualAssignments] = await Promise.all([
+  const [companyItems, departmentItems, individualAssignments] = await Promise.all([
     // Company-wide items (apply to all employees)
     prisma.evaluationItem.count({
       where: {
@@ -84,16 +84,6 @@ export async function countEmployeeEvaluationItems(employeeId: string, companyId
       }
     }),
 
-    // Manager-level items
-    prisma.evaluationItem.count({
-      where: {
-        companyId,
-        active: true,
-        level: 'manager',
-        assignedTo: employee.managerId
-      }
-    }),
-
     // Individual assignments
     prisma.evaluationItemAssignment.count({
       where: {
@@ -106,7 +96,7 @@ export async function countEmployeeEvaluationItems(employeeId: string, companyId
     })
   ])
 
-  return companyItems + departmentItems + managerItems + individualAssignments
+  return companyItems + departmentItems + individualAssignments
 }
 
 /**
@@ -152,7 +142,7 @@ export async function validateItemLimitForEmployees(
  * Get all employees who would be affected by a company or department level item
  */
 export async function getAffectedEmployees(
-  level: 'company' | 'department' | 'manager',
+  level: 'company' | 'department',
   assignedTo: string | null,
   companyId: string
 ): Promise<string[]> {
@@ -164,9 +154,6 @@ export async function getAffectedEmployees(
   } else if (level === 'department' && assignedTo) {
     // All employees in the specified department
     whereClause = { companyId, active: true, department: assignedTo }
-  } else if (level === 'manager' && assignedTo) {
-    // All employees under the specified manager
-    whereClause = { companyId, active: true, managerId: assignedTo }
   }
 
   const employees = await prisma.user.findMany({

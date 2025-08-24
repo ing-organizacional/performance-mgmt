@@ -317,10 +317,10 @@ export function AssignmentGrid({
               {/* Individual Items for Assignment */}
               <div className="space-y-3">
                 <h4 className="text-sm font-medium text-gray-700">{t.assignments.selectEmployees}:</h4>
-                {items.filter(item => item.level === 'manager').length === 0 ? (
+                {items.filter(item => item.level === 'department').length === 0 ? (
                   <p className="text-sm text-gray-500 italic">{t.companyItems.noItemsDescription}</p>
                 ) : (
-                  items.filter(item => item.level === 'manager').map((item) => (
+                  items.filter(item => item.level === 'department').map((item) => (
                     <div key={item.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                       <div className="flex-1">
                         <div className="flex items-center space-x-2 mb-1">

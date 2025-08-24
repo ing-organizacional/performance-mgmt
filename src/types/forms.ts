@@ -57,7 +57,7 @@ export interface EvaluationFormData {
   type: 'okr' | 'competency'
   rating: number | null
   comment: string
-  level?: 'company' | 'department' | 'manager'
+  level?: 'company' | 'department'
   createdBy?: string
   evaluationDeadline?: string | null
 }
@@ -88,7 +88,7 @@ export interface OKRItem {
   type: 'okr'
   rating: number | null
   comment: string
-  level?: 'company' | 'department' | 'manager'
+  level?: 'company' | 'department'
   evaluationDeadline?: string | null
   deadlineSetBy?: string | null
   deadlineSetByRole?: string | null
@@ -101,7 +101,7 @@ export interface CompetencyItem {
   type: 'competency'
   rating: number | null
   comment: string
-  level?: 'company' | 'department' | 'manager'
+  level?: 'company' | 'department'
   evaluationDeadline?: string | null
   deadlineSetBy?: string | null
   deadlineSetByRole?: string | null

@@ -19,7 +19,7 @@ interface OverdueItem {
   id: string
   title: string
   type: 'okr' | 'competency'
-  level: 'company' | 'department' | 'manager'
+  level: 'company' | 'department'
   evaluationDeadline: string | null
   daysOverdue: number
 }

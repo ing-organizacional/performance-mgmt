@@ -108,7 +108,7 @@ export const evaluationItemSchema = z.object({
   title: z.string().min(1, 'Title is required').max(255, 'Title must be less than 255 characters'),
   description: z.string().min(1, 'Description is required').max(2000, 'Description must be less than 2000 characters'),
   type: z.enum(['okr', 'competency']),
-  level: z.enum(['company', 'department', 'manager']),
+  level: z.enum(['company', 'department']),
   assignedTo: z.string().max(255, 'Assigned to must be less than 255 characters').optional(),
   evaluationDeadline: z.string().datetime().optional(),
   sortOrder: z.number().int().min(0, 'Sort order must be non-negative').default(0)

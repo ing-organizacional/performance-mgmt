@@ -15,7 +15,7 @@ interface OverdueItem {
   id: string
   title: string
   type: 'okr' | 'competency'
-  level: 'company' | 'department' | 'manager'
+  level: 'company' | 'department'
   evaluationDeadline: string | null
   daysOverdue: number
 }
@@ -143,8 +143,7 @@ async function getManagerEvaluationData(companyId: string) {
       // Check if this item applies to this employee
       const appliesToEmployee = 
         item.level === 'company' || // Company items apply to all
-        (item.level === 'department' && item.individualAssignments.some(a => a.employeeId === employee.id)) ||
-        (item.level === 'manager' && item.individualAssignments.some(a => a.employeeId === employee.id))
+        (item.level === 'department' && item.individualAssignments.some(a => a.employeeId === employee.id))
 
       if (appliesToEmployee && !completedItems.has(item.id)) {
         const daysOverdue = Math.floor((now.getTime() - new Date(item.evaluationDeadline!).getTime()) / (1000 * 60 * 60 * 24))
@@ -153,7 +152,7 @@ async function getManagerEvaluationData(companyId: string) {
           id: item.id,
           title: item.title,
           type: item.type as 'okr' | 'competency',
-          level: item.level as 'company' | 'department' | 'manager',
+          level: item.level as 'company' | 'department',
           evaluationDeadline: item.evaluationDeadline!.toISOString(),
           daysOverdue
         })

@@ -74,4 +74,6 @@ export interface CommonTranslations {
   secondRemaining: string
   versions: string
   refine: string
+  clear: string
+  more: string
 }

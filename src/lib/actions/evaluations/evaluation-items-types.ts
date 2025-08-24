@@ -9,7 +9,7 @@ export interface CreateEvaluationItemData {
   title: string
   description: string
   type: 'okr' | 'competency'
-  level: 'company' | 'department' | 'manager'
+  level: 'company' | 'department'
   evaluationDeadline?: string
 }
 

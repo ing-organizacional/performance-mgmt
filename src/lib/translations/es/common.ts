@@ -92,5 +92,7 @@ export const common: CommonTranslations = {
   secondsRemaining: 'segundos restantes',
   secondRemaining: 'segundo restante',
   versions: 'Versiones',
-  refine: 'Refinar'
+  refine: 'Refinar',
+  clear: 'Limpiar',
+  more: 'más'
 }
