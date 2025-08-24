@@ -5,6 +5,67 @@ import { prisma } from '@/lib/prisma-client'
 import { revalidatePath, revalidateTag } from 'next/cache'
 import { auditBulkOperation } from '@/lib/services/audit-service'
 
+interface EvaluationStatusResult {
+  success: boolean
+  error?: string
+  evaluatedItems?: Record<string, boolean> // itemId -> isEvaluated
+}
+
+// Server action to check if items are evaluated by employees
+export async function checkItemsEvaluationStatus(
+  employeeIds: string[]
+): Promise<EvaluationStatusResult> {
+  try {
+    const session = await auth()
+    
+    if (!session?.user?.id) {
+      return { success: false, error: 'Unauthorized' }
+    }
+
+    const companyId = session.user.companyId
+
+    const evaluations = await prisma.evaluation.findMany({
+      where: {
+        employeeId: { in: employeeIds },
+        companyId,
+        evaluationItemsData: { not: null }
+      },
+      select: {
+        employeeId: true,
+        evaluationItemsData: true
+      }
+    })
+
+    const evaluatedItems: Record<string, boolean> = {}
+
+    for (const evaluation of evaluations) {
+      if (evaluation.evaluationItemsData) {
+        try {
+          const items = JSON.parse(evaluation.evaluationItemsData) as Array<{
+            id: string
+            rating?: number | null
+            comment?: string
+          }>
+          
+          items.forEach(item => {
+            const key = `${item.id}-${evaluation.employeeId}`
+            evaluatedItems[key] = item.rating != null || 
+              (item.comment != null && item.comment.trim().length > 0)
+          })
+        } catch (error) {
+          console.error('Error parsing evaluation data:', error)
+        }
+      }
+    }
+
+    return { success: true, evaluatedItems }
+
+  } catch (error) {
+    console.error('Error checking evaluation status:', error)
+    return { success: false, error: 'Failed to check evaluation status' }
+  }
+}
+
 // Server action to assign company-wide item to all employees and reopen completed evaluations
 export async function assignCompanyItemToAllEmployees(itemId: string) {
   try {
@@ -149,8 +210,127 @@ export async function assignItemsToEmployees(itemId: string, employeeIds: string
   }
 }
 
+interface UnassignResult {
+  success: boolean
+  error?: string
+  requiresHRConfirmation?: boolean
+  evaluatedEmployees?: Array<{
+    id: string
+    name: string
+    rating: number | null
+    comment: string
+  }>
+  blockedEmployees?: string[]
+}
+
+// Helper function to check if employees have evaluated an item
+async function checkEvaluatedEmployees(
+  itemId: string, 
+  employeeIds: string[], 
+  companyId: string
+): Promise<Array<{
+  id: string
+  name: string
+  rating: number | null
+  comment: string
+}>> {
+  const evaluations = await prisma.evaluation.findMany({
+    where: {
+      employeeId: { in: employeeIds },
+      companyId,
+      evaluationItemsData: { not: null }
+    },
+    select: {
+      employeeId: true,
+      employee: { select: { name: true } },
+      evaluationItemsData: true
+    }
+  })
+
+  const evaluatedEmployees: Array<{
+    id: string
+    name: string
+    rating: number | null
+    comment: string
+  }> = []
+
+  for (const evaluation of evaluations) {
+    if (evaluation.evaluationItemsData) {
+      try {
+        const items = JSON.parse(evaluation.evaluationItemsData) as Array<{
+          id: string
+          rating?: number | null
+          comment?: string
+        }>
+        
+        const evaluatedItem = items.find(item => item.id === itemId)
+        if (evaluatedItem && (
+          evaluatedItem.rating != null || 
+          (evaluatedItem.comment && evaluatedItem.comment.trim().length > 0)
+        )) {
+          evaluatedEmployees.push({
+            id: evaluation.employeeId,
+            name: evaluation.employee.name,
+            rating: evaluatedItem.rating ?? null,
+            comment: evaluatedItem.comment ?? ''
+          })
+        }
+      } catch (error) {
+        console.error('Error parsing evaluation data for employee', evaluation.employeeId, error)
+      }
+    }
+  }
+
+  return evaluatedEmployees
+}
+
+// Helper function to clear evaluation data for specific item and employees
+async function clearEvaluationDataForItem(
+  itemId: string,
+  employeeIds: string[],
+  companyId: string
+): Promise<void> {
+  const evaluations = await prisma.evaluation.findMany({
+    where: {
+      employeeId: { in: employeeIds },
+      companyId,
+      evaluationItemsData: { not: null }
+    }
+  })
+
+  for (const evaluation of evaluations) {
+    if (evaluation.evaluationItemsData) {
+      try {
+        const items = JSON.parse(evaluation.evaluationItemsData) as Array<{
+          id: string
+          [key: string]: unknown
+        }>
+        
+        // Remove the specific item from the evaluation data
+        const updatedItems = items.filter(item => item.id !== itemId)
+        
+        await prisma.evaluation.update({
+          where: { id: evaluation.id },
+          data: {
+            evaluationItemsData: JSON.stringify(updatedItems),
+            updatedAt: new Date()
+          }
+        })
+      } catch (error) {
+        console.error('Error clearing evaluation data for evaluation', evaluation.id, error)
+        throw error
+      }
+    }
+  }
+}
+
 // Server action to unassign evaluation items from employees
-export async function unassignItemsFromEmployees(itemId: string, employeeIds: string[]) {
+export async function unassignItemsFromEmployees(
+  itemId: string, 
+  employeeIds: string[],
+  forceOverride: boolean = false,
+  overrideReason?: string
+): Promise<UnassignResult> {
   try {
     const session = await auth()
     
@@ -160,13 +340,78 @@ export async function unassignItemsFromEmployees(itemId: string, employeeIds: st
 
     const userRole = session.user.role
     const companyId = session.user.companyId
+    const userId = session.user.id
 
     // Only managers and HR can unassign items
     if (userRole !== 'manager' && userRole !== 'hr') {
       return { success: false, error: 'Access denied - Manager or HR role required' }
     }
 
-    // Delete assignments
+    // Check for evaluated items
+    const evaluatedEmployees = await checkEvaluatedEmployees(itemId, employeeIds, companyId)
+    
+    if (evaluatedEmployees.length > 0) {
+      if (userRole === 'manager') {
+        // BLOCK: Managers cannot unassign evaluated items
+        return { 
+          success: false, 
+          error: `Cannot unassign: Item has been evaluated by ${evaluatedEmployees.map(e => e.name).join(', ')}. Contact HR for assistance.`,
+          blockedEmployees: evaluatedEmployees.map(e => e.name)
+        }
+      } 
+      else if (userRole === 'hr') {
+        if (!forceOverride) {
+          // CONFIRM: HR gets confirmation dialog
+          return {
+            success: false,
+            requiresHRConfirmation: true,
+            evaluatedEmployees
+          }
+        } else {
+          // EXECUTE: HR confirmed override - clear evaluation data and log it
+          
+          // Get item details for audit log
+          const item = await prisma.evaluationItem.findUnique({
+            where: { id: itemId },
+            select: { title: true }
+          })
+
+          // Log HR override action for each employee
+          const auditLogs = evaluatedEmployees.map(employee => ({
+            userId,
+            userRole,
+            action: 'hr_override',
+            entityType: 'assignment',
+            entityId: itemId,
+            targetUserId: employee.id,
+            oldData: {
+              itemId,
+              itemTitle: item?.title || 'Unknown',
+              employeeId: employee.id,
+              employeeName: employee.name,
+              rating: employee.rating,
+              comment: employee.comment
+            },
+            newData: {
+              unassigned: true,
+              evaluationDataCleared: true
+            },
+            reason: overrideReason || 'HR override to unassign evaluated item',
+            companyId
+          }))
+
+          // Create audit logs
+          await prisma.auditLog.createMany({
+            data: auditLogs
+          })
+
+          // Clear evaluation data
+          await clearEvaluationDataForItem(itemId, employeeIds, companyId)
+        }
+      }
+    }
+
+    // Standard unassignment logic
     await prisma.evaluationItemAssignment.deleteMany({
       where: {
         evaluationItemId: itemId,

@@ -240,7 +240,7 @@ LLM_TEMPERATURE=0.3
 
 ## Current System State (August 24, 2025)
 
-**Production Readiness: ENTERPRISE-READY WITH AI + OVERSIGHT v2.5.0** 🚀🤖👁️
+**Production Readiness: ENTERPRISE-READY WITH AI + OVERSIGHT + ENHANCED LIFECYCLE v2.6.0** 🚀🤖👁️🔄
 
 **Build Status:** ✅ Clean TypeScript compilation and ESLint passes  
 **Security Status:** ✅ **COMPREHENSIVE SECURITY AUDIT COMPLETED - A+
@@ -304,6 +304,11 @@ enterprise features
 - ✅ **Type System Cleanup (v2.5.0)**: Updated all TypeScript interfaces and union types to use only 'company' | 'department' levels
 - ✅ **Database Schema Consistency (v2.5.0)**: Cleaned seed data and database to eliminate legacy manager level references
 - ✅ **Code Architecture Simplification (v2.5.0)**: Streamlined evaluation item classification system for better maintainability
+- ✅ **Company-Wide Item Lifecycle Enhancement (v2.6.0)**: Complete deactivation/reactivation system with data preservation
+- ✅ **Evaluation Data Integrity (v2.6.0)**: Deactivation now preserves manager evaluation data (ratings/comments) for audit and reactivation
+- ✅ **Smart Reactivation Logic (v2.6.0)**: Automatic assignment restoration when company items are reactivated
+- ✅ **Archive Safety Filtering (v2.6.0)**: Added explicit archive protection in evaluation queries to prevent data confusion
+- ✅ **Enhanced UI Warnings (v2.6.0)**: Detailed lifecycle explanations in deactivation modals for better user understanding
 
 **AI Feature Matrix:**
 
@@ -348,6 +353,65 @@ enterprise features
 - **Translation System**: 320+ translation keys with complete oversight feature coverage
 
 ## Recent Changes (v2.5.0 - August 24, 2025)
+
+### 🧹 **System Architecture Cleanup**
+- **Deprecated Manager Level Removal**: Completely eliminated the deprecated 'manager' level classification from the entire system
+  - **Database Cleanup**: Updated seed files and reseeded database to remove all manager level items
+  - **Type System**: Updated 10+ TypeScript files to change union types from `'company' | 'department' | 'manager'` to `'company' | 'department'`
+  - **Code Logic**: Removed all manager level filtering and assignment logic throughout codebase
+  - **Validation**: Updated Zod schemas and validation rules to exclude manager level
+  - **Simplification**: Streamlined evaluation item classification for better maintainability
+
+### 🔧 **Technical Improvements**
+- **Interface Cleanup**: Removed unused `userId` parameter from AssignmentsClient component and related props
+- **Error Elimination**: Fixed TypeScript compilation warnings related to deprecated level references
+- **Code Consistency**: Ensured all evaluation item handling uses only company and department classifications
+
+---
+
+## Recent Changes (v2.6.0 - August 24, 2025)
+
+### 🔄 **Company-Wide Item Lifecycle Enhancement**
+- **Data Preservation During Deactivation**: Fixed critical issue where deactivating company-wide items destroyed manager evaluation data
+  - **Before**: Deactivation removed all evaluation data permanently
+  - **After**: Deactivation preserves all manager ratings and comments for audit/reactivation purposes
+  - **Impact**: Maintains evaluation history integrity when items are temporarily deactivated
+  - **Files**: `/src/lib/actions/evaluations/evaluation-items-utils.ts:74-102`
+
+- **Smart Reactivation System**: Implemented automatic assignment restoration for deactivated items
+  - **Company Items**: Automatic reassignment to all employees with evaluation reopening
+  - **Department Items**: Automatic reassignment to department employees
+  - **Permission Checks**: Only HR can reactivate company items, only creators can reactivate department items
+  - **Files**: `/src/lib/actions/evaluations/evaluation-items-utils.ts:104-196`
+
+### 🛡️ **Archive Safety & Data Integrity**
+- **Archive Filtering Protection**: Added explicit `archivedAt: null` filters to prevent confusion between deactivated and archived items
+  - **Query Enhancement**: All evaluation item queries now explicitly exclude archived items
+  - **Safety Measure**: Prevents accidental display of archived evaluation data
+  - **Files**: `/src/lib/actions/evaluations/evaluation-items-crud.ts:428`
+
+### 🎯 **Enhanced User Experience**
+- **Detailed Lifecycle Warnings**: Replaced generic deactivation warnings with specific action explanations
+  - **Clear Communication**: Users now understand exactly what happens during deactivation
+  - **Action List**: Bullet points showing: hide from new evaluations, remove assignments, preserve data, enable reactivation
+  - **Professional UI**: Maintains current design system styling with improved information architecture
+  - **Files**: `/src/app/(dashboard)/dashboard/company-items/CompanyItemsClient.tsx:400-410`
+
+### 🔧 **Technical Improvements**
+- **TypeScript Safety**: Eliminated `skipDuplicates: true` errors by replacing `createMany` with individual `create` operations in try-catch blocks
+- **Error Handling**: Clean error handling for duplicate assignment prevention during reactivation
+- **Code Comments**: Added extensive documentation explaining data preservation rationale
+- **Function Modularity**: Separated reactivation logic into dedicated utility function for reusability
+
+### 📊 **Integration Points**
+- **Evaluation Workflow**: Seamless integration with existing `reopenEvaluationsForNewItems` function
+- **Audit System**: Proper audit logging for all lifecycle state changes
+- **Cache Management**: Targeted cache invalidation for affected company data only
+- **Permission System**: Full integration with existing role-based access controls
+
+---
+
+## Previous Changes (v2.5.0 - August 24, 2025)
 
 ### 🧹 **System Architecture Cleanup**
 - **Deprecated Manager Level Removal**: Completely eliminated the deprecated 'manager' level classification from the entire system

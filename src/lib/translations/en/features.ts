@@ -95,7 +95,21 @@ export const assignments: AssignmentsTranslations = {
   evaluationDeadline: 'Evaluation Deadline (Optional)',
   departmentLevelAssignments: 'Department-Level Assignments',
   departmentDescription: 'These items are created by managers and applied to employees within specific departments.',
-  currentlyAssignedTo: 'Currently assigned to'
+  currentlyAssignedTo: 'Currently assigned to',
+  clickOrangeButtonConfirm: 'Click the orange button again to confirm removal',
+  cannotRemoveEvaluated: 'Cannot remove: Item has been evaluated.',
+  contactHRForAssistance: 'Contact HR for assistance.',
+  evaluatedItemsProtected: 'Items with evaluations can only be removed by HR to maintain audit integrity.',
+  hrOverrideRequired: 'HR Override Required',
+  hrForceRemove: 'Force Remove',
+  confirmHROverride: 'Confirm HR Override',
+  removeEvaluatedItem: 'Remove Evaluated Item',
+  willPermanentlyDelete: 'This will permanently delete:',
+  reasonForRemoval: 'Reason for removal (required):',
+  reasonRequired: 'Please provide a reason for this override',
+  confirmOverride: 'Confirm Override',
+  hrOverrideSuccess: 'Item successfully removed with HR override',
+  evaluationDataCleared: 'Evaluation data has been cleared'
 }
 
 export const companyItems: CompanyItemsTranslations = {

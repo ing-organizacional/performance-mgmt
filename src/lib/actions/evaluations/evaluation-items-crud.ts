@@ -21,6 +21,7 @@ import {
   validateDeadline, 
   checkItemPermission, 
   handleItemDeactivation,
+  handleItemReactivation,
   createItemAuditLog
 } from './evaluation-items-utils'
 import type { CreateEvaluationItemData, UpdateEvaluationItemData, EvaluationItemResult, EvaluationItemWithCreator } from './evaluation-items-types'
@@ -330,6 +331,11 @@ export async function updateEvaluationItem(
       await handleItemDeactivation(existingItem, userId, session.user.name, userRole)
     }
 
+    // Handle reactivation logic
+    if (active === true && existingItem.active === false) {
+      await handleItemReactivation(existingItem, userId, companyId, userRole)
+    }
+
     // Update the item
     await prisma.evaluationItem.update({
       where: { id: itemId },
@@ -419,6 +425,7 @@ const getCachedEvaluationItemsForEmployee = unstable_cache(
       where: {
         companyId,
         active: true,
+        archivedAt: null, // Explicit archive protection
         OR: orConditions
       },
       include: {

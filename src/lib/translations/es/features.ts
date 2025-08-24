@@ -95,7 +95,21 @@ export const assignments: AssignmentsTranslations = {
   evaluationDeadline: 'Fecha Límite de Evaluación (Opcional)',
   departmentLevelAssignments: 'Asignaciones de Nivel Departamental',
   departmentDescription: 'Estos elementos son creados por gerentes y aplicados a empleados dentro de departamentos específicos.',
-  currentlyAssignedTo: 'Actualmente asignado a'
+  currentlyAssignedTo: 'Actualmente asignado a',
+  clickOrangeButtonConfirm: 'Haz clic en el botón naranja otra vez para confirmar la eliminación',
+  cannotRemoveEvaluated: 'No se puede eliminar: El elemento ha sido evaluado.',
+  contactHRForAssistance: 'Contacta a RH para asistencia.',
+  evaluatedItemsProtected: 'Los elementos con evaluaciones solo pueden ser eliminados por RH para mantener la integridad de auditoría.',
+  hrOverrideRequired: 'Se Requiere Anulación de RH',
+  hrForceRemove: 'Forzar Eliminación',
+  confirmHROverride: 'Confirmar Anulación de RH',
+  removeEvaluatedItem: 'Eliminar Elemento Evaluado',
+  willPermanentlyDelete: 'Esto eliminará permanentemente:',
+  reasonForRemoval: 'Motivo de eliminación (requerido):',
+  reasonRequired: 'Por favor proporciona un motivo para esta anulación',
+  confirmOverride: 'Confirmar Anulación',
+  hrOverrideSuccess: 'Elemento eliminado exitosamente con anulación de RH',
+  evaluationDataCleared: 'Los datos de evaluación han sido eliminados'
 }
 
 export const companyItems: CompanyItemsTranslations = {

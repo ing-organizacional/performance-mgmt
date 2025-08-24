@@ -1,11 +1,12 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { LanguageSwitcher } from '@/components/layout'
 import { ToastContainer } from '@/components/ui'
 import { useToast } from '@/hooks/useToast'
+import { checkItemsEvaluationStatus } from '@/lib/actions/evaluations'
 
 // Import types
 import type { AssignmentsClientProps, ActiveTab } from './types'
@@ -36,10 +37,30 @@ export default function AssignmentsClient({
   
   const [activeTab, setActiveTab] = useState<ActiveTab>('company')
   const [selectedEmployees, setSelectedEmployees] = useState<string[]>([])
+  const [evaluatedItems, setEvaluatedItems] = useState<Record<string, boolean>>({})
 
   // Custom hooks
   const assignmentHook = useAssignments(employees)
   const itemEditorHook = useItemEditor()
+
+  // Fetch evaluation status for all items and employees
+  useEffect(() => {
+    const fetchEvaluationStatus = async () => {
+      try {
+        const employeeIds = employees.map(emp => emp.id)
+        const result = await checkItemsEvaluationStatus(employeeIds)
+        if (result.success && result.evaluatedItems) {
+          setEvaluatedItems(result.evaluatedItems)
+        }
+      } catch (error) {
+        console.error('Failed to fetch evaluation status:', error)
+      }
+    }
+
+    if (employees.length > 0) {
+      fetchEvaluationStatus()
+    }
+  }, [employees])
 
   // Helper functions for permissions
   const canEditDeadline = (item: typeof evaluationItems[0]): boolean => {
@@ -318,11 +339,16 @@ export default function AssignmentsClient({
                 evaluationItems={evaluationItems}
                 selectedEmployees={selectedEmployees}
                 confirmingUnassign={assignmentHook.confirmingUnassign}
+                hrConfirmation={assignmentHook.hrConfirmation}
                 isPending={isPending}
+                userRole={userRole}
+                evaluatedItems={evaluatedItems}
                 onEmployeeSelection={handleEmployeeSelection}
                 onUnassignFromEmployee={assignmentHook.handleUnassignFromEmployee}
                 onSelectAll={handleSelectAll}
                 onDeselectAll={handleDeselectAll}
+                onHROverride={assignmentHook.handleHROverride}
+                onCancelHRConfirmation={assignmentHook.cancelHRConfirmation}
               />
             </div>
 

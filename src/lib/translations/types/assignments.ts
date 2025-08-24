@@ -28,6 +28,20 @@ export interface AssignmentsTranslations {
   departmentLevelAssignments: string
   departmentDescription: string
   currentlyAssignedTo: string
+  clickOrangeButtonConfirm: string
+  cannotRemoveEvaluated: string
+  contactHRForAssistance: string
+  evaluatedItemsProtected: string
+  hrOverrideRequired: string
+  hrForceRemove: string
+  confirmHROverride: string
+  removeEvaluatedItem: string
+  willPermanentlyDelete: string
+  reasonForRemoval: string
+  reasonRequired: string
+  confirmOverride: string
+  hrOverrideSuccess: string
+  evaluationDataCleared: string
 }
 
 export interface CompanyItemsTranslations {

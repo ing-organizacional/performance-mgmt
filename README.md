@@ -72,6 +72,17 @@ yarn lint && yarn tsc --noEmit  # Verify code quality
 - **Export capabilities**: PDF/Excel reports with role-based access
 - **Performance analytics**: Rating distributions and trend analysis
 
+### Company-Wide Item Management
+
+- **HR-Only Access**: Dedicated interface for creating/editing company-wide OKRs and competencies
+- **Enhanced Lifecycle System**: Smart deactivation with evaluation data preservation and automatic reactivation
+- **Data Integrity**: Deactivation preserves all manager ratings and comments for audit/reactivation purposes
+- **Smart Reactivation**: Automatic assignment restoration when items are reactivated
+- **Archive Safety**: Explicit filtering to prevent confusion between deactivated and archived items
+- **Archive Management**: Complete lifecycle with search, restore, and delete capabilities
+- **Professional UI**: Desktop-first design with detailed lifecycle warnings and touch-optimized interactions
+- **AI Integration**: Full AI text improvement capabilities for company items
+
 ## 🔒 Security Features - A+ Grade (95/100)
 
 **Enterprise-Grade Security Architecture:**

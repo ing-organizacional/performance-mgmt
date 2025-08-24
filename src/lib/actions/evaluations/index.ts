@@ -4,7 +4,8 @@
 export {
   assignCompanyItemToAllEmployees,
   assignItemsToEmployees,
-  unassignItemsFromEmployees
+  unassignItemsFromEmployees,
+  checkItemsEvaluationStatus
 } from './evaluation-assignments'
 
 // Item CRUD operations

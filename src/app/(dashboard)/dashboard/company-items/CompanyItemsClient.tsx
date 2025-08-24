@@ -586,12 +586,29 @@ export default function CompanyItemsClient({ initialItems, aiEnabled, userDepart
                   <div className="flex-shrink-0">
                     <AlertTriangle className="w-5 h-5 text-yellow-600 mt-0.5" />
                   </div>
-                  <p className="text-sm text-yellow-800 font-medium">
-                    {itemToToggle.active 
-                      ? t.companyItems?.deactivateWarning || 'This will remove the item from all employee evaluations.'
-                      : t.companyItems?.activateWarning || 'This will add the item to all employee evaluations.'
-                    }
-                  </p>
+                  <div className="text-sm text-yellow-800 font-medium">
+                    {itemToToggle.active ? (
+                      <div className="space-y-2">
+                        <p className="font-semibold">Deactivating this item will:</p>
+                        <ul className="list-disc list-inside space-y-1 text-xs">
+                          <li>Hide it from new employee evaluations</li>
+                          <li>Remove all employee assignments</li>
+                          <li>Preserve existing evaluation data (ratings/comments)</li>
+                          <li>Allow reactivation later with full data restoration</li>
+                        </ul>
+                      </div>
+                    ) : (
+                      <div className="space-y-2">
+                        <p className="font-semibold">Activating this item will:</p>
+                        <ul className="list-disc list-inside space-y-1 text-xs">
+                          <li>Assign it to all employees automatically</li>
+                          <li>Reopen evaluations for all employees</li>
+                          <li>Make it available for evaluation immediately</li>
+                          <li>Restore any preserved evaluation data</li>
+                        </ul>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
 

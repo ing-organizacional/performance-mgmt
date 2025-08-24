@@ -2,9 +2,21 @@ import { useState, useTransition } from 'react'
 import { assignItemsToEmployees, unassignItemsFromEmployees } from '@/lib/actions/evaluations'
 import type { Employee } from '../types'
 
+interface HRConfirmationData {
+  itemId: string
+  employeeId: string
+  evaluatedEmployees: Array<{
+    id: string
+    name: string
+    rating: number | null
+    comment: string
+  }>
+}
+
 export function useAssignments(employees: Employee[]) {
   const [isPending, startTransition] = useTransition()
   const [confirmingUnassign, setConfirmingUnassign] = useState<string | null>(null)
+  const [hrConfirmation, setHRConfirmation] = useState<HRConfirmationData | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   // Helper function to check if an employee already has a specific item assigned
@@ -51,7 +63,16 @@ export function useAssignments(employees: Employee[]) {
       startTransition(async () => {
         const result = await unassignItemsFromEmployees(itemId, [employeeId])
         if (!result.success) {
-          setError(result.error || 'Failed to unassign item')
+          if (result.requiresHRConfirmation && result.evaluatedEmployees) {
+            // Show HR confirmation modal
+            setHRConfirmation({
+              itemId,
+              employeeId,
+              evaluatedEmployees: result.evaluatedEmployees
+            })
+          } else {
+            setError(result.error || 'Failed to unassign item')
+          }
         }
         setConfirmingUnassign(null)
       })
@@ -65,6 +86,28 @@ export function useAssignments(employees: Employee[]) {
         }
       }, 3000)
     }
+  }
+
+  const handleHROverride = async (reason: string) => {
+    if (!hrConfirmation) return
+
+    setError(null)
+    startTransition(async () => {
+      const result = await unassignItemsFromEmployees(
+        hrConfirmation.itemId, 
+        [hrConfirmation.employeeId],
+        true, // forceOverride
+        reason
+      )
+      if (!result.success) {
+        setError(result.error || 'Failed to override unassignment')
+      }
+      setHRConfirmation(null)
+    })
+  }
+
+  const cancelHRConfirmation = () => {
+    setHRConfirmation(null)
   }
 
   const handleIndividualAssignment = async (itemId: string, employeeId: string) => {
@@ -86,11 +129,14 @@ export function useAssignments(employees: Employee[]) {
     error,
     setError,
     confirmingUnassign,
+    hrConfirmation,
     employeeHasItem,
     getEmployeesWithItem,
     getEligibleEmployees,
     handleBulkAssignment,
     handleUnassignFromEmployee,
-    handleIndividualAssignment
+    handleIndividualAssignment,
+    handleHROverride,
+    cancelHRConfirmation
   }
 }

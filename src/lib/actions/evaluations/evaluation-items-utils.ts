@@ -88,32 +88,10 @@ export async function handleItemDeactivation(
     return
   }
 
-  // Get all active evaluations for this company
-  const activeEvaluations = await prisma.evaluation.findMany({
-    where: {
-      companyId: existingItem.companyId,
-      status: 'draft'
-    }
-  })
-
-  // Remove this item from all active evaluations by updating the JSON data
-  for (const evaluation of activeEvaluations) {
-    if (evaluation.evaluationItemsData) {
-      try {
-        const itemsData = JSON.parse(evaluation.evaluationItemsData)
-        const filteredData = itemsData.filter((item: { id: string }) => item.id !== existingItem.id)
-        
-        await prisma.evaluation.update({
-          where: { id: evaluation.id },
-          data: {
-            evaluationItemsData: JSON.stringify(filteredData)
-          }
-        })
-      } catch (error) {
-        console.error('Error parsing evaluation items data:', error)
-      }
-    }
-  }
+  // NOTE: We DO NOT remove evaluation data when deactivating items
+  // This preserves any manager evaluation work (ratings, comments)
+  // Deactivated items will be hidden from new evaluations due to active: false filter
+  // but existing evaluation data remains intact for audit/reactivation purposes
 
   // Remove from individual assignments
   await prisma.evaluationItemAssignment.deleteMany({
@@ -121,6 +99,100 @@ export async function handleItemDeactivation(
       evaluationItemId: existingItem.id
     }
   })
+}
+
+/**
+ * Handles reactivation of evaluation items by restoring assignments
+ */
+export async function handleItemReactivation(
+  existingItem: { id: string; companyId: string; level: string; createdBy: string; assignedTo: string | null },
+  userId: string,
+  companyId: string,
+  userRole: string
+) {
+  // Verify user has permission to reactivate this item
+  const canReactivate = (
+    userRole === 'hr' && existingItem.level === 'company'
+  ) || (
+    existingItem.createdBy === userId
+  )
+  
+  if (!canReactivate) {
+    return
+  }
+
+  // Handle company-wide items: assign to all employees
+  if (existingItem.level === 'company') {
+    const employees = await prisma.user.findMany({
+      where: {
+        companyId,
+        role: { in: ['employee', 'manager'] }
+      },
+      select: { id: true }
+    })
+
+    // Create assignments for all employees
+    const assignments = employees.map(employee => ({
+      evaluationItemId: existingItem.id,
+      employeeId: employee.id,
+      companyId,
+      assignedBy: userId
+    }))
+
+    // Create assignments, skipping any that might already exist
+    for (const assignment of assignments) {
+      try {
+        await prisma.evaluationItemAssignment.create({
+          data: assignment
+        })
+      } catch {
+        // Skip if assignment already exists (unique constraint)
+        console.log('Assignment already exists, skipping:', assignment)
+      }
+    }
+
+    // Reopen evaluations for all employees
+    const { reopenEvaluationsForNewItems } = await import('./evaluation-workflow')
+    const employeeIds = employees.map(emp => emp.id)
+    await reopenEvaluationsForNewItems(employeeIds, 'Company-wide item reactivated')
+
+  } 
+  // Handle department items: assign to department employees
+  else if (existingItem.level === 'department' && existingItem.assignedTo) {
+    const employees = await prisma.user.findMany({
+      where: {
+        companyId,
+        department: existingItem.assignedTo,
+        role: { in: ['employee', 'manager'] }
+      },
+      select: { id: true }
+    })
+
+    // Create assignments for department employees
+    const assignments = employees.map(employee => ({
+      evaluationItemId: existingItem.id,
+      employeeId: employee.id,
+      companyId,
+      assignedBy: userId
+    }))
+
+    // Create assignments, skipping any that might already exist
+    for (const assignment of assignments) {
+      try {
+        await prisma.evaluationItemAssignment.create({
+          data: assignment
+        })
+      } catch {
+        // Skip if assignment already exists (unique constraint)
+        console.log('Assignment already exists, skipping:', assignment)
+      }
+    }
+
+    // Reopen evaluations for department employees
+    const { reopenEvaluationsForNewItems } = await import('./evaluation-workflow')
+    const employeeIds = employees.map(emp => emp.id)
+    await reopenEvaluationsForNewItems(employeeIds, 'Department item reactivated')
+  }
 }
 
 /**

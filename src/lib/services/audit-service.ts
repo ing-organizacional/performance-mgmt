@@ -26,6 +26,7 @@ export type AuditAction =
   | 'archive'
   | 'bulk_archive'
   | 'unarchive'
+  | 'hr_override'
 
 export type EntityType = 
   | 'evaluation' 
