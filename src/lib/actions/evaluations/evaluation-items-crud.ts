@@ -161,7 +161,8 @@ async function handleCompanyWideAssignment(
   newItem: { id: string }, 
   userId: string, 
   companyId: string, 
-  activeCycle: { id: string; name: string }
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _activeCycle: { id: string; name: string }
 ) {
   try {
     // Get all employees in the company

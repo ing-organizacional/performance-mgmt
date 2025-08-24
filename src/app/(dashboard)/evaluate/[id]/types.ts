@@ -30,6 +30,7 @@ export interface EvaluateClientProps {
   evaluationStatus?: 'draft' | 'submitted' | 'completed'
   initialOverallRating?: number | null
   initialOverallComment?: string
+  isViewingOwnEvaluation: boolean
 }
 
 export type EvaluationStatus = 'draft' | 'submitted' | 'completed'

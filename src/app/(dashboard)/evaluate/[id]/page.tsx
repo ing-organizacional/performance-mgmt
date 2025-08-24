@@ -224,6 +224,7 @@ export default async function EvaluatePage({ params }: EvaluatePageProps) {
       evaluationStatus={evaluationStatus}
       initialOverallRating={overallRating}
       initialOverallComment={overallComment}
+      isViewingOwnEvaluation={session.user.id === employeeId}
     />
   )
 }

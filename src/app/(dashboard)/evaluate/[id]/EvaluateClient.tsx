@@ -16,7 +16,8 @@ export default function EvaluateClient({
   evaluationId: initialEvaluationId,
   evaluationStatus: initialEvaluationStatus = 'draft',
   initialOverallRating,
-  initialOverallComment = ''
+  initialOverallComment = '',
+  isViewingOwnEvaluation
 }: EvaluateClientProps) {
   const router = useRouter()
   const { t } = useLanguage()
@@ -90,6 +91,7 @@ export default function EvaluateClient({
         saveSuccess={evaluation.saveSuccess}
         isAllComplete={evaluation.isAllComplete}
         submitting={evaluation.submitting}
+        isViewingOwnEvaluation={isViewingOwnEvaluation}
         onBack={handleBackToList}
         onSubmitForApproval={handleSubmitForApproval}
         onUnlockEvaluation={evaluation.handleUnlockEvaluation}

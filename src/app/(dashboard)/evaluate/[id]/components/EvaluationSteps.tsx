@@ -13,6 +13,7 @@ interface EvaluationStepsProps {
   saveSuccess: boolean
   isAllComplete: boolean
   submitting: boolean
+  isViewingOwnEvaluation: boolean
   onBack: () => void
   onSubmitForApproval: () => void
   onUnlockEvaluation: () => void
@@ -29,6 +30,7 @@ export function EvaluationSteps({
   saveSuccess,
   isAllComplete,
   submitting,
+  isViewingOwnEvaluation,
   onBack,
   onSubmitForApproval,
   onUnlockEvaluation
@@ -113,7 +115,10 @@ export function EvaluationSteps({
               {evaluationStatus === 'submitted' && (
                 <div className="flex flex-col gap-2">
                   <div className="px-3 py-2 bg-amber-100 text-amber-800 text-sm font-medium rounded-lg text-center">
-                    {t.evaluations?.awaitingEmployeeApproval || 'Awaiting Approval'}
+                    {isViewingOwnEvaluation 
+                      ? (t.evaluations?.awaitingYourAcceptance || 'Awaiting your acceptance')
+                      : (t.evaluations?.awaitingEmployeeAcceptance || 'Awaiting employee acceptance')
+                    }
                   </div>
                   {userRole === 'hr' && (
                     <button

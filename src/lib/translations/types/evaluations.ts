@@ -22,6 +22,8 @@ export interface EvaluationsTranslations {
   evaluationSubmittedSuccess: string
   evaluationApprovedSuccess: string
   awaitingEmployeeApproval: string
+  awaitingYourAcceptance: string
+  awaitingEmployeeAcceptance: string
   evaluationCompleted: string
   unlocking: string
   unlock: string

@@ -16,6 +16,8 @@ export const evaluations: EvaluationsTranslations = {
   evaluationSubmittedSuccess: 'Evaluación enviada para aceptación del empleado',
   evaluationApprovedSuccess: '¡Evaluación aceptada exitosamente!',
   awaitingEmployeeApproval: 'Esperando tu aceptación',
+  awaitingYourAcceptance: 'Esperando tu aceptación',
+  awaitingEmployeeAcceptance: 'Esperando aceptación del empleado',
   evaluationCompleted: 'Evaluación Completada',
   unlocking: 'Desbloqueando...',
   unlock: 'Desbloquear',
