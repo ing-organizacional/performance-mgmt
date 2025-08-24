@@ -401,7 +401,7 @@ const getCachedEvaluationItemsForEmployee = unstable_cache(
     const orConditions = [
       // Company-wide items (automatically assigned to all employees)
       { level: 'company' },
-      // Individual assignments (for items explicitly assigned through the assignments interface)
+      // All items with explicit assignments (both individual and department items)
       {
         individualAssignments: {
           some: {
@@ -412,15 +412,7 @@ const getCachedEvaluationItemsForEmployee = unstable_cache(
       }
     ]
 
-    // Add department items if employee has a department
-    if (employee?.department) {
-      orConditions.push({
-        level: 'department',
-        assignedTo: employee.department
-      } as { level: string; assignedTo: string })
-    }
-
-    // Get evaluation items assigned to this employee or general company items
+    // Get evaluation items: company-wide items (auto-assigned) + items with explicit assignments
     return await prisma.evaluationItem.findMany({
       where: {
         companyId,
