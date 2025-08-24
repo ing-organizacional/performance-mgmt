@@ -610,7 +610,7 @@ async function seed() {
     else ratingQuality = 'normal'
 
     // Get items for this employee
-    const employeeItems = []
+    const employeeItems: Array<{id: string, title: string, description: string, type: string}> = []
     
     // Add company-wide items
     employeeItems.push(
@@ -619,40 +619,30 @@ async function seed() {
       { id: companyOKR2.id, title: companyOKR2.title, description: companyOKR2.description, type: 'okr' }
     )
 
-    // Add department-specific items
-    if (employee.department === 'Finance') {
-      employeeItems.push(
-        { id: financeOKR1.id, title: financeOKR1.title, description: financeOKR1.description, type: 'okr' },
-        { id: financeOKR2.id, title: financeOKR2.title, description: financeOKR2.description, type: 'okr' }
-      )
-    } else if (employee.department === 'Maintenance') {
-      employeeItems.push(
-        { id: maintenanceOKR1.id, title: maintenanceOKR1.title, description: maintenanceOKR1.description, type: 'okr' },
-        { id: maintenanceOKR2.id, title: maintenanceOKR2.title, description: maintenanceOKR2.description, type: 'okr' }
-      )
-    }
-
-    // Check for F&B individual assignments
-    if (employee.department === 'Food & Beverage') {
-      const individualAssignment = await prisma.evaluationItemAssignment.findFirst({
-        where: {
-          employeeId: employee.id,
-          companyId: company.id
-        },
-        include: {
-          evaluationItem: true
-        }
-      })
-      
-      if (individualAssignment) {
+    // Get ALL assigned items for this employee (department and individual assignments)
+    const allAssignments = await prisma.evaluationItemAssignment.findMany({
+      where: {
+        employeeId: employee.id,
+        companyId: company.id
+      },
+      include: {
+        evaluationItem: true
+      }
+    })
+    
+    // Add all assigned items (avoid duplicates with company items already added)
+    allAssignments.forEach(assignment => {
+      // Check if this item is already in the list (avoid duplicates)
+      const alreadyAdded = employeeItems.some(item => item.id === assignment.evaluationItem.id)
+      if (!alreadyAdded) {
         employeeItems.push({
-          id: individualAssignment.evaluationItem.id,
-          title: individualAssignment.evaluationItem.title,
-          description: individualAssignment.evaluationItem.description,
-          type: 'okr'
+          id: assignment.evaluationItem.id,
+          title: assignment.evaluationItem.title,
+          description: assignment.evaluationItem.description,
+          type: assignment.evaluationItem.type
         })
       }
-    }
+    })
 
     // Build evaluation items data
     const evaluationItemsData = employeeItems.map(item => {
