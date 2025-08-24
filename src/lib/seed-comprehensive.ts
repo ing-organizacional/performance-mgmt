@@ -463,11 +463,12 @@ async function seed() {
     { title: 'Customer Allergy Management', desc: 'Implement comprehensive allergy tracking and safety system' }
   ]
 
-  for (let i = 0; i < fbEmployees.length; i++) {
-    const employee = fbEmployees[i]
+  // Create all F&B department items
+  const createdFBItems = []
+  for (let i = 0; i < fbIndividualOKRs.length; i++) {
     const okr = fbIndividualOKRs[i]
     
-    // Create the manager-level OKR
+    // Create the department-level OKR
     const fbOKR = await prisma.evaluationItem.create({
       data: {
         companyId: company.id,
@@ -476,7 +477,7 @@ async function seed() {
         description: okr.desc,
         type: 'okr',
         level: 'department',
-        assignedTo: users['Food & Beverage_manager'].id,
+        assignedTo: 'Food & Beverage',
         createdBy: users['Food & Beverage_manager'].id,
         active: true,
         sortOrder: 20 + i,
@@ -484,18 +485,23 @@ async function seed() {
         deadlineSetBy: users['Food & Beverage_manager'].id
       }
     })
+    createdFBItems.push(fbOKR)
+  }
 
-    // Create individual assignment
-    await prisma.evaluationItemAssignment.create({
-      data: {
-        evaluationItemId: fbOKR.id,
-        employeeId: employee.id,
-        assignedBy: users['Food & Beverage_manager'].id,
-        companyId: company.id
-      }
+  // Create assignments for ALL F&B employees to ALL F&B department items
+  for (const item of createdFBItems) {
+    const fbAssignments = fbEmployees.map(employee => ({
+      evaluationItemId: item.id,
+      employeeId: employee.id,
+      companyId: company.id,
+      assignedBy: users['Food & Beverage_manager'].id
+    }))
+    
+    await prisma.evaluationItemAssignment.createMany({
+      data: fbAssignments
     })
   }
-  console.log('  ✅ Created 12 individual F&B OKRs')
+  console.log(`  ✅ Created F&B department OKRs: ${createdFBItems.length} × ${fbEmployees.length} = ${createdFBItems.length * fbEmployees.length} assignments`)
 
   // Create evaluations (except for HR employees)
   console.log('📝 Creating evaluations with varied statuses and ratings...')
@@ -557,9 +563,18 @@ async function seed() {
     const data = ratingMap[rating]
     const commentVariation = Math.floor(Math.random() * data.comments.length)
     
-    return {
-      rating: isComplete ? data.rating : (Math.random() > 0.5 ? data.rating : null),
-      comment: isComplete ? data.comments[commentVariation] : (Math.random() > 0.5 ? data.comments[commentVariation] : '')
+    // FIXED: Ensure completed evaluations always have complete data
+    if (isComplete) {
+      return {
+        rating: data.rating,
+        comment: data.comments[commentVariation]
+      }
+    } else {
+      // For drafts, randomly assign some data or leave empty
+      return {
+        rating: Math.random() > 0.5 ? data.rating : null,
+        comment: Math.random() > 0.5 ? data.comments[commentVariation] : ''
+      }
     }
   }
 
@@ -568,9 +583,24 @@ async function seed() {
   for (const employee of nonHREmployees) {
     evaluationCount++
     
-    // Determine evaluation type
-    const isComplete = evaluationCount % 3 === 0 // Every 3rd is complete
-    let status = isComplete ? 'completed' : 'draft'
+    // Determine evaluation type - realistic status distribution
+    let wasCompleted = false
+    let status: 'draft' | 'submitted' | 'completed'
+    
+    if (evaluationCount % 4 === 0) {
+      // ~25% completed evaluations
+      status = 'completed'
+      wasCompleted = true
+    } else if (evaluationCount % 7 === 0) {
+      // ~14% submitted evaluations (waiting for employee approval)
+      // Note: Submitted evaluations must have complete data per business rules
+      status = 'submitted'
+      wasCompleted = true // Submitted means manager completed it, waiting for employee approval
+    } else {
+      // ~61% draft evaluations (work in progress)
+      status = 'draft'
+      wasCompleted = false
+    }
     
     // Determine rating quality
     let ratingQuality: 'poor' | 'normal' | 'good' | 'excellent'
@@ -626,7 +656,8 @@ async function seed() {
 
     // Build evaluation items data
     const evaluationItemsData = employeeItems.map(item => {
-      const evalData = generateEvaluationData(ratingQuality, isComplete, employee.department === 'HR')
+      // Use wasCompleted to ensure data integrity for reopened evaluations
+      const evalData = generateEvaluationData(ratingQuality, wasCompleted, employee.department === 'HR')
       return {
         id: item.id,
         title: item.title,
@@ -638,7 +669,8 @@ async function seed() {
     })
 
     // Create the evaluation with new robust tracking fields
-    const overallData = generateEvaluationData(ratingQuality, isComplete, employee.department === 'HR')
+    // Use wasCompleted to ensure data integrity for reopened evaluations
+    const overallData = generateEvaluationData(ratingQuality, wasCompleted, employee.department === 'HR')
     
     // Determine completion count and reopened status for completed evaluations
     let completionCount = 0
@@ -648,18 +680,39 @@ async function seed() {
     let reopenedBy = null
     let reopenedReason = null
     
-    if (status === 'completed') {
-      completionCount = 1
+    if (status === 'completed' || status === 'submitted') {
+      if (status === 'completed') {
+        completionCount = 1
+      }
       
-      // 10% chance of being a reopened evaluation (to test the feature)
-      if (Math.random() < 0.1) {
+      // 20% chance of being a reopened evaluation (to test the feature), or guarantee at least one
+      if (Math.random() < 0.2 || (evaluationCount === 4)) { // Ensure we have at least one for testing
         isReopened = true
-        previousStatus = 'submitted'
+        // The previousStatus should be what it was before reopening
+        previousStatus = status // Store the original status (completed or submitted)
         reopenedAt = new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000) // Random time in last 7 days
         reopenedBy = hrManager.id
-        reopenedReason = evaluationCount % 2 === 0 ? 'New company-wide item added' : 'HR review required'
-        status = 'draft' // Reopened evaluations are back to draft
-        completionCount = 1 // But they were completed once before
+        // Use realistic reopening reasons based on actual system usage
+        const reopenReasons = [
+          'New company-wide item added',
+          'New department OKR/Competency added for ' + employee.department,
+          'Company-wide item reactivated',
+          'Department item reactivated',
+          'HR review required',
+          'Performance data update needed'
+        ]
+        reopenedReason = reopenReasons[evaluationCount % reopenReasons.length]
+        
+        // Reopened evaluations are back to draft status
+        status = 'draft'
+        
+        // Set wasCompleted for data generation purposes
+        wasCompleted = (previousStatus === 'completed')
+        
+        // Keep completion count if it was completed before
+        if (previousStatus === 'completed') {
+          completionCount = 1
+        }
       }
     }
     
@@ -687,9 +740,10 @@ async function seed() {
   }
   
   console.log(`  ✅ Created ${evaluationCount} evaluations (mixed statuses and ratings)`)
-  console.log('     - Completed evaluations: ~30%')
-  console.log('     - Draft evaluations: ~67%')
-  console.log('     - Reopened evaluations: ~3% (for testing)')
+  console.log('     - Completed evaluations: ~25%')
+  console.log('     - Submitted evaluations: ~14%')
+  console.log('     - Draft evaluations: ~61%')
+  console.log('     - Reopened evaluations: ~20% of completed/submitted (for testing)')
   console.log('     - No evaluations for HR department')
 
   // Summary

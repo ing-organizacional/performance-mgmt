@@ -79,9 +79,9 @@ export function AssignmentTabs({ activeTab, setActiveTab }: AssignmentTabsProps)
   }
 
   return (
-    <div ref={elementRef as React.RefObject<HTMLDivElement>} className="bg-white/90 backdrop-blur-md border-b border-gray-200/50 sticky top-[76px] md:top-[100px] z-40 shadow-sm">
-      <div className="max-w-8xl mx-auto px-4 md:px-6 lg:px-8">
-        <div className="flex justify-center lg:justify-start space-x-2 relative py-3 md:py-4">
+    <div ref={elementRef as React.RefObject<HTMLDivElement>} className="bg-white/90 backdrop-blur-md border-b border-gray-200/50 sticky top-[60px] md:top-[68px] z-40 shadow-sm">
+      <div className="max-w-8xl mx-auto px-3 md:px-4 lg:px-6">
+        <div className="flex justify-center lg:justify-start space-x-1.5 md:space-x-2 relative py-2 md:py-3">
           {/* Tab position indicator */}
           <div 
             className="absolute bottom-0 h-1 bg-gradient-to-r from-primary/80 to-primary rounded-full transition-all duration-300 ease-out"
@@ -95,15 +95,15 @@ export function AssignmentTabs({ activeTab, setActiveTab }: AssignmentTabsProps)
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`flex items-center gap-2 md:gap-3 px-3 md:px-6 py-2.5 md:py-3 min-h-[44px] font-semibold rounded-xl transition-all duration-200 active:scale-95 touch-manipulation shadow-sm border ${
+              className={`flex items-center gap-1.5 md:gap-2 px-2.5 md:px-4 py-2 md:py-2.5 min-h-[36px] md:min-h-[40px] font-medium rounded-lg transition-all duration-200 active:scale-95 touch-manipulation shadow-sm border ${
                 activeTab === tab
-                  ? 'bg-primary text-white shadow-lg shadow-primary/25 border-primary scale-105'
+                  ? 'bg-primary text-white shadow-md shadow-primary/25 border-primary scale-105'
                   : 'bg-white text-gray-600 hover:text-primary hover:bg-primary/5 hover:border-primary/20 hover:shadow-md border-gray-200'
               }`}
             >
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5">
                 {getBadgeIcon(tab)}
-                <span className="capitalize whitespace-nowrap text-xs md:text-sm lg:text-base">{getBadgeLabel(tab)}</span>
+                <span className="capitalize whitespace-nowrap text-xs md:text-sm">{getBadgeLabel(tab)}</span>
               </div>
             </button>
           ))}

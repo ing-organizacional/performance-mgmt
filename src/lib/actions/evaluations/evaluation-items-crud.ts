@@ -399,9 +399,9 @@ const getCachedEvaluationItemsForEmployee = unstable_cache(
 
     // Build OR conditions for items assigned to this employee
     const orConditions = [
-      // Company-wide items
+      // Company-wide items (automatically assigned to all employees)
       { level: 'company' },
-      // Individual assignments
+      // Individual assignments (for items explicitly assigned through the assignments interface)
       {
         individualAssignments: {
           some: {

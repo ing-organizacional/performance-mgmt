@@ -108,11 +108,11 @@ export function AssignmentGrid({
 
   if (activeTab === 'company') {
     return (
-      <div className="space-y-3 md:space-y-6">
+      <div className="space-y-2 md:space-y-3">
         {items.map((item) => (
-          <div key={item.id} className="bg-white rounded-xl md:rounded-2xl border border-gray-200/60 p-3 md:p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
+          <div key={item.id} className="bg-gray-50/50 rounded-lg border border-gray-200/60 p-3 md:p-4 shadow-sm hover:shadow-md transition-shadow duration-200">
             {/* Header Section with Icon and Type */}
-            <div className="flex items-center gap-3 md:gap-4 mb-3 md:mb-4">
+            <div className="flex items-center gap-2 md:gap-3 mb-2 md:mb-3">
               <div className={`w-8 h-8 md:w-12 md:h-12 rounded-lg md:rounded-xl flex items-center justify-center ${
                 item.type === 'okr' ? 'bg-primary/10' : 'bg-amber-50'
               }`}>
@@ -157,9 +157,9 @@ export function AssignmentGrid({
 
   if (activeTab === 'department') {
     return (
-      <div className="space-y-3 md:space-y-4">
+      <div className="space-y-2 md:space-y-3">
         {items.map((item) => (
-          <div key={item.id} className="bg-white rounded-xl md:rounded-2xl border border-gray-200 p-3 md:p-4 shadow-sm hover:shadow-md transition-shadow duration-200">
+          <div key={item.id} className="bg-gray-50/50 rounded-lg border border-gray-200 p-3 md:p-4 shadow-sm hover:shadow-md transition-shadow duration-200">
             {editingItem && editingItem.id === item.id ? (
               <ItemEditor
                 editingItem={editingItem}

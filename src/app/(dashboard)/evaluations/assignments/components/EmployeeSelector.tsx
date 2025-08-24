@@ -77,23 +77,23 @@ export function EmployeeSelector({
   }
 
   return (
-    <div className="bg-white rounded-xl md:rounded-2xl border border-gray-200/60 p-3 md:p-4 shadow-sm">
-      <div className="flex items-center justify-between mb-2 md:mb-3">
-        <h3 className="font-semibold text-sm md:text-base text-gray-900">{t.assignments.selectEmployeesForBatch}</h3>
+    <div className="space-y-2">
+      <div className="flex items-center justify-between mb-2">
+        <h3 className="font-medium text-sm text-gray-900">{t.assignments.selectEmployeesForBatch}</h3>
         <div className="flex items-center">
-          <span className="text-xs md:text-sm text-gray-600">{selectedEmployees.length} {t.common.selected}</span>
+          <span className="text-xs text-gray-600">{selectedEmployees.length} {t.common.selected}</span>
         </div>
       </div>
       
       {/* Select All Checkbox */}
       {employees.length > 1 && (
-        <label className="flex items-center space-x-3 md:space-x-4 p-2.5 md:p-3 mb-1.5 md:mb-2 min-h-[56px] md:min-h-[60px] rounded-lg bg-gray-50 border border-gray-200 cursor-pointer transition-all duration-150 touch-manipulation">
+        <label className="flex items-center space-x-2 md:space-x-3 p-2 md:p-2.5 mb-1 min-h-[44px] md:min-h-[48px] rounded-md bg-gray-50 border border-gray-200 cursor-pointer transition-all duration-150 touch-manipulation">
           <div className="relative">
             <input
               type="checkbox"
               checked={allSelected}
               onChange={allSelected ? onDeselectAll : onSelectAll}
-              className="w-4 h-4 md:w-5 md:h-5 text-blue-600 border-2 border-gray-300 rounded focus:ring-blue-500 focus:ring-2 transition-all duration-150"
+              className="w-4 h-4 text-blue-600 border-2 border-gray-300 rounded focus:ring-blue-500 focus:ring-2 transition-all duration-150"
               disabled={isPending}
             />
             {(allSelected || someSelected) && (
@@ -103,25 +103,25 @@ export function EmployeeSelector({
             )}
           </div>
           <div className="flex-1">
-            <div className="font-medium text-sm md:text-base text-gray-700">
+            <div className="font-medium text-sm text-gray-700">
               {allSelected ? t.common.deselectAll : t.common.selectAll}
             </div>
-            <div className="text-xs md:text-sm text-gray-500">
+            <div className="text-xs text-gray-500">
               {employees.length} {t.common.employees}
             </div>
           </div>
         </label>
       )}
 
-      <div className="space-y-1 md:space-y-1.5">
+      <div className="space-y-1">
         {employees.map((employee) => (
-          <label key={employee.id} className="flex items-center space-x-2.5 md:space-x-3 p-2.5 md:p-3 min-h-[56px] md:min-h-[60px] rounded-lg hover:bg-gray-50 active:bg-gray-100 cursor-pointer transition-all duration-150 touch-manipulation">
+          <label key={employee.id} className="flex items-center space-x-2 md:space-x-2.5 p-2 md:p-2.5 min-h-[44px] md:min-h-[48px] rounded-md hover:bg-gray-50 active:bg-gray-100 cursor-pointer transition-all duration-150 touch-manipulation">
             <div className="relative flex-shrink-0">
               <input
                 type="checkbox"
                 checked={selectedEmployees.includes(employee.id)}
                 onChange={() => onEmployeeSelection(employee.id)}
-                className="w-4 h-4 md:w-5 md:h-5 text-blue-600 border-2 border-gray-300 rounded focus:ring-blue-500 focus:ring-2 transition-all duration-150"
+                className="w-4 h-4 text-blue-600 border-2 border-gray-300 rounded focus:ring-blue-500 focus:ring-2 transition-all duration-150"
                 disabled={isPending}
               />
               {selectedEmployees.includes(employee.id) && (
@@ -132,7 +132,7 @@ export function EmployeeSelector({
             </div>
             <div className="flex-1 min-w-0">
               <div className="font-medium text-xs md:text-sm text-gray-900">{employee.name}</div>
-              <div className="text-xs text-gray-500 mb-1.5">
+              <div className="text-xs text-gray-500 mb-1">
                 {employee.email || employee.username} • {employee.department}
               </div>
               {/* Show filtered assigned items for this employee */}
@@ -205,25 +205,25 @@ export function EmployeeSelector({
                 )
               })()}
             </div>
-            {/* Show assignment count only on desktop when there are no visible badges, or always on desktop */}
-            <div className="hidden md:flex text-xs text-gray-500 text-right flex-shrink-0 flex-col">
-              <span className="font-medium text-sm md:text-base">{getItemCount(employee)}</span>
+            {/* Show assignment count only on desktop */}
+            <div className="hidden md:flex text-xs text-gray-500 text-right flex-shrink-0 flex-col items-end">
+              <span className="font-medium text-sm">{getItemCount(employee)}</span>
               <div className="text-xs leading-tight">{t.assignments.itemsAssigned}</div>
             </div>
           </label>
         ))}
       </div>
       {selectedEmployees.length > 0 && (
-        <div className="mt-3 md:mt-4 p-2.5 md:p-3 bg-blue-50 rounded-lg">
-          <p className="text-xs md:text-sm text-blue-700 font-medium">
+        <div className="mt-2 p-2 bg-blue-50 rounded-md">
+          <p className="text-xs text-blue-700 font-medium">
             {selectedEmployees.length} {t.assignments.employeesSelected}
           </p>
         </div>
       )}
       {confirmingUnassign && (
-        <div className="mt-3 md:mt-4 p-2.5 md:p-3 bg-orange-50 rounded-lg border border-orange-200">
-          <p className="text-xs md:text-sm text-orange-700 font-medium flex items-center gap-2">
-            <AlertTriangle className="h-4 w-4 flex-shrink-0" />
+        <div className="mt-2 p-2 bg-orange-50 rounded-md border border-orange-200">
+          <p className="text-xs text-orange-700 font-medium flex items-center gap-1.5">
+            <AlertTriangle className="h-3.5 w-3.5 flex-shrink-0" />
             {t.assignments.clickOrangeButtonConfirm}
           </p>
         </div>
@@ -233,9 +233,9 @@ export function EmployeeSelector({
       {userRole === 'manager' && employees.some(emp => 
         getFilteredAssignedItems(emp.assignedItems).some(itemId => isItemEvaluated(itemId, emp.id))
       ) && (
-        <div className="mt-3 md:mt-4 p-2.5 md:p-3 bg-blue-50 rounded-lg border border-blue-200">
-          <p className="text-xs md:text-sm text-blue-700 font-medium flex items-center gap-2">
-            <Lock className="h-4 w-4 flex-shrink-0" />
+        <div className="mt-2 p-2 bg-blue-50 rounded-md border border-blue-200">
+          <p className="text-xs text-blue-700 font-medium flex items-center gap-1.5">
+            <Lock className="h-3.5 w-3.5 flex-shrink-0" />
             {t.assignments.evaluatedItemsProtected}
           </p>
           <p className="text-xs text-blue-600 mt-1">

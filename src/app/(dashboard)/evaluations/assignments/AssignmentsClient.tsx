@@ -175,35 +175,35 @@ export default function AssignmentsClient({
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20">
-      {/* Desktop-First Professional Header */}
+      {/* Compact Professional Header */}
       <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-gray-200/50 shadow-sm">
-        <div className="max-w-8xl mx-auto px-4 md:px-6 lg:px-8 py-4 md:py-6">
+        <div className="max-w-8xl mx-auto px-3 md:px-4 lg:px-6 py-2 md:py-3">
           <div className="flex items-center justify-between">
             {/* Left Section - Navigation & Title */}
-            <div className="flex items-center gap-3 md:gap-6">
+            <div className="flex items-center gap-2 md:gap-4">
               <button
                 onClick={() => router.back()}
-                className="flex items-center justify-center min-w-[44px] min-h-[44px] bg-gray-100 text-gray-600 rounded-xl hover:bg-gray-200 hover:scale-105 active:scale-95 transition-all duration-200 touch-manipulation shadow-sm"
+                className="flex items-center justify-center min-w-[36px] min-h-[36px] md:min-w-[40px] md:min-h-[40px] bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 hover:scale-105 active:scale-95 transition-all duration-200 touch-manipulation shadow-sm"
                 title={t.common?.back || 'Go back'}
                 aria-label={t.common?.back || 'Go back'}
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                 </svg>
               </button>
               
               <div className="min-w-0">
-                <h1 className="text-lg md:text-2xl lg:text-3xl font-bold text-gray-900">
+                <h1 className="text-base md:text-lg lg:text-xl font-bold text-gray-900">
                   {t.assignments.assignmentManager || 'Assignment Manager'}
                 </h1>
-                <p className="text-xs md:text-sm text-gray-600 mt-0.5 md:mt-1 hidden sm:block">
+                <p className="text-xs text-gray-600 hidden sm:block">
                   {t.assignments.manageOKRsCompetencies || 'Manage OKRs and competencies for your team'}
                 </p>
               </div>
             </div>
 
             {/* Right Section - Language Switcher */}
-            <div className="flex items-center gap-4">
+            <div className="flex items-center">
               <LanguageSwitcher />
             </div>
           </div>
@@ -215,16 +215,16 @@ export default function AssignmentsClient({
 
       {/* Error Display */}
       {error && (
-        <div className="max-w-8xl mx-auto px-6 lg:px-8 mt-4">
-          <div className="bg-red-50 border border-red-200 rounded-xl p-4 shadow-sm">
+        <div className="max-w-8xl mx-auto px-3 md:px-4 lg:px-6 mt-2">
+          <div className="bg-red-50 border border-red-200 rounded-lg p-3 shadow-sm">
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <svg className="h-6 w-6 text-red-500" viewBox="0 0 20 20" fill="currentColor">
+                <svg className="h-5 w-5 text-red-500" viewBox="0 0 20 20" fill="currentColor">
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
                 </svg>
               </div>
-              <div className="ml-4">
-                <p className="text-sm font-semibold text-red-800">{error}</p>
+              <div className="ml-3">
+                <p className="text-sm font-medium text-red-800">{error}</p>
               </div>
               <div className="ml-auto">
                 <button
@@ -232,10 +232,10 @@ export default function AssignmentsClient({
                     assignmentHook.setError(null)
                     itemEditorHook.setError(null)
                   }}
-                  className="flex items-center justify-center min-w-[32px] min-h-[32px] text-red-400 hover:text-red-600 hover:bg-red-100 rounded-lg transition-all duration-200 touch-manipulation"
+                  className="flex items-center justify-center min-w-[28px] min-h-[28px] text-red-400 hover:text-red-600 hover:bg-red-100 rounded-md transition-all duration-200 touch-manipulation"
                 >
                   <span className="sr-only">Dismiss</span>
-                  <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                     <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
                   </svg>
                 </button>
@@ -246,19 +246,19 @@ export default function AssignmentsClient({
       )}
 
       {/* Main Content */}
-      <main className={`max-w-8xl mx-auto px-4 md:px-6 lg:px-8 py-4 md:py-8 min-h-[400px] ${isPending ? 'opacity-50 pointer-events-none' : ''}`}>
+      <main className={`max-w-8xl mx-auto px-3 md:px-4 lg:px-6 py-3 md:py-4 min-h-[300px] ${isPending ? 'opacity-50 pointer-events-none' : ''}`}>
         
         {/* Company Tab - Read Only */}
         {activeTab === 'company' && (
-          <div className="space-y-4 md:space-y-8 animate-in fade-in duration-300">
-            <div className="bg-white rounded-xl md:rounded-2xl border border-gray-200/60 shadow-sm p-4 md:p-8">
-              <div className="flex items-center gap-3 md:gap-4 mb-4 md:mb-6">
-                <div className="w-8 h-8 md:w-12 md:h-12 bg-primary/10 rounded-lg md:rounded-xl flex items-center justify-center">
+          <div className="space-y-3 md:space-y-4 animate-in fade-in duration-300">
+            <div className="bg-white rounded-lg md:rounded-xl border border-gray-200/60 shadow-sm p-3 md:p-4">
+              <div className="flex items-center gap-2 md:gap-3 mb-3 md:mb-4">
+                <div className="w-6 h-6 md:w-8 md:h-8 bg-primary/10 rounded-md md:rounded-lg flex items-center justify-center">
                   {getBadgeIcon('company')}
                 </div>
                 <div>
-                  <h3 className="text-lg md:text-xl font-bold text-gray-900">{t.assignments.companyWideItems || 'Company-Wide Items'}</h3>
-                  <p className="text-xs md:text-sm text-gray-600 mt-0.5 md:mt-1">
+                  <h3 className="text-sm md:text-base lg:text-lg font-bold text-gray-900">{t.assignments.companyWideItems || 'Company-Wide Items'}</h3>
+                  <p className="text-xs text-gray-600 hidden sm:block">
                     {t.assignments.companyWideDescription || 'Manage company-wide OKRs and competencies'}
                   </p>
                 </div>
@@ -290,22 +290,22 @@ export default function AssignmentsClient({
 
         {/* Department Tab - Batch Assignment */}
         {activeTab === 'department' && (
-          <div className="space-y-4 md:space-y-8 animate-in fade-in duration-300">
-            <div className="bg-white rounded-xl md:rounded-2xl border border-gray-200/60 shadow-sm p-4 md:p-8">
-              <div className="flex items-center gap-3 md:gap-4 mb-4 md:mb-6">
-                <div className="w-8 h-8 md:w-12 md:h-12 bg-green-50 rounded-lg md:rounded-xl flex items-center justify-center">
+          <div className="space-y-3 md:space-y-4 animate-in fade-in duration-300">
+            <div className="bg-white rounded-lg md:rounded-xl border border-gray-200/60 shadow-sm p-3 md:p-4">
+              <div className="flex items-center gap-2 md:gap-3 mb-3 md:mb-4">
+                <div className="w-6 h-6 md:w-8 md:h-8 bg-green-50 rounded-md md:rounded-lg flex items-center justify-center">
                   {getBadgeIcon('department')}
                 </div>
                 <div>
-                  <h3 className="text-lg md:text-xl font-bold text-gray-900">{t.assignments.departmentLevelAssignments || 'Department-Level Assignments'}</h3>
-                  <p className="text-xs md:text-sm text-gray-600 mt-0.5 md:mt-1">
+                  <h3 className="text-sm md:text-base lg:text-lg font-bold text-gray-900">{t.assignments.departmentLevelAssignments || 'Department-Level Assignments'}</h3>
+                  <p className="text-xs text-gray-600 hidden sm:block">
                     {t.assignments.departmentDescription || 'Create and assign department-specific items'}
                   </p>
                 </div>
               </div>
 
               {/* Create New Section */}
-              <div className="mb-4 md:mb-8">
+              <div className="mb-3 md:mb-4">
                 <BulkActions
                   isPending={isPending}
                   onCreateNew={handleCreateNew}
@@ -315,7 +315,7 @@ export default function AssignmentsClient({
 
             {/* Create New Form */}
             {itemEditorHook.creatingNew && itemEditorHook.editingItem && itemEditorHook.editingItem.id === 'new' && (
-              <div className="bg-white rounded-xl md:rounded-2xl border border-gray-200/60 shadow-sm p-4 md:p-8">
+              <div className="bg-white rounded-lg md:rounded-xl border border-gray-200/60 shadow-sm p-3 md:p-4">
                 <ItemEditor
                   editingItem={itemEditorHook.editingItem}
                   newItemType={itemEditorHook.newItemType}
@@ -333,7 +333,7 @@ export default function AssignmentsClient({
             )}
             
             {/* Employee Selection */}
-            <div className="bg-white rounded-xl md:rounded-2xl border border-gray-200/60 shadow-sm p-4 md:p-8">
+            <div className="bg-white rounded-lg md:rounded-xl border border-gray-200/60 shadow-sm p-3 md:p-4">
               <EmployeeSelector
                 employees={employees}
                 evaluationItems={evaluationItems}
@@ -354,7 +354,7 @@ export default function AssignmentsClient({
             </div>
 
             {/* Department Items */}
-            <div className="bg-white rounded-xl md:rounded-2xl border border-gray-200/60 shadow-sm p-4 md:p-8">
+            <div className="bg-white rounded-lg md:rounded-xl border border-gray-200/60 shadow-sm p-3 md:p-4">
               <AssignmentGrid
                 items={filteredItems}
                 employees={employees}
